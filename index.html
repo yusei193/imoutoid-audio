@@ -142,7 +142,7 @@
   .btn-menu { top: 3px; left: 50%; transform: translateX(-50%); }
   .btn-prev { left: 4px; top: 50%; transform: translateY(-50%); font-size: 12px; }
   .btn-next { right: 4px; top: 50%; transform: translateY(-50%); font-size: 12px; }
-  .btn-play { bottom: 3px; left: 50%; transform: translateX(-50%); font-size: 11px; }
+  .btn-back { bottom: 3px; left: 50%; transform: translateX(-50%); font-size: 10.5px; }
   .center-btn {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
     width: 58px; height: 58px; border-radius: 50%;
@@ -150,6 +150,8 @@
     border: 1px solid #aeb5bf;
     box-shadow: inset 0 1px 2px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.08);
     cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #374151; letter-spacing: 0.5px;
   }
   .center-btn:active { background: linear-gradient(145deg, #dfe3e8, #c4cad2); }
   .reset {
@@ -188,8 +190,8 @@
       <button class="wheel-btn btn-menu" id="btnMenu">MENU</button>
       <button class="wheel-btn btn-prev" id="btnPrev">|&#9664;&#9664;</button>
       <button class="wheel-btn btn-next" id="btnNext">&#9654;&#9654;|</button>
-      <button class="wheel-btn btn-play" id="btnPlay">&#9654;II</button>
-      <button class="center-btn" id="btnCenter" aria-label="select"></button>
+      <button class="wheel-btn btn-back" id="btnBack">&#x623B;&#x308B;</button>
+      <button class="center-btn" id="btnCenter" aria-label="再生・停止">&#9654;II</button>
     </div>
   </div>
   <button class="reset" id="btnReset" aria-label="位置をリセット" title="位置をリセット">&#8635;</button>
@@ -1362,15 +1364,12 @@
   }
 
   // ---- wheel buttons ----
-  document.getElementById("btnMenu").addEventListener("click", function () {
+  function goBack() {
     if (mode === "play") { mode = "list"; render(); }
     else if (mode === "list") { mode = "cat"; render(); }
-  });
-  document.getElementById("btnPlay").addEventListener("click", function () {
-    if (mode === "play") { togglePlay(); }
-    else if (mode === "list") { mode = "play"; startTrack(true); }
-    else { mode = "list"; trackIdx = 0; render(); }
-  });
+  }
+  document.getElementById("btnMenu").addEventListener("click", goBack);
+  document.getElementById("btnBack").addEventListener("click", goBack);
   document.getElementById("btnCenter").addEventListener("click", function () {
     if (mode === "play") { togglePlay(); }
     else if (mode === "list") { mode = "play"; startTrack(true); }
