@@ -5,16 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; padding: 0; }
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
   body {
-    padding: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
     background: transparent;
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Sans", sans-serif;
-    user-select: none;
+    user-select: none; -webkit-user-select: none;
+  }
+  .stage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
   }
   .ipod {
     width: 300px;
@@ -24,7 +28,12 @@
     padding: 16px 14px 20px;
     box-shadow: 0 14px 30px rgba(0,0,0,0.28), inset 0 2px 3px rgba(255,255,255,0.95), inset 0 -2px 6px rgba(0,0,0,0.14);
     border: 1px solid #b3bac4;
+    touch-action: none;
+    cursor: grab;
+    will-change: transform;
+    position: relative;
   }
+  .ipod.dragging { cursor: grabbing; box-shadow: 0 20px 38px rgba(0,0,0,0.34), inset 0 2px 3px rgba(255,255,255,0.95), inset 0 -2px 6px rgba(0,0,0,0.14); }
   .screen {
     background: #eef4f8;
     border: 3px solid #1e242b;
@@ -35,6 +44,7 @@
     overflow: hidden;
     box-shadow: inset 0 2px 7px rgba(0,0,0,0.22);
     position: relative;
+    cursor: default;
   }
   .topbar {
     background: linear-gradient(#eaf1f8, #c3d3e4);
@@ -51,11 +61,11 @@
   }
   .topbar .tt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .topbar .rt { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
-  .state { font-size: 9px; color: #28465f; letter-spacing: -0.5px; }
+  .state { font-size: 9px; color: #28465f; letter-spacing: -0.5px; min-width: 10px; text-align: right; }
   .battery { width: 17px; height: 8px; border: 1px solid #2b4560; border-radius: 1.5px; padding: 1px; }
   .battery::after { content: ""; display: block; width: 100%; height: 100%; background: #38a35a; }
   .view { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-  .list { flex: 1; overflow-y: auto; margin: 0; padding: 0; list-style: none; scrollbar-width: thin; }
+  .list { flex: 1; overflow-y: auto; margin: 0; padding: 0; list-style: none; scrollbar-width: thin; touch-action: pan-y; }
   .list::-webkit-scrollbar { width: 4px; }
   .list::-webkit-scrollbar-thumb { background: #a8b9cc; border-radius: 2px; }
   .item {
@@ -74,7 +84,7 @@
   .item-arrow { font-size: 9px; opacity: 0.55; flex-shrink: 0; }
   .item.active { background: linear-gradient(#4b90e1, #2667b6); color: #fff; }
   .item.active .item-arrow { opacity: 1; }
-  .player { flex: 1; padding: 8px 9px; display: flex; flex-direction: column; background: #f6fafd; }
+  .player { flex: 1; padding: 8px 9px 6px; display: flex; flex-direction: column; background: #f6fafd; }
   .np-head { display: flex; justify-content: space-between; font-size: 9.5px; color: #5a7088; font-weight: 600; }
   .np-title {
     font-size: 12.5px;
@@ -91,23 +101,24 @@
   .np-status { font-size: 9px; color: #7a8ea3; margin-top: 3px; min-height: 11px; }
   .np-bar {
     margin-top: 8px;
-    height: 9px;
+    height: 11px;
     border: 1px solid #91a8bf;
     border-radius: 3px;
     background: #dfe9f2;
     overflow: hidden;
     cursor: pointer;
     position: relative;
+    touch-action: none;
   }
-  .np-fill { height: 100%; width: 0%; background: linear-gradient(#63a6ea, #2a6cbc); transition: width 0.2s linear; }
+  .np-fill { height: 100%; width: 0%; background: linear-gradient(#63a6ea, #2a6cbc); }
   .np-times { display: flex; justify-content: space-between; font-size: 9px; color: #4a6078; margin-top: 3px; font-variant-numeric: tabular-nums; }
-  .np-icons { margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 14px; padding-bottom: 2px; }
+  .np-icons { margin-top: auto; display: flex; align-items: center; justify-content: center; padding-bottom: 2px; }
   .np-toggle {
-    width: 44px; height: 44px; border-radius: 50%;
+    width: 46px; height: 46px; border-radius: 50%;
     border: 1px solid #a9b6c4;
     background: radial-gradient(circle at 35% 30%, #ffffff, #dde3ea 70%, #c6cdd6);
     box-shadow: inset 0 1px 2px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.12);
-    font-size: 16px;
+    font-size: 15px;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     color: #17293b;
@@ -119,6 +130,8 @@
     position: relative;
     box-shadow: 0 3px 9px rgba(0,0,0,0.15), inset 0 0 3px rgba(0,0,0,0.16);
     border: 1px solid #ccd2da;
+    touch-action: manipulation;
+    cursor: default;
   }
   .wheel-btn {
     position: absolute; background: none; border: none; color: #6b7280;
@@ -139,24 +152,47 @@
     cursor: pointer;
   }
   .center-btn:active { background: linear-gradient(145deg, #dfe3e8, #c4cad2); }
+  .reset {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid #c3cad3;
+    background: rgba(255,255,255,0.72);
+    color: #5b6a7a;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    opacity: 0.75;
+  }
+  .reset:active { background: #fff; opacity: 1; }
 </style>
 </head>
 <body>
-<div class="ipod">
-  <div class="screen">
-    <div class="topbar">
-      <span class="tt" id="headerTitle">imoutoid archive</span>
-      <span class="rt"><span class="state" id="stateIcon"></span><span class="battery"></span></span>
+<div class="stage" id="stage">
+  <div class="ipod" id="ipod">
+    <div class="screen">
+      <div class="topbar">
+        <span class="tt" id="headerTitle">imoutoid archive</span>
+        <span class="rt"><span class="state" id="stateIcon"></span><span class="battery"></span></span>
+      </div>
+      <div class="view" id="view"></div>
     </div>
-    <div class="view" id="view"></div>
+    <div class="wheel">
+      <button class="wheel-btn btn-menu" id="btnMenu">MENU</button>
+      <button class="wheel-btn btn-prev" id="btnPrev">|&#9664;&#9664;</button>
+      <button class="wheel-btn btn-next" id="btnNext">&#9654;&#9654;|</button>
+      <button class="wheel-btn btn-play" id="btnPlay">&#9654;II</button>
+      <button class="center-btn" id="btnCenter" aria-label="select"></button>
+    </div>
   </div>
-  <div class="wheel">
-    <button class="wheel-btn btn-menu" id="btnMenu">MENU</button>
-    <button class="wheel-btn btn-prev" id="btnPrev">|&#9664;&#9664;</button>
-    <button class="wheel-btn btn-next" id="btnNext">&#9654;&#9654;|</button>
-    <button class="wheel-btn btn-play" id="btnPlay">&#9654;II</button>
-    <button class="center-btn" id="btnCenter" aria-label="select"></button>
-  </div>
+  <button class="reset" id="btnReset" aria-label="位置をリセット" title="位置をリセット">&#8635;</button>
 </div>
 
 <script>
@@ -1069,7 +1105,6 @@
     return m + ":" + ("0" + s).slice(-2);
   }
   function catName() { return categories[catIdx]; }
-  function catKey() { return catName().indexOf("1") >= 0 ? "s1" : "s2"; }
   function tracks() { return DB[catName()]; }
   function track() { return tracks()[trackIdx]; }
 
@@ -1094,9 +1129,10 @@
       (function (idx) {
         var a = new Audio();
         a.preload = "metadata";
+        a.muted = true;
         a.addEventListener("loadedmetadata", function () {
           durations[idx] = a.duration || 0;
-          render();
+          if (mode === "play") { updateProgress(); }
         });
         a.src = parts[idx];
         prefetch.push(a);
@@ -1110,16 +1146,16 @@
     durations[partIdx] = audio.duration || durations[partIdx] || 0;
   }
 
-  audio.addEventListener("loadedmetadata", function () { cacheDurations(); render(); });
-  audio.addEventListener("durationchange", function () { cacheDurations(); render(); });
-  audio.addEventListener("timeupdate", function () { updateProgress(); });
-  audio.addEventListener("play", function () { playing = true; statusMsg = ""; paintState(); });
+  audio.addEventListener("loadedmetadata", function () { cacheDurations(); if (mode === "play") updateProgress(); });
+  audio.addEventListener("durationchange", function () { cacheDurations(); if (mode === "play") updateProgress(); });
+  audio.addEventListener("timeupdate", function () { if (mode === "play") updateProgress(); });
+  audio.addEventListener("play", function () { playing = true; statusMsg = ""; paintState(); paintStatus(); });
   audio.addEventListener("pause", function () { playing = false; paintState(); });
-  audio.addEventListener("waiting", function () { statusMsg = "読み込み中…"; paintStatus(); });
+  audio.addEventListener("waiting", function () { statusMsg = "\u8aad\u307f\u8fbc\u307f\u4e2d\u2026"; paintStatus(); });
   audio.addEventListener("playing", function () { statusMsg = ""; paintStatus(); });
   audio.addEventListener("error", function () {
     playing = false;
-    statusMsg = "この曲は再生できませんでした";
+    statusMsg = "\u3053\u306e\u66f2\u306f\u518d\u751f\u3067\u304d\u307e\u305b\u3093\u3067\u3057\u305f";
     paintStatus(); paintState();
   });
   audio.addEventListener("ended", function () {
@@ -1128,13 +1164,14 @@
       partIdx++;
       audio.src = parts[partIdx];
       audio.load();
-      audio.play().catch(function () {});
-      render();
+      var p = audio.play();
+      if (p && p.catch) p.catch(function () {});
+      if (mode === "play") render();
     } else if (trackIdx < tracks().length - 1) {
       advance(1, true);
     } else {
       playing = false;
-      statusMsg = "この一覧の最後まで再生しました";
+      statusMsg = "\u3053\u306e\u4e00\u89a7\u306e\u6700\u5f8c\u307e\u3067\u518d\u751f\u3057\u307e\u3057\u305f";
       render();
     }
   });
@@ -1143,8 +1180,9 @@
     resetParts(track());
     render();
     if (autoplay) {
-      audio.play().catch(function () {
-        statusMsg = "再生開始にはもう一度タップしてください";
+      var p = audio.play();
+      if (p && p.catch) p.catch(function () {
+        statusMsg = "\u518d\u751f\u958b\u59cb\u306b\u306f\u3082\u3046\u4e00\u5ea6\u30bf\u30c3\u30d7\u3057\u3066\u304f\u3060\u3055\u3044";
         paintStatus();
       });
     }
@@ -1159,22 +1197,26 @@
 
   function togglePlay() {
     if (!audio.src) { startTrack(true); return; }
-    if (audio.paused) audio.play().catch(function () {}); else audio.pause();
+    if (audio.paused) { var p = audio.play(); if (p && p.catch) p.catch(function () {}); }
+    else audio.pause();
   }
 
   function paintState() {
-    stateIcon.textContent = playing ? "▶" : (audio.src ? "II" : "");
+    stateIcon.textContent = playing ? "\u25B6" : (audio.src ? "II" : "");
     var icon = document.getElementById("npIcon");
-    if (icon) icon.textContent = playing ? "❙❙" : "▶";
+    if (icon) icon.textContent = playing ? "\u2759\u2759" : "\u25B6";
   }
   function paintStatus() {
     var el = document.getElementById("npStatus");
     if (el) el.textContent = statusMsg;
   }
 
+  var seeking = false;
+
   function updateProgress() {
     var fill = document.getElementById("npFill");
     if (!fill) return;
+    if (seeking) return;
     var total = totalDuration();
     var cur = elapsed();
     if (!total) {
@@ -1186,10 +1228,26 @@
     var e = document.getElementById("npElapsed"), t = document.getElementById("npTotal");
     if (e) e.textContent = fmt(cur);
     if (t) t.textContent = total ? fmt(total) : "--:--";
+    if (parts.length > 1) {
+      var pl = document.getElementById("npPart");
+      if (pl) pl.textContent = "\u30d1\u30fc\u30c8 " + (partIdx + 1) + "/" + parts.length;
+    }
+  }
+
+  function paintAtRatio(r) {
+    var fill = document.getElementById("npFill");
+    if (fill) fill.style.width = (Math.min(1, Math.max(0, r)) * 100).toFixed(2) + "%";
+    var total = totalDuration();
+    var e = document.getElementById("npElapsed"), t = document.getElementById("npTotal");
+    if (total) {
+      if (e) e.textContent = fmt(total * r);
+      if (t) t.textContent = fmt(total);
+    }
   }
 
   function seekToRatio(r) {
     if (!audio.src) return;
+    r = Math.min(1, Math.max(0, r));
     var total = totalDuration();
     if (!total) {
       if (audio.duration) audio.currentTime = audio.duration * r;
@@ -1209,13 +1267,13 @@
       audio.load();
       audio.addEventListener("loadedmetadata", function once() {
         audio.removeEventListener("loadedmetadata", once);
-        audio.currentTime = within;
-        audio.play().catch(function () {});
+        audio.currentTime = Math.min(within, Math.max(0, (audio.duration || within) - 0.2));
+        var p = audio.play(); if (p && p.catch) p.catch(function () {});
       });
     } else {
       audio.currentTime = within;
+      if (audio.paused) { var p = audio.play(); if (p && p.catch) p.catch(function () {}); }
     }
-    updateProgress();
   }
 
   function render() {
@@ -1226,8 +1284,8 @@
       categories.forEach(function (c, i) {
         var li = document.createElement("li");
         li.className = "item" + (i === catIdx ? " active" : "");
-        li.innerHTML = '<span class="item-text">' + esc(c) + '</span><span class="item-arrow">▶</span>';
-        li.addEventListener("click", function () { catIdx = i; trackIdx = 0; mode = "list"; render(); });
+        li.innerHTML = '<span class="item-text">' + esc(c) + '</span><span class="item-arrow">\u25B6</span>';
+        li.addEventListener("click", function () { if (suppressClick()) return; catIdx = i; trackIdx = 0; mode = "list"; render(); });
         ul.appendChild(li);
       });
       view.innerHTML = "";
@@ -1239,8 +1297,8 @@
       tracks().forEach(function (tr, i) {
         var li = document.createElement("li");
         li.className = "item" + (i === trackIdx ? " active" : "");
-        li.innerHTML = '<span class="item-text">' + (i + 1) + ". " + esc(tr.t) + '</span><span class="item-arrow">▶</span>';
-        li.addEventListener("click", function () { trackIdx = i; mode = "play"; startTrack(true); });
+        li.innerHTML = '<span class="item-text">' + (i + 1) + ". " + esc(tr.t) + '</span><span class="item-arrow">\u25B6</span>';
+        li.addEventListener("click", function () { if (suppressClick()) return; trackIdx = i; mode = "play"; startTrack(true); });
         ul2.appendChild(li);
       });
       view.innerHTML = "";
@@ -1250,7 +1308,7 @@
     } else {
       var tr = track();
       headerTitle.textContent = (trackIdx + 1) + " of " + tracks().length;
-      var partLine = parts.length > 1 ? '<span class="np-sub">パート ' + (partIdx + 1) + "/" + parts.length + "</span>" : "";
+      var partLine = parts.length > 1 ? '<span class="np-sub" id="npPart">\u30d1\u30fc\u30c8 ' + (partIdx + 1) + "/" + parts.length + "</span>" : "";
       view.innerHTML =
         '<div class="player">' +
           '<div class="np-head"><span>' + esc(catName().split(" ")[0]) + "</span>" + partLine + "</div>" +
@@ -1260,15 +1318,35 @@
             '<div class="np-bar" id="npBar"><div class="np-fill" id="npFill"></div></div>' +
             '<div class="np-times"><span id="npElapsed">0:00</span><span id="npTotal">--:--</span></div>' +
           "</div>" +
-          '<div class="np-icons"><button class="np-toggle" id="npIcon">' + (playing ? "❙❙" : "▶") + "</button></div>" +
+          '<div class="np-icons"><button class="np-toggle" id="npIcon">' + (playing ? "\u2759\u2759" : "\u25B6") + "</button></div>" +
         "</div>";
       var bar = document.getElementById("npBar");
-      bar.addEventListener("click", function (ev) {
-        var r = ev.currentTarget.getBoundingClientRect();
-        seekToRatio(Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width)));
+      bar.addEventListener("pointerdown", function (ev) {
+        ev.preventDefault();
+        seeking = true;
+        try { bar.setPointerCapture(ev.pointerId); } catch (e) {}
+        var r = ratioFromEvent(ev);
+        paintAtRatio(r);
+        seekToRatio(r);
       });
+      bar.addEventListener("pointermove", function (ev) {
+        if (!seeking) return;
+        ev.preventDefault();
+        var r = ratioFromEvent(ev);
+        paintAtRatio(r);
+        seekToRatio(r);
+      });
+      function endSeek(ev) {
+        if (!seeking) return;
+        seeking = false;
+        try { bar.releasePointerCapture(ev.pointerId); } catch (e) {}
+        updateProgress();
+      }
+      bar.addEventListener("pointerup", endSeek);
+      bar.addEventListener("pointercancel", endSeek);
       document.getElementById("npIcon").addEventListener("click", function (ev) {
         ev.stopPropagation();
+        if (suppressClick()) return;
         togglePlay();
       });
       updateProgress();
@@ -1276,7 +1354,14 @@
     }
   }
 
-  // Wheel
+  function ratioFromEvent(ev) {
+    var bar = document.getElementById("npBar");
+    if (!bar) return 0;
+    var r = bar.getBoundingClientRect();
+    return Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width));
+  }
+
+  // ---- wheel buttons ----
   document.getElementById("btnMenu").addEventListener("click", function () {
     if (mode === "play") { mode = "list"; render(); }
     else if (mode === "list") { mode = "cat"; render(); }
@@ -1302,6 +1387,91 @@
     else { advance(1, true); }
   });
 
+  // ---- drag the iPod around the embed ----
+  var ipod = document.getElementById("ipod");
+  var stage = document.getElementById("stage");
+  var pos = { x: 0, y: 0 };
+  var base = null;
+  var drag = null;
+  var justDragged = false;
+
+  function suppressClick() {
+    return justDragged;
+  }
+
+  function measure() {
+    var prev = ipod.style.transform;
+    ipod.style.transform = "none";
+    var r = ipod.getBoundingClientRect();
+    base = { left: r.left, top: r.top, width: r.width, height: r.height };
+    ipod.style.transform = prev;
+  }
+
+  function clamp(v, min, max) {
+    if (max < min) return (min + max) / 2;
+    return Math.min(max, Math.max(min, v));
+  }
+
+  function setPos(x, y) {
+    if (!base) measure();
+    var s = stage.getBoundingClientRect();
+    var m = 2;
+    var minX = s.left + m - base.left;
+    var maxX = s.right - m - (base.left + base.width);
+    var minY = s.top + m - base.top;
+    var maxY = s.bottom - m - (base.top + base.height);
+    pos.x = clamp(x, minX, maxX);
+    pos.y = clamp(y, minY, maxY);
+    ipod.style.transform = "translate(" + pos.x + "px," + pos.y + "px)";
+  }
+
+  ipod.addEventListener("pointerdown", function (ev) {
+    var t = ev.target;
+    if (t.closest && t.closest(".wheel, .np-bar, button")) return;
+    if (ev.button !== undefined && ev.button !== 0) return;
+    drag = { id: ev.pointerId, sx: ev.clientX, sy: ev.clientY, ox: pos.x, oy: pos.y, moved: false };
+    try { ipod.setPointerCapture(ev.pointerId); } catch (e) {}
+    ipod.classList.add("dragging");
+  });
+
+  ipod.addEventListener("pointermove", function (ev) {
+    if (!drag || ev.pointerId !== drag.id) return;
+    var dx = ev.clientX - drag.sx, dy = ev.clientY - drag.sy;
+    if (!drag.moved && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+      drag.moved = true;
+      justDragged = true;
+    }
+    if (drag.moved) {
+      ev.preventDefault();
+      setPos(drag.ox + dx, drag.oy + dy);
+    }
+  });
+
+  function endDrag(ev) {
+    if (!drag) return;
+    try { ipod.releasePointerCapture(drag.id); } catch (e) {}
+    ipod.classList.remove("dragging");
+    var moved = drag.moved;
+    drag = null;
+    if (moved) setTimeout(function () { justDragged = false; }, 80);
+  }
+  ipod.addEventListener("pointerup", endDrag);
+  ipod.addEventListener("pointercancel", endDrag);
+
+  document.getElementById("btnReset").addEventListener("click", function () {
+    pos.x = 0; pos.y = 0;
+    measure();
+    ipod.style.transition = "transform 0.25s ease";
+    ipod.style.transform = "translate(0px,0px)";
+    setTimeout(function () { ipod.style.transition = ""; }, 280);
+  });
+
+  window.addEventListener("resize", function () {
+    measure();
+    setPos(pos.x, pos.y);
+  });
+
+  measure();
   render();
 })();
 </script>
