@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<!--
+  imoutoid informal archive / Radio ページ用 埋め込みコード（直接再生プレイヤー版）
+  推奨サイズ: 幅 100%（最大 900px 程度） / 高さ 660px 前後
+  FMチューナー風の盤面。番組を選ぶとその場で再生・一時停止・シークできます。
+-->
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RADIO / imoutoid informal archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=New+Tegomin&family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --px:'Press Start 2P', monospace;
+    --jp:'New Tegomin', 'Hiragino Mincho ProN', serif;
+    --dot:'DotGothic16', 'New Tegomin', monospace;
+    --cyan:#00ffff;
+    --amber:#ffb347;
+    --red:#ff3b30;
+    --green:#3cff8e;
+    --panel:#05070a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:transparent;}
+  body{
+    font-family:var(--jp);
+    color:#e8f4f6;
+    padding:9px 12px 10px;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    position:relative;
+    width:100%; max-width:860px; margin:0 auto;
+    padding:clamp(14px,2.6vw,22px);
+    background:linear-gradient(180deg, rgba(3,6,10,.90), rgba(3,6,10,.72) 60%, rgba(3,6,10,.90));
+    border:1px solid rgba(0,255,255,.2);
+    box-shadow:0 0 0 1px rgba(0,255,255,.06) inset, 0 20px 55px rgba(0,0,0,.6);
+    overflow:hidden;
+  }
+  .wrap::after{
+    content:"";
+    position:absolute; inset:0; pointer-events:none;
+    background:repeating-linear-gradient(to bottom, rgba(255,255,255,.04) 0 1px, transparent 1px 3px);
+    animation:scan 7s linear infinite;
+  }
+  @keyframes scan{ from{background-position-y:0;} to{background-position-y:48px;} }
+
+  .layer{position:relative; z-index:1;}
+
+  /* ==== ヘッダー ==== */
+  .hud{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    font-family:var(--px); font-size:clamp(7px,1.2vw,10px);
+    letter-spacing:.12em; color:rgba(0,255,255,.8);
+  }
+  .lamp{
+    display:inline-flex; align-items:center; gap:7px;
+    padding:5px 9px;
+    border:1px solid rgba(140,160,170,.45);
+    color:rgba(180,200,210,.55);
+    transition:color .3s, border-color .3s, text-shadow .3s;
+  }
+  .lamp i{
+    width:8px; height:8px; border-radius:50%;
+    background:rgba(150,170,180,.5);
+    box-shadow:none;
+    transition:background .3s, box-shadow .3s;
+  }
+  .lamp.tuning{ color:var(--amber); border-color:rgba(255,179,71,.6); text-shadow:0 0 10px rgba(255,179,71,.55); }
+  .lamp.tuning i{ background:var(--amber); box-shadow:0 0 10px var(--amber); animation:blink 1s steps(2,end) infinite; }
+  .lamp.onair{ color:var(--red); border-color:rgba(255,59,48,.6); text-shadow:0 0 10px rgba(255,59,48,.6); }
+  .lamp.onair i{ background:var(--red); box-shadow:0 0 12px var(--red); animation:blink 1.3s steps(2,end) infinite; }
+  .lamp.paused{ color:var(--amber); border-color:rgba(255,179,71,.5); }
+  .lamp.paused i{ background:var(--amber); box-shadow:0 0 8px rgba(255,179,71,.7); }
+  @keyframes blink{ 0%,49%{opacity:1;} 50%,100%{opacity:.15;} }
+
+  /* ==== 見出し ==== */
+  .head{ margin-top:10px; display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; }
+  h1{
+    margin:0; display:inline-block;
+    padding:5px 11px 7px;
+    background:#000;
+    font-family:var(--px); font-style:italic; font-weight:400;
+    font-size:clamp(23px,6.4vw,44px); line-height:1.05; letter-spacing:.05em;
+    color:var(--cyan);
+    text-shadow:0 0 16px rgba(0,255,255,.5), 2px 2px 0 rgba(255,0,255,.28);
+    animation:jitter 7s infinite;
+  }
+  @keyframes jitter{
+    0%,95%,100%{transform:translate(0,0);}
+    96%{transform:translate(-1px,1px);}
+    97%{transform:translate(1px,-1px);}
+  }
+  .band{
+    font-family:var(--dot);
+    font-size:clamp(10px,1.8vw,13px);
+    color:rgba(232,244,246,.7);
+    padding-bottom:5px;
+  }
+
+  /* ==== チューナー ==== */
+  .tuner{
+    margin-top:8px;
+    padding:9px 12px 7px;
+    background:linear-gradient(180deg, #070c12, #03060a);
+    border:1px solid rgba(0,255,255,.18);
+    box-shadow:0 0 24px rgba(0,255,255,.06) inset;
+  }
+  .scale{ position:relative; height:37px; }
+  .ticks{
+    position:absolute; inset:0 0 11px;
+    background-image:repeating-linear-gradient(to right, rgba(0,255,255,.45) 0 1px, transparent 1px 14px);
+    background-position:0 100%;
+    background-size:auto 11px;
+    background-repeat:repeat-x;
+    opacity:.5;
+  }
+  .ticks.major{
+    background-image:repeating-linear-gradient(to right, rgba(255,179,71,.7) 0 1px, transparent 1px 70px);
+    background-size:auto 20px;
+    opacity:.8;
+  }
+  .needle{
+    position:absolute; top:0; bottom:9px; left:6%; width:2px;
+    background:linear-gradient(180deg, var(--red), rgba(255,59,48,.2));
+    box-shadow:0 0 12px rgba(255,59,48,.9);
+    transition:left .25s linear;
+    animation:sweep 9s cubic-bezier(.45,.05,.55,.95) infinite;
+  }
+  .tuned .needle{ animation:none; }
+  .needle::after{
+    content:"";
+    position:absolute; top:-4px; left:-3px;
+    width:8px; height:8px; border-radius:50%;
+    background:var(--red);
+    box-shadow:0 0 10px var(--red);
+  }
+  @keyframes sweep{
+    0%{ left:6%; }
+    18%{ left:64%; }
+    30%{ left:38%; }
+    52%{ left:86%; }
+    70%{ left:22%; }
+    88%{ left:52%; }
+    100%{ left:6%; }
+  }
+  .readout{
+    display:flex; align-items:baseline; justify-content:space-between; gap:8px;
+    margin-top:2px;
+    font-family:var(--px);
+    font-size:clamp(6.5px,1.2vw,9px);
+    color:var(--amber);
+    letter-spacing:.1em;
+  }
+  .readout .num{
+    font-size:clamp(13px,2.5vw,19px);
+    color:var(--amber);
+    text-shadow:0 0 14px rgba(255,179,71,.55);
+    letter-spacing:.06em;
+    transition:opacity .2s;
+  }
+  .readout .num.dim{ opacity:.32; }
+  .readout .mhz{
+    font-family:var(--dot); font-size:clamp(9px,1.6vw,12px);
+    color:rgba(0,255,255,.75); letter-spacing:.06em; min-width:5.2em; text-align:right;
+    font-variant-numeric:tabular-nums;
+  }
+
+  /* ==== VU ==== */
+  .vu{
+    display:flex; align-items:flex-end; gap:4px;
+    height:30px; margin-top:5px;
+  }
+  .vu i{
+    flex:1 1 auto;
+    height:8%;
+    background:linear-gradient(180deg, var(--cyan), rgba(0,255,255,.2));
+    box-shadow:0 0 8px rgba(0,255,255,.3);
+    transform-origin:bottom;
+    transition:height .09s linear;
+  }
+  .vu i:nth-child(3n){ background:linear-gradient(180deg, var(--green), rgba(60,255,142,.2)); }
+  .vu i:nth-child(3n+2){ background:linear-gradient(180deg, var(--amber), rgba(255,179,71,.2)); }
+
+  /* ==== ラインナップ ==== */
+  .list{ margin-top:10px; display:grid; gap:4px; }
+  .row{
+    display:flex; align-items:center; gap:9px;
+    width:100%; text-align:left;
+    padding:5px 10px;
+    background:rgba(0,255,255,.04);
+    border:1px solid transparent;
+    border-left:2px solid rgba(0,255,255,.35);
+    font-family:var(--jp);
+    font-size:clamp(11px,1.85vw,13.5px);
+    color:#dff5f8;
+    cursor:pointer;
+    transition:background .2s, border-color .2s, transform .2s;
+  }
+  .row:hover,.row:focus-visible{ background:rgba(0,255,255,.1); border-color:rgba(0,255,255,.5); outline:none; transform:translateX(2px); }
+  .row .ch{
+    font-family:var(--px); font-size:clamp(6.5px,1.1vw,8.5px);
+    color:rgba(0,255,255,.75); min-width:3.1em;
+  }
+  .row .k{
+    font-family:var(--px); font-size:clamp(6.5px,1.1vw,8.5px);
+    color:var(--cyan); min-width:5.6em;
+  }
+  .row .ttl{ flex:1 1 auto; min-width:0; }
+  .row .ttl b{ font-weight:400; }
+  .row .sub{ display:block; font-family:var(--dot); font-size:.82em; color:rgba(232,244,246,.5); }
+  .row .len{
+    font-family:var(--dot); font-size:.82em; color:rgba(232,244,246,.55);
+    white-space:nowrap; font-variant-numeric:tabular-nums;
+  }
+  .row .ic{
+    width:1.3em; text-align:center;
+    font-size:.8em; color:rgba(0,255,255,.45);
+  }
+  .row.active{
+    background:rgba(0,255,255,.13);
+    border-left-color:var(--cyan);
+    box-shadow:0 0 16px rgba(0,255,255,.12) inset;
+  }
+  .row.active .ic{ color:var(--red); text-shadow:0 0 8px rgba(255,59,48,.8); }
+  .row.active .k{ color:var(--amber); }
+
+  /* ==== トランスポート ==== */
+  .transport{
+    margin-top:7px;
+    display:flex; align-items:center; gap:10px;
+    padding:6px 10px;
+    background:linear-gradient(180deg, rgba(0,255,255,.05), rgba(0,0,0,.25));
+    border:1px solid rgba(0,255,255,.16);
+  }
+  .pbtn{
+    flex:0 0 auto;
+    width:38px; height:38px;
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid rgba(0,255,255,.5);
+    background:rgba(0,255,255,.08);
+    color:var(--cyan);
+    font-size:15px; line-height:1;
+    cursor:pointer;
+    transition:background .2s, box-shadow .2s, color .2s;
+    padding:0;
+  }
+  .pbtn:hover,.pbtn:focus-visible{ background:rgba(0,255,255,.18); box-shadow:0 0 18px rgba(0,255,255,.35); outline:none; }
+  .pbtn.live{ color:#001014; background:var(--cyan); border-color:#9ffcff; box-shadow:0 0 22px rgba(0,255,255,.5); }
+  .seek{
+    position:relative;
+    flex:1 1 auto;
+    height:22px;
+    display:flex; align-items:center;
+    cursor:pointer;
+    touch-action:none;
+  }
+  .seek .track{
+    position:absolute; left:0; right:0; top:50%; height:5px; margin-top:-2.5px;
+    background:rgba(0,255,255,.14);
+    border:1px solid rgba(0,255,255,.18);
+  }
+  .seek .buf{
+    position:absolute; left:1px; top:50%; height:5px; margin-top:-2.5px; width:0;
+    background:rgba(0,255,255,.22);
+  }
+  .seek .fill{
+    position:absolute; left:1px; top:50%; height:5px; margin-top:-2.5px; width:0;
+    background:linear-gradient(90deg, rgba(0,255,255,.5), var(--cyan));
+    box-shadow:0 0 10px rgba(0,255,255,.55);
+  }
+  .seek .knob{
+    position:absolute; top:50%; left:0; width:9px; height:14px; margin-top:-7px; margin-left:-4px;
+    background:var(--cyan); box-shadow:0 0 10px rgba(0,255,255,.9);
+    opacity:.9;
+  }
+  .times{
+    flex:0 0 auto;
+    font-family:var(--dot);
+    font-size:clamp(9.5px,1.6vw,12px);
+    color:rgba(232,244,246,.8);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+  }
+  .times .sep{ color:rgba(232,244,246,.35); }
+  .status{
+    margin-top:3px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    font-family:var(--dot); font-size:clamp(9.5px,1.6vw,12px);
+    color:rgba(232,244,246,.58);
+    min-height:1.5em;
+  }
+  .status .part{ color:rgba(0,255,255,.7); white-space:nowrap; }
+  .status .part.hide{ visibility:hidden; }
+
+  /* ==== リンク ==== */
+  .foot{
+    margin-top:7px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  }
+  .arch{
+    display:inline-flex; align-items:center; gap:7px;
+    padding:7px 11px;
+    text-decoration:none;
+    font-family:var(--px); font-size:clamp(7px,1.2vw,9px); letter-spacing:.08em;
+    color:rgba(0,255,255,.85);
+    border:1px solid rgba(0,255,255,.3);
+    background:rgba(0,255,255,.05);
+    transition:background .2s, box-shadow .2s, color .2s;
+  }
+  .arch:hover,.arch:focus-visible{ background:rgba(0,255,255,.14); box-shadow:0 0 18px rgba(0,255,255,.3); color:#affffb; outline:none; }
+  .foot .note{ font-family:var(--dot); font-size:clamp(9px,1.5vw,11px); color:rgba(232,244,246,.45); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;}
+    .needle{ animation:none !important; left:52%; }
+    .vu i{ height:20% !important; }
+  }
+  @media (max-width:460px){
+    h1{font-size:clamp(21px,9vw,32px);}
+    .row{flex-wrap:wrap; row-gap:2px;}
+    .row .ch{display:none;}
+    .row .k{order:1; min-width:0;}
+    .row .ttl{order:3; flex:1 1 100%; line-height:1.35;}
+    .row .len{display:none;}
+    .row .ic{order:2; margin-left:auto;}
+    .band{font-size:clamp(9.5px,2.6vw,12px);}
+    .times{font-size:10px;}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap" id="wrap">
+    <div class="layer">
+      <div class="hud">
+        <span>[ imoutoid radio ]</span>
+        <span class="lamp" id="lamp"><i></i><span id="lampTxt">STANDBY</span></span>
+      </div>
+
+      <div class="head">
+        <h1>RADIO</h1>
+        <span class="band">堕落ラジオ / tankmania / ファミコン宇宙人</span>
+      </div>
+
+      <div class="tuner">
+        <div class="scale">
+          <div class="ticks"></div>
+          <div class="ticks major"></div>
+          <div class="needle" id="needle"></div>
+        </div>
+        <div class="readout">
+          <span>ARCHIVE BAND</span>
+          <span class="num dim" id="year">----</span>
+          <span class="mhz" id="mhz">--.- MHz</span>
+        </div>
+        <div class="vu" id="vu">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+      </div>
+
+      <div class="list" id="list"></div>
+
+      <div class="transport">
+        <button class="pbtn" id="playBtn" aria-label="再生 / 一時停止">▶</button>
+        <div class="seek" id="seek" role="slider" aria-label="再生位置" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+          <div class="track"></div>
+          <div class="buf" id="buf"></div>
+          <div class="fill" id="fill"></div>
+          <div class="knob" id="knob"></div>
+        </div>
+        <div class="times"><span id="tCur">0:00</span><span class="sep"> / </span><span id="tTot">--:--</span></div>
+      </div>
+
+      <div class="status">
+        <span id="st">番組を選ぶと、その場で再生が始まります。</span>
+        <span class="part hide" id="part">PART 1/1</span>
+      </div>
+
+      <div class="foot">
+        <a class="arch" href="https://www.imoutoid.net/imoutoid-radio" target="_blank" rel="noopener noreferrer">OPEN RADIO ARCHIVE ↗</a>
+        <span class="note">DIRECT PLAYBACK / 4 PROGRAMS</span>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  var BASE = "https://yusei193.github.io/imoutoid-audio/";
+
+  /* ---- 番組データ（parts: [パス, おおよその長さ(秒)]） ---- */
+  var PROGS = [
+    {
+      ch: "CH01", date: "2008.06.02", year: "2008",
+      ttl: "imoutoidの楽しい堕落ラジオ", sub: "imoutoid / 全2パート連続再生",
+      pos: 82, parts: [
+        ["s1/13fRZUlmwsjMZ7LgwM2kdX1pjR3-bU-cv_p1.mp3", 2079.8],
+        ["s1/13fRZUlmwsjMZ7LgwM2kdX1pjR3-bU-cv_p2.mp3", 2221.6]
+      ]
+    },
+    {
+      ch: "CH02", date: "2007.09.16", year: "2007",
+      ttl: "FamicomUchujin aka imoutoid is tankmania", sub: "Part 1",
+      pos: 44, parts: [
+        ["radio/tankmania_1.mp3", 5035.4]
+      ]
+    },
+    {
+      ch: "CH03", date: "2007.09.16", year: "2007",
+      ttl: "FamicomUchujin aka imoutoid is tankmania", sub: "Part 2 / 全2パート連続再生",
+      pos: 60, parts: [
+        ["radio/tankmania_main_p1.mp3", 4584.8],
+        ["radio/tankmania_main_p2.mp3", 4584.8]
+      ]
+    },
+    {
+      ch: "CH04", date: "2005.11.06", year: "2005",
+      ttl: "ファミコン宇宙人 in the house（トークとか）", sub: "FamicomUchujin",
+      pos: 24, parts: [
+        ["radio/20051106.mp3", 5463.1]
+      ]
+    }
+  ];
+
+  var wrap = document.getElementById("wrap");
+  var lamp = document.getElementById("lamp");
+  var lampTxt = document.getElementById("lampTxt");
+  var needle = document.getElementById("needle");
+  var yearEl = document.getElementById("year");
+  var mhzEl = document.getElementById("mhz");
+  var listEl = document.getElementById("list");
+  var playBtn = document.getElementById("playBtn");
+  var seekEl = document.getElementById("seek");
+  var fillEl = document.getElementById("fill");
+  var bufEl = document.getElementById("buf");
+  var knobEl = document.getElementById("knob");
+  var tCur = document.getElementById("tCur");
+  var tTot = document.getElementById("tTot");
+  var stEl = document.getElementById("st");
+  var partEl = document.getElementById("part");
+  var vuEl = document.getElementById("vu");
+  var vuBars = Array.prototype.slice.call(vuEl.querySelectorAll("i"));
+
+  var audio = new Audio();
+  audio.preload = "metadata";
+  audio.setAttribute("playsinline", "");
+
+  var cur = -1;          // 選択中の番組 index (-1 = 未選択)
+  var parts = [];        // 現在の番組のURL配列
+  var durs = [];         // パートごとの長さ
+  var partIdx = 0;
+  var playing = false;
+  var loading = false;
+  var statusMsg = "";
+  var prefetch = [];
+  var scrubbing = false;
+  var lastPaint = 0;
+
+  /* ---------- ユーティリティ ---------- */
+  function fmt(sec) {
+    if (!isFinite(sec) || sec < 0) sec = 0;
+    sec = Math.floor(sec);
+    var m = Math.floor(sec / 60), s = sec % 60;
+    if (m >= 60) {
+      var h = Math.floor(m / 60);
+      return h + ":" + ("0" + (m % 60)).slice(-2) + ":" + ("0" + s).slice(-2);
+    }
+    return m + ":" + ("0" + s).slice(-2);
+  }
+  function totalDur() {
+    if (!durs.length) return 0;
+    var t = 0;
+    for (var i = 0; i < durs.length; i++) t += (durs[i] || 0);
+    return t;
+  }
+  function elapsed() {
+    var e = 0;
+    for (var i = 0; i < partIdx; i++) e += (durs[i] || 0);
+    return e + (audio.currentTime || 0);
+  }
+  function freqAt(pos) {           // 76.0 - 88.0MHz の帯に見立てる
+    var mhz = 76 + (pos / 100) * 12;
+    return mhz.toFixed(1);
+  }
+
+  /* ---------- リスト生成 ---------- */
+  PROGS.forEach(function (p, i) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "row";
+    b.setAttribute("data-i", i);
+    b.innerHTML =
+      '<span class="ch">' + p.ch + '</span>' +
+      '<span class="k">' + p.date + '</span>' +
+      '<span class="ttl"><b>' + p.ttl + '</b><span class="sub">' + p.sub + '</span></span>' +
+      '<span class="len">' + fmt(p.parts.reduce(function (a, x) { return a + x[1]; }, 0)) + '</span>' +
+      '<span class="ic">▷</span>';
+    b.addEventListener("click", function () {
+      if (cur === i) { toggle(); }
+      else { loadProg(i, true); }
+    });
+    listEl.appendChild(b);
+  });
+  var rows = Array.prototype.slice.call(listEl.querySelectorAll(".row"));
+
+  /* ---------- 番組の読み込み ---------- */
+  function clearPrefetch() {
+    prefetch.forEach(function (a) { try { a.pause(); a.removeAttribute("src"); a.load(); } catch (e) {} });
+    prefetch = [];
+  }
+
+  function loadProg(i, autoplay) {
+    cur = i;
+    var p = PROGS[i];
+    parts = p.parts.map(function (x) { return BASE + x[0]; });
+    durs = p.parts.map(function (x) { return x[1] || 0; });
+    partIdx = 0;
+    clearPrefetch();
+    for (var k = 1; k < parts.length; k++) {
+      (function (idx) {
+        var a = new Audio();
+        a.preload = "metadata";
+        a.muted = true;
+        a.addEventListener("loadedmetadata", function () {
+          if (!durs[idx] && isFinite(a.duration) && a.duration > 0) durs[idx] = a.duration;
+          if (cur === i) paint(true);
+        });
+        a.src = parts[idx];
+        prefetch.push(a);
+      })(k);
+    }
+    audio.src = parts[0];
+    audio.load();
+    statusMsg = "TUNING…";
+    paint(true);
+    if (autoplay) {
+      var pr = audio.play();
+      if (pr && pr.catch) pr.catch(function () {
+        statusMsg = "再生ボタンをもう一度押してください。";
+        paint(true);
+      });
+    }
+  }
+
+  function toggle() {
+    if (cur < 0) { loadProg(0, true); return; }
+    if (audio.paused) {
+      var pr = audio.play();
+      if (pr && pr.catch) pr.catch(function () {});
+    } else {
+      audio.pause();
+    }
+  }
+
+  /* ---------- オーディオイベント ---------- */
+  audio.addEventListener("loadedmetadata", function () {
+    /* 表の値（フレーム解析で測った実長）を優先。ブラウザの推定値はVBRで大きくずれる */
+    if (!durs[partIdx] && isFinite(audio.duration) && audio.duration > 0) durs[partIdx] = audio.duration;
+    paint(true);
+  });
+  audio.addEventListener("durationchange", function () {
+    if (!durs[partIdx] && isFinite(audio.duration) && audio.duration > 0) durs[partIdx] = audio.duration;
+    paint(true);
+  });
+  audio.addEventListener("timeupdate", function () { paint(false); });
+  audio.addEventListener("progress", function () { paintBuf(); });
+  audio.addEventListener("play", function () {
+    playing = true; loading = false; statusMsg = ""; paint(true);
+  });
+  audio.addEventListener("pause", function () {
+    playing = false; paint(true);
+  });
+  audio.addEventListener("waiting", function () {
+    loading = true; statusMsg = "読み込み中…"; paint(true);
+  });
+  audio.addEventListener("playing", function () {
+    loading = false; statusMsg = ""; paint(true);
+  });
+  audio.addEventListener("canplay", function () {
+    if (loading) { loading = false; statusMsg = ""; paint(true); }
+  });
+  audio.addEventListener("error", function () {
+    playing = false; loading = false;
+    statusMsg = "この音源を読み込めませんでした。";
+    paint(true);
+  });
+  audio.addEventListener("ended", function () {
+    if (partIdx < parts.length - 1) {
+      partIdx++;
+      audio.src = parts[partIdx];
+      audio.load();
+      var pr = audio.play();
+      if (pr && pr.catch) pr.catch(function () {});
+      paint(true);
+    } else {
+      playing = false;
+      statusMsg = "最後まで再生しました。";
+      paint(true);
+    }
+  });
+
+  /* ---------- シーク ---------- */
+  function seekToTime(target) {
+    if (cur < 0 || !parts.length) return;
+    var total = totalDur();
+    if (total > 0) target = Math.min(total - 0.4, Math.max(0, target));
+    var acc = 0, idx = 0;
+    if (total > 0) {
+      for (var i = 0; i < durs.length; i++) {
+        var d = durs[i] || 0;
+        if (target < acc + d) { idx = i; break; }
+        acc += d; idx = i;
+      }
+    }
+    var within = Math.max(0, target - acc);
+    if (idx !== partIdx || !audio.src) {
+      partIdx = idx;
+      audio.src = parts[idx];
+      audio.load();
+      var once = function () {
+        audio.removeEventListener("loadedmetadata", once);
+        try { audio.currentTime = within; } catch (e) {}
+        var pr = audio.play();
+        if (pr && pr.catch) pr.catch(function () {});
+      };
+      audio.addEventListener("loadedmetadata", once);
+      statusMsg = "TUNING…";
+    } else {
+      try { audio.currentTime = within; } catch (e) {}
+      if (audio.paused) {
+        var pr = audio.play();
+        if (pr && pr.catch) pr.catch(function () {});
+      }
+    }
+    paint(true);
+  }
+
+  function ratioFromEvent(ev) {
+    var r = seekEl.getBoundingClientRect();
+    var x = ev.clientX - r.left;
+    return Math.min(1, Math.max(0, x / r.width));
+  }
+  function paintSeekRatio(r) {
+    var pct = (r * 100);
+    fillEl.style.width = pct.toFixed(2) + "%";
+    knobEl.style.left = pct.toFixed(2) + "%";
+    seekEl.setAttribute("aria-valuenow", Math.round(pct));
+    var total = totalDur();
+    tCur.textContent = fmt(total ? total * r : 0);
+  }
+  seekEl.addEventListener("pointerdown", function (ev) {
+    if (cur < 0) return;
+    scrubbing = true;
+    seekEl.setPointerCapture(ev.pointerId);
+    paintSeekRatio(ratioFromEvent(ev));
+    ev.preventDefault();
+  });
+  seekEl.addEventListener("pointermove", function (ev) {
+    if (!scrubbing) return;
+    paintSeekRatio(ratioFromEvent(ev));
+  });
+  function endScrub(ev) {
+    if (!scrubbing) return;
+    scrubbing = false;
+    var r = ratioFromEvent(ev);
+    var total = totalDur();
+    if (total > 0) seekToTime(total * r);
+    paint(true);
+  }
+  seekEl.addEventListener("pointerup", endScrub);
+  seekEl.addEventListener("pointercancel", function () { scrubbing = false; paint(true); });
+  seekEl.addEventListener("keydown", function (ev) {
+    if (cur < 0 || !totalDur()) return;
+    var step = totalDur() / 50;
+    if (ev.key === "ArrowRight") { seekToTime(elapsed() + step); ev.preventDefault(); }
+    if (ev.key === "ArrowLeft") { seekToTime(elapsed() - step); ev.preventDefault(); }
+    if (ev.key === "Home") { seekToTime(0); ev.preventDefault(); }
+  });
+  playBtn.addEventListener("click", toggle);
+  document.addEventListener("keydown", function (ev) {
+    if (ev.code === "Space" && ev.target === document.body) { toggle(); ev.preventDefault(); }
+  });
+
+  /* ---------- 描画 ---------- */
+  function paintBuf() {
+    try {
+      var total = totalDur();
+      if (!total || !audio.buffered || !audio.buffered.length) return;
+      var end = audio.buffered.end(audio.buffered.length - 1);
+      var before = 0;
+      for (var i = 0; i < partIdx; i++) before += (durs[i] || 0);
+      var pct = Math.min(100, ((before + end) / total) * 100);
+      bufEl.style.width = pct.toFixed(2) + "%";
+    } catch (e) {}
+  }
+
+  function paint(force) {
+    var p = cur >= 0 ? PROGS[cur] : null;
+    var total = totalDur();
+    var curT = cur >= 0 ? elapsed() : 0;
+
+    if (p) {
+      wrap.classList.add("tuned");
+      yearEl.textContent = p.year;
+      yearEl.classList.remove("dim");
+      var prog = total > 0 ? Math.min(1, curT / total) : 0;
+      var drift = playing ? (prog - 0.5) * 6 : 0;          /* 再生中は針が少し行き来する */
+      var pos = Math.min(97, Math.max(3, p.pos + drift));
+      needle.style.left = pos.toFixed(2) + "%";
+      mhzEl.textContent = freqAt(pos) + " MHz";
+      partEl.textContent = "PART " + (partIdx + 1) + "/" + parts.length;
+      partEl.classList.toggle("hide", parts.length < 2);
+    } else {
+      wrap.classList.remove("tuned");
+      yearEl.textContent = "----";
+      yearEl.classList.add("dim");
+      needle.style.left = "";
+      mhzEl.textContent = "--.- MHz";
+      partEl.classList.add("hide");
+    }
+
+    /* 進行バー */
+    if (!scrubbing) {
+      var r = total > 0 ? Math.min(1, curT / total) : 0;
+      fillEl.style.width = (r * 100).toFixed(2) + "%";
+      knobEl.style.left = (r * 100).toFixed(2) + "%";
+      seekEl.setAttribute("aria-valuenow", Math.round(r * 100));
+      tCur.textContent = fmt(curT);
+      tTot.textContent = total > 0 ? fmt(total) : "--:--";
+      paintBuf();
+    }
+
+    /* ボタン・ランプ・状態 */
+    playBtn.textContent = playing ? "❚❚" : "▶";
+    playBtn.classList.toggle("live", playing);
+    playBtn.setAttribute("aria-label", playing ? "一時停止" : "再生");
+
+    if (playing) {
+      lamp.className = "lamp onair"; lampTxt.textContent = "ON AIR";
+    } else if (loading) {
+      lamp.className = "lamp tuning"; lampTxt.textContent = "TUNING";
+    } else if (cur >= 0) {
+      lamp.className = "lamp paused"; lampTxt.textContent = "PAUSED";
+    } else {
+      lamp.className = "lamp"; lampTxt.textContent = "STANDBY";
+    }
+
+    var msg = statusMsg;
+    if (!msg) {
+      if (cur < 0) msg = "番組を選ぶと、その場で再生が始まります。";
+      else if (playing) msg = "再生中 — " + PROGS[cur].date + " " + PROGS[cur].sub;
+      else msg = "一時停止中 — 続きから再生できます。";
+    }
+    if (stEl.textContent !== msg) stEl.textContent = msg;
+
+    /* 行のハイライト */
+    rows.forEach(function (row, i) {
+      var on = (i === cur);
+      row.classList.toggle("active", on);
+      var ic = row.querySelector(".ic");
+      ic.textContent = on ? (playing ? "▶" : "❚❚") : "▷";
+    });
+  }
+
+  /* ---------- VUメーター ---------- */
+  var vuVals = vuBars.map(function () { return 0.06; });
+  function vuLoop() {
+    for (var i = 0; i < vuBars.length; i++) {
+      var target;
+      if (playing) {
+        var base = 0.35 + Math.random() * 0.65;
+        if (i % 5 === 0) base *= 0.75;
+        target = Math.min(1, base);
+      } else {
+        target = 0.05 + Math.random() * 0.03;
+      }
+      vuVals[i] += (target - vuVals[i]) * (playing ? 0.5 : 0.25);
+      vuBars[i].style.height = (vuVals[i] * 100).toFixed(1) + "%";
+    }
+    requestAnimationFrame(vuLoop);
+  }
+  requestAnimationFrame(vuLoop);
+
+  /* 省モーション設定ならVUは静かに */
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    vuBars.forEach(function (b) { b.style.height = "18%"; });
+  }
+
+  paint(true);
+})();
+</script>
+</body>
+</html>
