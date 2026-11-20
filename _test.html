@@ -1430,8 +1430,6 @@
     if (t.closest && t.closest(".wheel, .np-bar, button")) return;
     if (ev.button !== undefined && ev.button !== 0) return;
     drag = { id: ev.pointerId, sx: ev.clientX, sy: ev.clientY, ox: pos.x, oy: pos.y, moved: false };
-    try { ipod.setPointerCapture(ev.pointerId); } catch (e) {}
-    ipod.classList.add("dragging");
   });
 
   ipod.addEventListener("pointermove", function (ev) {
@@ -1440,6 +1438,8 @@
     if (!drag.moved && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
       drag.moved = true;
       justDragged = true;
+      try { ipod.setPointerCapture(drag.id); } catch (e) {}
+      ipod.classList.add("dragging");
     }
     if (drag.moved) {
       ev.preventDefault();
