@@ -1267,7 +1267,7 @@
       audio.load();
       audio.addEventListener("loadedmetadata", function once() {
         audio.removeEventListener("loadedmetadata", once);
-        audio.currentTime = Math.min(within, Math.max(0, (audio.duration || within) - 0.2));
+        try { audio.currentTime = within; } catch (e) {}
         var p = audio.play(); if (p && p.catch) p.catch(function () {});
       });
     } else {
