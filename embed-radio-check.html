@@ -28,7 +28,7 @@
   body{
     font-family:var(--jp);
     color:#e8f4f6;
-    padding:12px 12px 18px;
+    padding:10px 12px 12px;
     overflow-x:hidden;
     -webkit-font-smoothing:antialiased;
   }
@@ -82,10 +82,10 @@
   .head{ margin-top:12px; display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; }
   h1{
     margin:0; display:inline-block;
-    padding:7px 13px 9px;
+    padding:6px 12px 8px;
     background:#000;
     font-family:var(--px); font-style:italic; font-weight:400;
-    font-size:clamp(26px,7.4vw,54px); line-height:1.05; letter-spacing:.05em;
+    font-size:clamp(24px,6.8vw,48px); line-height:1.05; letter-spacing:.05em;
     color:var(--cyan);
     text-shadow:0 0 16px rgba(0,255,255,.5), 2px 2px 0 rgba(255,0,255,.28);
     animation:jitter 7s infinite;
@@ -104,8 +104,8 @@
 
   /* ==== チューナー ==== */
   .tuner{
-    margin-top:12px;
-    padding:12px 13px 9px;
+    margin-top:10px;
+    padding:10px 12px 8px;
     background:linear-gradient(180deg, #070c12, #03060a);
     border:1px solid rgba(0,255,255,.18);
     box-shadow:0 0 24px rgba(0,255,255,.06) inset;
@@ -173,7 +173,7 @@
   /* ==== VU ==== */
   .vu{
     display:flex; align-items:flex-end; gap:4px;
-    height:44px; margin-top:8px;
+    height:34px; margin-top:6px;
   }
   .vu i{
     flex:1 1 auto;
@@ -187,11 +187,11 @@
   .vu i:nth-child(3n+2){ background:linear-gradient(180deg, var(--amber), rgba(255,179,71,.2)); }
 
   /* ==== ラインナップ ==== */
-  .list{ margin-top:12px; display:grid; gap:5px; }
+  .list{ margin-top:10px; display:grid; gap:4px; }
   .row{
     display:flex; align-items:center; gap:9px;
     width:100%; text-align:left;
-    padding:7px 10px;
+    padding:6px 10px;
     background:rgba(0,255,255,.04);
     border:1px solid transparent;
     border-left:2px solid rgba(0,255,255,.35);
@@ -231,9 +231,9 @@
 
   /* ==== トランスポート ==== */
   .transport{
-    margin-top:10px;
+    margin-top:8px;
     display:flex; align-items:center; gap:10px;
-    padding:9px 11px;
+    padding:7px 10px;
     background:linear-gradient(180deg, rgba(0,255,255,.05), rgba(0,0,0,.25));
     border:1px solid rgba(0,255,255,.16);
   }
@@ -288,7 +288,7 @@
   }
   .times .sep{ color:rgba(232,244,246,.35); }
   .status{
-    margin-top:6px;
+    margin-top:4px;
     display:flex; align-items:center; justify-content:space-between; gap:10px;
     font-family:var(--dot); font-size:clamp(9.5px,1.6vw,12px);
     color:rgba(232,244,246,.58);
@@ -299,7 +299,7 @@
 
   /* ==== リンク ==== */
   .foot{
-    margin-top:10px;
+    margin-top:8px;
     display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
   }
   .arch{
@@ -378,7 +378,7 @@
 
       <div class="foot">
         <a class="arch" href="https://www.imoutoid.net/imoutoid-radio" target="_blank" rel="noopener noreferrer">OPEN RADIO ARCHIVE ↗</a>
-        <span class="note">音源協力・アーカイブより配信中</span>
+        <span class="note">DIRECT PLAYBACK / 4 PROGRAMS</span>
       </div>
     </div>
   </div>
@@ -521,10 +521,8 @@
         a.preload = "metadata";
         a.muted = true;
         a.addEventListener("loadedmetadata", function () {
-          if (isFinite(a.duration) && a.duration > 0) {
-            durs[idx] = a.duration;
-            if (cur === i) paint(true);
-          }
+          if (!durs[idx] && isFinite(a.duration) && a.duration > 0) durs[idx] = a.duration;
+          if (cur === i) paint(true);
         });
         a.src = parts[idx];
         prefetch.push(a);
@@ -555,13 +553,12 @@
 
   /* ---------- オーディオイベント ---------- */
   audio.addEventListener("loadedmetadata", function () {
-    if (isFinite(audio.duration) && audio.duration > 0) {
-      durs[partIdx] = audio.duration;
-    }
+    /* 表の値（フレーム解析で測った実長）を優先。ブラウザの推定値はVBRで大きくずれる */
+    if (!durs[partIdx] && isFinite(audio.duration) && audio.duration > 0) durs[partIdx] = audio.duration;
     paint(true);
   });
   audio.addEventListener("durationchange", function () {
-    if (isFinite(audio.duration) && audio.duration > 0) durs[partIdx] = audio.duration;
+    if (!durs[partIdx] && isFinite(audio.duration) && audio.duration > 0) durs[partIdx] = audio.duration;
     paint(true);
   });
   audio.addEventListener("timeupdate", function () { paint(false); });
@@ -587,7 +584,6 @@
     paint(true);
   });
   audio.addEventListener("ended", function () {
-    if (isFinite(audio.duration) && audio.duration > 0) durs[partIdx] = audio.duration;
     if (partIdx < parts.length - 1) {
       partIdx++;
       audio.src = parts[partIdx];
