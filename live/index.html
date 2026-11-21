@@ -253,6 +253,7 @@ const S = {
   silentDest:null, silentOsc:null, silentGain:null, lastError:'',
   iceState:'', connState:'', trackCount:0, analyserStream:null, lastRestream:0, srcNote:'',
   aiLoaded:false,
+  aiAnalyser:null,
   ai:{ playing:false, track:null, index:0, order:[], orderKey:'', djOn:true, speaking:false, errors:0, slot:-1,
        decks:null, active:0, master:null, xfade:3.0, xfading:false, gen:0, xfadeTimer:null, slotKey:'' }
 };
@@ -372,9 +373,15 @@ function ensureCtx(){
   ensureSilentDest();
   // AIラジオ：デッキA/B（クロスフェード用）＋マスター
   if(!S.ai.decks){
+    // 波形解析のため、同一オリジンでも CORS 付きで読み込む
+    try{ el.aiAudioA.crossOrigin = 'anonymous'; el.aiAudioB.crossOrigin = 'anonymous'; }catch(e){}
     S.ai.master = S.ctx.createGain();
     S.ai.master.gain.value = S.vol;
-    S.ai.master.connect(S.ctx.destination);
+    S.aiAnalyser = S.ctx.createAnalyser();
+    S.aiAnalyser.fftSize = 2048;
+    S.aiAnalyser.smoothingTimeConstant = 0.75;
+    S.ai.master.connect(S.aiAnalyser);          // 実音声をここで解析（ゲイン後）
+    S.aiAnalyser.connect(S.ctx.destination);    // 音は Analyser を通してそのまま出力
     S.ai.decks = [el.aiAudioA, el.aiAudioB].map((a, i)=>{
       const src = S.ctx.createMediaElementSource(a);
       const fade = S.ctx.createGain(); fade.gain.value = 0;
@@ -1147,17 +1154,28 @@ function drawWave(){
   g.strokeStyle = 'rgba(255,255,255,.07)';
   for(let x=0;x<w;x+=Math.max(24,w/22)){ g.beginPath(); g.moveTo(x,mid-3); g.lineTo(x,mid+3); g.stroke(); }
 
-  const live = S.live && S.stream && S.analyser;
-  if(live){
-    S.analyser.getFloatTimeDomainData(wave.buf);
+  const liveOk = !!(S.live && S.stream && S.analyser);
+  const aiOk = !liveOk && !!(S.ai.playing && S.aiAnalyser);
+  if(liveOk || aiOk){
+    // 生放送 / AIラジオの実音声をリアルタイム描画
+    const an = liveOk ? S.analyser : S.aiAnalyser;
+    if(!wave.buf || wave.buf.length !== an.fftSize) wave.buf = new Float32Array(an.fftSize);
+    try{ an.getFloatTimeDomainData(wave.buf); }catch(e){}
     let peak = 0;
     g.lineWidth = 1.7;
     const grad = g.createLinearGradient(0,0,w,0);
-    grad.addColorStop(0,'rgba(242,180,100,.35)');
-    grad.addColorStop(.5,'rgba(255,214,157,.95)');
-    grad.addColorStop(1,'rgba(242,180,100,.35)');
-    g.strokeStyle = grad;
-    g.shadowColor = 'rgba(242,180,100,.45)'; g.shadowBlur = 8;
+    if(liveOk){
+      grad.addColorStop(0,'rgba(242,180,100,.35)');
+      grad.addColorStop(.5,'rgba(255,214,157,.95)');
+      grad.addColorStop(1,'rgba(242,180,100,.35)');
+      g.shadowColor = 'rgba(242,180,100,.45)';
+    } else {
+      grad.addColorStop(0,'rgba(121,224,194,.35)');
+      grad.addColorStop(.5,'rgba(190,255,235,.95)');
+      grad.addColorStop(1,'rgba(121,224,194,.35)');
+      g.shadowColor = 'rgba(121,224,194,.45)';
+    }
+    g.strokeStyle = grad; g.shadowBlur = 8;
     g.beginPath();
     const n = wave.buf.length;
     for(let i=0;i<w;i++){
@@ -1169,23 +1187,21 @@ function drawWave(){
     g.stroke(); g.shadowBlur = 0;
     wave.peak = peak;
   } else {
-    // AIラジオ／待機中：音楽的なゆらぎ（装飾）
-    wave.t += S.ai.playing ? 0.055 : 0.016;
-    const amp = S.ai.playing ? (mid-10)*0.55 : (mid-10)*0.06;
+    // 待機中：静かな待機ライン
+    wave.t += 0.016;
+    const amp = (mid-10)*0.06;
     g.lineWidth = 1.5;
-    g.strokeStyle = S.ai.playing ? 'rgba(121,224,194,.55)' : 'rgba(242,180,100,.22)';
-    g.shadowColor = S.ai.playing ? 'rgba(121,224,194,.4)' : 'transparent';
-    g.shadowBlur = S.ai.playing ? 7 : 0;
+    g.strokeStyle = 'rgba(242,180,100,.22)';
+    g.shadowColor = 'transparent'; g.shadowBlur = 0;
     g.beginPath();
     for(let i=0;i<w;i++){
       const x = i/w;
       const v = Math.sin(x*10 + wave.t)*0.55 + Math.sin(x*23 - wave.t*1.6)*0.3 + Math.sin(x*41 + wave.t*2.3)*0.15;
-      const beat = S.ai.playing ? (0.55 + 0.45*Math.abs(Math.sin(wave.t*0.9))) : 1;
-      const y = mid - v*amp*beat*0.45;
+      const y = mid - v*amp;
       i ? g.lineTo(i,y) : g.moveTo(i,y);
     }
-    g.stroke(); g.shadowBlur = 0;
-    wave.peak = S.ai.playing ? 0.2 : 0.01;
+    g.stroke();
+    wave.peak = 0.01;
   }
 
   g.fillStyle = 'rgba(255,255,255,.10)';
