@@ -1207,6 +1207,28 @@ window.__nrDebug = {
     };
   },
   wishPlay(){ S.wantPlay = true; },
+  callState(){
+    return S.call ? {open:!!S.call.open, hasStream:!!S.stream, ice:S.iceState, conn:S.connState, tracks:S.trackCount} : null;
+  },
+  async stats(){
+    const out = {ice:S.iceState, conn:S.connState, trackCount:S.trackCount, playing:S.playing};
+    try{
+      const pc = S.call && S.call.peerConnection;
+      if(pc){
+        const r = await pc.getStats();
+        r.forEach(x=>{
+          if(x.type === 'inbound-rtp' && (x.kind === 'audio' || x.mediaType === 'audio')){
+            out.inbound = {bytesReceived:x.bytesReceived || 0, packetsReceived:x.packetsReceived || 0,
+                           audioLevel:(x.audioLevel === undefined ? null : x.audioLevel)};
+          }
+          if(x.type === 'candidate-pair' && x.state === 'succeeded' && x.nominated !== false){
+            out.pair = {rtt:x.currentRoundTripTime};
+          }
+        });
+      } else out.noPeerConnection = true;
+    }catch(e){ out.err = String(e && e.message || e); }
+    return out;
+  },
   nearEnd(){
     const d = aiDeckCur();
     if(!d || !d.el.duration) return false;
