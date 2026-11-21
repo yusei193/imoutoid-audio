@@ -312,6 +312,12 @@ const TRACKS = [{"t":"Strings improvisation","u":"https://yusei193.github.io/imo
 const $ = (id)=>document.getElementById(id);
 const params = new URLSearchParams(location.search);
 const ROOM = (params.get('id') || params.get('host') || params.get('room') || 'kaeru-radio-live').trim() || 'kaeru-radio-live';
+/* 局IDの候補：埋め込みURL（Googleサイト等）が古いIDを指していても、
+   配信者が実際に登録している方（kaeru-radio ↔ kaeru-radio-live）へ自動で回り込む。 */
+const ROOMS = (()=>{
+  const base = ROOM.replace(/-live$/i, '');
+  return [ROOM, base, base + '-live'].filter((v,i,a)=>v && a.indexOf(v) === i);
+})();
 
 /* ================= ICE（STUN / TURN） =================
    STUN: 直結できるか調べる（NATの外側アドレスを知るため）。
@@ -360,6 +366,7 @@ const S = {
   vol:0.8, info:{title:'', dj:'', note:'', guestOn:false, guestName:'', now:''},
   silentDest:null, silentOsc:null, silentGain:null, lastError:'',
   iceState:'', connState:'', trackCount:0, analyserStream:null, lastRestream:0, srcNote:'', srcWarn:false,
+  room:ROOM, roomFails:0,
   aiLoaded:false,
   aiAnalyser:null,
   ai:{ playing:false, track:null, index:0, order:[], orderKey:'', djOn:true, speaking:false, errors:0, slot:-1,
@@ -979,7 +986,10 @@ function ensurePeer(){
       const type = (err && err.type) || '';
       if(type === 'peer-unavailable'){
         S.connecting = false;
-        if(S.live){ S.live = false; onLiveLost(); return; }
+        if(S.live){ S.live = false; onLiveLost(); }
+        // まだ繋がっていない／切れた直後なら、もう一方の局ID候補を試す
+        if(S.conn){ try{ S.conn.close(); }catch(e2){} S.conn = null; }
+        if(!S.live && rotateRoom('unavailable')) return;
         updateModeUi();
         setStatusWaiting();
         return;
@@ -1014,17 +1024,49 @@ async function connect(){
     S.connecting = false;
   }
 }
+/* ---- 局IDの回り込み（未登録・応答なしのときに次の候補へ） ---- */
+function rotateRoom(reason){
+  if(!ROOMS.length) return false;
+  const prev = S.room;
+  S.roomFails = (S.roomFails || 0) + 1;
+  const giveUp = S.roomFails >= 4;            // 両方の候補を2回ずつ試してもダメ
+  const cur = ROOMS.indexOf(S.room);
+  const next = ROOMS[(cur + 1) % ROOMS.length];
+  if(next !== S.room) S.room = next;
+  if(el.stationLabel) el.stationLabel.textContent = S.room;
+  if(el.footId) el.footId.textContent = S.room;
+  if(giveUp){
+    setSrcNote('配信者に接続できません（応答なし）。配信者側でページを再読み込みしてください', true);
+    if(el.statusText) el.statusText.innerHTML = '<b>まだ放送に接続できません</b> — 配信者の接続を待っています（放送が始まると自動でつながります）。';
+  } else if(next !== prev){
+    setSrcNote(reason === 'unavailable'
+      ? '局ID「' + next + '」で接続しています（前のIDは未登録）'
+      : '局ID「' + next + '」で接続を試しています（前のIDは応答なし）', false);
+  }
+  const wait = giveUp ? 7000 : Math.min(6000, 600 + 500 * S.roomFails);
+  setTimeout(()=>{ if(!S.live && !S.connecting) dial(); }, wait);
+  return true;
+}
 function dial(){
   if(!S.peer || !S.peer.open) return;
   if(S.conn) return;                    // 接続試行中／接続済みはそのまま待つ（途中で切らない）
-  const conn = S.peer.connect(ROOM, {reliable:true, metadata:{role:'listener'}});
+  if(!S.room) S.room = ROOMS[0] || ROOM;
+  const conn = S.peer.connect(S.room, {reliable:true, metadata:{role:'listener'}});
   S.conn = conn;
   const t = setTimeout(()=>{
-    if(S.conn === conn && !conn.open){ try{ conn.close(); }catch(e){} S.conn = null; }
-  }, 15000);
+    if(S.conn === conn && !conn.open){
+      try{ conn.close(); }catch(e){}
+      S.conn = null;
+      rotateRoom('timeout');            // 応答がないIDは次の候補へ
+    }
+  }, 8000);
   conn.on('open', ()=>{
     clearTimeout(t);
+    S.roomFails = 0;
+    if(el.stationLabel) el.stationLabel.textContent = S.room;
+    if(el.footId) el.footId.textContent = S.room;
     try{ conn.send({type:'hello', role:'listener', t:Date.now()}); }catch(e){}
+    if(/^局ID「|^配信者に接続できません/.test(S.srcNote || '')) setSrcNote('', false);
     renderSrc();
     updateChatUi();
   });
@@ -1294,7 +1336,8 @@ function diagText(){
   const ice = S.iceState || 'none';
   const turn = (turnCreds().username && turnCreds().credential) ? 'on' : 'off';
   return 'peer:' + peer + ' / conn:' + conn + ' / call:' + call + ' / ice:' + ice +
-         ' / trk:' + (S.trackCount || 0) + ' / ctx:' + (S.ctx ? S.ctx.state : 'none') + ' / turn:' + turn;
+         ' / trk:' + (S.trackCount || 0) + ' / ctx:' + (S.ctx ? S.ctx.state : 'none') + ' / turn:' + turn +
+         ' / st:' + (S.room || ROOM);
 }
 function renderSrc(){
   let head = 'OFF AIR（待機中）';
@@ -1519,8 +1562,8 @@ function drawWave(){
 /* ================= バインド ================= */
 function bind(){
   fillRange(el.volume);
-  el.stationLabel.textContent = ROOM;
-  el.footId.textContent = ROOM;
+  el.stationLabel.textContent = S.room;
+  el.footId.textContent = S.room;
 
   el.volume.addEventListener('input', ()=>{
     fillRange(el.volume);
@@ -1552,6 +1595,7 @@ function bind(){
     if(S.conn && S.conn.open){ try{ S.conn.send({type:'hello', role:'listener', restream:true, t:Date.now()}); }catch(e){} }
     else {
       if(S.conn){ try{ S.conn.close(); }catch(e){} S.conn = null; }
+      S.roomFails = 0;
       if(S.peer && S.peer.open) dial(); else connect();
     }
     el.statusText.textContent = '再接続しています…';

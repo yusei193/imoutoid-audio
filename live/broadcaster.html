@@ -1881,7 +1881,7 @@ function startTimer(){
 }
 function stopTimer(){ if(S.timerId){ clearInterval(S.timerId); S.timerId = null; } }
 
-function initPeer(){
+function initPeer(resumeFrom){
   const id = stationId();
   const peer = new Peer(id, {
     debug:0,
@@ -1890,14 +1890,16 @@ function initPeer(){
   S.peer = peer;
 
   peer.on('open', (pid)=>{
-    S.live = true; S.starting = false; S.startedAt = Date.now();
+    S.live = true; S.starting = false; S.startedAt = resumeFrom || Date.now();
     startTimer(); setOnair('live','ON AIR'); setBroadcastBtn('配信終了', false, true);
     el.brandSub.textContent = '局ID: ' + pid;
     el.station.disabled = true;
-    el.peerHint.textContent = '配信中。この端末が配信局として登録されています。';
+    el.peerHint.textContent = '配信中。局ID:「' + pid + '」で登録済み（リスナーから接続できます）。';
+    peerRetry = 0; peerIdFails = 0;
+    startPeerWatch();
     updateListenerUrl();
     updateChatUi();
-    toast('配信を開始しました。リスナー用URLを共有してください。','ok');
+    toast(resumeFrom ? '配信の接続を回復しました。' : '配信を開始しました。リスナー用URLを共有してください。','ok');
   });
 
   peer.on('connection', handleConn);
@@ -1906,11 +1908,22 @@ function initPeer(){
     if(!S.live) return;
     toast('シグナリングから切断されました。再接続します…','warn');
     try{ peer.reconnect(); }catch(e){}
+    setTimeout(()=>{ if(S.live && !peerAlive()) recoverPeer(); }, 4000);
   });
   peer.on('error', (err)=>{
     const type = (err && err.type) || '';
     if(type === 'peer-unavailable') return;   // リスナーが去っただけ
     if(type === 'unavailable-id'){
+      // 復帰のやり直し中に、前の接続の登録がサーバーに残っていて衝突することがある。
+      if(S.live && peerIdFails < 4){
+        peerIdFails++;
+        el.peerHint.textContent = '配信IDの再登録をやり直しています（' + peerIdFails + '/4）…';
+        const started = S.startedAt;
+        try{ S.peer.destroy(); }catch(e){}
+        S.peer = null;
+        setTimeout(()=>{ if(S.live) initPeer(started); }, 4000);
+        return;
+      }
       toast('このIDは使用中です。放送局IDを変えてから、もう一度「配信開始」を押してください。','err');
       teardownBroadcast(true);
       el.peerHint.textContent = 'このIDは他の人が使用中です。別のIDにしてください。';
@@ -1927,6 +1940,32 @@ function initPeer(){
     }
     if(window.console && console.warn) console.warn('[peer]', type, err && err.message);
   });
+}
+
+function peerAlive(){ return !!(S.peer && !S.peer.destroyed && S.peer.open && !S.peer.disconnected); }
+let peerRetry = 0, peerIdFails = 0, peerWatch = null;
+function recoverPeer(){
+  if(!S.live) return;
+  if(peerAlive()){ peerRetry = 0; return; }
+  peerRetry++;
+  const started = S.startedAt;
+  toast(peerRetry <= 2 ? '配信の接続が切れました。自動で再接続しています…'
+                       : '配信の再接続をやり直しています…（配信者ページを再読み込みすると確実です）', 'warn');
+  el.peerHint.textContent = '配信の接続（シグナリング）が切れています。再接続中…';
+  try{ if(S.peer) S.peer.destroy(); }catch(e){}
+  S.peer = null;
+  S.mediaCalls.forEach(c=>{ try{ c.close(); }catch(e){} }); S.mediaCalls.clear();
+  S.conns.forEach(c=>{ try{ c.close(); }catch(e){} }); S.conns.clear();
+  S.listeners.clear(); updateListenerCount(); updateChatUi();
+  setTimeout(()=>{ if(S.live) initPeer(started); }, peerRetry <= 2 ? 700 : 4000);
+}
+function startPeerWatch(){
+  if(peerWatch) return;
+  peerWatch = setInterval(()=>{ if(S.live && !peerAlive()) recoverPeer(); }, 12000);
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'visible' && S.live && !peerAlive()) recoverPeer();
+  });
+  window.addEventListener('online', ()=>{ if(S.live && !peerAlive()) recoverPeer(); });
 }
 
 function handleConn(conn){
