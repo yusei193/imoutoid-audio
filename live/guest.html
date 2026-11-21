@@ -153,6 +153,32 @@ output{font-family:var(--mono);font-size:11px;color:var(--mint);min-width:38px;t
 @keyframes tin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .steps{font-size:11.5px;color:var(--dim2);line-height:1.9;padding-left:18px;margin:8px 0 0}
 .steps li::marker{color:var(--mint)}
+
+/* 💬 ライブチャット */
+.chat-log{display:flex;flex-direction:column;gap:6px;max-height:300px;min-height:100px;overflow-y:auto;overscroll-behavior:contain;padding:6px 2px 6px 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
+.chat-log::-webkit-scrollbar{width:6px}
+.chat-log::-webkit-scrollbar-thumb{background:rgba(255,255,255,.16);border-radius:99px}
+.chat-empty{color:var(--dim2);font-size:11.5px;text-align:center;padding:18px 8px;border:1px dashed var(--line);border-radius:10px;line-height:1.7;margin:0}
+.cmsg{display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 7px;min-width:0;border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:rgba(0,0,0,.24)}
+.cmsg .who{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;color:#cfc9bd;max-width:14em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.cmsg .badge{font-family:var(--mono);font-size:8px;letter-spacing:.08em;padding:1px 5px;border-radius:999px;border:1px solid var(--line2);color:var(--dim2);flex:0 0 auto}
+.cmsg .badge.dj{color:var(--amber);border-color:rgba(242,180,100,.45);background:rgba(242,180,100,.08)}
+.cmsg .when{margin-left:auto;font-family:var(--mono);font-size:8.5px;color:var(--dim2);white-space:nowrap}
+.cmsg .body{margin:0;flex:1 1 100%;font-size:12.5px;line-height:1.6;color:var(--txt);word-break:break-word;overflow-wrap:anywhere;white-space:pre-wrap}
+.cmsg.dj{border-color:rgba(242,180,100,.5);background:rgba(242,180,100,.1);box-shadow:inset 3px 0 0 var(--amber)}
+.cmsg.me{border-color:rgba(121,224,194,.45)}
+.cmsg.me .who{color:#cffdf0}
+.creact{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:3px 10px;border:1px solid var(--line);border-radius:999px;font-size:11px;color:var(--dim)}
+.creact .who{font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-counts{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:9px 0 0;font-family:var(--mono);font-size:9.5px;color:var(--dim2)}
+.chat-counts span.on{color:#f6dfb9}
+.chat-form{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.chat-row{display:flex;gap:7px;align-items:center}
+.chat-row input{flex:1 1 auto;min-width:0}
+.chat-send{flex:0 0 auto;border-color:rgba(121,224,194,.5);background:rgba(121,224,194,.12);color:#d8fff3}
+.chat-send:hover{background:rgba(121,224,194,.2)}
+.chat-send:disabled{opacity:.45;cursor:default}
+.chat-note{font-family:var(--mono);font-size:9px;color:var(--dim2);margin:8px 0 0}
 </style>
 </head>
 <body>
@@ -200,6 +226,21 @@ output{font-family:var(--mono);font-size:11px;color:var(--mint);min-width:38px;t
         <span class="live-tag" id="guestTag" hidden><i></i><span id="guestTagText">ゲスト出演中</span></span>
       </div>
     </div>
+  </section>
+
+  <section class="panel" id="chatPanel">
+    <div class="p-head"><h2>💬 ライブチャット</h2><span class="grow"></span><span class="hint" id="chatState" style="margin:0">待機中</span></div>
+    <div class="chat-log" id="chatLog" aria-live="polite">
+      <p class="chat-empty" id="chatEmpty">まだチャットはありません。スタジオに参加すると、リスナーの反応がここに流れます。</p>
+    </div>
+    <div class="chat-counts" id="chatCounts"></div>
+    <div class="chat-form">
+      <div class="chat-row">
+        <input id="chatInput" type="text" maxlength="200" placeholder="スタジオに参加するとチャットできます" autocomplete="off" disabled>
+        <button class="btn small chat-send" id="chatSendBtn" type="button" disabled>送信</button>
+      </div>
+    </div>
+    <p class="chat-note" id="chatNote">ゲストの発言もリスナー全員に届きます。</p>
   </section>
 
   <section class="panel">
@@ -339,8 +380,125 @@ const el = {
   micBtn:$('micBtn'), micVol:$('micVol'), micVolVal:$('micVolVal'), micDevice:$('micDevice'), micRefresh:$('micRefresh'),
   selfMonBtn:$('selfMonBtn'), vPresets:$('vPresets'),
   hostAudio:$('hostAudio'), hostPlayBtn:$('hostPlayBtn'), hostMuteBtn:$('hostMuteBtn'), hostVol:$('hostVol'),
-  hostVolVal:$('hostVolVal'), hostMeter:$('hostMeter'), toasts:$('toasts')
+  hostVolVal:$('hostVolVal'), hostMeter:$('hostMeter'), toasts:$('toasts'),
+  chatLog:$('chatLog'), chatEmpty:$('chatEmpty'), chatInput:$('chatInput'), chatSendBtn:$('chatSendBtn'),
+  chatCounts:$('chatCounts'), chatState:$('chatState'), chatNote:$('chatNote')
 };
+
+/* ================= 💬 ライブチャット（配信者中継） =================
+   ゲスト → 配信者 {type:'chat', name, text}
+   受信 {type:'chat-msg'|'react-msg'|'chat-history'} は textContent で描画する。 */
+const CHAT_EMOJIS = ['👏','❤️','🔥','🎵'];
+const CHAT_KEEP = 120;
+const gchat = { items:[], counts:{}, lastMsg:0 };
+
+function gchatTime(t){
+  const d = (typeof t === 'number' && isFinite(t)) ? new Date(t) : new Date();
+  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+function gchatRowNode(it){
+  const react = it.type === 'react-msg' || (it.emoji && !it.text);
+  if(react){
+    const row = document.createElement('div');
+    row.className = 'creact';
+    const e = document.createElement('span'); e.textContent = it.emoji || '';
+    const w = document.createElement('span'); w.className = 'who'; w.textContent = it.name || '';
+    row.appendChild(e); row.appendChild(w);
+    return row;
+  }
+  const row = document.createElement('div');
+  row.className = 'cmsg' + (it.role === 'dj' ? ' dj' : '') + (it.role === 'guest' ? ' me' : '');
+  const who = document.createElement('span'); who.className = 'who';
+  who.textContent = (it.name || '匿名リスナー').slice(0,24);
+  row.appendChild(who);
+  if(it.role === 'dj'){
+    const b = document.createElement('span'); b.className = 'badge dj'; b.textContent = 'DJ';
+    row.appendChild(b);
+  }
+  const when = document.createElement('span'); when.className = 'when'; when.textContent = gchatTime(it.time);
+  const body = document.createElement('p'); body.className = 'body';
+  body.textContent = String(it.text == null ? '' : it.text).slice(0,200);
+  row.appendChild(when); row.appendChild(body);
+  return row;
+}
+function gchatCountsRender(){
+  if(!el.chatCounts) return;
+  el.chatCounts.textContent = '';
+  CHAT_EMOJIS.forEach((em)=>{
+    const n = gchat.counts[em] || 0;
+    if(!n) return;
+    const s = document.createElement('span'); s.className = 'on'; s.textContent = em + ' ' + n;
+    el.chatCounts.appendChild(s);
+  });
+}
+function gchatEmptyToggle(){
+  if(!el.chatEmpty) return;
+  el.chatEmpty.hidden = el.chatLog.querySelector('.cmsg, .creact') !== null;
+}
+function gchatAppend(it){
+  if(!it || typeof it !== 'object') return;
+  const stick = (el.chatLog.scrollHeight - el.chatLog.scrollTop - el.chatLog.clientHeight) < 80;
+  gchat.items.push(it);
+  if(it.type === 'react-msg' || (it.emoji && !it.text)){
+    if(CHAT_EMOJIS.indexOf(it.emoji) >= 0) gchat.counts[it.emoji] = (gchat.counts[it.emoji] || 0) + 1;
+    gchatCountsRender();
+  }
+  el.chatLog.appendChild(gchatRowNode(it));
+  while(gchat.items.length > CHAT_KEEP) gchat.items.shift();
+  while(el.chatLog.querySelectorAll('.cmsg, .creact').length > CHAT_KEEP){
+    const first = el.chatLog.querySelector('.cmsg, .creact');
+    if(!first) break;
+    first.remove();
+  }
+  gchatEmptyToggle();
+  if(stick) el.chatLog.scrollTop = el.chatLog.scrollHeight;
+}
+function gchatSeed(items){
+  if(!Array.isArray(items)) return;
+  el.chatLog.querySelectorAll('.cmsg, .creact').forEach((n)=>n.remove());
+  gchat.items = [];
+  gchat.counts = {};
+  items.slice(-CHAT_KEEP).forEach((it)=>{
+    if(!it || typeof it !== 'object') return;
+    gchat.items.push(it);
+    if(it.type === 'react-msg' || (it.emoji && !it.text)){
+      if(CHAT_EMOJIS.indexOf(it.emoji) >= 0) gchat.counts[it.emoji] = (gchat.counts[it.emoji] || 0) + 1;
+    }
+    el.chatLog.appendChild(gchatRowNode(it));
+  });
+  gchatCountsRender();
+  gchatEmptyToggle();
+  el.chatLog.scrollTop = el.chatLog.scrollHeight;
+}
+function updateChatUi(){
+  const can = !!(S.conn && S.conn.open);
+  if(el.chatInput) el.chatInput.disabled = !can;
+  if(el.chatSendBtn) el.chatSendBtn.disabled = !can;
+  if(el.chatInput) el.chatInput.placeholder = can ? 'コメントを送る（Enterでも送信）' : 'スタジオに参加するとチャットできます';
+  if(el.chatState) el.chatState.textContent = can ? 'LIVE' : (S.joined ? '接続待ち' : '待機中');
+  if(el.chatNote) el.chatNote.textContent = can ? 'あなたの発言もリスナー全員に届きます。' : '参加するとリスナーの反応がここに流れます。';
+}
+function gchatSend(){
+  if(!(S.conn && S.conn.open)) return;
+  const text = (el.chatInput.value || '').trim().slice(0,200);
+  if(!text) return;
+  const now = Date.now();
+  if(now - gchat.lastMsg < 350) return;
+  gchat.lastMsg = now;
+  try{ S.conn.send({type:'chat', name:guestName(), text:text, t:now}); }catch(e){ return; }
+  el.chatInput.value = '';
+}
+function bindChat(){
+  if(el.chatSendBtn) el.chatSendBtn.addEventListener('click', gchatSend);
+  if(el.chatInput){
+    el.chatInput.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){ e.preventDefault(); gchatSend(); }
+    });
+  }
+  gchatEmptyToggle();
+  gchatCountsRender();
+  updateChatUi();
+}
 
 /* ---------- 小道具 ---------- */
 function toast(msg, kind){
@@ -576,6 +734,7 @@ function setJoinedUi(joined){
     el.micBtn.classList.remove('on');
     el.micBtn.textContent = 'マイク OFF';
   }
+  updateChatUi();
 }
 
 async function join(){
@@ -665,11 +824,13 @@ function dial(){
     clearTimeout(t);
     try{ conn.send({type:'guest-hello', name:guestName(), role:'guest'}); }catch(e){}
     sendMic();
+    updateChatUi();
   });
   conn.on('data', onHostData);
   conn.on('close', ()=>{
     clearTimeout(t);
     if(S.conn === conn) S.conn = null;
+    updateChatUi();
     if(!S.joined) return;
     if(!S.hostStream) setStatus('wait','待機中','ホストとの接続が切れました。再接続します…');
   });
@@ -702,6 +863,9 @@ function sendMic(){
 function onHostData(d){
   if(!d || typeof d !== 'object') return;
   if(d.type === 'info') updateProgram(d);
+  else if(d.type === 'chat-msg') gchatAppend(d);
+  else if(d.type === 'react-msg') gchatAppend(d);
+  else if(d.type === 'chat-history') gchatSeed(d.items);
   else if(d.type === 'guest-accept'){ /* 受理 */ }
   else if(d.type === 'guest-busy'){ toast('このスタジオは別のゲストが参加中です','err'); leave(true); }
   else if(d.type === 'guest-kick'){ toast('ホストが接続を切断しました','err'); leave(true); }
@@ -772,6 +936,7 @@ function leave(silent){
   S.micStream = null; S.micSource = null;
   setJoinedUi(false);
   setStatus('idle','未参加','まだ参加していません');
+  updateChatUi();
   el.progBox.classList.remove('on');
   el.progTitle.hidden = true; el.progDj.hidden = true; el.progNote.hidden = true; el.guestTag.hidden = true;
   el.progIdle.hidden = false; el.progIdle.textContent = 'ホストの放送を待っています…';
@@ -873,6 +1038,7 @@ function meterLoop(){
 
 /* ---------- バインド ---------- */
 function bind(){
+  bindChat();
   [el.micVol, el.hostVol].forEach(i=>{ fillRange(i); i.addEventListener('input', ()=>fillRange(i)); });
   el.hostInput.value = HOST_ID;
   el.brandSub.textContent = 'ホスト: ' + HOST_ID;

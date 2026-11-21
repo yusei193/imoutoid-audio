@@ -145,6 +145,46 @@ input[type=range]{-webkit-appearance:none;appearance:none;height:5px;border-radi
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#12141b;border:2px solid var(--amber);box-shadow:0 0 0 4px rgba(242,180,100,.1)}
 input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#12141b;border:2px solid var(--amber)}
 
+/* 💬 ライブチャット */
+.chat{margin-top:16px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(0,0,0,.26));box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.chat-head{display:flex;align-items:center;gap:9px;padding:9px 13px;border-bottom:1px solid rgba(255,255,255,.05);font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--dim2)}
+.chat-head .lab{color:var(--amber)}
+.chat-head .st{margin-left:auto;padding:3px 8px;border-radius:999px;border:1px solid var(--line);font-size:8.5px;letter-spacing:.12em;white-space:nowrap}
+.chat.live .chat-head .st{color:#ffbdbd;border-color:rgba(255,90,90,.45);background:rgba(255,90,90,.08)}
+.chat-log{max-height:226px;min-height:58px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:10px 12px;display:flex;flex-direction:column;gap:7px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
+.chat-log::-webkit-scrollbar{width:6px}
+.chat-log::-webkit-scrollbar-thumb{background:rgba(255,255,255,.16);border-radius:99px}
+.chat-empty{margin:0;font-size:11.5px;color:var(--dim2);line-height:1.7}
+.cmsg{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 7px;min-width:0}
+.cmsg .who{font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:var(--dim);max-width:13em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cmsg .when{margin-left:auto;font-family:var(--mono);font-size:8.5px;color:var(--dim2);white-space:nowrap}
+.cmsg .body{margin:0;flex:1 1 100%;font-size:12.5px;line-height:1.55;color:var(--txt);word-break:break-word;overflow-wrap:anywhere;white-space:pre-wrap}
+.cmsg.dj{background:var(--amber-soft);border:1px solid rgba(242,180,100,.26);border-radius:10px;padding:6px 9px}
+.cmsg.dj .who{color:var(--amber)}
+.creact{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:3px 10px;border:1px solid var(--line);border-radius:999px;font-size:11px;color:var(--dim)}
+.creact .who{font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-offair{display:flex;align-items:center;gap:8px;padding:11px 13px;border-top:1px solid rgba(255,255,255,.05);font-size:11.5px;color:var(--dim2);line-height:1.5}
+.chat-offair .em{font-size:13px;flex:0 0 auto}
+.chat-form{border-top:1px solid rgba(255,255,255,.05);padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px}
+.chat-namerow{display:flex;align-items:center;gap:8px}
+.chat-note{font-family:var(--mono);font-size:9px;color:var(--dim2);white-space:nowrap;flex:0 0 auto}
+.chat-sendrow{display:flex;align-items:center;gap:7px}
+.chat input[type=text]{flex:1 1 auto;width:100%;min-width:0;background:rgba(0,0,0,.35);border:1px solid var(--line2);border-radius:10px;padding:8px 11px;color:var(--txt);font-size:12.5px;outline:none;line-height:1.4}
+.chat input[type=text]::placeholder{color:var(--dim2)}
+.chat input[type=text]:focus{border-color:rgba(242,180,100,.6);box-shadow:0 0 0 3px rgba(242,180,100,.1)}
+.chat input[type=text]:disabled{opacity:.6}
+.chat-send{flex:0 0 auto;border-color:rgba(242,180,100,.5);background:rgba(242,180,100,.14);color:#ffebcb;padding:8px 14px;font-size:12px}
+.chat-send:hover{background:rgba(242,180,100,.22)}
+.chat-send:disabled{opacity:.45;cursor:default}
+.chat-reacts{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.creact-btn{width:38px;height:32px;flex:0 0 auto;border:1px solid var(--line2);border-radius:9px;background:rgba(255,255,255,.05);font-size:15px;line-height:1;cursor:pointer;transition:transform .1s,background .15s}
+.creact-btn:hover{background:rgba(255,255,255,.1)}
+.creact-btn:active{transform:scale(.94)}
+.creact-btn:disabled{opacity:.4;cursor:default}
+.chat-counts{display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap;font-family:var(--mono);font-size:9.5px;color:var(--dim2)}
+.chat-counts span{white-space:nowrap}
+.chat-counts span.on{color:#f6dcb4}
+
 /* 状態 */
 .status{margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:rgba(0,0,0,.22);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .status .txt{font-size:11.5px;color:var(--dim);line-height:1.55;min-width:0;flex:1}
@@ -220,6 +260,33 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;bac
       <input id="volume" type="range" min="0" max="100" value="80" aria-label="音量">
     </div>
   </div>
+
+  <!-- 💬 ライブチャット -->
+  <section class="chat" id="chatPanel">
+    <div class="chat-head">
+      <span class="lab">💬 LIVE CHAT</span>
+      <span class="st" id="chatState">OFF AIR</span>
+    </div>
+    <div class="chat-log" id="chatLog" aria-live="polite"><p class="chat-empty" id="chatEmpty">まだチャットはありません。生放送が始まったら、DJに話しかけてみてください。</p></div>
+    <div class="chat-offair" id="chatOffair"><span class="em">📻</span><span>生放送が始まるとチャットに参加できます</span></div>
+    <div class="chat-form" id="chatForm" hidden>
+      <div class="chat-namerow">
+        <input id="chatName" type="text" maxlength="24" placeholder="名前（任意）" autocomplete="nickname" spellcheck="false">
+        <span class="chat-note">空なら匿名</span>
+      </div>
+      <div class="chat-sendrow">
+        <input id="chatText" type="text" maxlength="200" placeholder="DJにメッセージを送る" autocomplete="off">
+        <button class="btn chat-send" id="chatSend" type="button">送信</button>
+      </div>
+      <div class="chat-reacts">
+        <button class="creact-btn" type="button" data-emoji="👏" aria-label="拍手">👏</button>
+        <button class="creact-btn" type="button" data-emoji="❤️" aria-label="いいね">❤️</button>
+        <button class="creact-btn" type="button" data-emoji="🔥" aria-label="熱い">🔥</button>
+        <button class="creact-btn" type="button" data-emoji="🎵" aria-label="音楽">🎵</button>
+        <div class="chat-counts" id="chatCounts"></div>
+      </div>
+    </div>
+  </section>
 
   <div class="status">
     <div class="txt" id="statusText">放送局に接続しています…</div>
@@ -308,7 +375,10 @@ const el = {
   djBtn:$('djBtn'), aiNextBtn:$('aiNextBtn'), djLine:$('djLine'), djText:$('djText'),
   wave:$('wave'), recTag:$('recTag'), recText:$('recText'), scopeInfo:$('scopeInfo'),
   playBtn:$('playBtn'), playTitle:$('playTitle'), playSub:$('playSub'), volume:$('volume'),
-  statusText:$('statusText'), retryBtn:$('retryBtn'), srcLine:$('srcLine'), audio:$('audio'), aiAudioA:$('aiAudioA'), aiAudioB:$('aiAudioB'), footId:$('footId')
+  statusText:$('statusText'), retryBtn:$('retryBtn'), srcLine:$('srcLine'), audio:$('audio'), aiAudioA:$('aiAudioA'), aiAudioB:$('aiAudioB'), footId:$('footId'),
+  chatPanel:$('chatPanel'), chatLog:$('chatLog'), chatEmpty:$('chatEmpty'), chatOffair:$('chatOffair'),
+  chatForm:$('chatForm'), chatName:$('chatName'), chatText:$('chatText'), chatSend:$('chatSend'),
+  chatCounts:$('chatCounts'), chatState:$('chatState')
 };
 
 /* ================= 小道具 ================= */
@@ -528,6 +598,7 @@ function updateModeUi(){
     renderAiInfo();
   }
   updatePlayUi();
+  updateChatUi();
 }
 function renderLiveInfo(){
   const d = S.info;
@@ -955,12 +1026,14 @@ function dial(){
     clearTimeout(t);
     try{ conn.send({type:'hello', role:'listener', t:Date.now()}); }catch(e){}
     renderSrc();
+    updateChatUi();
   });
   conn.on('data', onData);
   conn.on('close', ()=>{
     clearTimeout(t);
     if(S.conn === conn) S.conn = null;
     if(S.live){ S.live = false; onLiveLost(); }
+    updateChatUi();
   });
   conn.on('error', ()=>{ if(S.conn === conn) S.conn = null; });
 }
@@ -969,7 +1042,171 @@ function onData(d){
   if(d.type === 'info'){
     S.info = Object.assign(S.info, d);
     if(S.live) renderLiveInfo();
+    return;
   }
+  if(d.type === 'chat-msg'){ chatAppend(d); return; }
+  if(d.type === 'react-msg'){ chatAppend(d); return; }
+  if(d.type === 'chat-history'){ chatSeed(d.items); return; }
+}
+
+/* ================= 💬 ライブチャット（配信者ハブ中継） =================
+   送信  : {type:'chat', name, text} / {type:'react', name, emoji}  → 配信者
+   受信  : {type:'chat-msg', id, role, name, text, time}
+           {type:'react-msg', id, role, name, emoji, time}
+           {type:'chat-history', items}（接続直後の直近20件）
+   自分の発言も配信者からの返り（chat-msg）で描画する（二重表示を防ぐ）。
+   受信した名前・本文は必ず textContent で入れる（XSS対策）。 */
+const CHAT_EMOJIS = ['👏','❤️','🔥','🎵'];
+const CHAT_KEEP = 120;                       // 画面に残す最大件数
+const CHAT_NAME_KEY = 'netradio.chat.name';
+const chat = { items:[], counts:{}, lastMsg:0, lastReact:0 };
+
+function chatName(){
+  const n = (el.chatName && el.chatName.value ? el.chatName.value : '').trim().slice(0,24);
+  return n || '匿名リスナー';
+}
+function chatTime(t){
+  const d = (typeof t === 'number' && isFinite(t)) ? new Date(t) : new Date();
+  return pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+}
+function chatRowNode(it){
+  const react = it.type === 'react-msg' || (it.emoji && !it.text);
+  if(react){
+    const row = document.createElement('div');
+    row.className = 'creact';
+    const e = document.createElement('span'); e.className = 'ce'; e.textContent = it.emoji || '';
+    const w = document.createElement('span'); w.className = 'who'; w.textContent = it.name || '';
+    row.appendChild(e); row.appendChild(w);
+    return row;
+  }
+  const row = document.createElement('div');
+  row.className = 'cmsg' + (it.role === 'dj' ? ' dj' : '');
+  const who = document.createElement('span'); who.className = 'who';
+  who.textContent = (it.name || '匿名リスナー').slice(0,24);
+  const when = document.createElement('span'); when.className = 'when';
+  when.textContent = chatTime(it.time);
+  const body = document.createElement('p'); body.className = 'body';
+  body.textContent = String(it.text == null ? '' : it.text).slice(0,200);
+  row.appendChild(who); row.appendChild(when); row.appendChild(body);
+  return row;
+}
+function chatNearBottom(){
+  const b = el.chatLog;
+  return (b.scrollHeight - b.scrollTop - b.clientHeight) < 60;
+}
+function chatScroll(){
+  try{ el.chatLog.scrollTop = el.chatLog.scrollHeight; }catch(e){}
+}
+function chatCountsRender(){
+  if(!el.chatCounts) return;
+  el.chatCounts.textContent = '';
+  CHAT_EMOJIS.forEach((em)=>{
+    const n = chat.counts[em] || 0;
+    if(!n) return;
+    const s = document.createElement('span');
+    s.className = 'on';
+    s.textContent = em + ' ' + n;
+    el.chatCounts.appendChild(s);
+  });
+  if(!el.chatCounts.childElementCount){
+    const s = document.createElement('span');
+    s.textContent = 'リアクションを送ろう';
+    el.chatCounts.appendChild(s);
+  }
+}
+function chatEmptyToggle(){
+  if(!el.chatEmpty) return;
+  el.chatEmpty.hidden = el.chatLog.querySelector('.cmsg, .creact') !== null;
+}
+function chatAppend(it){
+  if(!it || typeof it !== 'object') return;
+  const stick = chatNearBottom();
+  chat.items.push(it);
+  if(it.type === 'react-msg' || (it.emoji && !it.text)){
+    if(CHAT_EMOJIS.indexOf(it.emoji) >= 0) chat.counts[it.emoji] = (chat.counts[it.emoji] || 0) + 1;
+    chatCountsRender();
+  }
+  el.chatLog.appendChild(chatRowNode(it));
+  while(chat.items.length > CHAT_KEEP){ chat.items.shift(); }
+  while(el.chatLog.querySelectorAll('.cmsg, .creact').length > CHAT_KEEP){
+    const first = el.chatLog.querySelector('.cmsg, .creact');
+    if(!first) break;
+    first.remove();
+  }
+  chatEmptyToggle();
+  if(stick) chatScroll();
+}
+function chatSeed(items){
+  if(!Array.isArray(items)) return;
+  el.chatLog.querySelectorAll('.cmsg, .creact').forEach((n)=>n.remove());
+  chat.items = [];
+  chat.counts = {};
+  items.slice(-CHAT_KEEP).forEach((it)=>{
+    if(!it || typeof it !== 'object') return;
+    chat.items.push(it);
+    if(it.type === 'react-msg' || (it.emoji && !it.text)){
+      if(CHAT_EMOJIS.indexOf(it.emoji) >= 0) chat.counts[it.emoji] = (chat.counts[it.emoji] || 0) + 1;
+    }
+    el.chatLog.appendChild(chatRowNode(it));
+  });
+  chatCountsRender();
+  chatEmptyToggle();
+  chatScroll();
+}
+function chatCanSend(){
+  return !!(S.live || (S.conn && S.conn.open));
+}
+function updateChatUi(){
+  if(!el.chatPanel) return;
+  const liveConn = !!(S.conn && S.conn.open);
+  const can = chatCanSend();
+  el.chatPanel.classList.toggle('live', can);
+  if(el.chatState) el.chatState.textContent = can ? 'ON AIR' : (liveConn ? '接続待ち' : 'OFF AIR');
+  if(el.chatOffair) el.chatOffair.hidden = can;
+  if(el.chatForm) el.chatForm.hidden = !can;
+  if(el.chatText) el.chatText.disabled = !can;
+  if(el.chatSend) el.chatSend.disabled = !can;
+  el.chatPanel.querySelectorAll('.creact-btn').forEach((b)=>{ b.disabled = !liveConn; });
+  if(el.chatText) el.chatText.placeholder = can ? 'DJにメッセージを送る' : '生放送が始まるとチャットに参加できます';
+}
+function chatSendText(){
+  if(!chatCanSend()) return;
+  const text = (el.chatText.value || '').trim().slice(0,200);
+  if(!text) return;
+  if(!(S.conn && S.conn.open)) return;
+  const now = Date.now();
+  if(now - chat.lastMsg < 350) return;          // 連打防止
+  chat.lastMsg = now;
+  try{ S.conn.send({type:'chat', name:chatName(), text:text, t:now}); }
+  catch(e){ return; }
+  el.chatText.value = '';
+}
+function chatSendReact(emoji){
+  if(CHAT_EMOJIS.indexOf(emoji) < 0) return;
+  if(!(S.conn && S.conn.open)) return;
+  const now = Date.now();
+  if(now - chat.lastReact < 250) return;
+  chat.lastReact = now;
+  try{ S.conn.send({type:'react', name:chatName(), emoji:emoji, t:now}); }catch(e){}
+}
+function bindChat(){
+  if(!el.chatPanel) return;
+  try{
+    const saved = localStorage.getItem(CHAT_NAME_KEY);
+    if(saved) el.chatName.value = saved.slice(0,24);
+  }catch(e){}
+  el.chatName.addEventListener('input', ()=>{
+    try{ localStorage.setItem(CHAT_NAME_KEY, (el.chatName.value || '').trim().slice(0,24)); }catch(e){}
+  });
+  el.chatSend.addEventListener('click', chatSendText);
+  el.chatText.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter'){ e.preventDefault(); chatSendText(); }
+  });
+  el.chatPanel.querySelectorAll('.creact-btn').forEach((b)=>{
+    b.addEventListener('click', ()=>chatSendReact(b.getAttribute('data-emoji')));
+  });
+  chatCountsRender();
+  updateChatUi();
 }
 function onCall(call){
   if(S.call && S.call !== call){ try{ S.call.close(); }catch(e){} }
@@ -1292,6 +1529,8 @@ function bind(){
   setVolume(Number(el.volume.value)/100);
 
   el.playBtn.addEventListener('click', onPlayClick);
+
+  bindChat();
 
   el.djBtn.addEventListener('click', ()=>{
     S.ai.djOn = !S.ai.djOn;

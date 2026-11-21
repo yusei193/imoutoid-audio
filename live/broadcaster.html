@@ -130,6 +130,7 @@ input,select,output{font-family:inherit}
 .p-bgm{grid-column:span 12}
 .p-pads{grid-column:span 12}
 .p-master{grid-column:span 12}
+.p-chat{grid-column:span 12}
 @media (min-width:860px){
   .p-settings{grid-column:span 6}
   .p-guest{grid-column:span 6}
@@ -137,6 +138,8 @@ input,select,output{font-family:inherit}
   .p-mic{grid-column:span 5}
   .p-bgm{grid-column:span 7}
   .p-pads{grid-column:span 12}
+  .p-cues{grid-column:span 12}
+  .p-chat{grid-column:span 12}
 }
 @media (min-width:1180px){
   .p-settings{grid-column:span 4}
@@ -145,6 +148,8 @@ input,select,output{font-family:inherit}
   .p-mic{grid-column:span 4}
   .p-bgm{grid-column:span 8}
   .p-pads{grid-column:span 12}
+  .p-cues{grid-column:span 8}
+  .p-chat{grid-column:span 4}
 }
 .p-head{display:flex;align-items:center;gap:10px;margin:0 0 13px;flex-wrap:wrap}
 .p-head h2{
@@ -344,6 +349,35 @@ output{font-family:var(--mono);font-size:11px;color:var(--amber);min-width:38px;
 .picker-list li small{color:var(--dim2);font-family:var(--mono);font-size:9px;flex:0 0 auto}
 .picker-list li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cue-empty{color:var(--dim2);font-size:11.5px;text-align:center;padding:16px 8px;border:1px dashed var(--line);border-radius:11px}
+
+/* ============ 💬 ライブチャット ============ */
+.chat-log{display:flex;flex-direction:column;gap:6px;max-height:340px;min-height:120px;overflow-y:auto;overscroll-behavior:contain;padding:8px 2px 8px 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
+.chat-log::-webkit-scrollbar{width:6px}
+.chat-log::-webkit-scrollbar-thumb{background:rgba(255,255,255,.16);border-radius:99px}
+.chat-empty{color:var(--dim2);font-size:11.5px;text-align:center;padding:18px 8px;border:1px dashed var(--line);border-radius:11px;line-height:1.7}
+.cmsg{display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 7px;min-width:0;border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:rgba(0,0,0,.24)}
+.cmsg .who{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;color:#cfc9bd;max-width:14em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.cmsg .badge{font-family:var(--mono);font-size:8px;letter-spacing:.08em;padding:1px 5px;border-radius:999px;border:1px solid var(--line2);color:var(--dim2);flex:0 0 auto}
+.cmsg .badge.guest{color:#cffdf0;border-color:rgba(121,224,194,.45);background:rgba(121,224,194,.08)}
+.cmsg .when{margin-left:auto;font-family:var(--mono);font-size:8.5px;color:var(--dim2);white-space:nowrap}
+.cmsg .body{margin:0;flex:1 1 100%;font-size:12.5px;line-height:1.6;color:var(--txt);word-break:break-word;overflow-wrap:anywhere;white-space:pre-wrap}
+.cmsg.dj{border-color:rgba(242,180,100,.5);background:rgba(242,180,100,.1);box-shadow:inset 3px 0 0 var(--amber)}
+.cmsg.dj .who{color:var(--amber)}
+.cmsg.fresh{animation:cfresh .5s ease-out}
+@keyframes cfresh{from{background:rgba(242,180,100,.28)}to{background:rgba(0,0,0,.24)}}
+.creact{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:3px 10px;border:1px solid var(--line);border-radius:999px;font-size:11px;color:var(--dim)}
+.creact .who{font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-forms{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.chat-row{display:flex;gap:7px;align-items:center}
+.chat-row input{flex:1 1 auto;min-width:0}
+.chat-send{flex:0 0 auto;border-color:rgba(242,180,100,.5);background:rgba(242,180,100,.14);color:#ffebcb}
+.chat-send:hover{background:rgba(242,180,100,.24)}
+.chat-send:disabled{opacity:.45;cursor:default}
+.chat-counts{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:9px;font-family:var(--mono);font-size:9.5px;color:var(--dim2)}
+.chat-counts span{white-space:nowrap}
+.chat-counts span.on{color:#f6dcb4}
+.chat-tail{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
+.chat-tail .scroller{margin-left:auto;font-size:9px;color:var(--dim2);font-family:var(--mono)}
 </style>
 </head>
 <body>
@@ -571,6 +605,27 @@ output{font-family:var(--mono);font-size:11px;color:var(--amber);min-width:38px;
     </div>
     <input type="file" id="cueMp3File" accept="audio/*" hidden>
   </section>
+
+  <!-- 💬 ライブチャット（リスナー反応） -->
+  <section class="panel p-chat" id="chatPanel">
+    <div class="p-head">
+      <h2>💬 ライブチャット（リスナー反応）</h2>
+      <span class="grow"></span>
+      <span class="hint" id="chatCountTop" style="margin:0">0 件</span>
+      <button class="btn small" id="chatClearBtn" type="button">クリア</button>
+    </div>
+    <div class="chat-log" id="chatLog" aria-live="polite">
+      <div class="chat-empty" id="chatEmpty">まだメッセージはありません。生放送中はここにリスナーの反応が流れます。</div>
+    </div>
+    <div class="chat-counts" id="chatCounts"></div>
+    <div class="chat-forms">
+      <div class="chat-row">
+        <input id="chatInput" type="text" maxlength="200" placeholder="DJとして返信する（Enterで送信）" autocomplete="off">
+        <button class="btn small chat-send" id="chatSendBtn" type="button" disabled>送信</button>
+      </div>
+    </div>
+    <p class="hint" id="chatHint">配信中のみ送受信できます。DJの発言はハイライトされ、リスナー側にもそのまま届きます。</p>
+  </section>
 </main>
 
 <audio id="bgmAudioA" crossOrigin="anonymous" preload="auto"></audio>
@@ -668,8 +723,178 @@ const el = {
   xfade:$('xfade'), xfadeVal:$('xfadeVal'),
   talkBtn:$('talkBtn'), playlist:$('playlist'), bgmEq:$('bgmEq'),
   vu:$('vu'), peakDb:$('peakDb'), limitLamp:$('limitLamp'), monitorChk:$('monitorChk'),
-  masterVol:$('masterVol'), masterVolVal:$('masterVolVal'), toasts:$('toasts')
+  masterVol:$('masterVol'), masterVolVal:$('masterVolVal'), toasts:$('toasts'),
+  chatLog:$('chatLog'), chatEmpty:$('chatEmpty'), chatInput:$('chatInput'), chatSendBtn:$('chatSendBtn'),
+  chatClearBtn:$('chatClearBtn'), chatCounts:$('chatCounts'), chatCountTop:$('chatCountTop'), chatHint:$('chatHint')
 };
+
+/* ================= 💬 ライブチャット（配信者が中継ハブ） =================
+   リスナー/ゲスト → {type:'chat', name, text} / {type:'react', name, emoji}
+   配信者 → 全員      {type:'chat-msg', id, role, name, text, time}
+                     {type:'react-msg', id, role, name, emoji, time}
+   新規接続には直近20件の {type:'chat-history', items} を送る。
+   受信した名前・本文は必ず textContent で描画する（XSS対策）。 */
+const CHAT_EMOJIS = ['👏','❤️','🔥','🎵'];
+const CHAT_KEEP = 50;          // 配信者が保持する直近履歴
+const CHAT_HISTORY = 20;       // 新規接続に送る件数
+const chat = { items:[], seq:0, counts:{}, rate:new Map() };
+
+function chatNextId(){ chat.seq++; return 'c' + Date.now().toString(36) + '-' + chat.seq; }
+function chatCountsRender(){
+  if(!el.chatCounts) return;
+  el.chatCounts.textContent = '';
+  CHAT_EMOJIS.forEach((em)=>{
+    const n = chat.counts[em] || 0;
+    const s = document.createElement('span');
+    s.className = n ? 'on' : '';
+    s.textContent = em + ' ' + n;
+    el.chatCounts.appendChild(s);
+  });
+  if(el.chatCountTop) el.chatCountTop.textContent = chat.items.length + ' 件';
+}
+function chatRowNode(it){
+  const react = it.type === 'react-msg' || (it.emoji && !it.text);
+  if(react){
+    const row = document.createElement('div');
+    row.className = 'creact';
+    const e = document.createElement('span'); e.textContent = it.emoji || '';
+    const w = document.createElement('span'); w.className = 'who'; w.textContent = it.name || '';
+    row.appendChild(e); row.appendChild(w);
+    return row;
+  }
+  const row = document.createElement('div');
+  row.className = 'cmsg' + (it.role === 'dj' ? ' dj' : '');
+  const who = document.createElement('span'); who.className = 'who';
+  who.textContent = (it.name || '匿名リスナー').slice(0,24);
+  if(it.role === 'dj' || it.role === 'guest'){
+    const b = document.createElement('span');
+    b.className = 'badge' + (it.role === 'guest' ? ' guest' : '');
+    b.textContent = it.role === 'dj' ? 'DJ' : 'GUEST';
+    row.appendChild(who); row.appendChild(b);
+  } else {
+    row.appendChild(who);
+  }
+  const when = document.createElement('span'); when.className = 'when';
+  const d = (typeof it.time === 'number' && isFinite(it.time)) ? new Date(it.time) : new Date();
+  when.textContent = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  const body = document.createElement('p'); body.className = 'body';
+  body.textContent = String(it.text == null ? '' : it.text).slice(0,200);
+  row.appendChild(when); row.appendChild(body);
+  return row;
+}
+function chatEmptyToggle(){
+  if(!el.chatEmpty) return;
+  el.chatEmpty.hidden = el.chatLog.querySelector('.cmsg, .creact') !== null;
+}
+function chatRenderLocal(it){
+  const stick = (el.chatLog.scrollHeight - el.chatLog.scrollTop - el.chatLog.clientHeight) < 80;
+  const node = chatRowNode(it);
+  if(it.role !== 'dj') node.classList.add('fresh');
+  el.chatLog.appendChild(node);
+  while(el.chatLog.querySelectorAll('.cmsg, .creact').length > CHAT_KEEP){
+    const first = el.chatLog.querySelector('.cmsg, .creact');
+    if(!first) break;
+    first.remove();
+  }
+  chatEmptyToggle();
+  if(stick) el.chatLog.scrollTop = el.chatLog.scrollHeight;
+}
+function chatRemember(it){
+  chat.items.push(it);
+  if(chat.items.length > CHAT_KEEP) chat.items.splice(0, chat.items.length - CHAT_KEEP);
+  if(it.type === 'react-msg' || (it.emoji && !it.text)){
+    if(CHAT_EMOJIS.indexOf(it.emoji) >= 0) chat.counts[it.emoji] = (chat.counts[it.emoji] || 0) + 1;
+  }
+  chatCountsRender();
+}
+function chatAccept(item){
+  chatRemember(item);
+  chatRenderLocal(item);
+  chatFanout(item);
+}
+function chatFanout(item){
+  S.conns.forEach((c)=>{
+    try{ if(c && c.open) c.send(item); }catch(e){}
+  });
+  if(S.guest.conn && !S.conns.has(S.guest.conn.peer)){
+    try{ if(S.guest.conn.open) S.guest.conn.send(item); }catch(e){}
+  }
+}
+function chatHistoryPayload(){
+  return { type:'chat-history', items: chat.items.slice(-CHAT_HISTORY) };
+}
+function chatSendHistory(conn){
+  try{ if(conn && conn.open) conn.send(chatHistoryPayload()); }catch(e){}
+}
+function chatRoleOf(conn){
+  return (S.guest.conn && S.guest.conn === conn) ? 'guest' : 'listener';
+}
+function chatNameOf(conn, d, role){
+  let n = String((d && d.name) || '').trim().slice(0,24);
+  if(!n) n = (role === 'guest' && S.guest.name) ? S.guest.name : (role === 'guest' ? 'ゲスト' : '匿名リスナー');
+  return n;
+}
+function chatRateOk(conn){
+  const key = (conn && conn.peer) || 'unknown';
+  const now = Date.now();
+  let rec = chat.rate.get(key);
+  if(!rec || now - rec.t0 > 10000){ rec = {t0:now, n:0}; }
+  rec.n++;
+  chat.rate.set(key, rec);
+  return rec.n <= 20;   // 10秒に20件まで（連投スパム対策）
+}
+function onChatIn(conn, d){
+  const role = chatRoleOf(conn);
+  const text = String((d && d.text) || '').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,'').trim().slice(0,200);
+  if(!text) return;
+  if(!chatRateOk(conn)) return;
+  chatAccept({ type:'chat-msg', id:chatNextId(), role:role, name:chatNameOf(conn, d, role), text:text, time:Date.now() });
+}
+function onReactIn(conn, d){
+  const emoji = String((d && d.emoji) || '');
+  if(CHAT_EMOJIS.indexOf(emoji) < 0) return;   // 想定外の絵文字は捨てる
+  if(!chatRateOk(conn)) return;
+  const role = chatRoleOf(conn);
+  chatAccept({ type:'react-msg', id:chatNextId(), role:role, name:chatNameOf(conn, d, role), emoji:emoji, time:Date.now() });
+}
+function chatDjName(){
+  return (el.dj.value || '').trim().slice(0,24) || 'DJ';
+}
+function chatSendDj(){
+  if(!S.live){ toast('配信開始後にチャットできます','warn'); return; }
+  const text = (el.chatInput.value || '').trim().slice(0,200);
+  if(!text) return;
+  const item = { type:'chat-msg', id:chatNextId(), role:'dj', name:chatDjName(), text:text, time:Date.now() };
+  el.chatInput.value = '';
+  chatAccept(item);
+}
+function chatClear(){
+  chat.items = []; chat.counts = {};
+  el.chatLog.querySelectorAll('.cmsg, .creact').forEach((n)=>n.remove());
+  chatEmptyToggle();
+  chatCountsRender();
+  toast('チャット表示を消去しました（配信者側のみ）','ok');
+}
+function updateChatUi(){
+  if(el.chatSendBtn) el.chatSendBtn.disabled = !S.live;
+  if(el.chatInput) el.chatInput.disabled = !S.live;
+  if(el.chatInput) el.chatInput.placeholder = S.live ? 'DJとして返信する（Enterで送信）' : '配信を開始するとチャットできます';
+  if(el.chatHint) el.chatHint.textContent = S.live
+    ? '配信中。リスナーとゲストの反応がここに流れ、DJの発言はハイライトされて全員に届きます。'
+    : '「配信開始」を押すとチャットが有効になります。';
+}
+function bindChat(){
+  if(el.chatSendBtn) el.chatSendBtn.addEventListener('click', chatSendDj);
+  if(el.chatInput){
+    el.chatInput.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){ e.preventDefault(); chatSendDj(); }
+    });
+  }
+  if(el.chatClearBtn) el.chatClearBtn.addEventListener('click', chatClear);
+  chatEmptyToggle();
+  chatCountsRender();
+  updateChatUi();
+}
 
 /* =========================================================
    小道具
@@ -1671,6 +1896,7 @@ function initPeer(){
     el.station.disabled = true;
     el.peerHint.textContent = '配信中。この端末が配信局として登録されています。';
     updateListenerUrl();
+    updateChatUi();
     toast('配信を開始しました。リスナー用URLを共有してください。','ok');
   });
 
@@ -1711,23 +1937,27 @@ function handleConn(conn){
     updateListenerCount();
     if(S.guest.conn === conn) guestLeft();
   });
-  conn.on('error', ()=>{
-    S.conns.delete(conn.peer); S.listeners.delete(conn.peer);
-    updateListenerCount();
+  // 接続直後はまだ DataChannel が open していないことがある。
+  // open 前の send は 'not-open-yet' エラーになり、接続そのものは生きているのに
+  // 一覧から外れてしまうため、送信は open を待ってから行う。
+  conn.on('open', ()=>{ try{ if(conn.open) conn.send(infoPayload()); }catch(e){} });
+  conn.on('error', (e)=>{
+    if(window.console && console.warn) console.warn('[conn]', (e && e.type) || '', (e && e.message) || '');
   });
-  // 接続直後に向こうから hello が来る想定。念のため情報だけ先に送っておく。
-  try{ conn.send(infoPayload()); }catch(e){}
 }
 
 function onData(conn, d){
   if(!d || typeof d !== 'object') return;
   if(d.type === 'guest-hello'){ onGuestHello(conn, d); return; }
   if(d.type === 'guest-bye'){ if(S.guest.conn === conn) guestLeft(); return; }
+  if(d.type === 'chat'){ onChatIn(conn, d); return; }
+  if(d.type === 'react'){ onReactIn(conn, d); return; }
   if(d.type === 'hello'){
     const first = !S.listeners.has(conn.peer);
     S.listeners.add(conn.peer);
     updateListenerCount();
     try{ conn.send(infoPayload()); }catch(e){}
+    chatSendHistory(conn);                  // 途中参加でも流れが分かるように直近20件
     // 再接続・再要望時も毎回 call し直す（既存のメディアコールは閉じる）
     if(S.streamDest) callListener(conn.peer);
     if(first) toast('リスナーが接続しました','ok');
@@ -1803,6 +2033,7 @@ function onGuestHello(conn, d){
   S.guest.name = (d && d.name ? String(d.name).slice(0,24) : 'ゲスト');
   try{ conn.send(infoPayload()); }catch(e){}
   try{ conn.send({type:'guest-accept', name:S.guest.name}); }catch(e){}
+  chatSendHistory(conn);
   setGuestUi(false, 'wait');
   sendInfoSoon();
   toast('ゲスト「' + S.guest.name + '」が参加しました','ok');
@@ -1958,6 +2189,7 @@ function teardownBroadcast(silent){
   setBroadcastBtn('配信開始', false, false);
   el.station.disabled = false;
   el.peerHint.textContent = '「配信開始」を押すと、この端末が配信局としてネットに登録されます。';
+  updateChatUi();
   pauseBgm();
   if(S.micStream){
     S.micStream.getTracks().forEach(t=>{ try{ t.stop(); }catch(e){} });
@@ -2263,6 +2495,7 @@ async function cueImport(file){
    UI バインド
    ========================================================= */
 function bind(){
+  bindChat();
   // 数値表示とレンジ
   [el.micVol, el.bgmVol, el.masterVol, el.bgmSeek].forEach(i=>{
     setRangeFill(i);
