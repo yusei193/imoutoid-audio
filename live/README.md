@@ -43,6 +43,7 @@ GitHub Pages などにそのまま置けます。
 ### リスナーページ（index.html）
 - ON AIR／OFF AIRランプ、番組タイトル・DJ・メモ、ゲスト出演中バッジ
 - 再生／停止、音量、リアルタイム波形
+- **接続の現在地を常時表示**：画面下の小さい行に `peer:open / conn:open / call:recv / ice:connected / trk:1 / turn:on` を出し続ける（生放送が詰まったときどこで止まっているか一目で分かる）
 - **24時間AIラジオ（AUTO-DJ）**：生放送がOFF AIRのとき、imoutoid音源146曲を時刻シードで選曲して連続再生。生放送が始まると自動で生放送へ、終わるとAIラジオへ戻る
 - **AI DJ**：日本語音声合成で曲紹介。音楽を止めず、音量を30%まで下げて重ねる（ダッキング）。音声合成が使えない環境では自動で曲だけ流れる
 
@@ -68,7 +69,9 @@ BGMデッキA/B ───────────────┤                
 
 - **ブラウザ**：Chrome / Edge / Safari の最新版を推奨。`http(s)` での利用が確実です
 - **局IDは公開されます**：PeerJSの公開ブローカーに登録するため、IDを知っている人は誰でも聴取・ゲスト接続できます。内輪で使うときは推測されにくいIDに変えてください
-- **ネットワーク**：PeerJSはSTUNのみ（TURNなし）です。会社やモバイル回線などNATが厳しい環境ではつながらないことがあります。その場合は `new Peer(id, {config:{iceServers:[...]}})` に自前のTURNを追加してください（`broadcaster.html` / `guest.html` / `index.html` の Peer 生成箇所）
+- **ネットワーク（STUN / TURN）**：STUN（Google / Cloudflare / Nextcloud:443 / Metered）に加えて、**Metered の公開TURN（`global.relay.metered.ca`、80/443 の UDP・TCP・TLS）を標準で組み込んである**ので、モバイル回線のCGNATなどNATが厳しい環境でも音声が中継されます。クレデンシャルは3ページとも先頭の `TURN_CREDS` 1か所にあり、一時的に別のTURNを使うときは URL に `?turn=ホスト|ユーザー名|パスワード` を付けるだけで上書きできます（`turn:` を無効にしたいときは `TURN_CREDS` の username を空に）
+  - 2026-11時点の実測：認証不要の公開TURN（Open Relay の共有クレデンシャル、PeerJSの無料TURN、bistri、hubl、anyfirewall）はすべて停止・DNS消失。稼働しているのはアカウント制のMeteredのみ。
+  - 無料枠は 500MB/月（P2P直結のときは消費しない）。使い切るとTURN経由の接続だけが止まり、直結できる回線では引き続き再生できます。
 - **ローカルMP3**：ブラウザの仕様で、再読み込み後はファイルを選び直す必要があります（進行表の並び・タイトル・メモは残ります）
 - **AIラジオの音源**：`https://yusei193.github.io/imoutoid-audio/` のMP3を直接再生します（imoutoid-audio リポジトリ自体は変更していません）
 - **AI DJ**：`speechSynthesis` の日本語音声を使います。音声が入っていない環境では曲紹介だけスキップされます
