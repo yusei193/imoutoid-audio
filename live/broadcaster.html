@@ -1894,9 +1894,10 @@ function initPeer(resumeFrom){
     startTimer(); setOnair('live','ON AIR'); setBroadcastBtn('配信終了', false, true);
     el.brandSub.textContent = '局ID: ' + pid;
     el.station.disabled = true;
-    el.peerHint.textContent = '配信中。局ID:「' + pid + '」で登録済み（リスナーから接続できます）。';
+    livePeerHint(pid);
     peerRetry = 0; peerIdFails = 0;
     startPeerWatch();
+    keepAwake();
     updateListenerUrl();
     updateChatUi();
     toast(resumeFrom ? '配信の接続を回復しました。' : '配信を開始しました。リスナー用URLを共有してください。','ok');
@@ -1944,9 +1945,65 @@ function initPeer(resumeFrom){
 
 function peerAlive(){ return !!(S.peer && !S.peer.destroyed && S.peer.open && !S.peer.disconnected); }
 let peerRetry = 0, peerIdFails = 0, peerWatch = null;
-function recoverPeer(){
+let wakeLock = null, selfCheckBusy = false, selfCheckFails = 0;
+function livePeerHint(pid){
+  const id = pid || (S.peer && S.peer.id) || stationId();
+  el.peerHint.textContent = '配信中。局ID:「' + id + '」で登録済み（リスナーから接続できます）' +
+    (wakeLock ? '。画面スリープ防止: ON' : '。※PCがスリープすると配信が切れます（スリープ設定を「なし」にすると安心）');
+}
+/* 配信中は画面のスリープを防ぐ（Chrome/Edge/Safari の Wake Lock） */
+async function keepAwake(){
+  if(!S.live || wakeLock) return;
+  try{
+    if(navigator.wakeLock && navigator.wakeLock.request){
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', ()=>{ wakeLock = null; if(S.live) livePeerHint(); });
+      livePeerHint();
+    }
+  }catch(e){ wakeLock = null; }
+}
+function releaseAwake(){ try{ if(wakeLock) wakeLock.release(); }catch(e){} wakeLock = null; }
+/* 自分の局IDに別ピアから繋いでみる自己診断（登録は生きているのに応答しないゾンビ状態を検知） */
+async function selfCheckPeer(){
+  if(!S.live || !peerAlive() || selfCheckBusy || !S.peer || !S.peer.open) return;
+  selfCheckBusy = true;
+  let probe = null, conn = null;
+  try{
+    probe = new Peer({ debug:0, config:{ iceServers:iceServers() } });
+    const opened = await new Promise((res)=>{
+      probe.on('open', ()=>res(true));
+      probe.on('error', ()=>res(false));
+      setTimeout(()=>res(!!probe.open), 7000);
+    });
+    if(!opened) throw new Error('probe-peer');
+    conn = probe.connect(stationId(), { reliable:true, metadata:{ role:'selfcheck' } });
+    const linked = await new Promise((res)=>{
+      conn.on('open', ()=>res(true));
+      conn.on('error', ()=>res(false));
+      setTimeout(()=>res(!!conn.open), 8000);
+    });
+    if(linked){
+      selfCheckFails = 0;
+    } else {
+      selfCheckFails++;
+      if(window.console && console.warn) console.warn('[selfcheck] no answer from own peer');
+      if(selfCheckFails >= 2){
+        selfCheckFails = 0;
+        el.peerHint.textContent = '配信の登録は生きていますが、リスナーからの接続に応答できていません。再登録します…';
+        recoverPeer(true);
+      }
+    }
+  }catch(e){
+    selfCheckFails++;
+  }finally{
+    try{ if(conn) conn.close(); }catch(e){}
+    try{ if(probe) probe.destroy(); }catch(e){}
+    selfCheckBusy = false;
+  }
+}
+function recoverPeer(force){
   if(!S.live) return;
-  if(peerAlive()){ peerRetry = 0; return; }
+  if(peerAlive() && !force){ peerRetry = 0; return; }
   peerRetry++;
   const started = S.startedAt;
   toast(peerRetry <= 2 ? '配信の接続が切れました。自動で再接続しています…'
@@ -1961,14 +2018,24 @@ function recoverPeer(){
 }
 function startPeerWatch(){
   if(peerWatch) return;
-  peerWatch = setInterval(()=>{ if(S.live && !peerAlive()) recoverPeer(); }, 12000);
+  peerWatch = setInterval(()=>{
+    if(!S.live) return;
+    if(!peerAlive()) recoverPeer(); else selfCheckPeer();
+  }, 30000);
   document.addEventListener('visibilitychange', ()=>{
-    if(document.visibilityState === 'visible' && S.live && !peerAlive()) recoverPeer();
+    if(document.visibilityState !== 'visible' || !S.live) return;
+    keepAwake();
+    if(!peerAlive()) recoverPeer(); else selfCheckPeer();
   });
   window.addEventListener('online', ()=>{ if(S.live && !peerAlive()) recoverPeer(); });
 }
 
 function handleConn(conn){
+  // 自己診断（自分自身への接続テスト）はリスナーとして数えない
+  if(conn && conn.metadata && conn.metadata.role === 'selfcheck'){
+    conn.on('open', ()=>{ try{ conn.close(); }catch(e){} });
+    return;
+  }
   S.conns.set(conn.peer, conn);
   conn.on('data', (d)=>onData(conn, d));
   conn.on('close', ()=>{
@@ -2222,6 +2289,7 @@ function teardownBroadcast(silent){
   updateListenerCount();
   if(S.peer){ try{ S.peer.destroy(); }catch(e){} S.peer = null; }
   S.live = false; S.starting = false;
+  releaseAwake();
   stopTimer();
   el.elapsed.textContent = '00:00:00';
   setOnair('off','OFF AIR');
