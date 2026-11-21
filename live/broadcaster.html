@@ -350,6 +350,25 @@ output{font-family:var(--mono);font-size:11px;color:var(--amber);min-width:38px;
 .picker-list li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cue-empty{color:var(--dim2);font-size:11.5px;text-align:center;padding:16px 8px;border:1px dashed var(--line);border-radius:11px}
 
+/* ============ 🔗 URLから追加（BGMデッキ／キューシート） ============ */
+.urlbox{margin-top:10px;border:1px solid var(--line2);border-radius:12px;padding:10px;background:rgba(0,0,0,.35);display:flex;flex-direction:column;gap:8px}
+.urlbox[hidden]{display:none}
+.urlbox textarea{width:100%;box-sizing:border-box;min-height:66px;resize:vertical;padding:9px 10px;border-radius:9px;border:1px solid var(--line);background:rgba(0,0,0,.45);color:var(--txt);font-family:var(--mono);font-size:11.5px;line-height:1.6}
+.urlbox textarea:focus{outline:0;border-color:rgba(242,180,100,.65);box-shadow:0 0 0 3px rgba(242,180,100,.10)}
+.urlbox .urlbox-title{width:100%;box-sizing:border-box}
+.urlbox-foot{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.urlbox-foot .hint{flex:1 1 220px;margin:0;font-size:10.5px;line-height:1.5}
+.urlmsg{font-size:11px;line-height:1.65;border-radius:9px;padding:8px 10px;border:1px solid var(--line);background:rgba(0,0,0,.3);color:var(--dim);white-space:pre-line;word-break:break-word;overflow-wrap:anywhere}
+.urlmsg[hidden]{display:none}
+.urlmsg.err{border-color:rgba(255,90,90,.45);background:rgba(255,90,90,.08);color:#ffd2d2}
+.urlmsg.ok{border-color:rgba(121,224,194,.45);background:rgba(121,224,194,.08);color:#cffdf0}
+.urlmsg.warn{border-color:rgba(242,180,100,.45);background:rgba(242,180,100,.08);color:#ffe7c4}
+.urlmsg a{color:#ffe6bd;text-decoration:underline}
+.urlbox-key{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-top:2px;border-top:1px dashed rgba(255,255,255,.08)}
+.urlbox-key input{flex:1 1 180px;min-width:0;font-family:var(--mono);font-size:11px}
+.urlbox-key .btn{flex:0 0 auto}
+.urlbox-key .keyhint{flex:1 1 100%;font-size:10px;color:var(--dim2);line-height:1.5}
+
 /* ============ 💬 ライブチャット ============ */
 .chat-log{display:flex;flex-direction:column;gap:6px;max-height:340px;min-height:120px;overflow-y:auto;overscroll-behavior:contain;padding:8px 2px 8px 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
 .chat-log::-webkit-scrollbar{width:6px}
@@ -529,6 +548,7 @@ output{font-family:var(--mono);font-size:11px;color:var(--amber);min-width:38px;
       <h2>BGMデッキ</h2>
       <span class="grow"></span>
       <label class="btn small" for="bgmFiles" style="cursor:pointer">音源を追加</label>
+      <button class="btn small" id="bgmUrlBtn" type="button" title="URLを貼って追加">🔗 URL</button>
       <input type="file" id="bgmFiles" accept="audio/*,.mp3,.wav,.m4a,.ogg,.aac,.flac" multiple hidden>
     </div>
     <div class="track">
@@ -563,6 +583,21 @@ output{font-family:var(--mono);font-size:11px;color:var(--amber);min-width:38px;
     </div>
     <ul class="playlist" id="playlist"><li class="empty">追加した音源がここに並びます</li></ul>
     <p class="hint">「トーク」は押している間だけBGMが自動で下がります（離すと戻ります）。</p>
+    <div class="urlbox" id="bgmUrlPanel" hidden>
+      <input class="urlbox-title" id="bgmUrlTitle" type="text" maxlength="120" autocomplete="off" placeholder="曲名（任意・URL1件のときだけ使う。空ならURLから自動で付けます）">
+      <textarea class="urlbox-text" id="bgmUrlText" rows="3" spellcheck="false" placeholder="音源のURLを貼り付け（1行1曲・複数行まとめてOK）&#10;例：https://yusei193.github.io/imoutoid-audio/s1/xxxxxxxx.mp3"></textarea>
+      <div class="urlmsg" id="bgmUrlMsg" hidden></div>
+      <div class="urlbox-key">
+        <input type="text" id="bgmUrlDriveKey" maxlength="90" autocomplete="off" spellcheck="false" placeholder="Google Drive APIキー（任意・この端末にだけ保存）">
+        <button class="btn small" id="bgmUrlKeySave" type="button">保存</button>
+        <span class="keyhint">ドライブのURLを貼る場合はここにAPIキーを入れて「保存」。キーはブラウザ（localStorage）にだけ残ります。</span>
+      </div>
+      <div class="urlbox-foot">
+        <span class="hint">CORS対応の直リンク（GitHub Pages・Dropbox等）はそのまま再生できます。GoogleドライブはAPIキーがあれば自動でDrive API経由で再生します。</span>
+        <button class="btn small urlbox-close" id="bgmUrlClose" type="button">閉じる</button>
+        <button class="btn small primary urlbox-add" id="bgmUrlAdd" type="button">追加</button>
+      </div>
+    </div>
   </section>
 
   <!-- パッド -->
@@ -584,6 +619,7 @@ output{font-family:var(--mono);font-size:11px;color:var(--amber);min-width:38px;
       <button class="btn small" id="cueAddTalk" type="button">＋ トーク</button>
       <button class="btn small" id="cueAddMp3" type="button">＋ MP3</button>
       <button class="btn small" id="cueAddArc" type="button">＋ アーカイブ</button>
+      <button class="btn small" id="cueAddUrl" type="button" title="URLを貼ってキューに追加">＋ URL</button>
       <button class="btn small" id="cueAddJingle" type="button">＋ ジングル</button>
     </div>
     <div class="cue-bar">
@@ -596,6 +632,21 @@ output{font-family:var(--mono);font-size:11px;color:var(--amber);min-width:38px;
     </div>
     <ul class="cues" id="cueList"></ul>
     <p class="hint">NOW（進行中）と NEXT をハイライト。「▶」で今すぐそのキューを実行、「⏭」で順番通りに進みます。ローカルMP3はブラウザの制限で、再読み込み後に選び直しが必要です。</p>
+    <div class="urlbox" id="cueUrlPanel" hidden>
+      <input class="urlbox-title" id="cueUrlTitle" type="text" maxlength="120" autocomplete="off" placeholder="曲名（任意・URL1件のときだけ使う。空ならURLから自動で付けます）">
+      <textarea class="urlbox-text" id="cueUrlText" rows="3" spellcheck="false" placeholder="音源のURLを貼り付け（1行1曲・複数行まとめてOK）&#10;例：https://yusei193.github.io/imoutoid-audio/s1/xxxxxxxx.mp3"></textarea>
+      <div class="urlmsg" id="cueUrlMsg" hidden></div>
+      <div class="urlbox-key">
+        <input type="text" id="cueUrlDriveKey" maxlength="90" autocomplete="off" spellcheck="false" placeholder="Google Drive APIキー（任意・この端末にだけ保存）">
+        <button class="btn small" id="cueUrlKeySave" type="button">保存</button>
+        <span class="keyhint">ドライブのURLを貼る場合はここにAPIキーを入れて「保存」。キーはブラウザ（localStorage）にだけ残ります。</span>
+      </div>
+      <div class="urlbox-foot">
+        <span class="hint">直リンクはキューシートに保存され、再読み込み後も残ります。GoogleドライブはAPIキーがあれば自動でDrive API経由で再生します。</span>
+        <button class="btn small urlbox-close" id="cueUrlClose" type="button">閉じる</button>
+        <button class="btn small primary urlbox-add" id="cueUrlAdd" type="button">追加</button>
+      </div>
+    </div>
     <div class="picker" id="cuePicker" hidden>
       <div class="picker-head">
         <input id="cueSearch" type="text" placeholder="imoutoid アーカイブを検索（146曲）">
@@ -716,6 +767,7 @@ const el = {
   cueNextBtn:$('cueNextBtn'), cueAutoChk:$('cueAutoChk'), cueExportBtn:$('cueExportBtn'), cueImportFile:$('cueImportFile'),
   cuePicker:$('cuePicker'), cueSearch:$('cueSearch'), cuePickerList:$('cuePickerList'), cuePickerClose:$('cuePickerClose'),
   cueMp3File:$('cueMp3File'),
+  cueAddUrl:$('cueAddUrl'), bgmUrlBtn:$('bgmUrlBtn'),
   onair:$('onairBadge'), onairText:$('onairText'), elapsed:$('elapsed'), listenerCount:$('listenerCount'),
   broadcastBtn:$('broadcastBtn'), brandSub:$('brandSub'), peerHint:$('peerHint'),
   micToggle:$('micToggle'), micState:$('micState'), micVol:$('micVol'), micVolVal:$('micVolVal'),
@@ -1178,6 +1230,258 @@ function addFiles(fileList){
   toast(files.length + '曲を追加しました','ok');
   if(S.index < 0) selectTrack(S.playlist.length - files.length, false);
 }
+
+/* ================= 🔗 URL（直リンク／Googleドライブ） =================
+   BGMデッキとキューシートに URL から音源を追加する。
+   ・https の直リンク（GitHub Pages / Dropbox など CORS を返すもの）… そのまま再生できる
+   ・Googleドライブの共有URL … 素のURLは使えない。Google が「別サイトからの直接アクセス」を 403 で拒否するため。
+     実測（2026-11-21）: drive.usercontent.google.com は Origin 付き単体アクセスなら 200/206 + ACAO:* を返すが、
+     ブラウザが必ず送る sec-fetch-site: cross-site を付けた瞬間に 403（HTML・ACAOなし）になる。
+     そのため <audio> は MEDIA_ERR_SRC_NOT_SUPPORTED になり、Web Audio のミックスにも音が乗らない。
+   ・そこで Google Drive API（alt=media）のキーをこの画面から入れられるようにした。
+     キーがあれば drive.google.com/file/d/<ID>/view 等を自動で
+     https://www.googleapis.com/drive/v3/files/<ID>?alt=media&key=<KEY> に変換して再生する。
+     API 側は CORS を返す（403応答でも access-control-allow-origin が付くのを実測確認済み）。
+     キーはページに露出するので、Google Cloud 側で HTTP リファラ制限（yusei193.github.io/*）を必ずかけること。 */
+const DRIVE_KEY_STORE = 'netradio.driveApiKey.v1';
+let driveKey = '';
+try{ driveKey = String(localStorage.getItem(DRIVE_KEY_STORE) || '').trim(); }catch(e){}
+const driveKeyInputs = [];
+function getDriveKey(){ return driveKey; }
+function setDriveKey(v){
+  driveKey = String(v == null ? '' : v).trim();
+  try{
+    if(driveKey) localStorage.setItem(DRIVE_KEY_STORE, driveKey);
+    else localStorage.removeItem(DRIVE_KEY_STORE);
+  }catch(e){}
+  driveKeyInputs.forEach(inp=>{ try{ inp.value = driveKey; }catch(e){} });
+  return driveKey;
+}
+
+function driveFileId(raw){
+  const s = String(raw || '');
+  let m = s.match(/\/file\/d\/([-\w]{20,})/);
+  if(m) return m[1];
+  m = s.match(/[?&]id=([-\w]{20,})/);
+  if(m) return m[1];
+  m = s.match(/\/d\/([-\w]{20,})/);
+  if(m) return m[1];
+  m = s.match(/^([-\w]{25,})$/);
+  if(m) return m[1];
+  return '';
+}
+function driveResourceKey(raw){
+  const m = String(raw || '').match(/[?&]resourcekey=([-\w]+)/);
+  return m ? m[1] : '';
+}
+function isDriveHost(host){
+  return /(^|\.)drive\.google\.com$/.test(host) || /(^|\.)docs\.google\.com$/.test(host) || host === 'drive.usercontent.google.com';
+}
+function isDriveUrl(raw){
+  try{ return isDriveHost(new URL(String(raw).trim()).hostname); }
+  catch(e){ return false; }
+}
+function driveStreamUrl(id, rkey){
+  const key = getDriveKey();
+  if(key) return 'https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(id) + '?alt=media&key=' + encodeURIComponent(key);
+  return 'https://drive.usercontent.google.com/download?id=' + encodeURIComponent(id) + '&export=download' + (rkey ? '&resourcekey=' + encodeURIComponent(rkey) : '');
+}
+function driveViewUrl(id, rkey){
+  return 'https://drive.google.com/file/d/' + encodeURIComponent(id) + '/view' + (rkey ? '?resourcekey=' + encodeURIComponent(rkey) : '');
+}
+/* 1行 → {ok, url, title, driveId, reason, view} */
+function parseAudioLine(line){
+  const raw = String(line || '').trim().replace(/^</, '').replace(/>$/, '').trim();
+  if(!raw) return null;
+  if(!/^https?:\/\//i.test(raw)) return {ok:false, raw, reason:'scheme'};
+  if(isDriveUrl(raw)){
+    const id = driveFileId(raw), rkey = driveResourceKey(raw);
+    if(!id) return {ok:false, raw, reason:'drive-no-id'};
+    if(!getDriveKey()) return {ok:false, raw, reason:'drive-no-key', driveId:id, resourcekey:rkey, view:driveViewUrl(id, rkey)};
+    return {ok:true, raw, url:driveStreamUrl(id, rkey), driveId:id, resourcekey:rkey};
+  }
+  return {ok:true, raw, url:raw};
+}
+/* CORSで読めるか（読めないURLをキューに入れないための事前確認）。本文は読まずに切り捨てる。 */
+async function probeAudioUrl(url){
+  const ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  const to = setTimeout(()=>{ if(ctl){ try{ ctl.abort(); }catch(e){} } }, 9000);
+  try{
+    const r = await fetch(url, {mode:'cors', signal: ctl ? ctl.signal : undefined});
+    try{ if(r.body && r.body.cancel) r.body.cancel(); }catch(e){}
+    const ct = (r.headers.get('content-type') || '').toLowerCase();
+    if(!r.ok) return {ok:false, reason:'http', status:r.status};
+    if(/^text\/html/.test(ct)) return {ok:false, reason:'html', status:r.status};
+    return {ok:true, status:r.status, ctype:ct};
+  }catch(e){
+    return {ok:false, reason:(e && e.name === 'AbortError') ? 'timeout' : 'cors'};
+  }finally{ clearTimeout(to); }
+}
+/* URLから曲名を作る（アーカイブのURLなら正式な曲名を拾う） */
+function urlTitleFor(p){
+  const hit = ARCHIVE.find(a=>a.u === p.url);
+  if(hit) return hit.t;
+  if(p.driveId) return 'ドライブ ' + p.driveId.slice(0,8);
+  try{
+    const u = new URL(p.url);
+    let last = decodeURIComponent((u.pathname.split('/').filter(Boolean).pop()) || '');
+    last = last.replace(/\.(mp3|m4a|wav|ogg|aac|flac|opus)$/i, '');
+    if(last && last.length <= 80 && !/^[-\w]{25,}$/.test(last)) return last;
+    return u.hostname + (last ? '/' + last : '');
+  }catch(e){ return 'URL音源'; }
+}
+function urlShort(u){
+  try{
+    const x = new URL(u);
+    const host = x.hostname.replace(/^www\./, '');
+    const path = decodeURIComponent(x.pathname);
+    return host + (path.length > 46 ? path.slice(0, 26) + '…' + path.slice(-16) : path);
+  }catch(e){ return String(u).slice(0, 60); }
+}
+/* URL追加パネル（BGMデッキ / キューシート 共通） */
+function initUrlBox(prefix, target){
+  const panel = $(prefix + 'Panel');
+  if(!panel) return;
+  const titleEl = $(prefix + 'Title'), textEl = $(prefix + 'Text'), addBtn = $(prefix + 'Add'), closeBtn = $(prefix + 'Close'), msgEl = $(prefix + 'Msg');
+  if(!textEl || !addBtn) return;
+  const setMsg = (text, kind, links)=>{
+    if(!msgEl) return;
+    msgEl.className = 'urlmsg' + (kind ? ' ' + kind : '');
+    msgEl.textContent = '';
+    msgEl.hidden = !text;
+    if(!text) return;
+    msgEl.appendChild(document.createTextNode(text));
+    (links || []).forEach(l=>{
+      msgEl.appendChild(document.createTextNode(' '));
+      const a = document.createElement('a');
+      a.href = l.href; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = l.label;
+      msgEl.appendChild(a);
+    });
+  };
+  const open = ()=>{
+    panel.hidden = false;
+    setMsg('', '');
+    setTimeout(()=>{ try{ textEl.focus(); }catch(e){} }, 20);
+  };
+  const close = ()=>{ panel.hidden = true; };
+  panel._nrOpen = open;
+
+  /* Drive APIキー（この端末にだけ保存。両方のパネルで共通） */
+  const keyInput = $(prefix + 'DriveKey'), keySaveBtn = $(prefix + 'KeySave');
+  if(keyInput){
+    keyInput.value = getDriveKey();
+    driveKeyInputs.push(keyInput);
+    keyInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); if(keySaveBtn) keySaveBtn.click(); } });
+  }
+  if(keySaveBtn){
+    keySaveBtn.addEventListener('click', ()=>{
+      setDriveKey(keyInput ? keyInput.value : '');
+      if(getDriveKey()) setMsg('Drive APIキーを保存しました（この端末のブラウザにだけ保存され、次回も使えます）。\nドライブのURLを貼って「追加」を押してください。', 'ok');
+      else setMsg('Drive APIキーを削除しました。', 'warn');
+    });
+  }
+
+  async function submit(){
+    let lines = String(textEl.value || '').split(/[\r\n]+/).map(s=>s.trim()).filter(Boolean);
+    if(!lines.length){ setMsg('URLを貼り付けてください。', 'err'); return; }
+    if(lines.length > 20) lines = lines.slice(0, 20);
+    const singleTitle = (lines.length === 1 && titleEl && titleEl.value.trim()) ? titleEl.value.trim().slice(0, 120) : '';
+    addBtn.disabled = true;
+    setMsg('確認中…', '');
+
+    const rows = await Promise.all(lines.map(async (line)=>{
+      const p = parseAudioLine(line);
+      if(!p || !p.ok) return {line, p};
+      const pr = await probeAudioUrl(p.url);
+      return {line, p, pr};
+    }));
+
+    const okList = [], failList = [], driveList = [];
+    let driveFail = null;
+    rows.forEach(({line, p, pr})=>{
+      if(!p){ return; }
+      if(!p.ok){
+        if(p.reason === 'drive-no-key') driveList.push(p);
+        else if(p.reason === 'drive-no-id') failList.push(line + ' → ドライブのファイルIDが見つかりません');
+        else failList.push(line + ' → http(s):// で始まるURLを貼ってください');
+        return;
+      }
+      if(!pr.ok){
+        if(p.driveId){
+          if(!driveFail) driveFail = {p, pr};
+          return;
+        }
+        if(pr.reason === 'cors') failList.push(line + ' → CORS非対応（他のサイトからは読み込めません）');
+        else if(pr.reason === 'html') failList.push(line + ' → 音声ではなくWebページが返りました（共有ページではなく直リンクが必要）');
+        else if(pr.reason === 'timeout') failList.push(line + ' → 読み込みがタイムアウトしました');
+        else failList.push(line + ' → HTTP ' + (pr.status || '?') + ' で取得できません');
+        return;
+      }
+      okList.push({p, name: singleTitle || urlTitleFor(p)});
+    });
+
+    if(okList.length){
+      if(target === 'deck'){
+        const first = S.playlist.length;
+        okList.forEach(({p, name})=>S.playlist.push({name, url:p.driveId ? p.view : p.url, remote:true, driveId:p.driveId || '', resourcekey:p.resourcekey || ''}));
+        renderPlaylist();
+        if(S.index < 0) selectTrack(first, false);
+      }else{
+        okList.forEach(({p, name})=>cueAdd('url', {title:name, src:p.driveId ? p.view : p.url, srcLabel:'URL',
+          driveId:p.driveId || '', resourcekey:p.resourcekey || ''}));
+      }
+      textEl.value = '';
+      if(titleEl) titleEl.value = '';
+    }
+
+    const parts = [];
+    let kind = 'ok';
+    if(okList.length){
+      parts.push(okList.length + '曲を' + (target === 'deck' ? 'BGMデッキ' : 'キューシート') + 'に追加しました。\n'
+        + okList.map(x=>'・' + x.name).join('\n'));
+    }
+    if(failList.length){
+      kind = okList.length ? 'warn' : 'err';
+      parts.push('追加できなかったURL（' + failList.length + '件）：\n' + failList.join('\n'));
+    }
+    const links = [];
+    if(driveList.length){
+      kind = (okList.length || failList.length) ? 'warn' : 'err';
+      parts.push('GoogleドライブURLの直接再生には無料のDrive APIキーが必要です（下の設定欄に入力して「保存」するか、端末からファイル追加してください）。\n'
+        + 'ドライブのURLはGoogleの直リンク制限でそのままでは再生できません。\n'
+        + 'ファイルID：' + driveList[0].driveId);
+      links.push({label:'ドライブで開く', href:driveList[0].view});
+    }
+    if(driveFail){
+      kind = (okList.length || failList.length) ? 'warn' : 'err';
+      const st = driveFail.pr.status, rs = driveFail.pr.reason;
+      const why = (rs === 'http')
+        ? 'Drive APIが HTTP ' + (st || '?') + ' を返しました。キーが無効・期限切れ、またはそのファイルが「リンクを知っている全員」で共有されていない可能性があります。'
+        : (rs === 'cors')
+          ? 'Drive APIにCORSで接続できませんでした。キーのリファラ制限に yusei193.github.io が入っているか確認してください。'
+          : (rs === 'html')
+            ? 'Drive APIが音声ではなくWebページを返しました。キーを確認してください。'
+            : 'Drive APIの応答がタイムアウトしました。';
+      parts.push('GoogleドライブのURLを再生できませんでした（' + driveFail.p.driveId + '）。\n' + why);
+      links.push({label:'ドライブで開く', href:driveFail.p.view});
+    }
+    if(parts.length) setMsg(parts.join('\n\n'), kind, links);
+    if(okList.length) toast(okList.length + '曲を追加しました', 'ok');
+    addBtn.disabled = false;
+  }
+
+  addBtn.addEventListener('click', submit);
+  if(closeBtn) closeBtn.addEventListener('click', close);
+  textEl.addEventListener('keydown', (e)=>{
+    if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); submit(); }
+  });
+}
+function toggleUrlBox(prefix){
+  const panel = $(prefix + 'Panel');
+  if(!panel) return;
+  if(panel.hidden){ if(panel._nrOpen) panel._nrOpen(); }
+  else { panel.hidden = true; }
+}
 function renderPlaylist(){
   el.playlist.innerHTML = '';
   if(!S.playlist.length){
@@ -1191,12 +1495,13 @@ function renderPlaylist(){
     const li = document.createElement('li');
     if(i === S.index) li.className = 'playing';
     const n = document.createElement('span'); n.className='n'; n.textContent = String(i+1).padStart(2,'0');
-    const nm = document.createElement('span'); nm.className='nm'; nm.textContent = t.name;
+    const nm = document.createElement('span'); nm.className='nm'; nm.textContent = (t.remote ? '🔗 ' : '') + t.name;
+    if(t.remote) li.title = t.url;
     const del = document.createElement('button'); del.className='del'; del.type='button'; del.textContent='✕'; del.setAttribute('aria-label','削除');
     del.addEventListener('click',(ev)=>{
       ev.stopPropagation();
       const wasCurrent = (i === S.index);
-      URL.revokeObjectURL(t.url);
+      if(/^blob:/i.test(String(t.url || ''))){ try{ URL.revokeObjectURL(t.url); }catch(e){} }
       S.playlist.splice(i,1);
       if(wasCurrent){
         pauseBgm();
@@ -1218,11 +1523,14 @@ function deckCur(){ return S.decks ? S.decks[S.active] : null; }
 function deckOpposite(){ return S.decks ? S.decks[1 - S.active] : null; }
 function bgmItemFromPlaylist(i){
   const t = S.playlist[i];
-  return t ? {kind:'playlist', index:i, url:t.url, title:t.name} : null;
+  if(!t) return null;
+  const url = t.driveId ? driveStreamUrl(t.driveId, t.resourcekey || '') : t.url;
+  return {kind:'playlist', index:i, url, title:t.name};
 }
 function bgmItemFromCue(c){
-  if(!c || (c.type !== 'mp3' && c.type !== 'archive') || !c.src) return null;
-  return {kind:'cue', cueId:c.id, url:c.src, title:c.title || c.srcLabel || 'キュー'};
+  if(!c || (c.type !== 'mp3' && c.type !== 'archive' && c.type !== 'url') || !c.src) return null;
+  const url = c.driveId ? driveStreamUrl(c.driveId, c.resourcekey || '') : c.src;
+  return {kind:'cue', cueId:c.id, url, title:c.title || c.srcLabel || 'キュー'};
 }
 function nextPlaylistItem(){
   if(S.playlist.length < 2) return null;
@@ -2339,6 +2647,7 @@ const CUE_TYPES = {
   talk:{icon:'🎙️', label:'トーク'},
   mp3:{icon:'🎵', label:'MP3'},
   archive:{icon:'📻', label:'アーカイブ'},
+  url:{icon:'🔗', label:'URL'},
   jingle:{icon:'🔔', label:'ジングル'}
 };
 const JINGLES = {op:'OPジングル', chime:'ピンポン', buzz:'ブブー', clap:'拍手'};
@@ -2349,6 +2658,7 @@ function cueSave(){
     const items = S.cue.items.map(c=>({
       id:c.id, type:c.type, title:c.title, memo:c.memo,
       src:(c.type === 'mp3' ? '' : c.src), srcLabel:c.srcLabel, jingle:c.jingle,
+      driveId:c.driveId || '', resourcekey:c.resourcekey || '',
       needsFile:!!c.needsFile
     }));
     localStorage.setItem(CUE_KEY, JSON.stringify({items, index:S.cue.index, auto:S.cue.auto}));
@@ -2365,6 +2675,7 @@ function cueLoad(){
       type:(CUE_TYPES[c.type] ? c.type : 'talk'),
       title:String(c.title||'').slice(0,120), memo:String(c.memo||'').slice(0,200),
       src:c.src||'', srcLabel:c.srcLabel||'', jingle:c.jingle||'op',
+      driveId:c.driveId||'', resourcekey:c.resourcekey||'',
       needsFile:(c.type === 'mp3') ? true : !!c.needsFile
     }));
     S.cue.index = Math.min(Math.max(-1, Number(d.index)||0), S.cue.items.length-1);
@@ -2378,6 +2689,7 @@ function cueSourceText(c){
   if(c.type === 'archive') return 'アーカイブ：' + (c.title || c.srcLabel || '—');
   if(c.type === 'jingle') return 'SE：' + (JINGLES[c.jingle] || 'OPジングル');
   if(c.type === 'mp3') return c.src ? ('ローカル：' + (c.srcLabel || 'MP3')) : 'ローカルMP3：再選択が必要';
+  if(c.type === 'url') return c.driveId ? ('ドライブ：' + String(c.driveId).slice(0,12) + '…') : ('直リンク：' + urlShort(c.src));
   return '';
 }
 
@@ -2387,7 +2699,7 @@ function renderCues(){
   if(!S.cue.items.length){
     const li = document.createElement('li');
     li.className = 'cue-empty';
-    li.textContent = '「＋トーク」「＋MP3」「＋アーカイブ」「＋ジングル」で番組の流れを作れます';
+    li.textContent = '「＋トーク」「＋MP3」「＋URL」「＋アーカイブ」「＋ジングル」で番組の流れを作れます';
     ul.appendChild(li);
     return;
   }
@@ -2449,7 +2761,7 @@ function renderCueSourceOnly(li, c){
 
 function cueAdd(type, data){
   const c = Object.assign({
-    id:cueNewId(), type, title:'', memo:'', src:'', srcLabel:'', jingle:'op', needsFile:false
+    id:cueNewId(), type, title:'', memo:'', src:'', srcLabel:'', jingle:'op', driveId:'', resourcekey:'', needsFile:false
   }, data || {});
   S.cue.items.push(c);
   if(S.cue.index < 0) S.cue.index = 0;
@@ -2501,6 +2813,7 @@ function runCue(i){
     return;
   }
   if(c.type === 'mp3' && !c.src){ cuePickFile(c.id); return; }
+  if(c.driveId && !getDriveKey()){ toast('ドライブ音源の再生にはDrive APIキーが必要です（URLパネルの設定欄）','warn'); return; }
   if(!c.src){ toast('音源が設定されていません','warn'); return; }
   playCueAudio(c);
 }
@@ -2581,7 +2894,8 @@ function renderArchiveList(q){
 function cueExport(){
   const data = {version:1, auto:S.cue.auto, items:S.cue.items.map(c=>({
     type:c.type, title:c.title, memo:c.memo,
-    src:(c.type === 'mp3' ? '' : c.src), srcLabel:c.srcLabel, jingle:c.jingle
+    src:(c.type === 'mp3' ? '' : c.src), srcLabel:c.srcLabel, jingle:c.jingle,
+    driveId:c.driveId || '', resourcekey:c.resourcekey || ''
   }))};
   try{
     const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
@@ -2605,6 +2919,7 @@ async function cueImport(file){
       type:(CUE_TYPES[c.type] ? c.type : 'talk'),
       title:String(c.title||'').slice(0,120), memo:String(c.memo||'').slice(0,200),
       src:c.src||'', srcLabel:c.srcLabel||'', jingle:c.jingle||'op',
+      driveId:c.driveId||'', resourcekey:c.resourcekey||'',
       needsFile:(c.type === 'mp3')
     }));
     S.cue.index = S.cue.items.length ? 0 : -1;
@@ -2767,6 +3082,12 @@ function bind(){
   el.cueMp3File.addEventListener('change', (e)=>{ onCueFilePicked(e.target.files[0]); e.target.value = ''; });
   el.cuePickerClose.addEventListener('click', ()=>{ el.cuePicker.hidden = true; });
   el.cueSearch.addEventListener('input', ()=>renderArchiveList(el.cueSearch.value));
+
+  // URLから追加
+  if(el.bgmUrlBtn) el.bgmUrlBtn.addEventListener('click', ()=>toggleUrlBox('bgmUrl'));
+  if(el.cueAddUrl) el.cueAddUrl.addEventListener('click', ()=>toggleUrlBox('cueUrl'));
+  initUrlBox('bgmUrl', 'deck');
+  initUrlBox('cueUrl', 'cue');
 
   // マスター
   el.masterVol.addEventListener('input', ()=>{
