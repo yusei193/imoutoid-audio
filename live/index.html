@@ -973,6 +973,7 @@ function playLive(){
   if(p && p.then){
     p.then(()=>{
       S.playing = true; updatePlayUi();
+      el.statusText.innerHTML = '<b>ON AIR</b> — 生放送を再生中です。タップで停止します。';
       setSrcLine('ON AIR — 生放送を受信中（' + srcInfo() + '）');
     }).catch(()=>{
       S.playing = false; updatePlayUi();
