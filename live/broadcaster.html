@@ -628,8 +628,10 @@ output{font-family:var(--mono);font-size:11px;color:var(--amber);min-width:38px;
   </section>
 </main>
 
-<audio id="bgmAudioA" crossOrigin="anonymous" preload="auto"></audio>
-<audio id="bgmAudioB" crossOrigin="anonymous" preload="auto"></audio>
+<!-- BGMデッキ。crossOrigin は付けない（blob: のローカル音源が読めなくなるため）。
+     別オリジンの http(s) 音源のときだけ setDeckItem() が動的に付ける。 -->
+<audio id="bgmAudioA" preload="auto"></audio>
+<audio id="bgmAudioB" preload="auto"></audio>
 <div id="toasts" aria-live="polite"></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -1274,8 +1276,23 @@ function notifyNow(){
   sendInfoSoon();
 }
 
+/* crossOrigin は「別オリジンの http(s) 音源」のときだけ付ける。
+   ・blob:（端末から選んだファイル）や同一オリジン … 付けない（付けると Android Chrome 等で読込に失敗することがある）
+   ・別オリジンの https:// … 付けないと createMediaElementSource が taint されて無音になるため anonymous を付ける */
+function applyDeckCrossOrigin(d, url){
+  let cross = false;
+  try{
+    if(/^https?:/i.test(String(url || ''))) cross = (new URL(url, location.href).origin !== location.origin);
+  }catch(e){ cross = false; }
+  if(cross){
+    if(d.el.crossOrigin !== 'anonymous') d.el.crossOrigin = 'anonymous';
+  } else if(d.el.hasAttribute('crossorigin')){
+    d.el.removeAttribute('crossOrigin');
+  }
+}
 function setDeckItem(d, item){
   d.item = item;
+  applyDeckCrossOrigin(d, item && item.url);
   d.el.src = item.url;
   try{ d.el.load(); }catch(e){}
   try{ d.el.currentTime = 0; }catch(e){}
@@ -2680,7 +2697,17 @@ function bind(){
     a.addEventListener('play', updateNowUi);
     a.addEventListener('pause', updateNowUi);
     a.addEventListener('loadedmetadata', ()=>{ if(S.decks && S.decks[i] === deckCur()) el.bgmDur.textContent = fmtTime(a.duration); });
-    a.addEventListener('error', ()=>{ if(S.decks && S.decks[i].item) toast('音源の読み込みに失敗しました','err'); });
+    a.addEventListener('error', ()=>{
+      const d = S.decks && S.decks[i];
+      if(!d || !d.item) return;                        // 停止・差し替え後の空振りエラーは無視
+      const src = a.getAttribute('src');
+      if(!src || /^\s*$/.test(src)) return;            // src が空のときのエラーも無視
+      const e = a.error;
+      const code = (e && e.code) ? e.code : 0;
+      const why = {1:'読込中断', 2:'通信エラー', 3:'デコード不可', 4:'非対応形式またはURL'}[code] || '読込エラー';
+      const nm = d.item.title ? '：' + d.item.title : '';
+      toast('音源の読み込みに失敗しました（' + why + ' code:' + code + '）' + nm, 'err');
+    });
   });
 
   // ダッキング（押している間）
