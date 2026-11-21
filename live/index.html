@@ -552,43 +552,45 @@ function checkDayPart(){
 function canSpeak(){
   return !!(window.speechSynthesis && typeof window.SpeechSynthesisUtterance === 'function');
 }
+const FEMALE_VOICE_HINTS = /female|woman|girl|samantha|victoria|karen|tessa|zira|ava|aria|jenny|sonia|michelle|allison|susan|kate|serena|nicky|martha|moira|fiona|emma|amelie|joanna|salli|kimberly|ivy|kendra|hazel|libby|natasha|clara|olivia|nova|shimmer|google us english|google uk english female/i;
 function pickEnVoice(){
   try{
-    const vs = window.speechSynthesis.getVoices() || [];
-    if(!vs.length) return null;
-    return vs.find(v=>/^en[-_]US/i.test(v.lang))
-        || vs.find(v=>/^en/i.test(v.lang) && /US|United States|Samantha|Alex|Google US/i.test(v.name + ' ' + v.lang))
-        || vs.find(v=>/^en/i.test(v.lang))
-        || vs.find(v=>/english/i.test(v.name))
-        || null;
+    const all = window.speechSynthesis.getVoices() || [];
+    if(!all.length) return null;
+    const en = all.filter(v=>/^en/i.test(v.lang));
+    if(!en.length) return null;
+    const isFem = v=>FEMALE_VOICE_HINTS.test((v.name || '') + ' ' + (v.voiceURI || ''));
+    const usFem = en.filter(v=>/^en[-_]US/i.test(v.lang) && isFem(v));
+    const anyFem = en.filter(isFem);
+    const us = en.filter(v=>/^en[-_]US/i.test(v.lang));
+    return usFem[0] || anyFem[0] || us[0] || en[0];
   }catch(e){ return null; }
 }
 function introText(t){
   const p = jstNow();
   const part = dayPart(p.h);
-  const night = (p.h < 5 || p.h >= 22) || (p.h >= 17 && p.h < 22);
   const title = String(t.t || '').trim();
   const sets = {
     morning: [
-      'Good morning, you are tuned into imoutoid archive radio. Starting your morning with ' + title + '.',
-      'Morning on imoutoid radio. Here is ' + title + ' to start the day.',
-      'Rise and shine. From the imoutoid archive, this is ' + title + '.',
-      'Good morning. A bright one for you now: ' + title + '.',
-      'You are on imoutoid archive radio. Up next, ' + title + '.'
+      'Good morning! You are tuned into imoutoid archive radio. Starting your morning with ' + title + '.',
+      'Morning! Let us wake up slowly together with ' + title + ' on imoutoid radio!',
+      'Rise and shine! From the imoutoid archive, here is ' + title + '.',
+      'Hey, good morning! This one is ' + title + ', just for your morning.',
+      'Good morning! Here comes ' + title + '. Let us have a lovely day!'
     ],
     day: [
+      'Hey there! Welcome to imoutoid archive radio! Up next is ' + title + '!',
       'Good afternoon! Keep the energy up on imoutoid radio. Up next: ' + title + '.',
-      'Daytime on imoutoid radio. Here is ' + title + ', turned up.',
-      'This is imoutoid radio. Keeping the groove going with ' + title + '.',
-      'Afternoon energy, coming right up: ' + title + '.',
-      'Stay with us. Now playing ' + title + ' by imoutoid.'
+      'Daytime on imoutoid radio! Here comes ' + title + ', turned up!',
+      'Let us keep the groove going with ' + title + '!',
+      'This is imoutoid radio. Right now, ' + title + '.'
     ],
     night: [
-      (night ? 'Late night chill on imoutoid archive radio. Unwind with ' : 'Good evening. Here is a calm track for your night: ') + title + '.',
-      'Good evening. Easing into the night with ' + title + '.',
-      'Night sessions on imoutoid archive radio. This is ' + title + '.',
+      'Good evening. Here is a calm track for your night: ' + title + '.',
+      'Hey, it is getting late. Let us unwind together with ' + title + ' on imoutoid archive radio.',
+      'Late night chill on imoutoid archive radio. This is ' + title + '.',
       'Slow down and settle in. From the imoutoid archive, ' + title + '.',
-      'Here is something quiet for the evening: ' + title + '.'
+      'Shh... night time on imoutoid radio. Here is ' + title + '.'
     ]
   };
   const pats = sets[part.id] || sets.night;
@@ -624,8 +626,8 @@ function speakOver(track, deck){
   try{
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'en-US';
-    u.rate = 0.98;
-    u.pitch = 1.0;
+    u.rate = 1.05;
+    u.pitch = 1.35;
     u.volume = 1;
     const v = pickEnVoice();
     if(v) u.voice = v;
