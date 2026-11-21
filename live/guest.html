@@ -283,7 +283,7 @@ const S = {
   joined:false, status:'idle', ctx:null, micStream:null, micSource:null, micGain:null, micDest:null,
   monitorGain:null, monitorOn:false, micOn:true, micVol:1, deviceId:'',
   voice:'off', vnodes:[], shifter:null,
-  peer:null, conn:null, micCall:null, returnCall:null, hostStream:null, analyser:null,
+  peer:null, conn:null, micCall:null, returnCall:null, hostStream:null, analyser:null, meterStream:null,
   hostMuted:false, hostVol:0.85, hostPlaying:false,
   connecting:false, retryId:null, retryTimer:null, elapsedTimer:null, joinedAt:0,
   lastMicTry:0, lastError:'', hostPlayErr:'', startedAudio:false
@@ -565,7 +565,14 @@ async function join(){
 function openPeer(){
   return new Promise((resolve, reject)=>{
     if(S.peer && S.peer.open) return resolve();
-    const peer = new Peer({debug:0});
+    const peer = new Peer({
+      debug:0,
+      config:{ iceServers:[
+        {urls:'stun:stun.l.google.com:19302'},
+        {urls:'stun:stun1.l.google.com:19302'},
+        {urls:'stun:stun2.l.google.com:19302'}
+      ] }
+    });
     S.peer = peer;
     let done = false;
     peer.on('open', ()=>{ if(!done){ done = true; resolve(); } });
@@ -665,8 +672,9 @@ function onHostData(d){
 function attachHost(stream){
   S.hostStream = stream;
   el.hostAudio.srcObject = stream;
+  el.hostAudio.muted = false;
   el.hostAudio.volume = S.hostMuted ? 0 : S.hostVol;
-  setupMeter(stream);
+  setupMeter(stream);                   // 波形は clone() で解析（再生は <audio> に一本化）
   const p = el.hostAudio.play();
   if(p && p.then) p.then(()=>{ S.hostPlaying = true; el.hostPlayBtn.textContent = '❚❚'; S.hostPlayErr=''; }).catch((e)=>{
     S.hostPlaying = false; S.hostPlayErr = (e && e.name ? e.name : '') + ':' + (e && e.message ? e.message : '');
@@ -683,7 +691,8 @@ function attachHost(stream){
 function detachHost(){
   S.hostStream = null;
   try{ el.hostAudio.srcObject = null; }catch(e){}
-  el.hostPlayBtn.textContent = '▶';
+  if(S.meterStream){ try{ S.meterStream.getAudioTracks().forEach(t=>{ try{ t.stop(); }catch(e){} }); }catch(e){} S.meterStream = null; }
+  meter.analyser = null;  el.hostPlayBtn.textContent = '▶';
   if(S.joined) setStatus('wait','待機中','ホストの音声が止まりました。再接続します…');
 }
 
@@ -756,14 +765,23 @@ function updateProgram(d){
 const meter = {ctx:{}, raf:0, analyser:null, buf:null, w:0, h:0};
 function setupMeter(stream){
   if(!S.ctx) return;
-  const an = S.ctx.createAnalyser();
-  an.fftSize = 2048;
-  const src = S.ctx.createMediaStreamSource(stream);
-  src.connect(an);
-  // 解析のためグラフを流す（音は出さない）
-  try{ const sink = S.ctx.createGain(); sink.gain.value = 0; an.connect(sink); sink.connect(S.ctx.destination); }catch(e){}
-  meter.analyser = an;
-  meter.buf = new Float32Array(an.fftSize);
+  // Android Chrome では <audio> と createMediaStreamSource が同じストリームを共有すると
+  // <audio> が無音になる。メーターは clone() 側でのみ解析する。
+  let clone = null;
+  try{ clone = (typeof stream.clone === 'function') ? stream.clone() : null; }catch(e){ clone = null; }
+  if(clone){
+    try{
+      const an = S.ctx.createAnalyser();
+      an.fftSize = 2048;
+      const src = S.ctx.createMediaStreamSource(clone);
+      src.connect(an);
+      try{ const sink = S.ctx.createGain(); sink.gain.value = 0; an.connect(sink); sink.connect(S.ctx.destination); }catch(e){}
+      meter.analyser = an;
+      meter.buf = new Float32Array(an.fftSize);
+      if(S.meterStream){ try{ S.meterStream.getAudioTracks().forEach(t=>{ try{ t.stop(); }catch(e){} }); }catch(e){} }
+      S.meterStream = clone;
+    }catch(e){ meter.analyser = null; }
+  }
   if(!meter.raf) meterLoop();
 }
 function sizeMeter(){

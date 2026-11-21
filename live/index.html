@@ -146,6 +146,8 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;bac
 .status{margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:rgba(0,0,0,.22);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .status .txt{font-size:11.5px;color:var(--dim);line-height:1.55;min-width:0;flex:1}
 .status .txt b{color:#e7dfd0;font-weight:600}
+.srcline{margin:8px 0 0;font-family:var(--mono);font-size:9px;letter-spacing:.05em;color:#5d5a53;line-height:1.7;word-break:break-word}
+.srcline.warn{color:#c39a63}
 .foot{margin-top:20px;text-align:center;font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:#4e4b45;line-height:2}
 </style>
 </head>
@@ -219,11 +221,12 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;bac
     <div class="txt" id="statusText">放送局に接続しています…</div>
     <button class="btn" id="retryBtn" type="button">再接続</button>
   </div>
+  <p class="srcline" id="srcLine" hidden></p>
 
   <p class="foot">SERVERLESS NET RADIO ・ P2P (WebRTC) ＋ 24H AUTO-DJ<br>STATION: <span id="footId">kaeru-radio-live</span></p>
 </div>
 
-<audio id="audio" autoplay playsinline></audio>
+<audio id="audio" playsinline></audio>
 <audio id="aiAudioA" preload="auto" playsinline></audio>
 <audio id="aiAudioB" preload="auto" playsinline></audio>
 
@@ -243,10 +246,11 @@ const S = {
   peer:null, conn:null, call:null, stream:null, ctx:null, analyser:null,
   live:false, connecting:false, retryTimer:null, wantPlay:false, playing:false,
   vol:0.8, info:{title:'', dj:'', note:'', guestOn:false, guestName:'', now:''},
-  silentDest:null, lastError:'',
+  silentDest:null, silentOsc:null, silentGain:null, lastError:'',
+  iceState:'', connState:'', trackCount:0, analyserStream:null, lastRestream:0, srcNote:'',
   aiLoaded:false,
   ai:{ playing:false, track:null, index:0, order:[], orderKey:'', djOn:true, speaking:false, errors:0, slot:-1,
-       decks:null, active:0, master:null, xfade:3.0, xfading:false }
+       decks:null, active:0, master:null, xfade:3.0, xfading:false, gen:0, xfadeTimer:null }
 };
 
 const el = {
@@ -258,7 +262,7 @@ const el = {
   djBtn:$('djBtn'), aiNextBtn:$('aiNextBtn'), djLine:$('djLine'), djText:$('djText'),
   wave:$('wave'), recTag:$('recTag'), recText:$('recText'), scopeInfo:$('scopeInfo'),
   playBtn:$('playBtn'), playTitle:$('playTitle'), playSub:$('playSub'), volume:$('volume'),
-  statusText:$('statusText'), retryBtn:$('retryBtn'), audio:$('audio'), aiAudioA:$('aiAudioA'), aiAudioB:$('aiAudioB'), footId:$('footId')
+  statusText:$('statusText'), retryBtn:$('retryBtn'), srcLine:$('srcLine'), audio:$('audio'), aiAudioA:$('aiAudioA'), aiAudioB:$('aiAudioB'), footId:$('footId')
 };
 
 /* ================= 小道具 ================= */
@@ -311,9 +315,9 @@ function ensureCtx(){
   if(S.ctx) return S.ctx;
   const AC = window.AudioContext || window.webkitAudioContext;
   if(!AC) return null;
-  S.ctx = new AC({latencyHint:'interactive'});
-  // 受信専用コールでも音声m-lineを受け入れるための無音ストリーム
-  try{ S.silentDest = S.ctx.createMediaStreamDestination(); }catch(e){ S.silentDest = null; }
+  try{ S.ctx = new AC({latencyHint:'interactive'}); }catch(e){ S.ctx = null; return null; }
+  // 受信専用コールでも音声m-lineを受け入れるための無音ストリーム（suspended でも生成できる）
+  ensureSilentDest();
   // AIラジオ：デッキA/B（クロスフェード用）＋マスター
   if(!S.ai.decks){
     S.ai.master = S.ctx.createGain();
@@ -336,9 +340,32 @@ function ensureCtx(){
   }
   return S.ctx;
 }
+/* 無音ストリーム（call.answer に必ず渡すダミートラック）
+   AudioContext が suspended でも createMediaStreamDestination は生成でき、
+   0Hz→gain(0) のキープアライブでトラックを有効に保つ。 */
+function ensureSilentDest(){
+  const ctx = S.ctx;
+  if(!ctx) return null;
+  if(S.silentDest){
+    try{ if(S.silentDest.stream.getAudioTracks().length) return S.silentDest; }catch(e){}
+  }
+  try{
+    S.silentDest = ctx.createMediaStreamDestination();
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = 0;
+    g.gain.value = 0;
+    osc.connect(g); g.connect(S.silentDest);
+    try{ osc.start(); }catch(e){}
+    S.silentOsc = osc; S.silentGain = g;
+  }catch(e){ S.silentDest = null; }
+  return S.silentDest;
+}
 async function unlockAudio(){
   const ctx = ensureCtx();
   if(ctx && ctx.state === 'suspended'){ try{ await ctx.resume(); }catch(e){} }
+  ensureSilentDest();
 }
 
 function setVolume(v){
@@ -353,8 +380,8 @@ function updatePlayUi(){
   el.playBtn.classList.toggle('waiting', !playing);
   el.playBtn.textContent = playing ? '❚❚' : '▶';
   if(S.live){
-    el.playTitle.textContent = playing ? '生放送を再生中' : 'タップして聴く';
-    el.playSub.textContent = playing ? 'タップで停止' : '生放送が届いています';
+    el.playTitle.textContent = playing ? '生放送を再生中' : 'タップして生放送を聴く';
+    el.playSub.textContent = playing ? 'タップで停止' : 'ON AIR — 生放送を受信中';
   } else {
     el.playTitle.textContent = playing ? 'AIラジオ再生中' : 'タップして聴く';
     el.playSub.textContent = playing ? 'タップで停止' : '24時間AIラジオが流れます';
@@ -444,25 +471,32 @@ function jstTimeLabel(){ const p = jstNow(); return pad2(p.h) + ':' + pad2(p.mi)
 function canSpeak(){
   return !!(window.speechSynthesis && typeof window.SpeechSynthesisUtterance === 'function');
 }
-function pickJaVoice(){
+function pickEnVoice(){
   try{
     const vs = window.speechSynthesis.getVoices() || [];
     if(!vs.length) return null;
-    return vs.find(v=>/^ja[-_]?/i.test(v.lang)) || vs.find(v=>/japan/i.test(v.name)) || null;
+    return vs.find(v=>/^en[-_]US/i.test(v.lang))
+        || vs.find(v=>/^en/i.test(v.lang) && /US|United States|Samantha|Alex|Google US/i.test(v.name + ' ' + v.lang))
+        || vs.find(v=>/^en/i.test(v.lang))
+        || vs.find(v=>/english/i.test(v.name))
+        || null;
   }catch(e){ return null; }
 }
 function introText(t){
   const p = jstNow();
   const h = p.h;
-  const greet = h < 5 ? '深夜のひとときに' : h < 11 ? '朝のひとときに' : h < 15 ? 'お昼のひとときに' : h < 19 ? '午後のひとときに' : h < 23 ? '夜のひとときに' : '深夜のひとときに';
+  const night = (h < 5 || h >= 22);
+  const title = String(t.t || '').trim();
   const pats = [
-    'imoutoid 24時間アーカイブ・ラジオをお聴きのみなさん、続いてお送りするのは、' + t.t + ' です。',
-    greet + '、imoutoid で「' + t.t + '」をお届けします。',
-    '時刻は' + h + '時' + p.mi + '分。ここからは「' + t.t + '」をどうぞ。',
-    'imoutoid アーカイブから、「' + t.t + '」です。',
-    '続いては、imoutoid の「' + t.t + '」。ゆっくりお楽しみください。'
+    "You're listening to imoutoid 24-hour archive radio. Up next: " + title + ".",
+    "From the imoutoid archive, this is " + title + ".",
+    "Stay tuned. Playing " + title + " by imoutoid.",
+    (night ? 'Late night sessions on imoutoid archive. Here is ' : 'You are on imoutoid archive radio. Here is ') + title + '.',
+    "This is imoutoid radio. Coming up next, " + title + ".",
+    'The archives are open. ' + title + ', by imoutoid.',
+    "Keep it here on imoutoid archive radio. Now playing " + title + '.'
   ];
-  const seed = hashStr(String(t.t) + p.d + p.h);
+  const seed = hashStr(title + p.d + p.h + p.mi);
   return pats[seed % pats.length];
 }
 function clearSilent(){
@@ -493,11 +527,11 @@ function speakOver(track, deck){
   duckDeck(deck, true);
   try{
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'ja-JP';
-    u.rate = 1.02;
+    u.lang = 'en-US';
+    u.rate = 0.98;
     u.pitch = 1.0;
     u.volume = 1;
-    const v = pickJaVoice();
+    const v = pickEnVoice();
     if(v) u.voice = v;
     u.onend = finish;
     u.onerror = finish;
@@ -516,6 +550,24 @@ function speakOver(track, deck){
 /* ================= AIラジオ本体（デッキA/B・クロフェード） ================= */
 function aiDeckCur(){ return S.ai.decks ? S.ai.decks[S.ai.active] : null; }
 function aiDeckOther(){ return S.ai.decks ? S.ai.decks[1 - S.ai.active] : null; }
+/* デッキを即座に無音・停止（フェード用タイマーも破棄） */
+function hardStopAiDeck(d){
+  if(!d) return;
+  if(d.fadeTimer){ clearTimeout(d.fadeTimer); d.fadeTimer = null; }
+  try{ d.el.pause(); }catch(e){}
+  try{ d.el.currentTime = 0; }catch(e){}
+  try{
+    if(S.ctx){
+      d.fade.gain.cancelScheduledValues(S.ctx.currentTime);
+      d.fade.gain.setValueAtTime(0, S.ctx.currentTime);
+      d.duck.gain.cancelScheduledValues(S.ctx.currentTime);
+      d.duck.gain.setValueAtTime(1, S.ctx.currentTime);
+    } else {
+      d.fade.gain.value = 0; d.duck.gain.value = 1;
+    }
+  }catch(e){}
+  d.track = null;
+}
 function aiRamp(param, to, sec){
   if(!S.ctx) return;
   const t = S.ctx.currentTime;
@@ -528,10 +580,12 @@ function aiStart(track, opts){
   opts = opts || {};
   if(!track) return false;
   if(!S.ctx || !S.ai.decks){ ensureCtx(); }
+  const myGen = ++S.ai.gen;                   // この再生世代（古い非同期処理は無効）
   if(!S.ctx || !S.ai.decks){
     // AudioContext が使えない環境：要素を直接再生（クロスフェードなしのフォールバック）
     try{
       const a = el.aiAudioA;
+      try{ el.aiAudioB.pause(); }catch(e){}
       a.src = track.u; a.volume = S.vol;
       a.play().catch(()=>{});
       S.ai.playing = true; S.ai.track = track;
@@ -539,10 +593,18 @@ function aiStart(track, opts){
       return true;
     }catch(e){ return false; }
   }
+  // 進行中のフェード・タイマーをすべて破棄
+  S.ai.decks.forEach(d=>{ if(d.fadeTimer){ clearTimeout(d.fadeTimer); d.fadeTimer = null; } });
+  if(S.ai.xfadeTimer){ clearTimeout(S.ai.xfadeTimer); S.ai.xfadeTimer = null; }
+  S.ai.xfading = false;
+
   const cur = aiDeckCur();
   const curPlaying = !!(cur && cur.track && !cur.el.paused);
   const target = curPlaying ? aiDeckOther() : cur;
   const fade = curPlaying ? S.ai.xfade : 0.9;
+
+  // 新い切替が始まったら、target と「今鳴っているデッキ」以外は即停止（音の重なり防止）
+  S.ai.decks.forEach(d=>{ if(d !== target && !(curPlaying && d === cur)) hardStopAiDeck(d); });
 
   try{ target.el.pause(); }catch(e){}
   target.track = track;
@@ -556,11 +618,20 @@ function aiStart(track, opts){
 
   const p = target.el.play();
   const go = ()=>{
+    if(myGen !== S.ai.gen){
+      // 新しい世代に切り替わった：自分が入れたトラックがまだ残っているなら確実に止める
+      if(target.track === track) hardStopAiDeck(target);
+      return;
+    }
     aiRamp(target.fade.gain, 1, fade);
     if(curPlaying && cur !== target){
       aiRamp(cur.fade.gain, 0, fade);
-      setTimeout(()=>{
-        if(aiDeckCur() !== cur){ try{ cur.el.pause(); }catch(e){} cur.track = null; }
+      cur.fadeTimer = setTimeout(()=>{
+        cur.fadeTimer = null;
+        if(myGen !== S.ai.gen) return;
+        try{ cur.el.pause(); }catch(e){}
+        try{ cur.el.currentTime = 0; }catch(e){}
+        cur.track = null;
       }, fade*1000 + 220);
     }
     S.ai.active = S.ai.decks.indexOf(target);
@@ -572,7 +643,9 @@ function aiStart(track, opts){
     if(S.ai.djOn) speakOver(track, target);
   };
   if(p && p.then) p.then(go).catch(()=>{
+    if(myGen !== S.ai.gen) return;
     S.ai.errors++;
+    hardStopAiDeck(target);
     S.ai.playing = false;
     updateModeUi();
     el.playSub.textContent = 'もう一度タップしてください';
@@ -586,12 +659,25 @@ function startAi(){
   if(!S.ctx) ensureCtx();
   const d = aiDeckCur();
   if(d && d.track){
+    S.ai.gen++;                                   // 保留中のフェードを無効化
+    if(S.ai.xfadeTimer){ clearTimeout(S.ai.xfadeTimer); S.ai.xfadeTimer = null; }
+    S.ai.xfading = false;
+    S.ai.decks.forEach(x=>{
+      if(x === d) return;
+      if(x.fadeTimer){ clearTimeout(x.fadeTimer); x.fadeTimer = null; }
+      hardStopAiDeck(x);                          // 他のデッキは必ず止める（重複再生防止）
+    });
     if(d.el.paused){
-      d.fade.gain.setValueAtTime(1, S.ctx.currentTime);
-      d.duck.gain.setValueAtTime(1, S.ctx.currentTime);
       const p = d.el.play();
       if(p && p.catch) p.catch(()=>{});
     }
+    // ゲインは常に1へ戻す（前世代のフェードで0のまま残らないように）
+    try{
+      d.fade.gain.cancelScheduledValues(S.ctx.currentTime);
+      d.fade.gain.setValueAtTime(1, S.ctx.currentTime);
+      d.duck.gain.cancelScheduledValues(S.ctx.currentTime);
+      d.duck.gain.setValueAtTime(1, S.ctx.currentTime);
+    }catch(e){}
     S.ai.playing = true;
     updateModeUi();
     return;
@@ -599,12 +685,22 @@ function startAi(){
   aiStart(S.ai.track || pickNow());
 }
 function pauseAi(){
+  S.ai.gen++;                                       // 曲紹介・クロスフェードを完全停止
   S.ai.playing = false;
+  S.ai.xfading = false;
+  if(S.ai.xfadeTimer){ clearTimeout(S.ai.xfadeTimer); S.ai.xfadeTimer = null; }
   if(S.ai.decks){
-    S.ai.decks.forEach(d=>{
+    S.ai.decks.forEach(d=>{                         // Deck A / B の両方を必ず止める
+      if(d.fadeTimer){ clearTimeout(d.fadeTimer); d.fadeTimer = null; }
       try{ d.el.pause(); }catch(e){}
-      if(d.fade) d.fade.gain.value = 0;
-      if(d.duck) d.duck.gain.value = 1;
+      try{
+        if(S.ctx){
+          d.fade.gain.cancelScheduledValues(S.ctx.currentTime);
+          d.fade.gain.setValueAtTime(0, S.ctx.currentTime);
+          d.duck.gain.cancelScheduledValues(S.ctx.currentTime);
+          d.duck.gain.setValueAtTime(1, S.ctx.currentTime);
+        } else { d.fade.gain.value = 0; d.duck.gain.value = 1; }
+      }catch(e){}
     });
   }
   clearSilent();
@@ -625,8 +721,10 @@ function onAiTime(d){
   const a = d.el;
   if(a.duration && a.duration > S.ai.xfade + 4 && (a.duration - a.currentTime) <= S.ai.xfade){
     S.ai.xfading = true;
+    const myGen = S.ai.gen;
     aiStart(pickNowForNext());
-    setTimeout(()=>{ S.ai.xfading = false; }, S.ai.xfade*1000 + 300);
+    if(S.ai.xfadeTimer){ clearTimeout(S.ai.xfadeTimer); S.ai.xfadeTimer = null; }
+    S.ai.xfadeTimer = setTimeout(()=>{ S.ai.xfadeTimer = null; if(myGen === S.ai.gen) S.ai.xfading = false; }, S.ai.xfade*1000 + 300);
   }
 }
 function onAiEnded(d){
@@ -659,7 +757,14 @@ function ensurePeer(){
   return new Promise((resolve, reject)=>{
     if(S.peer && S.peer.open) return resolve();
     if(S.peer && !S.peer.destroyed){ try{ S.peer.destroy(); }catch(e){} S.peer = null; }
-    const peer = new Peer({debug:0});
+    const peer = new Peer({
+      debug:0,
+      config:{ iceServers:[
+        {urls:'stun:stun.l.google.com:19302'},
+        {urls:'stun:stun1.l.google.com:19302'},
+        {urls:'stun:stun2.l.google.com:19302'}
+      ] }
+    });
     S.peer = peer;
     let opened = false;
     peer.on('open', ()=>{ opened = true; resolve(); });
@@ -731,34 +836,125 @@ function onData(d){
   }
 }
 function onCall(call){
+  if(S.call && S.call !== call){ try{ S.call.close(); }catch(e){} }
   S.call = call;
+
+  // 必ず「無音ダミートラック」を渡して answer（これがないと stream が発火しない端末がある）
+  ensureSilentDest();
+  let answered = false;
   let answerStream = null;
   try{ answerStream = S.silentDest ? S.silentDest.stream : null; }catch(e){ answerStream = null; }
-  try{ call.answer(answerStream || undefined); }
-  catch(e){ try{ call.answer(); }catch(e2){ try{ call.close(); }catch(e3){} return; } }
+  if(answerStream){ try{ call.answer(answerStream); answered = true; }catch(e){ answered = false; } }
+  if(!answered){ try{ call.answer(undefined); answered = true; }catch(e){ answered = false; } }
+  if(!answered){
+    try{ call.close(); }catch(e){}
+    S.lastError = 'answer-failed';
+    return;
+  }
+
   call.on('stream', (stream)=>attachStream(stream));
   call.on('close', ()=>{ if(S.live){ S.live = false; onLiveLost(); } });
-  call.on('error', ()=>{});
+  call.on('error', (e)=>{ S.lastError = 'call:' + ((e && e.type) || ''); });
+  watchCall(call);
+
+  // stream が永遠に来ない端末のための保険（配信者に再発信を依頼）
+  setTimeout(()=>{
+    if(S.call !== call) return;
+    if(S.stream && S.trackCount > 0) return;
+    if(requestRestream('no-stream')){
+      setSrcLine('ON AIR — 音声トラックを待っています（再要求しました）', true);
+    }
+  }, 7000);
 }
+
+/* 受信コールのICE状態を監視して状態行に出す */
+function watchCall(call){
+  const pc = call && call.peerConnection;
+  if(!pc) return;
+  const upd = ()=>{
+    S.iceState = pc.iceConnectionState || '';
+    S.connState = pc.connectionState || '';
+    if(S.live) setSrcLine('ON AIR — 生放送を受信中（' + srcInfo() + '）');
+    if(S.iceState === 'failed' || S.connState === 'failed') requestRestream('ice-failed');
+  };
+  try{
+    pc.addEventListener('iceconnectionstatechange', upd);
+    pc.addEventListener('connectionstatechange', upd);
+  }catch(e){}
+  upd();
+}
+
+/* 配信者へ再発信を依頼（短時間の連打を防ぐ） */
+function requestRestream(reason){
+  if(!(S.conn && S.conn.open)) return false;
+  const now = Date.now();
+  if(now - (S.lastRestream || 0) < 4000) return false;
+  S.lastRestream = now;
+  try{
+    S.conn.send({type:'hello', role:'listener', restream:true, reason:reason || '', t:now});
+    return true;
+  }catch(e){ return false; }
+}
+
+function srcInfo(){
+  const t = [];
+  t.push('trk:' + (S.trackCount || 0));
+  if(S.iceState) t.push('ice:' + S.iceState);
+  if(S.connState) t.push('pc:' + S.connState);
+  t.push('ctx:' + (S.ctx ? S.ctx.state : 'none'));
+  t.push(S.playing ? 'PLAYING' : 'PAUSED');
+  return t.join(' / ');
+}
+function setSrcLine(text, warn){
+  if(!el.srcLine) return;
+  el.srcLine.className = 'srcline' + (warn ? ' warn' : '');
+  el.srcLine.textContent = text || '';
+  el.srcLine.hidden = !text;
+}
+
 function attachStream(stream){
+  if(!stream) return;
   S.stream = stream;
-  el.audio.srcObject = stream;
-  setupAnalyser(stream);
+  const tracks = (stream.getAudioTracks ? stream.getAudioTracks() : []);
+  S.trackCount = tracks.length;
+
+  // 再生経路は <audio> 1本に統一（Android Chrome の無音バグ回避）
+  try{ el.audio.srcObject = stream; }catch(e){}
+  el.audio.muted = false;
+  el.audio.volume = S.vol;
+  setupAnalyser(stream);           // 波形は clone() でのみ解析（再生を止めない）
+
   S.live = true;
   clearSilent();
-  if(S.ai.playing) pauseAi();
+
+  if(S.wantPlay){
+    if(S.ai.playing) pauseAi();   // Deck A/B の両方を停止してから生放送へ
+    playLive();
+    el.statusText.innerHTML = '<b>ON AIR</b> — 生放送が始まりました。';
+  } else {
+    if(S.ai.playing) pauseAi();
+    el.statusText.innerHTML = '<b>ON AIR（生放送中！）</b> — 再生ボタンを押すと生放送が聴けます。';
+  }
   updateModeUi();
-  el.statusText.innerHTML = '<b>ON AIR</b> — 生放送が始まりました。AIラジオから自動で切り替わりました。';
-  stream.getAudioTracks().forEach(t=>t.addEventListener('ended', ()=>{
+  setSrcLine('ON AIR — 生放送を受信中（' + srcInfo() + '）');
+
+  tracks.forEach(t=>t.addEventListener('ended', ()=>{
     if(S.stream === stream){ S.live = false; onLiveLost(); }
   }));
-  if(S.wantPlay){
-    el.audio.play().then(()=>{ S.playing = true; updatePlayUi(); }).catch(()=>{ S.playing=false; updatePlayUi(); });
+  if(!tracks.length){
+    setSrcLine('ON AIR — 音声トラックがまだありません（再要求中）', true);
+    requestRestream('empty-tracks');
   }
 }
 function onLiveLost(){
   S.playing = false;
-  el.audio.pause();
+  S.live = false;
+  S.trackCount = 0;
+  S.stream = null;
+  try{ el.audio.pause(); }catch(e){}
+  try{ el.audio.srcObject = null; }catch(e){}
+  stopAnalyser();
+  setSrcLine('');
   el.statusText.innerHTML = '<b>放送が終了しました（OFF AIR）</b> — AIラジオに戻ります。';
   updateModeUi();
   if(S.wantPlay){ startAi(); }
@@ -770,18 +966,42 @@ function setStatusWaiting(){
 
 /* ================= 再生制御 ================= */
 function playLive(){
+  if(!S.stream) return;
+  el.audio.muted = false;
+  el.audio.volume = S.vol;
   const p = el.audio.play();
-  if(p && p.then) p.then(()=>{ S.playing = true; updatePlayUi(); }).catch(()=>{ S.playing=false; updatePlayUi(); });
+  if(p && p.then){
+    p.then(()=>{
+      S.playing = true; updatePlayUi();
+      setSrcLine('ON AIR — 生放送を受信中（' + srcInfo() + '）');
+    }).catch(()=>{
+      S.playing = false; updatePlayUi();
+      el.playTitle.textContent = 'タップして生放送を聴く';
+      el.playSub.textContent = 'ON AIR — 再生ボタンを押してください';
+      setSrcLine('ON AIR — 自動再生がブロックされました。▶をタップしてください', true);
+    });
+  } else { S.playing = true; updatePlayUi(); }
 }
 function onPlayClick(){
   unlockAudio();
   if(S.live && S.stream){
-    if(S.playing){ el.audio.pause(); S.playing = false; updatePlayUi(); }
-    else playLive();
-  } else {
-    if(S.ai.playing) pauseAi();
-    else startAi();
+    if(S.playing){
+      S.wantPlay = false;
+      try{ el.audio.pause(); }catch(e){}
+      S.playing = false;
+      updatePlayUi();
+      setSrcLine('ON AIR — 生放送を受信中（一時停止中）');
+    } else {
+      S.wantPlay = true;
+      playLive();
+    }
+    return;
   }
+  if(S.ai.playing){ S.wantPlay = false; pauseAi(); return; }
+  S.wantPlay = true;
+  startAi();
+  // 生放送が始まっているのにつながっていないときは、再生タップを契機に再要求
+  if(S.conn && S.conn.open) requestRestream('user-play');
 }
 
 /* ================= 波形 ================= */
@@ -797,18 +1017,31 @@ function sizeWave(){
 function setupAnalyser(stream){
   const ctx = ensureCtx();
   if(!ctx) return;
+  stopAnalyser();
+  // Android Chrome では <audio> と createMediaStreamSource が同じストリームを共有すると
+  // <audio> が無音になる。波形は clone() 側でのみ解析する（clone 非対応時は省略）。
+  let clone = null;
+  try{ clone = (typeof stream.clone === 'function') ? stream.clone() : null; }catch(e){ clone = null; }
+  if(!clone) return;
   try{
     const an = ctx.createAnalyser();
     an.fftSize = 2048;
     an.smoothingTimeConstant = 0.75;
-    const src = ctx.createMediaStreamSource(stream);
+    const src = ctx.createMediaStreamSource(clone);
     src.connect(an);
-    // 解析のためにグラフを流す（音は出さない：生放送は audio 要素で再生）
     const sink = ctx.createGain(); sink.gain.value = 0;
     an.connect(sink); sink.connect(ctx.destination);
     S.analyser = an;
+    S.analyserStream = clone;
     wave.buf = new Float32Array(an.fftSize);
-  }catch(e){ S.analyser = null; }
+  }catch(e){ S.analyser = null; S.analyserStream = clone; }
+}
+function stopAnalyser(){
+  S.analyser = null;
+  if(S.analyserStream){
+    try{ S.analyserStream.getAudioTracks().forEach(t=>{ try{ t.stop(); }catch(e){} }); }catch(e){}
+    S.analyserStream = null;
+  }
 }
 function drawWave(){
   wave.raf = requestAnimationFrame(drawWave);
@@ -900,7 +1133,7 @@ function bind(){
   });
 
   el.retryBtn.addEventListener('click', ()=>{
-    if(S.conn && S.conn.open){ try{ S.conn.send({type:'hello', role:'listener'}); }catch(e){} }
+    if(S.conn && S.conn.open){ try{ S.conn.send({type:'hello', role:'listener', restream:true, t:Date.now()}); }catch(e){} }
     else {
       if(S.conn){ try{ S.conn.close(); }catch(e){} S.conn = null; }
       if(S.peer && S.peer.open) dial(); else connect();
@@ -920,6 +1153,8 @@ function bind(){
 
 function init(){
   bind();
+  // 英語ボイス一覧を先に読み込ませておく（初回の発話で声が抜けないように）
+  try{ if(window.speechSynthesis){ window.speechSynthesis.getVoices(); window.speechSynthesis.onvoiceschanged = ()=>{}; } }catch(e){}
   sizeWave();
   drawWave();
   el.aiTitle.textContent = '再生ボタンでスタート';
@@ -931,6 +1166,7 @@ function init(){
   const unlock = ()=>{
     unlockAudio();
     if(S.wantPlay && S.live && S.stream && !S.playing) playLive();
+    if(!S.live && S.conn && S.conn.open) requestRestream('unlock');
   };
   document.addEventListener('pointerdown', unlock, {once:true});
   document.addEventListener('keydown', unlock, {once:true});
@@ -957,6 +1193,8 @@ window.__nrDebug = {
       live:S.live, connecting:S.connecting, ctx:S.ctx ? S.ctx.state : null,
       peerOpen:!!(S.peer && S.peer.open), connOpen:!!(S.conn && S.conn.open),
       hasStream:!!S.stream, playing:!!(el.audio && !el.audio.paused),
+      silentDest:!!S.silentDest, trackCount:S.trackCount, iceState:S.iceState, connState:S.connState,
+      audioVol:el.audio.volume, audioMuted:el.audio.muted, wantPlay:S.wantPlay,
       aiPlaying:S.ai.playing, aiTrack:S.ai.track ? S.ai.track.t : null,
       aiSrc:aiDeckCur() ? aiDeckCur().el.currentSrc : null,
       aiTime:aiDeckCur() ? aiDeckCur().el.currentTime : 0,

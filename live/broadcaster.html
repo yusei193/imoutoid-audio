@@ -602,7 +602,8 @@ const S = {
   decks:null, active:0, xfade:3.5, xfading:false, playlist:[], index:-1, bgmVol:0.65, ducked:false,
   peer:null, conns:new Map(), mediaCalls:new Map(), listeners:new Set(),
   live:false, starting:false, startedAt:0, timerId:null,
-  noiseBuf:null, lastInfoSent:0
+  noiseBuf:null, lastInfoSent:0,
+  playGen:0, xfadeTimer:null, keepAlive:null
 };
 
 const $ = (id)=>document.getElementById(id);
@@ -776,6 +777,20 @@ async function ensureAudio(){
   S.limiterB.connect(S.outB);
   S.outB.connect(S.returnDest);
   S.outB.connect(S.dbgRet);
+
+  // 無音キープアライブ：マイクOFF・BGM停止中でも WebRTC の音声トラックを常に有効に保つ
+  try{
+    const osc = ctx.createOscillator();
+    const kg  = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = 0;
+    kg.gain.value = 0;
+    osc.connect(kg);
+    kg.connect(S.streamDest);
+    kg.connect(S.returnDest);
+    osc.start();
+    S.keepAlive = {osc, gain:kg};
+  }catch(e){ S.keepAlive = null; }
 
   // BGM は2デッキ（A/B）。クロスフェード用に各デッキが自分の Gain を持つ。
   S.decks = [el.bgmElA, el.bgmElB].map((a)=>{
@@ -1004,24 +1019,56 @@ function fadeInDeck(d, sec){
   d.gain.gain.setValueAtTime(0, t);
   d.gain.gain.linearRampToValueAtTime(1, t + Math.max(0.05, sec));
 }
-function fadeOutDeck(d, sec, then){
+function fadeOutDeck(d, sec, then, gen){
   if(!d) return;
   const t = S.ctx.currentTime;
   d.gain.gain.cancelScheduledValues(t);
   const v = d.gain.gain.value;
   d.gain.gain.setValueAtTime(v, t);
   d.gain.gain.linearRampToValueAtTime(0, t + Math.max(0.05, sec));
-  if(then) setTimeout(then, Math.max(60, sec*1000) + 60);
+  if(d.fadeTimer){ clearTimeout(d.fadeTimer); d.fadeTimer = null; }
+  if(then) d.fadeTimer = setTimeout(()=>{
+    d.fadeTimer = null;
+    if(gen !== undefined && gen !== S.playGen) return;   // 古い世代は無効
+    then();
+  }, Math.max(60, sec*1000) + 60);
+}
+/* デッキを即座に無音・停止（フェード用タイマーも破棄） */
+function hardStopDeck(d){
+  if(!d) return;
+  if(d.fadeTimer){ clearTimeout(d.fadeTimer); d.fadeTimer = null; }
+  try{ d.el.pause(); }catch(e){}
+  try{ d.el.currentTime = 0; }catch(e){}
+  try{
+    if(S.ctx){
+      d.gain.gain.cancelScheduledValues(S.ctx.currentTime);
+      d.gain.gain.setValueAtTime(0, S.ctx.currentTime);
+    } else { d.gain.gain.value = 0; }
+  }catch(e){}
+  d.item = null;
 }
 
 function startItem(item, opts){
   opts = opts || {};
   if(!S.ctx || !S.decks){ toast('先に「配信開始」を押してください','warn'); return false; }
   if(!item) return false;
+  const myGen = ++S.playGen;              // この再生世代（古い非同期処理は無効）
   const cur = deckCur();
   const curPlaying = !!(cur && cur.item && !cur.el.paused);
   const target = curPlaying ? deckOpposite() : cur;
   const fadeIn = curPlaying ? ((opts.fade === undefined) ? S.xfade : Math.max(0, opts.fade)) : 0.25;
+
+  // 進行中のフェード／停止タイマーをすべて破棄
+  S.decks.forEach(d=>{ if(d.fadeTimer){ clearTimeout(d.fadeTimer); d.fadeTimer = null; } });
+  if(S.xfadeTimer){ clearTimeout(S.xfadeTimer); S.xfadeTimer = null; }
+  S.xfading = false;
+
+  // 新しい切替が始まったら、target と「今鳴っているデッキ」以外は即停止（重複再生の防止）
+  S.decks.forEach(d=>{
+    if(d === target) return;
+    if(curPlaying && d === cur) return;   // これはフェードアウトで止める
+    hardStopDeck(d);
+  });
 
   try{ target.el.pause(); }catch(e){}
   setDeckItem(target, item);
@@ -1033,24 +1080,34 @@ function startItem(item, opts){
 
   const p = target.el.play();
   const go = ()=>{
+    if(myGen !== S.playGen){
+      // 新しい世代に切り替わった：自分が入れた曲がまだ残っているなら確実に止める
+      if(target.item === item) hardStopDeck(target);
+      return;
+    }
     if(fadeIn > 0.05) fadeInDeck(target, fadeIn);
     else { target.gain.gain.cancelScheduledValues(S.ctx.currentTime); target.gain.gain.setValueAtTime(1, S.ctx.currentTime); }
     if(curPlaying && cur !== target){
       fadeOutDeck(cur, fadeIn, ()=>{
-        if(deckCur() !== cur){ try{ cur.el.pause(); }catch(e){} cur.item = null; }
-      });
+        try{ cur.el.pause(); }catch(e){}
+        try{ cur.el.currentTime = 0; }catch(e){}
+        cur.item = null;
+        updateNowUi();
+      }, myGen);
     }
     S.active = S.decks.indexOf(target);
     if(fadeIn > 0.05){
       S.xfading = true;
-      setTimeout(()=>{ S.xfading = false; }, fadeIn*1000 + 250);
+      S.xfadeTimer = setTimeout(()=>{ S.xfadeTimer = null; if(myGen === S.playGen) S.xfading = false; }, fadeIn*1000 + 250);
     }
     updateNowUi();
   };
   if(p && p.then){
     p.then(go).catch(()=>{
+      if(myGen !== S.playGen) return;
       toast('この音源を再生できません','err');
       target.item = null;
+      hardStopDeck(target);
       if(item.kind === 'cue' && S.cue.playingId === item.cueId) S.cue.playingId = null;
       updateNowUi();
     });
@@ -1087,6 +1144,10 @@ function playBgm(){
   if(!S.ctx){ toast('先に「配信開始」を押してください','warn'); return; }
   const d = deckCur();
   if(d && d.item && d.el.paused){
+    S.playGen++;                                  // 保留中のフェードを無効化
+    if(S.xfadeTimer){ clearTimeout(S.xfadeTimer); S.xfadeTimer = null; }
+    S.xfading = false;
+    if(S.decks) S.decks.forEach(x=>{ if(x !== d) hardStopDeck(x); });   // 他のデッキは必ず止める
     const t = S.ctx.currentTime;
     d.gain.gain.cancelScheduledValues(t);
     d.gain.gain.setValueAtTime(1, t);
@@ -1103,16 +1164,27 @@ function playBgm(){
   startItem(item);
 }
 function pauseBgm(){
+  S.playGen++;                                    // 進行中の再生・フェードを完全停止
+  if(S.xfadeTimer){ clearTimeout(S.xfadeTimer); S.xfadeTimer = null; }
+  S.xfading = false;
   if(S.decks){
-    S.decks.forEach(d=>{ try{ d.el.pause(); }catch(e){} d.gain.gain.cancelScheduledValues(S.ctx.currentTime); d.gain.gain.setValueAtTime(0, S.ctx.currentTime); });
+    S.decks.forEach(d=>{                          // Deck A / B の両方を必ず pause
+      if(d.fadeTimer){ clearTimeout(d.fadeTimer); d.fadeTimer = null; }
+      try{ d.el.pause(); }catch(e){}
+      try{
+        if(S.ctx){
+          d.gain.gain.cancelScheduledValues(S.ctx.currentTime);
+          d.gain.gain.setValueAtTime(0, S.ctx.currentTime);
+        } else { d.gain.gain.value = 0; }
+      }catch(e){}
+    });
   }
   updateNowUi();
 }
 function toggleBgm(){
   const d = deckCur();
   if(d && d.item && !d.el.paused) pauseBgm(); else playBgm();
-}
-function nextTrack(auto){
+}function nextTrack(auto){
   const d = deckCur();
   if(d && d.item && d.item.kind === 'cue'){ cueNext(); return; }
   if(!S.playlist.length) return;
@@ -1145,8 +1217,10 @@ function onDeckTime(d){
   }
 }
 function onDeckEnded(d){
-  if(!S.decks || d !== deckCur()) return;
+  if(!S.decks) return;
+  if(d !== deckCur()){ hardStopDeck(d); return; }   // 非アクティブデッキの終了は即停止のみ
   S.xfading = false;
+  if(S.xfadeTimer){ clearTimeout(S.xfadeTimer); S.xfadeTimer = null; }
   const item = d.item;
   if(!item) return;
   if(item.kind === 'cue'){
@@ -1542,7 +1616,14 @@ function stopTimer(){ if(S.timerId){ clearInterval(S.timerId); S.timerId = null;
 
 function initPeer(){
   const id = stationId();
-  const peer = new Peer(id, {debug:0});
+  const peer = new Peer(id, {
+    debug:0,
+    config:{ iceServers:[
+      {urls:'stun:stun.l.google.com:19302'},
+      {urls:'stun:stun1.l.google.com:19302'},
+      {urls:'stun:stun2.l.google.com:19302'}
+    ] }
+  });
   S.peer = peer;
 
   peer.on('open', (pid)=>{
@@ -1609,7 +1690,8 @@ function onData(conn, d){
     S.listeners.add(conn.peer);
     updateListenerCount();
     try{ conn.send(infoPayload()); }catch(e){}
-    callListener(conn.peer);
+    // 再接続・再要望時も毎回 call し直す（既存のメディアコールは閉じる）
+    if(S.streamDest) callListener(conn.peer);
     if(first) toast('リスナーが接続しました','ok');
     return;
   }
@@ -1622,10 +1704,13 @@ function onData(conn, d){
 
 function callListener(peerId){
   if(!S.peer || !S.streamDest) return;
-  if(!S.streamDest.stream.getAudioTracks().length){
+  const tracks = S.streamDest.stream.getAudioTracks();
+  if(!tracks.length){
     toast('配信音声のトラックがありません','err');
     return;
   }
+  // キープアライブの無音トラックも含め、常に有効にしておく
+  tracks.forEach(t=>{ try{ if(!t.enabled) t.enabled = true; }catch(e){} });
   const prev = S.mediaCalls.get(peerId);
   if(prev){ try{ prev.close(); }catch(e){} S.mediaCalls.delete(peerId); }
   let call = null;
@@ -1798,7 +1883,11 @@ async function startBroadcast(){
     const okLib = await ensurePeerLib();
     if(!okLib){ toast('PeerJS を読み込めませんでした（通信環境を確認してください）','err'); throw new Error('no peerjs'); }
     await ensureAudio();
-    await S.ctx.resume().catch(()=>{});
+    try{ await S.ctx.resume(); }catch(e){}
+    if(S.ctx.state !== 'running'){
+      await new Promise(r=>setTimeout(r,150));
+      try{ await S.ctx.resume(); }catch(e){}
+    }
 
     updateListenerUrl();
     if(!S.micStream){
