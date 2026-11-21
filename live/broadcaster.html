@@ -590,6 +590,48 @@ const ARCHIVE = [{"t":"Strings improvisation","u":"https://yusei193.github.io/im
    状態
    ========================================================= */
 const DEFAULT_ID = 'kaeru-radio-live';
+
+/* ================= ICE（STUN / TURN） =================
+   STUN: 直結できるか調べる（NATの外側アドレスを知るため）。
+   TURN: 直結できない回線（モバイルのCGNAT・社内ネット等）で音声を中継する。
+         いまは下の TURN_CREDS に Metered の TURN クレデンシャルを入れて有効にしてある。
+         一時テストは URL に ?turn=ホスト|ユーザー名|パスワード を付けるだけで上書きできる。
+   2026-11時点の実測: 認証不要の公開TURNは全廃（Open Relay / PeerJS無料TURN / bistri / hubl /
+   anyfirewall は停止またはDNS消失）。Metered の TURN（global.relay.metered.ca）だけが稼働しており、
+   80/443 の UDP・TCP・TLS で relay 候補が出ることを確認済み。 */
+const TURN_CREDS = { host:'global.relay.metered.ca',
+  username:'d2c20ad3e01f600e8befe234', credential:'h7gkE2NeMTfIpyMo' };   // Metered 無料トライアル（500MB/月）
+function turnCreds(){
+  const c = { host:TURN_CREDS.host, username:TURN_CREDS.username, credential:TURN_CREDS.credential };
+  try{
+    const p = new URLSearchParams(location.search).get('turn');
+    if(p){
+      const m = p.split('|');
+      const host = (m[0] || '').split(':')[0];
+      if(host && m.length >= 2 && m[1]){ c.host = host; c.username = m[1]; c.credential = m[2] || ''; }
+    }
+  }catch(e){}
+  return c;
+}
+function iceServers(){
+  const list = [
+    {urls:'stun:stun.l.google.com:19302'},
+    {urls:'stun:stun1.l.google.com:19302'},
+    {urls:'stun:stun2.l.google.com:19302'},
+    {urls:'stun:stun.cloudflare.com:3478'},
+    {urls:'stun:stun.nextcloud.com:443'},
+    {urls:'stun:stun.relay.metered.ca:80'}
+  ];
+  const c = turnCreds();
+  if(c.username && c.credential){
+    const h = c.host, u = {username:c.username, credential:c.credential};
+    ['turn:'+h+':80', 'turn:'+h+':80?transport=tcp', 'turn:'+h+':443', 'turns:'+h+':443?transport=tcp'].forEach(urls=>{
+      list.push(Object.assign({urls}, u));
+    });
+  }
+  return list;
+}
+
 const S = {
   ctx:null, bus:null, masterGain:null, limiter:null, outGain:null, streamDest:null,
   monitorGain:null, micGain:null, bgmGain:null, jingleGain:null,
@@ -1618,11 +1660,7 @@ function initPeer(){
   const id = stationId();
   const peer = new Peer(id, {
     debug:0,
-    config:{ iceServers:[
-      {urls:'stun:stun.l.google.com:19302'},
-      {urls:'stun:stun1.l.google.com:19302'},
-      {urls:'stun:stun2.l.google.com:19302'}
-    ] }
+    config:{ iceServers:iceServers() }
   });
   S.peer = peer;
 

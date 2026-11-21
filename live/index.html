@@ -149,7 +149,7 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;bac
 .status{margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:rgba(0,0,0,.22);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .status .txt{font-size:11.5px;color:var(--dim);line-height:1.55;min-width:0;flex:1}
 .status .txt b{color:#e7dfd0;font-weight:600}
-.srcline{margin:8px 0 0;font-family:var(--mono);font-size:9px;letter-spacing:.05em;color:#5d5a53;line-height:1.7;word-break:break-word}
+.srcline{margin:8px 0 0;font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:#6b6860;line-height:1.7;word-break:break-word;white-space:pre-line}
 .srcline.warn{color:#c39a63}
 .foot{margin-top:20px;text-align:center;font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:#4e4b45;line-height:2}
 </style>
@@ -225,7 +225,7 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;bac
     <div class="txt" id="statusText">放送局に接続しています…</div>
     <button class="btn" id="retryBtn" type="button">再接続</button>
   </div>
-  <p class="srcline" id="srcLine" hidden></p>
+  <p class="srcline" id="srcLine"></p>
 
   <p class="foot">SERVERLESS NET RADIO ・ P2P (WebRTC) ＋ 24H AUTO-DJ<br>STATION: <span id="footId">kaeru-radio-live</span></p>
 </div>
@@ -246,12 +246,53 @@ const $ = (id)=>document.getElementById(id);
 const params = new URLSearchParams(location.search);
 const ROOM = (params.get('id') || params.get('host') || params.get('room') || 'kaeru-radio-live').trim() || 'kaeru-radio-live';
 
+/* ================= ICE（STUN / TURN） =================
+   STUN: 直結できるか調べる（NATの外側アドレスを知るため）。
+   TURN: 直結できない回線（モバイルのCGNAT・社内ネット等）で音声を中継する。
+         いまは下の TURN_CREDS に Metered の TURN クレデンシャルを入れて有効にしてある。
+         一時テストは URL に ?turn=ホスト|ユーザー名|パスワード を付けるだけで上書きできる。
+   2026-11時点の実測: 認証不要の公開TURNは全廃（Open Relay / PeerJS無料TURN / bistri / hubl /
+   anyfirewall は停止またはDNS消失）。Metered の TURN（global.relay.metered.ca）だけが稼働しており、
+   80/443 の UDP・TCP・TLS で relay 候補が出ることを確認済み。 */
+const TURN_CREDS = { host:'global.relay.metered.ca',
+  username:'d2c20ad3e01f600e8befe234', credential:'h7gkE2NeMTfIpyMo' };   // Metered 無料トライアル（500MB/月）
+function turnCreds(){
+  const c = { host:TURN_CREDS.host, username:TURN_CREDS.username, credential:TURN_CREDS.credential };
+  try{
+    const p = new URLSearchParams(location.search).get('turn');
+    if(p){
+      const m = p.split('|');
+      const host = (m[0] || '').split(':')[0];
+      if(host && m.length >= 2 && m[1]){ c.host = host; c.username = m[1]; c.credential = m[2] || ''; }
+    }
+  }catch(e){}
+  return c;
+}
+function iceServers(){
+  const list = [
+    {urls:'stun:stun.l.google.com:19302'},
+    {urls:'stun:stun1.l.google.com:19302'},
+    {urls:'stun:stun2.l.google.com:19302'},
+    {urls:'stun:stun.cloudflare.com:3478'},
+    {urls:'stun:stun.nextcloud.com:443'},
+    {urls:'stun:stun.relay.metered.ca:80'}
+  ];
+  const c = turnCreds();
+  if(c.username && c.credential){
+    const h = c.host, u = {username:c.username, credential:c.credential};
+    ['turn:'+h+':80', 'turn:'+h+':80?transport=tcp', 'turn:'+h+':443', 'turns:'+h+':443?transport=tcp'].forEach(urls=>{
+      list.push(Object.assign({urls}, u));
+    });
+  }
+  return list;
+}
+
 const S = {
   peer:null, conn:null, call:null, stream:null, ctx:null, analyser:null,
   live:false, connecting:false, retryTimer:null, wantPlay:false, playing:false,
   vol:0.8, info:{title:'', dj:'', note:'', guestOn:false, guestName:'', now:''},
   silentDest:null, silentOsc:null, silentGain:null, lastError:'',
-  iceState:'', connState:'', trackCount:0, analyserStream:null, lastRestream:0, srcNote:'',
+  iceState:'', connState:'', trackCount:0, analyserStream:null, lastRestream:0, srcNote:'', srcWarn:false,
   aiLoaded:false,
   aiAnalyser:null,
   ai:{ playing:false, track:null, index:0, order:[], orderKey:'', djOn:true, speaking:false, errors:0, slot:-1,
@@ -857,11 +898,7 @@ function ensurePeer(){
     if(S.peer && !S.peer.destroyed){ try{ S.peer.destroy(); }catch(e){} S.peer = null; }
     const peer = new Peer({
       debug:0,
-      config:{ iceServers:[
-        {urls:'stun:stun.l.google.com:19302'},
-        {urls:'stun:stun1.l.google.com:19302'},
-        {urls:'stun:stun2.l.google.com:19302'}
-      ] }
+      config:{ iceServers:iceServers() }
     });
     S.peer = peer;
     let opened = false;
@@ -917,6 +954,7 @@ function dial(){
   conn.on('open', ()=>{
     clearTimeout(t);
     try{ conn.send({type:'hello', role:'listener', t:Date.now()}); }catch(e){}
+    renderSrc();
   });
   conn.on('data', onData);
   conn.on('close', ()=>{
@@ -951,16 +989,21 @@ function onCall(call){
   }
 
   call.on('stream', (stream)=>attachStream(stream));
-  call.on('close', ()=>{ if(S.live){ S.live = false; onLiveLost(); } });
+  call.on('close', ()=>{
+    if(S.call === call){ S.call = null; S.iceState = ''; S.connState = ''; }
+    if(S.live){ S.live = false; onLiveLost(); }
+    renderSrc();
+  });
   call.on('error', (e)=>{ S.lastError = 'call:' + ((e && e.type) || ''); });
   watchCall(call);
+  renderSrc();
 
   // stream が永遠に来ない端末のための保険（配信者に再発信を依頼）
   setTimeout(()=>{
     if(S.call !== call) return;
     if(S.stream && S.trackCount > 0) return;
     if(requestRestream('no-stream')){
-      setSrcLine('ON AIR — 音声トラックを待っています（再要求しました）', true);
+      setSrcNote('音声トラックを待っています（再要求しました）', true);
     }
   }, 7000);
 }
@@ -972,7 +1015,7 @@ function watchCall(call){
   const upd = ()=>{
     S.iceState = pc.iceConnectionState || '';
     S.connState = pc.connectionState || '';
-    if(S.live) setSrcLine('ON AIR — 生放送を受信中（' + srcInfo() + '）');
+    renderSrc();
     if(S.iceState === 'failed' || S.connState === 'failed') requestRestream('ice-failed');
   };
   try{
@@ -1003,11 +1046,36 @@ function srcInfo(){
   t.push(S.playing ? 'PLAYING' : 'PAUSED');
   return t.join(' / ');
 }
+/* ---- 接続の現在地（画面下に常時表示）---- */
+function diagText(){
+  let peer = 'none';
+  if(S.peer) peer = S.peer.destroyed ? 'closed' : (S.peer.open ? 'open' : 'connecting');
+  let conn = 'none';
+  if(S.conn) conn = S.conn.open ? 'open' : 'connecting';
+  let call = 'none';
+  if(S.call) call = (S.stream && S.trackCount > 0) ? 'recv' : 'wait';
+  const ice = S.iceState || 'none';
+  const turn = (turnCreds().username && turnCreds().credential) ? 'on' : 'off';
+  return 'peer:' + peer + ' / conn:' + conn + ' / call:' + call + ' / ice:' + ice +
+         ' / trk:' + (S.trackCount || 0) + ' / ctx:' + (S.ctx ? S.ctx.state : 'none') + ' / turn:' + turn;
+}
+function renderSrc(){
+  let head = 'OFF AIR（待機中）';
+  if(S.live) head = 'ON AIR — 生放送を受信中';
+  else if(S.ai.playing) head = 'AUTO-DJ 再生中';
+  let note = S.srcNote ? ' / ' + S.srcNote : '';
+  setSrcLine(head + note + '\n' + diagText(), S.srcWarn);
+}
+function setSrcNote(text, warn){
+  S.srcNote = text || '';
+  S.srcWarn = !!warn;
+  renderSrc();
+}
 function setSrcLine(text, warn){
   if(!el.srcLine) return;
   el.srcLine.className = 'srcline' + (warn ? ' warn' : '');
   el.srcLine.textContent = text || '';
-  el.srcLine.hidden = !text;
+  el.srcLine.hidden = false;
 }
 
 function attachStream(stream){
@@ -1034,13 +1102,13 @@ function attachStream(stream){
     el.statusText.innerHTML = '<b>ON AIR（生放送中！）</b> — 再生ボタンを押すと生放送が聴けます。';
   }
   updateModeUi();
-  setSrcLine('ON AIR — 生放送を受信中（' + srcInfo() + '）');
+  setSrcNote('');
 
   tracks.forEach(t=>t.addEventListener('ended', ()=>{
     if(S.stream === stream){ S.live = false; onLiveLost(); }
   }));
   if(!tracks.length){
-    setSrcLine('ON AIR — 音声トラックがまだありません（再要求中）', true);
+    setSrcNote('音声トラックがまだありません（再要求中）', true);
     requestRestream('empty-tracks');
   }
 }
@@ -1052,7 +1120,8 @@ function onLiveLost(){
   try{ el.audio.pause(); }catch(e){}
   try{ el.audio.srcObject = null; }catch(e){}
   stopAnalyser();
-  setSrcLine('');
+  S.srcNote = ''; S.srcWarn = false;
+  renderSrc();
   el.statusText.innerHTML = '<b>放送が終了しました（OFF AIR）</b> — AIラジオに戻ります。';
   updateModeUi();
   if(S.wantPlay){ startAi(); }
@@ -1072,12 +1141,12 @@ function playLive(){
     p.then(()=>{
       S.playing = true; updatePlayUi();
       el.statusText.innerHTML = '<b>ON AIR</b> — 生放送を再生中です。タップで停止します。';
-      setSrcLine('ON AIR — 生放送を受信中（' + srcInfo() + '）');
+      setSrcNote('');
     }).catch(()=>{
       S.playing = false; updatePlayUi();
       el.playTitle.textContent = 'タップして生放送を聴く';
       el.playSub.textContent = 'ON AIR — 再生ボタンを押してください';
-      setSrcLine('ON AIR — 自動再生がブロックされました。▶をタップしてください', true);
+      setSrcNote('自動再生がブロックされました。▶をタップしてください', true);
     });
   } else { S.playing = true; updatePlayUi(); }
 }
@@ -1089,7 +1158,7 @@ function onPlayClick(){
       try{ el.audio.pause(); }catch(e){}
       S.playing = false;
       updatePlayUi();
-      setSrcLine('ON AIR — 生放送を受信中（一時停止中）');
+      setSrcNote('一時停止中');
     } else {
       S.wantPlay = true;
       playLive();
@@ -1269,6 +1338,8 @@ function init(){
   el.aiNext.textContent = 'NEXT: ' + pickNow().t;
   updateSlotBadge();
   setInterval(checkDayPart, 30000);
+  setInterval(renderSrc, 1000);        // 画面下の接続状態行を常に最新に
+  renderSrc();
   updateModeUi();
   setStatusWaiting();
   el.statusText.textContent = '放送局に接続しています…';
