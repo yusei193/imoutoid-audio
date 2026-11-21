@@ -1210,6 +1210,7 @@ function updateChatUi(){
   if(el.chatSend) el.chatSend.disabled = !can;
   el.chatPanel.querySelectorAll('.creact-btn').forEach((b)=>{ b.disabled = !liveConn; });
   if(el.chatText) el.chatText.placeholder = can ? 'DJにメッセージを送る' : '生放送が始まるとチャットに参加できます';
+  if(el.chatEmpty && can) el.chatEmpty.textContent = 'まだメッセージはありません。最初のひとことを送ってみてください。';
 }
 function chatSendText(){
   if(!chatCanSend()) return;
