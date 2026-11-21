@@ -301,6 +301,41 @@ output{font-family:var(--mono);font-size:11px;color:var(--amber);min-width:38px;
 .vp:hover{background:rgba(255,255,255,.08);color:var(--txt)}
 .vp.on{border-color:rgba(242,180,100,.7);background:rgba(242,180,100,.15);color:#ffe6bd;font-weight:700;box-shadow:0 0 14px rgba(242,180,100,.12)}
 
+/* ============ 入力モード／オーディオI/F ============ */
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:4px;border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,.34);margin-bottom:9px}
+.mode-btn{
+  display:flex;align-items:center;justify-content:center;gap:7px;padding:8px 5px;min-width:0;
+  border:1px solid transparent;border-radius:9px;background:transparent;color:var(--dim);
+  font-size:11.5px;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s,color .15s;
+}
+.mode-btn .me{font-size:15px;line-height:1;flex:0 0 auto}
+.mode-btn .mt{display:flex;flex-direction:column;line-height:1.2;text-align:left;min-width:0}
+.mode-btn .mt small{font-size:9px;font-weight:400;color:var(--dim2);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mode-btn:hover{background:rgba(255,255,255,.05);color:var(--txt)}
+.mode-btn.on{background:rgba(242,180,100,.14);border-color:rgba(242,180,100,.55);color:#ffe6bd}
+.mode-btn.on .mt small{color:#d9a865}
+.mode-btn[data-mode="dj"].on{background:rgba(121,224,194,.13);border-color:rgba(121,224,194,.5);color:#d8fff3}
+.mode-btn[data-mode="dj"].on .mt small{color:#8fd8c4}
+.mode-hint{margin:0 0 10px}
+.dj{border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,.24);padding:11px 12px 12px;min-width:0}
+.dj-head{display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap}
+.dj-head .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--dim)}
+.dj-head .grow{flex:1}
+#inVu{display:block;width:100%;height:74px;border-radius:9px;background:rgba(0,0,0,.36);border:1px solid var(--line)}
+.clip{font-family:var(--mono);font-size:9px;letter-spacing:.14em;padding:3px 7px;border-radius:5px;border:1px solid rgba(255,90,90,.3);color:#8a5b5b;background:rgba(255,90,90,.05);transition:color .1s,background .1s,border-color .1s}
+.clip.on{color:#fff;background:rgba(255,90,90,.9);border-color:#ff8b8b;box-shadow:0 0 12px rgba(255,90,90,.55)}
+.inpeak{font-family:var(--mono);font-size:10px;color:var(--amber);min-width:46px;text-align:right;letter-spacing:.02em}
+.dmon{margin-top:12px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.1)}
+.dmon-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.dmon-head .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--dim)}
+.dmon-head .grow{flex:1}
+#djMonBtn.on{border-color:rgba(121,224,194,.6);background:rgba(121,224,194,.15);color:#d8fff3}
+.vp:disabled{opacity:.38;cursor:not-allowed}
+input[type=range]:disabled{opacity:.4;cursor:default}
+input[type=range]:disabled::-webkit-slider-thumb{border-color:var(--dim2);box-shadow:none}
+select:disabled{opacity:.5}
+.p-mic.dj-mode .voice{border-top-color:rgba(121,224,194,.18)}
+
 /* ============ トースト ============ */
 #toasts{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;width:calc(100% - 28px);max-width:440px;pointer-events:none}
 .toast{
@@ -509,25 +544,64 @@ output{font-family:var(--mono);font-size:11px;color:var(--amber);min-width:38px;
       <h2>マイク</h2>
       <button id="micToggle" class="power off" type="button"><i></i><span id="micState">マイク OFF</span></button>
     </div>
-    <div class="field" style="margin-bottom:10px">
-      <span>マイク音量</span>
+    <div class="modes" role="group" aria-label="入力モード">
+      <button class="mode-btn on" id="modeTalk" type="button" data-mode="talk"><span class="me">🎤</span><span class="mt">トーク<small>マイク</small></span></button>
+      <button class="mode-btn" id="modeDj" type="button" data-mode="dj"><span class="me">🎛️</span><span class="mt">オーディオI/F<small>DJ・ライン入力</small></span></button>
+    </div>
+    <p class="hint mode-hint" id="modeHint">マイク用：エコー抑制・ノイズ除去・AGCをON。ボイスチェンジャーが使えます。</p>
+    <div class="dj">
+      <div class="dj-head">
+        <span class="lbl">入力レベル</span>
+        <span class="grow"></span>
+        <span class="clip" id="clipLamp" title="0dBFS付近（-1dB以上）で点灯">CLIP</span>
+        <span class="inpeak" id="inPeak">-∞ dB</span>
+      </div>
+      <canvas id="inVu"></canvas>
+      <div class="field" style="margin:10px 0 0">
+        <span>入力ゲイン（プリアンプ）</span>
+        <div class="row">
+          <input id="inGain" type="range" min="0" max="200" value="100">
+          <output id="inGainVal">100</output>
+        </div>
+      </div>
+      <div class="checks">
+        <label class="chk"><input type="checkbox" id="echoChk" checked><span>エコー抑制</span></label>
+        <label class="chk"><input type="checkbox" id="noiseChk" checked><span>ノイズ除去</span></label>
+        <label class="chk"><input type="checkbox" id="agcChk" checked><span>AGC</span></label>
+      </div>
+      <div class="field" style="margin-top:10px">
+        <span>入力デバイス</span>
+        <div class="row">
+          <select id="micDevice"><option value="">（既定の入力）</option></select>
+          <button class="btn small" id="micRefresh" type="button">更新</button>
+        </div>
+      </div>
+      <p class="hint" id="micHint">「配信開始」でマイクの使用許可を求められます。</p>
+
+      <div class="dmon">
+        <div class="dmon-head">
+          <span class="lbl">🎧 入力モニター</span>
+          <span class="grow"></span>
+          <button class="btn small" id="djMonBtn" type="button">OFF</button>
+        </div>
+        <div class="row">
+          <input id="djMonVol" type="range" min="0" max="100" value="70" disabled>
+          <output id="djMonVolVal">70</output>
+        </div>
+        <div class="field" style="margin:8px 0 0">
+          <span>モニター出力</span>
+          <select id="monDevice"><option value="">（既定の出力）</option></select>
+        </div>
+        <p class="hint" id="djMonHint">スピーカーでONにするとハウリングします。ヘッドホン推奨（初期OFF）。</p>
+      </div>
+    </div>
+    <div class="field" style="margin:11px 0 10px">
+      <span>マイク音量（ミックス後）</span>
       <div class="row">
         <input id="micVol" type="range" min="0" max="150" value="100">
         <output id="micVolVal">100</output>
       </div>
     </div>
-    <div class="field">
-      <span>入力デバイス</span>
-      <div class="row">
-        <select id="micDevice"><option value="">（既定のマイク）</option></select>
-        <button class="btn small" id="micRefresh" type="button">更新</button>
-      </div>
-    </div>
-    <div class="checks">
-      <label class="chk"><input type="checkbox" id="echoChk" checked><span>エコーキャンセル</span></label>
-      <label class="chk"><input type="checkbox" id="noiseChk" checked><span>ノイズ抑制</span></label>
-    </div>
-    <p class="hint" id="micHint">「配信開始」でマイクの使用許可を求められます。</p>
     <div class="voice">
       <div class="voice-head">
         <span class="lbl">ボイスチェンジャー</span>
@@ -687,6 +761,8 @@ output{font-family:var(--mono);font-size:11px;color:var(--amber);min-width:38px;
      別オリジンの http(s) 音源のときだけ setDeckItem() が動的に付ける。 -->
 <audio id="bgmAudioA" preload="auto"></audio>
 <audio id="bgmAudioB" preload="auto"></audio>
+<!-- 🎧 入力モニター専用の出力（setSinkId で出力デバイスを選ぶため <audio> を経由） -->
+<audio id="djMonAudio" autoplay playsinline hidden></audio>
 <div id="toasts" aria-live="polite"></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -752,7 +828,9 @@ const S = {
   monitorOn:false, dbgMixed:null, dbgRet:null,
   guest:{id:null, name:'', conn:null, micCall:null, retCall:null, stream:null, source:null, on:false, mute:false, vol:1, monVol:0.85},
   cue:{items:[], index:-1, auto:false, playingId:null, pendingFileId:null},
-  micStream:null, micSource:null, micOn:false, micVol:1, echo:true, noise:true, deviceId:'',
+  micStream:null, micSource:null, micOn:false, micVol:1, echo:true, noise:true, agc:true, deviceId:'',
+  inputMode:'talk', inGain:1, inGainNode:null, inMeterSplit:null, inAnL:null, inAnR:null, inClipUntil:0, micSettings:null,
+  djMonOn:false, djMonVol:0.7, djMonGain:null, djMonDest:null, monDeviceId:'', savedVoice:null,
   decks:null, active:0, xfade:3.5, xfading:false, playlist:[], index:-1, bgmVol:0.65, ducked:false,
   peer:null, conns:new Map(), mediaCalls:new Map(), listeners:new Set(),
   live:false, starting:false, startedAt:0, timerId:null,
@@ -775,7 +853,11 @@ const el = {
   onair:$('onairBadge'), onairText:$('onairText'), elapsed:$('elapsed'), listenerCount:$('listenerCount'),
   broadcastBtn:$('broadcastBtn'), brandSub:$('brandSub'), peerHint:$('peerHint'),
   micToggle:$('micToggle'), micState:$('micState'), micVol:$('micVol'), micVolVal:$('micVolVal'),
-  micDevice:$('micDevice'), micRefresh:$('micRefresh'), echoChk:$('echoChk'), noiseChk:$('noiseChk'), micHint:$('micHint'),
+  micDevice:$('micDevice'), micRefresh:$('micRefresh'), echoChk:$('echoChk'), noiseChk:$('noiseChk'), agcChk:$('agcChk'), micHint:$('micHint'),
+  modeTalk:$('modeTalk'), modeDj:$('modeDj'), modeHint:$('modeHint'),
+  inVu:$('inVu'), inPeak:$('inPeak'), clipLamp:$('clipLamp'), inGain:$('inGain'), inGainVal:$('inGainVal'),
+  djMonBtn:$('djMonBtn'), djMonVol:$('djMonVol'), djMonVolVal:$('djMonVolVal'), monDevice:$('monDevice'),
+  djMonAudio:$('djMonAudio'), djMonHint:$('djMonHint'), micPanel:document.querySelector('.p-mic'),
   bgmFiles:$('bgmFiles'), bgmElA:$('bgmAudioA'), bgmElB:$('bgmAudioB'), bgmNow:$('bgmNow'), bgmSub:$('bgmSub'), bgmSeek:$('bgmSeek'), bgmCur:$('bgmCur'), bgmDur:$('bgmDur'),
   bgmPlay:$('bgmPlay'), bgmPrev:$('bgmPrev'), bgmNext:$('bgmNext'), bgmVol:$('bgmVol'), bgmVolVal:$('bgmVolVal'),
   xfade:$('xfade'), xfadeVal:$('xfadeVal'),
@@ -1061,7 +1143,7 @@ async function ensureAudio(){
   S.limiter.threshold.value = -6; S.limiter.knee.value = 6; S.limiter.ratio.value = 12;
   S.limiter.attack.value = 0.003; S.limiter.release.value = 0.25;
   S.outGain    = ctx.createGain();  S.outGain.gain.value = 1;
-  S.streamDest = ctx.createMediaStreamDestination();
+  S.streamDest = ctx.createMediaStreamDestination({numberOfChannels:2});
   S.monitorGain= ctx.createGain();  S.monitorGain.gain.value = 0;
   S.micGain    = ctx.createGain();  S.micGain.gain.value = 0;
   S.bgmGain    = ctx.createGain();  S.bgmGain.gain.value = 0;
@@ -1070,6 +1152,14 @@ async function ensureAudio(){
   S.meterSplit = ctx.createChannelSplitter(2);
   S.anL = ctx.createAnalyser(); S.anL.fftSize = 2048;
   S.anR = ctx.createAnalyser(); S.anR.fftSize = 2048;
+
+  // オーディオI/F入力：プリアンプ → ボイスチェンジャー、と並行して入力メーター／入力モニターへ
+  S.inGainNode    = ctx.createGain();          S.inGainNode.gain.value = S.inGain;
+  S.inMeterSplit  = ctx.createChannelSplitter(2);
+  S.inAnL         = ctx.createAnalyser();      S.inAnL.fftSize = 2048;
+  S.inAnR         = ctx.createAnalyser();      S.inAnR.fftSize = 2048;
+  S.djMonGain     = ctx.createGain();          S.djMonGain.gain.value = 0;
+  S.djMonDest     = ctx.createMediaStreamDestination({numberOfChannels:2});   // 入力モニターもステレオのまま
 
   // リスナー向け（ホスト＋ゲスト＋BGM＋SE）と、ゲスト返し（ゲストを抜く）の2系統
   S.guestGain    = ctx.createGain(); S.guestGain.gain.value = 0;
@@ -1082,7 +1172,14 @@ async function ensureAudio(){
   S.dbgMixed = ctx.createAnalyser(); S.dbgMixed.fftSize = 4096;
   S.dbgRet   = ctx.createAnalyser(); S.dbgRet.fftSize = 4096;
 
-  initVoice(ctx, S.micGain);   // マイク → ボイスチェンジャー → micGain
+  initVoice(ctx, S.micGain);   // マイク → 入力ゲイン → ボイスチェンジャー → micGain
+  S.inGainNode.connect(V.inNode);
+  S.inGainNode.connect(S.inMeterSplit);
+  S.inMeterSplit.connect(S.inAnL, 0);
+  S.inMeterSplit.connect(S.inAnR, 1);
+  S.inGainNode.connect(S.djMonGain);
+  S.djMonGain.connect(S.djMonDest);
+  try{ el.djMonAudio.srcObject = S.djMonDest.stream; }catch(e){}
   S.micGain.connect(S.bus);
   S.bgmGain.connect(S.bus);
   S.jingleGain.connect(S.bus);
@@ -1136,16 +1233,15 @@ async function acquireMic(){
     el.micHint.textContent = 'このブラウザではマイクを使えません（BGMのみで配信できます）。';
     return false;
   }
-  const base = {echoCancellation:S.echo, noiseSuppression:S.noise, autoGainControl:true};
+  const base = micConstraints(false);
   let stream = null;
   try{
-    const c = Object.assign({}, base);
-    if(S.deviceId) c.deviceId = {exact:S.deviceId};
-    stream = await navigator.mediaDevices.getUserMedia({audio:c, video:false});
+    stream = await navigator.mediaDevices.getUserMedia({audio:micConstraints(true), video:false});
   }catch(e1){
     try{
       stream = await navigator.mediaDevices.getUserMedia({audio:base, video:false});
       S.deviceId = '';
+      el.micDevice.value = '';
     }catch(e2){
       el.micHint.textContent = 'マイクを取得できませんでした：' + (e2 && e2.name ? e2.name : '不明') + '（BGMのみで配信できます）';
       setMicUi(false);
@@ -1157,19 +1253,48 @@ async function acquireMic(){
   if(S.micStream){ S.micStream.getTracks().forEach(t=>{ try{ t.stop(); }catch(e){} }); }
   S.micStream = stream;
   S.micSource = S.ctx.createMediaStreamSource(stream);
-  S.micSource.connect(V.inNode);
+  S.micSource.connect(S.inGainNode || V.inNode);
 
   const track = stream.getAudioTracks()[0];
   if(track){
     const st = track.getSettings ? track.getSettings() : {};
-    const label = (st.deviceId && S.deviceId) ? '' : '';
-    el.micHint.textContent = 'マイク接続中' + (st.sampleRate ? ' / ' + Math.round(st.sampleRate/1000) + 'kHz' : '') +
-      (st.echoCancellation ? ' / EC有効' : '') + (st.noiseSuppression ? ' / NS有効' : '') + '。' + label;
+    S.micSettings = st;
+    updateMicHint(st);
     track.addEventListener('ended', ()=>{ if(S.micOn) setMicUi(false); });
   }
   await refreshDeviceList();
   applyMicGain();
+  updateVuLoop();
   return true;
+}
+
+/* 入力モードに応じた getUserMedia 制約。
+   DJ/オーディオI/F は音楽用に DSP（EC/NS/AGC）を切り、ステレオ48kHzを希望する。 */
+function micConstraints(withDevice){
+  const c = {echoCancellation:!!S.echo, noiseSuppression:!!S.noise, autoGainControl:!!S.agc};
+  if(S.inputMode === 'dj'){
+    c.channelCount = {ideal:2};
+    c.sampleRate = {ideal:48000};
+  }
+  if(withDevice && S.deviceId) c.deviceId = {exact:S.deviceId};
+  return c;
+}
+function updateMicHint(st){
+  st = st || S.micSettings || {};
+  const parts = [];
+  if(st.sampleRate) parts.push(Math.round(st.sampleRate/1000) + 'kHz');
+  if(st.channelCount) parts.push(st.channelCount === 1 ? 'モノラル' : st.channelCount + 'ch（ステレオ）');
+  parts.push('EC ' + (S.echo ? 'ON' : 'OFF'));
+  parts.push('NS ' + (S.noise ? 'ON' : 'OFF'));
+  parts.push('AGC ' + (S.agc ? 'ON' : 'OFF'));
+  if(S.inputMode === 'dj' && st.channelCount === 1){
+    el.micHint.textContent = '🎛️ オーディオI/F入力 / ' + parts.join(' / ') +
+      '。このデバイスはモノラルです（ステレオにするにはステレオ対応のI/Fを選択）。';
+    el.micHint.classList.add('warn');
+    return;
+  }
+  el.micHint.textContent = (S.inputMode === 'dj' ? '🎛️ オーディオI/F入力' : '🎤 マイク接続中') + ' / ' + parts.join(' / ');
+  el.micHint.classList.remove('warn');
 }
 
 function applyMicGain(){
@@ -1201,16 +1326,36 @@ async function refreshDeviceList(){
     const cur = el.micDevice.value;
     el.micDevice.innerHTML = '';
     const def = document.createElement('option');
-    def.value = ''; def.textContent = '（既定のマイク）';
+    def.value = ''; def.textContent = '（既定の入力）';
     el.micDevice.appendChild(def);
     ins.forEach((d,i)=>{
       if(!d.deviceId) return;
       const o = document.createElement('option');
       o.value = d.deviceId;
-      o.textContent = d.label || ('マイク ' + (i+1));
+      // オーディオI/F は名前で見分けやすいようにラベルをそのまま出す
+      o.textContent = d.label || ('入力デバイス ' + (i+1));
       el.micDevice.appendChild(o);
     });
     if(cur && ins.some(d=>d.deviceId === cur)) el.micDevice.value = cur;
+
+    // 出力（モニター）デバイス
+    const outs = devs.filter(d=>d.kind === 'audiooutput');
+    const curOut = el.monDevice.value;
+    el.monDevice.innerHTML = '';
+    const defO = document.createElement('option');
+    defO.value = ''; defO.textContent = '（既定の出力）';
+    el.monDevice.appendChild(defO);
+    outs.forEach((d,i)=>{
+      if(!d.deviceId) return;
+      const o = document.createElement('option');
+      o.value = d.deviceId;
+      o.textContent = d.label || ('出力デバイス ' + (i+1));
+      el.monDevice.appendChild(o);
+    });
+    if(curOut && outs.some(d=>d.deviceId === curOut)) el.monDevice.value = curOut;
+    const canSink = !!(el.djMonAudio && typeof el.djMonAudio.setSinkId === 'function');
+    el.monDevice.disabled = !canSink;
+    if(!canSink) el.djMonHint.textContent = 'このブラウザは出力デバイスの切替に未対応です（既定の出力で再生）。';
   }catch(e){}
 }
 
@@ -2074,6 +2219,10 @@ function createPitchShifter(ctx, ratio){
 }
 
 function setVoice(preset, quiet){
+  if(S.inputMode === 'dj' && preset !== 'off'){
+    if(!quiet) toast('オーディオI/Fモード中はボイスチェンジャーをバイパスしています','warn');
+    return;
+  }
   if(!S.ctx){
     // 配信開始前でも選択を覚えておく
     V.preset = preset;
@@ -2085,6 +2234,132 @@ function setVoice(preset, quiet){
   });
   const names = {off:'素の声',radio:'AMラジオ風',robot:'ロボット',alien:'エイリアン',echo:'ライブエコー',low:'低音ピッチ',high:'高音ピッチ'};
   if(!quiet && preset !== 'off') toast('ボイス：' + (names[preset] || preset) + ' に切り替えました','');
+}
+
+/* ---- 入力モード（トーク／オーディオI/F・DJ） ---- */
+const INPUT_PRESETS = {
+  talk:{echo:true,  noise:true,  agc:true},
+  dj:  {echo:false, noise:false, agc:false}
+};
+function setInputMode(mode, quiet){
+  mode = (mode === 'dj') ? 'dj' : 'talk';
+  S.inputMode = mode;
+  const p = INPUT_PRESETS[mode];
+  S.echo = p.echo; S.noise = p.noise; S.agc = p.agc;
+  el.echoChk.checked = S.echo; el.noiseChk.checked = S.noise; el.agcChk.checked = S.agc;
+  el.modeTalk.classList.toggle('on', mode === 'talk');
+  el.modeDj.classList.toggle('on', mode === 'dj');
+  if(el.micPanel) el.micPanel.classList.toggle('dj-mode', mode === 'dj');
+
+  if(mode === 'dj'){
+    if(V.preset !== 'off'){ S.savedVoice = V.preset; setVoice('off', true); }
+    document.querySelectorAll('.vp').forEach(b=>{ b.disabled = true; });
+    el.modeHint.textContent = 'DJ・オーディオI/F向け：EC・ノイズ除去・AGCをOFF、ステレオ・48kHzを希望して取得。ボイスチェンジャーは自動でバイパスします。';
+  } else {
+    document.querySelectorAll('.vp').forEach(b=>{ b.disabled = false; });
+    if(S.savedVoice){
+      const v = S.savedVoice; S.savedVoice = null;
+      setVoice(v, true);
+      toast('ボイスチェンジャーを「' + ({radio:'AMラジオ風',robot:'ロボット',alien:'エイリアン',echo:'ライブエコー',low:'低音ピッチ',high:'高音ピッチ'}[v] || v) + '」に戻しました','');
+    }
+    el.modeHint.textContent = 'マイク用：エコー抑制・ノイズ除去・AGCをON。ボイスチェンジャーが使えます。';
+  }
+
+  if(S.micStream){
+    acquireMic().then(ok=>{
+      if(ok){ setMicUi(S.micOn); if(!quiet) toast(mode === 'dj' ? '🎛️ オーディオI/F・DJモードに切替えました（ステレオ・音楽向け）' : '🎤 トーク／マイクモードに切替えました','ok'); }
+    });
+  } else if(!quiet){
+    toast(mode === 'dj' ? '🎛️ DJモードを選択（「配信開始」でこの設定で入力します）' : '🎤 トークモードを選択','');
+  }
+  updateMicHint(S.micSettings);
+  setRangeFill(el.inGain);
+}
+function applyInputGain(){
+  if(S.ctx && S.inGainNode) S.inGainNode.gain.setTargetAtTime(S.inGain, S.ctx.currentTime, 0.02);
+}
+
+/* ---- 🎧 入力モニター（デフォルトOFF・ハウリング注意） ---- */
+function setDjMonitor(on, quiet){
+  if(on && !S.ctx){ if(!quiet) toast('先に「配信開始」を押してください','warn'); return; }
+  on = !!on && !!S.ctx;
+  S.djMonOn = on;
+  el.djMonBtn.textContent = on ? 'ON' : 'OFF';
+  el.djMonBtn.classList.toggle('on', on);
+  el.djMonVol.disabled = !on;
+  if(S.djMonGain) S.djMonGain.gain.setTargetAtTime(on ? S.djMonVol : 0, S.ctx.currentTime, 0.03);
+  if(on){
+    try{ const p = el.djMonAudio.play(); if(p && p.catch) p.catch(()=>{}); }catch(e){}
+    if(!quiet) toast('入力モニターON。ハウリング防止にヘッドホンを使ってください','warn');
+  }
+}
+function applyMonitorVolume(){
+  if(S.ctx && S.djMonGain) S.djMonGain.gain.setTargetAtTime(S.djMonOn ? S.djMonVol : 0, S.ctx.currentTime, 0.03);
+}
+async function applySink(){
+  const a = el.djMonAudio;
+  if(!a || typeof a.setSinkId !== 'function') return;
+  try{ await a.setSinkId(S.monDeviceId || ''); }
+  catch(e){ toast('この出力デバイスに切り替えられませんでした','warn'); }
+}
+
+/* ---- 入力メーター（L/R・CLIP） ---- */
+const ivu = {w:0,h:0,dpr:1,holdL:-54,holdR:-54};
+function sizeInputVu(){
+  if(!el.inVu) return;
+  const r = el.inVu.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  ivu.w = Math.max(1, Math.round(r.width));
+  ivu.h = Math.max(1, Math.round(r.height));
+  ivu.dpr = dpr;
+  el.inVu.width = Math.round(ivu.w * dpr);
+  el.inVu.height = Math.round(ivu.h * dpr);
+  el.inVu.getContext('2d').setTransform(dpr,0,0,dpr,0,0);
+}
+function drawInputVu(){
+  if(!el.inVu) return;
+  if(!ivu.w) sizeInputVu();
+  const g = el.inVu.getContext('2d');
+  const w = ivu.w, h = ivu.h;
+  g.clearRect(0,0,w,h);
+  if(!S.ctx || !S.inAnL){
+    g.font = '9px Menlo, monospace';
+    g.fillStyle = 'rgba(255,255,255,.28)';
+    g.textAlign = 'center';
+    g.fillText('入力メーターは「配信開始」で動きます', w/2, h/2);
+    g.textAlign = 'left';
+    el.inPeak.textContent = '—';
+    el.clipLamp.classList.remove('on');
+    return;
+  }
+  const padL = 18, padR = 8, barH = 24, gap = 8, top = (h - barH*2 - gap)/2;
+  const dL = peakDb(S.inAnL), dR = peakDb(S.inAnR);
+  ivu.holdL = Math.max(ivu.holdL - 0.7, dL);
+  ivu.holdR = Math.max(ivu.holdR - 0.7, dR);
+  const bar = (y, db, hold, label)=>{
+    g.fillStyle = 'rgba(255,255,255,.055)';
+    g.fillRect(padL, y, w - padL - padR, barH);
+    const norm = Math.max(0, Math.min(1, (db - DB_MIN) / (0 - DB_MIN)));
+    const bw = (w - padL - padR) * norm;
+    if(bw > 0.5){
+      const grad = g.createLinearGradient(padL, 0, padL + (w - padL - padR), 0);
+      grad.addColorStop(0, '#4bd6a8'); grad.addColorStop(0.6, '#a8e05f');
+      grad.addColorStop(0.84, '#f2b464'); grad.addColorStop(1, '#ff5a5a');
+      g.fillStyle = grad; g.fillRect(padL, y, bw, barH);
+      g.fillStyle = 'rgba(255,255,255,.14)'; g.fillRect(padL, y, bw, 4);
+    }
+    const hx = padL + (w - padL - padR) * Math.max(0, Math.min(1, (hold - DB_MIN) / (0 - DB_MIN)));
+    if(hold > DB_MIN){ g.fillStyle = hold > -1 ? 'rgba(255,90,90,.95)' : 'rgba(255,255,255,.7)'; g.fillRect(hx - 1.5, y, 3, barH); }
+    g.fillStyle = 'rgba(255,255,255,.5)';
+    g.font = 'bold 10px Menlo, monospace';
+    g.fillText(label, 6, y + barH/2 + 1);
+  };
+  bar(top, dL, ivu.holdL, 'L');
+  bar(top + barH + gap, dR, ivu.holdR, 'R');
+  const mx = Math.max(dL, dR);
+  if(mx > -1.0) S.inClipUntil = performance.now() + 1200;
+  el.clipLamp.classList.toggle('on', performance.now() < S.inClipUntil);
+  el.inPeak.textContent = (mx === -Infinity || mx < DB_MIN) ? '-∞ dB' : mx.toFixed(1) + ' dB';
 }
 
 /* ---- VU メーター ---- */
@@ -2180,9 +2455,11 @@ function updateVuLoop(){
   if(vuStarted) return;
   vuStarted = true;
   sizeVu();
-  window.addEventListener('resize', sizeVu);
+  sizeInputVu();
+  window.addEventListener('resize', ()=>{ sizeVu(); sizeInputVu(); });
   const loop = ()=>{
     drawVu();
+    drawInputVu();
     requestAnimationFrame(loop);
   };
   requestAnimationFrame(loop);
@@ -2405,6 +2682,56 @@ function onData(conn, d){
   }
 }
 
+/* ---- 音楽向け Opus SDP（ステレオ・高ビットレート） ----
+   PeerJS 1.5 の MediaConnection は options.sdpTransform を createOffer/SDP に適用する。
+   失敗しても元のSDPをそのまま返すので、非対応ブラウザでは通常の音声になる。 */
+function musicSdpTransform(sdp){
+  try{
+    if(typeof sdp !== 'string' || sdp.indexOf('m=audio') < 0) return sdp;
+    const m = sdp.match(/^a=rtpmap:(\d+) opus\/48000(?:\/\d)?\s*$/im);
+    if(!m) return sdp;                       // Opus 以外は何もしない
+    const pt = m[1];
+    const lines = sdp.split(/\r\n/);
+    const fmtpRe = new RegExp('^a=fmtp:' + pt + ' ');
+    let found = false;
+    const out = lines.map(line=>{
+      if(!fmtpRe.test(line)) return line;
+      found = true;
+      let params = line.replace(fmtpRe, '').replace(/;+$/, '');
+      const add = [];
+      if(!/(^|;)stereo=/.test(params)) add.push('stereo=1');
+      if(!/(^|;)sprop-stereo=/.test(params)) add.push('sprop-stereo=1');
+      if(!/(^|;)maxaveragebitrate=/.test(params)) add.push('maxaveragebitrate=192000');
+      if(!/(^|;)maxplaybackrate=/.test(params)) add.push('maxplaybackrate=48000');
+      if(!/(^|;)useinbandfec=/.test(params)) add.push('useinbandfec=1');
+      return 'a=fmtp:' + pt + ' ' + params + (add.length ? ';' + add.join(';') : '');
+    });
+    if(!found){
+      const i = lines.findIndex(l=>l.indexOf('a=rtpmap:' + pt + ' opus/48000') === 0);
+      lines.splice(i + 1, 0, 'a=fmtp:' + pt + ' stereo=1;sprop-stereo=1;maxaveragebitrate=192000;maxplaybackrate=48000;useinbandfec=1');
+      return lines.join('\r\n');
+    }
+    return out.join('\r\n');
+  }catch(e){ return sdp; }
+}
+/* 送信側のエンコーダも音楽向けに（SDPが効かない環境の補完） */
+function tuneMusicSender(call){
+  try{
+    const pc = call && call.peerConnection;
+    if(!pc || !pc.getSenders) return;
+    pc.getSenders().forEach(s=>{
+      try{
+        if(!s.track || s.track.kind !== 'audio' || !s.getParameters) return;
+        const p = s.getParameters();
+        if(!p.encodings || !p.encodings.length) p.encodings = [{}];
+        p.encodings[0].maxBitrate = 256000;
+        const pr = s.setParameters(p);
+        if(pr && pr.catch) pr.catch(()=>{});
+      }catch(e){}
+    });
+  }catch(e){}
+}
+
 function callListener(peerId){
   if(!S.peer || !S.streamDest) return;
   const tracks = S.streamDest.stream.getAudioTracks();
@@ -2418,7 +2745,8 @@ function callListener(peerId){
   if(prev){ try{ prev.close(); }catch(e){} S.mediaCalls.delete(peerId); }
   let call = null;
   try{
-    call = S.peer.call(peerId, S.streamDest.stream, {metadata:{title:infoPayload().title}});
+    call = S.peer.call(peerId, S.streamDest.stream, {metadata:{title:infoPayload().title}, sdpTransform:musicSdpTransform});
+    setTimeout(()=>tuneMusicSender(call), 600);
   }catch(e){
     toast('リスナーへの音声送信に失敗しました','err');
     return;
@@ -2445,8 +2773,11 @@ function handleIncomingCall(call){
     return;
   }
 
-  // リスナー側から call してきた場合も、ミックス済み音声を返す
-  try{ call.answer(S.streamDest.stream); }catch(e){ try{ call.close(); }catch(e2){} }  const id = call.peer;
+  // リスナー側から call してきた場合も、ミックス済み音声を返す（音楽向けOpus設定）
+  try{ call.answer(S.streamDest.stream, {sdpTransform:musicSdpTransform}); }
+  catch(e){ try{ call.answer(S.streamDest.stream); }catch(e2){ try{ call.close(); }catch(e3){} return; } }
+  setTimeout(()=>tuneMusicSender(call), 600);
+  const id = call.peer;
   S.conns.set(id, S.conns.get(id) || call);
   if(!S.listeners.has(id)){ S.listeners.add(id); updateListenerCount(); }
   call.on('close', ()=>{ S.listeners.delete(id); updateListenerCount(); });
@@ -2639,6 +2970,7 @@ function teardownBroadcast(silent){
   S.guest.id = null; S.guest.name = ''; S.guest.mute = false;
   setGuestUi(false);
   setMonitor(false);
+  setDjMonitor(false, true);
   if(!silent) toast('配信を終了しました','');
 }
 function stopBroadcast(){ if(!S.live && !S.starting) return; teardownBroadcast(false); }
@@ -2977,10 +3309,36 @@ function bind(){
   el.echoChk.addEventListener('change', async ()=>{
     S.echo = el.echoChk.checked;
     if(S.micStream){ await acquireMic(); setMicUi(S.micOn); }
+    updateMicHint(S.micSettings);
   });
   el.noiseChk.addEventListener('change', async ()=>{
     S.noise = el.noiseChk.checked;
     if(S.micStream){ await acquireMic(); setMicUi(S.micOn); }
+    updateMicHint(S.micSettings);
+  });
+  el.agcChk.addEventListener('change', async ()=>{
+    S.agc = el.agcChk.checked;
+    if(S.micStream){ await acquireMic(); setMicUi(S.micOn); }
+    updateMicHint(S.micSettings);
+  });
+  el.modeTalk.addEventListener('click', ()=>setInputMode('talk'));
+  el.modeDj.addEventListener('click', ()=>setInputMode('dj'));
+  el.inGain.addEventListener('input', ()=>{
+    S.inGain = Number(el.inGain.value)/100;
+    el.inGainVal.textContent = el.inGain.value;
+    setRangeFill(el.inGain);
+    applyInputGain();
+  });
+  el.djMonBtn.addEventListener('click', ()=>{ setDjMonitor(!S.djMonOn); });
+  el.djMonVol.addEventListener('input', ()=>{
+    S.djMonVol = Number(el.djMonVol.value)/100;
+    el.djMonVolVal.textContent = el.djMonVol.value;
+    setRangeFill(el.djMonVol);
+    applyMonitorVolume();
+  });
+  el.monDevice.addEventListener('change', ()=>{
+    S.monDeviceId = el.monDevice.value;
+    applySink();
   });
   if(navigator.mediaDevices) navigator.mediaDevices.addEventListener && navigator.mediaDevices.addEventListener('devicechange', ()=>refreshDeviceList());
 
@@ -3142,8 +3500,12 @@ function init(){
   cueLoad();
   renderCues();
   el.guestMonChk.checked = true;
-  sizeVu();
-  drawVu();
+  setInputMode('talk', true);
+  setDjMonitor(false, true);
+  ['inGain','djMonVol','micVol','bgmVol','masterVol','guestVol','xfade'].forEach(id=>{
+    const n = $(id); if(n) setRangeFill(n);
+  });
+  updateVuLoop();
   refreshDeviceList();
   // CDN が読めていなければ事前にローカルへ切り替え
   ensurePeerLib();
@@ -3166,8 +3528,112 @@ window.__nrDebug = {
       guestOn:!!S.guest.on, guestId:S.guest.id, guestName:S.guest.name,
       guestStream:!!S.guest.stream, guestSource:!!S.guest.source,
       guestConn:!!(S.guest.conn && S.guest.conn.open), guestMicCall:!!(S.guest.micCall && S.guest.micCall.open),
-      voice:V.preset, monitor:S.monitorOn
+      voice:V.preset, monitor:S.monitorOn,
+      inputMode:S.inputMode, echo:S.echo, noise:S.noise, agc:S.agc, inGain:S.inGain,
+      micSettings:S.micSettings, djMon:S.djMonOn, clip:el.clipLamp.classList.contains('on'),
+      outDevices:el.monDevice ? el.monDevice.options.length - 1 : 0
     };
+  },
+  input(){
+    return {
+      mode:S.inputMode, gain:S.inGain, monitor:S.djMonOn, monitorVol:S.djMonVol,
+      settings:S.micSettings,
+      peakL:(S.inAnL ? Math.round(peakDb(S.inAnL)*100)/100 : null),
+      peakR:(S.inAnR ? Math.round(peakDb(S.inAnR)*100)/100 : null),
+      clip:el.clipLamp.classList.contains('on'),
+      outDevice:el.monDevice ? el.monDevice.value : '',
+      monSrc:!!(el.djMonAudio && el.djMonAudio.srcObject)
+    };
+  },
+  streamMax(ms){
+    return new Promise(res=>{
+      try{
+        if(!S.ctx || !S.streamDest) return res(null);
+        const a = S.ctx.createAnalyser(); a.fftSize = 2048;
+        const clone = S.streamDest.stream.clone ? S.streamDest.stream.clone() : S.streamDest.stream;
+        const src = S.ctx.createMediaStreamSource(clone);
+        src.connect(a);
+        const buf = new Float32Array(a.fftSize);
+        const end = performance.now() + (ms || 400);
+        let max = 0;
+        const tick = ()=>{
+          a.getFloatTimeDomainData(buf);
+          for(let i=0;i<buf.length;i++){ const v = Math.abs(buf[i]); if(v > max) max = v; }
+          if(performance.now() < end) requestAnimationFrame(tick);
+          else {
+            try{ src.disconnect(); }catch(e){}
+            try{ clone.getTracks().forEach(t=>t.stop()); }catch(e){}
+            res(Math.round(max*1000)/1000);
+          }
+        };
+        requestAnimationFrame(tick);
+      }catch(e){ res(null); }
+    });
+  },
+  streamInfo(){
+    try{
+      const st = S.streamDest.stream.getAudioTracks()[0];
+      return st ? st.getSettings() : null;
+    }catch(e){ return null; }
+  },
+  /* リスナーへ送るストリームをL/Rに分けて実測 */
+  streamChannels(ms){
+    return new Promise(res=>{
+      try{
+        if(!S.ctx || !S.streamDest) return res(null);
+        const ac = S.ctx;
+        const clone = S.streamDest.stream.clone();
+        const src = ac.createMediaStreamSource(clone);
+        const sp = ac.createChannelSplitter(2);
+        const aL = ac.createAnalyser(), aR = ac.createAnalyser();
+        aL.fftSize = aR.fftSize = 2048;
+        src.connect(sp); sp.connect(aL, 0); sp.connect(aR, 1);
+        const b = new Float32Array(2048);
+        let pl = 0, pr = 0;
+        const end = performance.now() + (ms || 700);
+        const tick = ()=>{
+          aL.getFloatTimeDomainData(b); for(let i=0;i<b.length;i++) pl = Math.max(pl, Math.abs(b[i]));
+          aR.getFloatTimeDomainData(b); for(let i=0;i<b.length;i++) pr = Math.max(pr, Math.abs(b[i]));
+          if(performance.now() < end) requestAnimationFrame(tick);
+          else {
+            try{ src.disconnect(); sp.disconnect(); clone.getTracks().forEach(t=>t.stop()); }catch(e){}
+            res({peakL:Math.round(pl*1000)/1000, peakR:Math.round(pr*1000)/1000, peak:Math.round(Math.max(pl,pr)*1000)/1000});
+          }
+        };
+        requestAnimationFrame(tick);
+      }catch(e){ res(null); }
+    });
+  },
+  mediaCalls(){
+    const out = [];
+    S.mediaCalls.forEach((c, id)=>{
+      try{
+        const pc = c.peerConnection;
+        out.push({
+          id,
+          localSdp: pc && pc.localDescription ? pc.localDescription.sdp : null,
+          state: pc ? pc.connectionState : null,
+          senders: (pc && pc.getSenders) ? pc.getSenders().map(s=>{
+            try{ const p = s.getParameters(); return (p.encodings || []).map(e=>e.maxBitrate || 0); }catch(e){ return null; }
+          }) : []
+        });
+      }catch(e){ out.push({id, err:String(e)}); }
+    });
+    return out;
+  },
+  /* 入力段にテスト音を注入（L/Rメーター・CLIPの確認用。実機I/Fなしでも検証できる） */
+  inputTest(freq, amp, ms){
+    if(!S.ctx || !S.inGainNode) return false;
+    const ctx = S.ctx;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'sine'; o.frequency.value = freq || 1000; g.gain.value = (amp === undefined ? 0.95 : amp);
+    o.connect(g); g.connect(S.inGainNode); o.start();
+    setTimeout(()=>{ try{ o.stop(); o.disconnect(); g.disconnect(); }catch(e){} }, ms || 700);
+    return true;
+  },
+  sdpSample(){
+    const sample = 'v=0\r\no=- 1 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111 0\r\nc=IN IP4 0.0.0.0\r\na=mid:0\r\na=rtpmap:111 opus/48000/2\r\na=fmtp:111 minptime=10;useinbandfec=1\r\na=rtpmap:0 PCMU/8000\r\n';
+    return musicSdpTransform(sample);
   },
   mag(freqs){
     const read = (an)=>{

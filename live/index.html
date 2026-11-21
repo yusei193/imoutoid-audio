@@ -1251,6 +1251,37 @@ function bindChat(){
   chatCountsRender();
   updateChatUi();
 }
+/* 音楽向け Opus（ステレオ・高ビットレート）。配信者側の offer に stereo=1 が入っていても、
+   この answer 側の fmtp がモノラルのままだと受信音声がモノラルに落ちるため、answer にも同じ設定を入れる。
+   失敗しても元のSDPを返すだけなので、非対応ブラウザでは通常の音声になる。 */
+function musicSdpTransform(sdp){
+  try{
+    if(typeof sdp !== 'string' || sdp.indexOf('m=audio') < 0) return sdp;
+    const m = sdp.match(/^a=rtpmap:(\d+) opus\/48000(?:\/\d)?\s*$/im);
+    if(!m) return sdp;
+    const pt = m[1];
+    const lines = sdp.split(/\r\n/);
+    const fmtpRe = new RegExp('^a=fmtp:' + pt + ' ');
+    let found = false;
+    const out = lines.map(line=>{
+      if(!fmtpRe.test(line)) return line;
+      found = true;
+      let params = line.replace(fmtpRe, '').replace(/;+$/, '');
+      const add = [];
+      if(!/(^|;)stereo=/.test(params)) add.push('stereo=1');
+      if(!/(^|;)sprop-stereo=/.test(params)) add.push('sprop-stereo=1');
+      if(!/(^|;)maxaveragebitrate=/.test(params)) add.push('maxaveragebitrate=192000');
+      if(!/(^|;)maxplaybackrate=/.test(params)) add.push('maxplaybackrate=48000');
+      return 'a=fmtp:' + pt + ' ' + params + (add.length ? ';' + add.join(';') : '');
+    });
+    if(!found){
+      const i = lines.findIndex(l=>l.indexOf('a=rtpmap:' + pt + ' opus/48000') === 0);
+      lines.splice(i + 1, 0, 'a=fmtp:' + pt + ' stereo=1;sprop-stereo=1;maxaveragebitrate=192000;maxplaybackrate=48000');
+      return lines.join('\r\n');
+    }
+    return out.join('\r\n');
+  }catch(e){ return sdp; }
+}
 function onCall(call){
   if(S.call && S.call !== call){ try{ S.call.close(); }catch(e){} }
   S.call = call;
@@ -1260,8 +1291,8 @@ function onCall(call){
   let answered = false;
   let answerStream = null;
   try{ answerStream = S.silentDest ? S.silentDest.stream : null; }catch(e){ answerStream = null; }
-  if(answerStream){ try{ call.answer(answerStream); answered = true; }catch(e){ answered = false; } }
-  if(!answered){ try{ call.answer(undefined); answered = true; }catch(e){ answered = false; } }
+  if(answerStream){ try{ call.answer(answerStream, {sdpTransform:musicSdpTransform}); answered = true; }catch(e){ answered = false; } }
+  if(!answered){ try{ call.answer(answerStream || undefined); answered = true; }catch(e){ answered = false; } }
   if(!answered){
     try{ call.close(); }catch(e){}
     S.lastError = 'answer-failed';
