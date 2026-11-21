@@ -175,7 +175,7 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;bac
   <div class="program">
     <div class="now-label" id="nowLabel">NOW ON AIR</div>
     <h1 class="title" id="progTitle">imoutoid 24時間アーカイブ・ラジオ</h1>
-    <p class="dj" id="progDj">AI DJ / AUTO-DJ</p>
+    <p class="dj" id="progDj">AI IMOUTO / AUTO-DJ</p>
     <p class="note" id="progNote">生放送がOFF AIRのあいだ、imoutoid の音源を24時間ノンストップでお届けします。</p>
     <div class="badges">
       <span class="guest-badge" id="guestBadge" hidden><i></i><span id="guestBadgeText">ゲスト出演中</span></span>
@@ -185,7 +185,7 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;bac
 
   <section class="ai-panel" id="aiPanel">
     <div class="ai-head">
-      <span class="ai-label">🤖 AI RADIO (AUTO-DJ)</span>
+      <span class="ai-label">🤖 AI IMOUTO (AUTO-DJ)</span>
       <span class="ai-badge" id="slotBadge">🌙 NIGHT CHILL</span>
       <span class="ai-state" id="aiState">待機中</span>
     </div>
@@ -194,11 +194,11 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;bac
     <div class="ai-sub" id="aiSub">146曲のアーカイブから、いまの時刻に合わせて自動選曲します。</div>
     <div class="ai-next" id="aiNext">NEXT: —</div>
     <div class="ai-toggles">
-      <button class="btn on" id="djBtn" type="button">🎙️ AI DJ：ON</button>
+      <button class="btn on" id="djBtn" type="button">🎙️ AI IMOUTO：ON</button>
       <span class="btn chip-static" id="introInfo" title="曲紹介は音楽に重ねて喋ります">🎙 曲紹介：音楽に重ねる</span>
       <button class="btn" id="aiNextBtn" type="button">⏭ 次の曲</button>
     </div>
-    <div class="dj-line" id="djLine" hidden><span class="k">🎙️ AI DJ トーク中</span><span id="djText"></span></div>
+    <div class="dj-line" id="djLine" hidden><span class="k">🎙️ AI IMOUTO トーク中</span><span id="djText"></span></div>
   </section>
 
   <div class="scope">
@@ -468,9 +468,9 @@ function updateModeUi(){
   } else if(aiOn){
     el.dial.classList.remove('live'); el.dial.classList.add('ai');
     el.onairTxt.textContent = 'ON AIR';
-    el.bandTxt.textContent = 'AI RADIO / 24H';
+    el.bandTxt.textContent = 'AI IMOUTO / 24H';
     el.modeText.textContent = '24時間AIラジオ';
-    el.topChip.className = 'chip ai'; el.topChipText.textContent = 'AI RADIO';
+    el.topChip.className = 'chip ai'; el.topChipText.textContent = 'AI IMOUTO';
     el.recTag.className = 'rec ai on'; el.recText.textContent = 'AUTO-DJ WAVEFORM';
     el.scopeInfo.textContent = 'AUTO-DJ / ' + TRACKS.length + ' TRACKS';
     el.nowLabel.textContent = 'NOW PLAYING (AUTO-DJ)';
@@ -513,7 +513,7 @@ function updateSlotBadge(){
 }
 function renderAiInfo(){
   el.progTitle.textContent = 'imoutoid 24時間アーカイブ・ラジオ';
-  el.progDj.textContent = 'AI DJ / AUTO-DJ';
+  el.progDj.textContent = 'AI IMOUTO / AUTO-DJ';
   el.progNote.textContent = '生放送がOFF AIRのあいだ、imoutoid の音源を24時間ノンストップでお届けします。';
   el.stationLabel.textContent = ROOM;
   el.footId.textContent = ROOM;
@@ -548,7 +548,7 @@ function checkDayPart(){
   }
 }
 
-/* ================= AI DJ（音声合成・音楽に重ねる） ================= */
+/* ================= AI IMOUTO（音声合成・音楽に重ねる） ================= */
 function canSpeak(){
   return !!(window.speechSynthesis && typeof window.SpeechSynthesisUtterance === 'function');
 }
@@ -572,25 +572,25 @@ function introText(t){
   const title = String(t.t || '').trim();
   const sets = {
     morning: [
-      'Good morning! You are tuned into imoutoid archive radio. Starting your morning with ' + title + '.',
-      'Morning! Let us wake up slowly together with ' + title + ' on imoutoid radio!',
+      'Good morning! This is AI IMOUTO on imoutoid archive radio. Starting your morning with ' + title + '.',
+      'Morning! It is AI IMOUTO here. Let us wake up slowly together with ' + title + '!',
       'Rise and shine! From the imoutoid archive, here is ' + title + '.',
-      'Hey, good morning! This one is ' + title + ', just for your morning.',
-      'Good morning! Here comes ' + title + '. Let us have a lovely day!'
+      'Hey, good morning! AI IMOUTO here, with ' + title + ', just for your morning.',
+      'Good morning from AI IMOUTO! Here comes ' + title + '. Let us have a lovely day!'
     ],
     day: [
-      'Hey there! Welcome to imoutoid archive radio! Up next is ' + title + '!',
-      'Good afternoon! Keep the energy up on imoutoid radio. Up next: ' + title + '.',
-      'Daytime on imoutoid radio! Here comes ' + title + ', turned up!',
-      'Let us keep the groove going with ' + title + '!',
-      'This is imoutoid radio. Right now, ' + title + '.'
+      'Hey there! Welcome to imoutoid archive radio, it is AI IMOUTO! Up next is ' + title + '!',
+      'Good afternoon! AI IMOUTO here. Keep the energy up on imoutoid radio. Up next: ' + title + '.',
+      'Daytime on imoutoid radio! This is AI IMOUTO with ' + title + ', turned up!',
+      'Hey, it is AI IMOUTO! Let us keep the groove going with ' + title + '!',
+      'This is AI IMOUTO on imoutoid radio. Right now, ' + title + '.'
     ],
     night: [
-      'Good evening. Here is a calm track for your night: ' + title + '.',
-      'Hey, it is getting late. Let us unwind together with ' + title + ' on imoutoid archive radio.',
-      'Late night chill on imoutoid archive radio. This is ' + title + '.',
+      'Good evening. This is AI IMOUTO on imoutoid archive radio. Here is a calm track for your night: ' + title + '.',
+      'Hey, it is getting late. AI IMOUTO here, so let us unwind together with ' + title + '.',
+      'Late night chill on imoutoid archive radio. This is ' + title + ', from AI IMOUTO.',
       'Slow down and settle in. From the imoutoid archive, ' + title + '.',
-      'Shh... night time on imoutoid radio. Here is ' + title + '.'
+      'Shh... night time on imoutoid radio. AI IMOUTO here, with ' + title + '.'
     ]
   };
   const pats = sets[part.id] || sets.night;
@@ -1227,7 +1227,7 @@ function bind(){
   el.djBtn.addEventListener('click', ()=>{
     S.ai.djOn = !S.ai.djOn;
     el.djBtn.classList.toggle('on', S.ai.djOn);
-    el.djBtn.textContent = S.ai.djOn ? '🎙️ AI DJ：ON' : '🎙️ AI DJ：OFF';
+    el.djBtn.textContent = S.ai.djOn ? '🎙️ AI IMOUTO：ON' : '🎙️ AI IMOUTO：OFF';
     if(!S.ai.djOn){
       clearSilent();
       S.ai.speaking = false;
