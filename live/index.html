@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07080c">
+<title>NET RADIO — 24時間 AIラジオ</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a0b10'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='%23f2b464' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23ff5a5a'/%3E%3C/svg%3E">
+<style>
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+:root{
+  --bg:#07080c; --panel:rgba(255,255,255,.04); --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+  --txt:#efeae0; --dim:#9b978e; --dim2:#6c6960;
+  --amber:#f2b464; --amber-soft:rgba(242,180,100,.14); --red:#ff5a5a; --mint:#79e0c2;
+  --mono:"SFMono-Regular",Menlo,Consolas,"Roboto Mono","DejaVu Sans Mono",monospace;
+  --serif:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,"Noto Sans JP",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+html,body{margin:0;padding:0;max-width:100%}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--sans);color:var(--txt);min-height:100vh;line-height:1.6;overflow-x:hidden;
+  background:
+    radial-gradient(900px 520px at 50% -18%,rgba(242,180,100,.14),transparent 60%),
+    radial-gradient(700px 400px at 10% 110%,rgba(121,224,194,.05),transparent 60%),
+    linear-gradient(180deg,#0a0b11 0%,#07080c 55%,#05060a 100%);
+  background-attachment:scroll;
+  padding:0 0 30px;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.04;
+  background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(120% 80% at 50% 40%,transparent 55%,rgba(0,0,0,.55) 100%);
+}
+.wrap{max-width:680px;margin:0 auto;padding:0 18px;position:relative;z-index:1}
+button{font-family:inherit;color:inherit}
+input,select{font-family:inherit}
+
+/* 上部ストリップ */
+.strip{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 0 6px;font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--dim2)}
+.strip .net{color:var(--dim)}
+.strip .net b{color:var(--amber);font-weight:600}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);font-size:9px;letter-spacing:.12em;color:var(--dim2);white-space:nowrap}
+.chip i{width:6px;height:6px;border-radius:50%;background:#45454b;flex:0 0 6px}
+.chip.on{border-color:rgba(255,90,90,.45);color:#ffbdbd;background:rgba(255,90,90,.07)}
+.chip.on i{background:var(--red);box-shadow:0 0 8px rgba(255,90,90,.9);animation:pulse 1.9s infinite}
+.chip.ai{border-color:rgba(121,224,194,.45);color:#cffdf0;background:rgba(121,224,194,.08)}
+.chip.ai i{background:var(--mint);box-shadow:0 0 8px rgba(121,224,194,.8);animation:pulse 2.4s infinite}
+.chip.wait{border-color:rgba(242,180,100,.35);color:#e3c9a2}
+.chip.wait i{background:var(--amber);animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ダイヤル */
+.dial-wrap{display:flex;justify-content:center;padding:10px 0 4px}
+.dial{
+  width:min(258px,70vw);aspect-ratio:1;border-radius:50%;position:relative;
+  border:1px solid rgba(242,180,100,.2);
+  background:
+    radial-gradient(circle at 50% 38%,rgba(242,180,100,.12),rgba(0,0,0,0) 62%),
+    radial-gradient(circle at 50% 50%,rgba(255,255,255,.03),rgba(0,0,0,.35) 75%);
+  box-shadow:inset 0 0 60px rgba(0,0,0,.7),0 0 70px rgba(242,180,100,.05);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:22px;
+}
+.dial::before{
+  content:"";position:absolute;inset:9px;border-radius:50%;
+  background:repeating-conic-gradient(from -90deg,rgba(242,180,100,.5) 0 .6deg,transparent .6deg 7.5deg);
+  -webkit-mask:radial-gradient(circle,transparent 0 82%,#000 83% 88%,transparent 89%);
+  mask:radial-gradient(circle,transparent 0 82%,#000 83% 88%,transparent 89%);
+  opacity:.55;
+}
+.dial::after{content:"";position:absolute;inset:19px;border-radius:50%;border:1px dashed rgba(255,255,255,.07)}
+.dial .lamp{width:14px;height:14px;border-radius:50%;background:#3b3b42;border:1px solid rgba(255,255,255,.16);position:relative;z-index:2;transition:all .4s}
+.dial.live .lamp{background:var(--red);box-shadow:0 0 12px rgba(255,90,90,.95),0 0 34px rgba(255,90,90,.5);border-color:#ff8b8b}
+.dial.ai .lamp{background:var(--mint);box-shadow:0 0 12px rgba(121,224,194,.9),0 0 30px rgba(121,224,194,.4);border-color:#9df0d8}
+.dial .onair-txt{font-family:var(--mono);font-size:10px;letter-spacing:.3em;color:var(--dim2);position:relative;z-index:2}
+.dial .band{font-family:var(--mono);font-size:8.5px;letter-spacing:.24em;color:var(--amber);opacity:.8;position:relative;z-index:2;margin-top:2px}
+.dial .station{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--dim);position:relative;z-index:2;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dial .mode{font-family:var(--serif);font-size:14.5px;color:#d9d3c7;position:relative;z-index:2;margin-top:3px;text-align:center}
+
+/* 番組 */
+.program{padding:18px 0 2px;text-align:center}
+.now-label{font-family:var(--mono);font-size:9.5px;letter-spacing:.28em;color:var(--dim2);margin-bottom:9px}
+.title{font-family:var(--serif);font-size:clamp(22px,5.8vw,32px);line-height:1.34;font-weight:500;margin:0 0 8px;letter-spacing:.01em;word-break:break-word;text-shadow:0 0 30px rgba(242,180,100,.16)}
+.dj{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--amber);margin:0}
+.note{font-size:12.5px;color:var(--dim);margin:9px auto 0;max-width:34em;word-break:break-word}
+.badges{display:flex;justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.guest-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;border:1px solid rgba(121,224,194,.4);background:rgba(121,224,194,.08);color:#cffdf0;font-size:10.5px;letter-spacing:.04em;font-family:var(--mono);max-width:100%;text-align:left}
+.guest-badge i{width:6px;height:6px;border-radius:50%;background:var(--mint);box-shadow:0 0 8px rgba(121,224,194,.8);flex:0 0 6px}
+.now-tag{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);color:var(--dim);font-size:10.5px;font-family:var(--mono);max-width:100%}
+.now-tag span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:17em}
+
+/* AIラジオ */
+.ai-panel{
+  margin-top:18px;border:1px solid rgba(121,224,194,.28);border-radius:16px;padding:14px 15px 15px;
+  background:linear-gradient(180deg,rgba(121,224,194,.07),rgba(255,255,255,.015));
+  transition:opacity .3s,border-color .3s;
+}
+.ai-panel.dim{opacity:.55;border-color:var(--line)}
+.ai-head{display:flex;align-items:center;gap:9px;margin-bottom:10px;flex-wrap:wrap}
+.ai-label{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--mint)}
+.ai-state{margin-left:auto;font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--dim2);padding:3px 8px;border-radius:6px;border:1px solid var(--line)}
+.ai-state.on{color:#cffdf0;border-color:rgba(121,224,194,.5);background:rgba(121,224,194,.08)}
+.ai-now-label{font-family:var(--mono);font-size:8.5px;letter-spacing:.22em;color:var(--dim2);margin-bottom:3px}
+.ai-now{font-family:var(--serif);font-size:clamp(15px,4vw,18px);line-height:1.4;word-break:break-word;color:#f6efdf}
+.ai-sub{font-size:11px;color:var(--dim2);margin-top:4px;word-break:break-word}
+.ai-next{font-size:10.5px;color:var(--dim2);margin-top:6px;font-family:var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ai-toggles{display:flex;gap:7px;margin-top:11px;flex-wrap:wrap}
+.btn{border:1px solid var(--line2);background:rgba(255,255,255,.05);border-radius:10px;padding:8px 12px;font-size:11px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.btn:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.24)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.on{border-color:rgba(121,224,194,.55);background:rgba(121,224,194,.12);color:#d8fff3}
+.dj-line{margin-top:10px;border:1px dashed rgba(242,180,100,.32);border-radius:10px;padding:8px 11px;font-size:11px;color:#f0dcbb;background:rgba(242,180,100,.06);line-height:1.55;word-break:break-word}
+.dj-line .k{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:var(--amber);display:block;margin-bottom:2px}
+
+/* 波形 */
+.scope{margin-top:16px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(0,0,0,.28));box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.scope-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 13px;border-bottom:1px solid rgba(255,255,255,.05);font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--dim2)}
+.scope-head .rec{display:inline-flex;align-items:center;gap:6px}
+.scope-head .rec i{width:5px;height:5px;border-radius:50%;background:#45454b}
+.scope-head .rec.on i{background:var(--red);box-shadow:0 0 7px rgba(255,90,90,.9);animation:pulse 1.6s infinite}
+.scope-head .rec.ai.on i{background:var(--mint);box-shadow:0 0 7px rgba(121,224,194,.9)}
+#wave{display:block;width:100%;height:146px}
+@media (max-width:420px){#wave{height:116px}}
+
+/* 操作 */
+.controls{display:flex;align-items:center;gap:13px;margin-top:16px;flex-wrap:wrap}
+.play{width:62px;height:62px;flex:0 0 62px;border-radius:50%;border:1px solid rgba(242,180,100,.6);background:radial-gradient(circle at 50% 35%,rgba(242,180,100,.34),rgba(242,180,100,.08));color:#ffebcb;font-size:20px;display:grid;place-items:center;cursor:pointer;box-shadow:0 0 26px rgba(242,180,100,.16),inset 0 1px 0 rgba(255,255,255,.15);transition:transform .08s,box-shadow .2s}
+.play:hover{box-shadow:0 0 34px rgba(242,180,100,.28),inset 0 1px 0 rgba(255,255,255,.2)}
+.play:active{transform:scale(.97)}
+.play.waiting{animation:breathe 2.2s ease-in-out infinite}
+@keyframes breathe{0%,100%{box-shadow:0 0 20px rgba(242,180,100,.12)}50%{box-shadow:0 0 40px rgba(242,180,100,.34)}}
+.play-label{font-size:12px;color:var(--dim);display:flex;flex-direction:column;gap:2px;min-width:0}
+.play-label b{color:var(--txt);font-size:13px;font-weight:600}
+.vol{display:flex;align-items:center;gap:9px;flex:1 1 160px;min-width:130px}
+.vol span{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--dim2)}
+input[type=range]{-webkit-appearance:none;appearance:none;height:5px;border-radius:99px;width:100%;min-width:0;cursor:pointer;margin:6px 0;background:linear-gradient(90deg,var(--amber) 0 calc(var(--p,80%)),rgba(255,255,255,.12) calc(var(--p,80%)) 100%)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#12141b;border:2px solid var(--amber);box-shadow:0 0 0 4px rgba(242,180,100,.1)}
+input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#12141b;border:2px solid var(--amber)}
+
+/* 状態 */
+.status{margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:rgba(0,0,0,.22);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.status .txt{font-size:11.5px;color:var(--dim);line-height:1.55;min-width:0;flex:1}
+.status .txt b{color:#e7dfd0;font-weight:600}
+.foot{margin-top:20px;text-align:center;font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:#4e4b45;line-height:2}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="strip">
+    <div class="net"><b>NET RADIO</b></div>
+    <div class="chip wait" id="topChip"><i></i><span id="topChipText">接続待ち</span></div>
+  </div>
+
+  <div class="dial-wrap">
+    <div class="dial" id="dial">
+      <span class="lamp"></span>
+      <span class="onair-txt" id="onairTxt">OFF AIR</span>
+      <span class="band" id="bandTxt">AUTO-DJ</span>
+      <span class="station" id="stationLabel">kaeru-radio-live</span>
+      <span class="mode" id="modeText">ただいま放送準備中</span>
+    </div>
+  </div>
+
+  <div class="program">
+    <div class="now-label" id="nowLabel">NOW ON AIR</div>
+    <h1 class="title" id="progTitle">imoutoid 24時間アーカイブ・ラジオ</h1>
+    <p class="dj" id="progDj">AI DJ / AUTO-DJ</p>
+    <p class="note" id="progNote">生放送がOFF AIRのあいだ、imoutoid の音源を24時間ノンストップでお届けします。</p>
+    <div class="badges">
+      <span class="guest-badge" id="guestBadge" hidden><i></i><span id="guestBadgeText">ゲスト出演中</span></span>
+      <span class="now-tag" id="nowTag"><span id="nowTagText">▶ 再生ボタンでスタート</span></span>
+    </div>
+  </div>
+
+  <section class="ai-panel" id="aiPanel">
+    <div class="ai-head">
+      <span class="ai-label">🤖 AI RADIO (AUTO-DJ)</span>
+      <span class="ai-state" id="aiState">待機中</span>
+    </div>
+    <div class="ai-now-label">NOW PLAYING</div>
+    <div class="ai-now" id="aiTitle">再生ボタンでスタート</div>
+    <div class="ai-sub" id="aiSub">146曲のアーカイブから、いまの時刻に合わせて自動選曲します。</div>
+    <div class="ai-next" id="aiNext">NEXT: —</div>
+    <div class="ai-toggles">
+      <button class="btn on" id="djBtn" type="button">🎙️ AI DJ：ON</button>
+      <span class="btn chip-static" id="introInfo" title="曲紹介は音楽に重ねて喋ります">🎙 曲紹介：音楽に重ねる</span>
+      <button class="btn" id="aiNextBtn" type="button">⏭ 次の曲</button>
+    </div>
+    <div class="dj-line" id="djLine" hidden><span class="k">🎙️ AI DJ トーク中</span><span id="djText"></span></div>
+  </section>
+
+  <div class="scope">
+    <div class="scope-head">
+      <span class="rec" id="recTag"><i></i><span id="recText">WAVEFORM</span></span>
+      <span id="scopeInfo">AUTO-DJ / 146 TRACKS</span>
+    </div>
+    <canvas id="wave"></canvas>
+  </div>
+
+  <div class="controls">
+    <button class="play waiting" id="playBtn" type="button" aria-label="再生">▶</button>
+    <div class="play-label">
+      <b id="playTitle">タップして聴く</b>
+      <span id="playSub">AIラジオが流れます（生放送中は生放送）</span>
+    </div>
+    <div class="vol">
+      <span>VOL</span>
+      <input id="volume" type="range" min="0" max="100" value="80" aria-label="音量">
+    </div>
+  </div>
+
+  <div class="status">
+    <div class="txt" id="statusText">放送局に接続しています…</div>
+    <button class="btn" id="retryBtn" type="button">再接続</button>
+  </div>
+
+  <p class="foot">SERVERLESS NET RADIO ・ P2P (WebRTC) ＋ 24H AUTO-DJ<br>STATION: <span id="footId">kaeru-radio-live</span></p>
+</div>
+
+<audio id="audio" autoplay playsinline></audio>
+<audio id="aiAudioA" preload="auto" playsinline></audio>
+<audio id="aiAudioB" preload="auto" playsinline></audio>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+/* imoutoid 音源（146曲）— scratch/imoutoid/manifest.json より生成 */
+const TRACKS = [{"t":"Strings improvisation","u":"https://yusei193.github.io/imoutoid-audio/s1/1Yx70yOXq2LL-b7Ba7rEglfSzMiJxClwx.mp3","c":"s1"},{"t":"E.piano improvisation","u":"https://yusei193.github.io/imoutoid-audio/s1/1-OGcv5cyfU9-orQ99icgmg2kI_CkXSDx.mp3","c":"s1"},{"t":"Hit Star（funk）","u":"https://yusei193.github.io/imoutoid-audio/s1/1jhm4AtZNBLPYhNvtpJ39b-bkrsX-feI1.mp3","c":"s1"},{"t":"Art Sit（mid ballad）","u":"https://yusei193.github.io/imoutoid-audio/s1/1Mm9T791RxnkllTFrwkwfnjQrO6A-u15n.mp3","c":"s1"},{"t":"Rock tune #2","u":"https://yusei193.github.io/imoutoid-audio/s1/1jLZuOjIgvUahhztbZS-jaZ0YUv1UPgkV.mp3","c":"s1"},{"t":"Rock tune #3","u":"https://yusei193.github.io/imoutoid-audio/s1/1Hhtd-K-IicIO9LI4G2esPoFwVSmPSlyQ.mp3","c":"s1"},{"t":"Rock tune #4","u":"https://yusei193.github.io/imoutoid-audio/s1/12Iya5De_-Bs6_FAAz5QQKrCOdpi9C6JG.mp3","c":"s1"},{"t":"Rock tune #5","u":"https://yusei193.github.io/imoutoid-audio/s1/1N9hcNjS_ETdmECtpU0DrgVKySGaTv0bz.mp3","c":"s1"},{"t":"techno re mix001116","u":"https://yusei193.github.io/imoutoid-audio/s1/1TbpP-nA5YoWoBF_jVy_ovckMS7TtgS1E.mp3","c":"s1"},{"t":"techno tune#1","u":"https://yusei193.github.io/imoutoid-audio/s1/1pkCDimSA6SUCVWHhnSZUkDxCUw9Dg4fR.mp3","c":"s1"},{"t":"techno tune#2","u":"https://yusei193.github.io/imoutoid-audio/s1/1BwRxgtr-rF1gBHeMk9Z7_ox5op2QlhUz.mp3","c":"s1"},{"t":"techno tune#3","u":"https://yusei193.github.io/imoutoid-audio/s1/1Jh_o3r6tEkeE7VBNdjIZWRzdwcm-gwqs.mp3","c":"s1"},{"t":"unbalance000808","u":"https://yusei193.github.io/imoutoid-audio/s1/1cuxmKVRRmWk6zV6nagoXr12sIwAZtCHk.mp3","c":"s1"},{"t":"ZIGOKU song","u":"https://yusei193.github.io/imoutoid-audio/s1/1NrNQgcAkT76gZt2dXMJeorDWw6dw64jv.mp3","c":"s1"},{"t":"1294116918","u":"https://yusei193.github.io/imoutoid-audio/s1/1weizegST0RknJ5hLiKvHo8A9uHJChAUN.mp3","c":"s1"},{"t":"Dark","u":"https://yusei193.github.io/imoutoid-audio/s1/1Ohgw7npicIeqM92ajrSNoQiwLU8sEU-0.mp3","c":"s1"},{"t":"GORIPANDA","u":"https://yusei193.github.io/imoutoid-audio/s1/1QjwU5a3ixnimfy2ASuAL621kzjQGrcBr.mp3","c":"s1"},{"t":"OKLUN","u":"https://yusei193.github.io/imoutoid-audio/s1/1MeGzgiTxJ0BdkYumR_Fk-EAhohUnULQU.mp3","c":"s1"},{"t":"Omusubi","u":"https://yusei193.github.io/imoutoid-audio/s1/1RAtz-isuE6fGGYd2YSLI6n2U219Q7FOf.mp3","c":"s1"},{"t":"PATCH-MAN","u":"https://yusei193.github.io/imoutoid-audio/s1/1M1HaKJg6ODM1QpDW-KGkw4QeH6vUi6Wu.mp3","c":"s1"},{"t":"PIano Improvisation","u":"https://yusei193.github.io/imoutoid-audio/s1/1FYDqLS8L2_E6AX_Nd_PdrOjjCPs0QvXy.mp3","c":"s1"},{"t":"A lost battle","u":"https://yusei193.github.io/imoutoid-audio/s1/17obE9AxvupM0wPZ1CapSkGXAd7Mnfy2Z.mp3","c":"s1"},{"t":"365","u":"https://yusei193.github.io/imoutoid-audio/s1/1AIFEqtnequwwjXisY3noJdiKos6GZXnv.mp3","c":"s1"},{"t":"-X-","u":"https://yusei193.github.io/imoutoid-audio/s1/1Mz73wJ8hFKtBnqCzY3LQMi5q6X0NuXP2.mp3","c":"s1"},{"t":"TRANCE-FORMER（vocorder）","u":"https://yusei193.github.io/imoutoid-audio/s1/15ESfF96mOrfAPIsXo1yBFJ84FrBF_iEN.mp3","c":"s1"},{"t":"Sand pil2ar","u":"https://yusei193.github.io/imoutoid-audio/s1/12UmXMMmPCgXpsmKdV90CY0wQhkU-Flz6.mp3","c":"s1"},{"t":"Rubber","u":"https://yusei193.github.io/imoutoid-audio/s1/1sJf-MQTqNRQ6WfVAIeXgwUd_vsRV-dqK.mp3","c":"s1"},{"t":"Hysterical boy","u":"https://yusei193.github.io/imoutoid-audio/s1/1RGYzaW98GY1EKCYsDsb8AJSEB8FD-dIR.mp3","c":"s1"},{"t":"Pandora's door","u":"https://yusei193.github.io/imoutoid-audio/s1/1qT_KmP1jUMGPyAHDgMHLZFu5pcBQEdPL.mp3","c":"s1"},{"t":"Stationery","u":"https://yusei193.github.io/imoutoid-audio/s1/1Q4e8pfslYGreIVqZ2q5AR363-2Y9V_I9.mp3","c":"s1"},{"t":"Unknown soldier","u":"https://yusei193.github.io/imoutoid-audio/s1/1JPgVUoPnrWBrnJhEccAQTg4Bevx3wxQT.mp3","c":"s1"},{"t":"Kamikaze","u":"https://yusei193.github.io/imoutoid-audio/s1/1HoeOeSqiBPlXTrjzY_bCQ6jdCy3HdlVH.mp3","c":"s1"},{"t":"Famicom Sangyo","u":"https://yusei193.github.io/imoutoid-audio/s1/1dU7naPRqnLify_opePOG7j4PdQ-q_ljl.mp3","c":"s1"},{"t":"Illusionist","u":"https://yusei193.github.io/imoutoid-audio/s1/1Oozy1Tk3Tixt00g8Fmb3lpdfd8H5uS73.mp3","c":"s1"},{"t":"Movement to suppress evil books","u":"https://yusei193.github.io/imoutoid-audio/s1/1Gu5BIwvLw300jAs4QYRyl8PFiJxehxHm.mp3","c":"s1"},{"t":"（SHUT THE HELL UP!!）","u":"https://yusei193.github.io/imoutoid-audio/s1/14Ie4-uqfyxhNpmtlG_EbiPNkdAYxBVsR.mp3","c":"s1"},{"t":"（ヒップホップのようなR&Bのようなもの）","u":"https://yusei193.github.io/imoutoid-audio/s1/1Jdk2ULyKLBozB-uzBZBXsPfTs6yk2ojB.mp3","c":"s1"},{"t":"音源（奇跡的に良いゲームミュージック）","u":"https://yusei193.github.io/imoutoid-audio/s1/1h13CGhEiFJ1egh7raCdTAGY5QEWGK7ut.mp3","c":"s1"},{"t":"キラキラ80's","u":"https://yusei193.github.io/imoutoid-audio/s1/14--g3L_oTEf74KW_5uWdPM10Tf9LmrdU.mp3","c":"s1"},{"t":"Bird Of Song Test","u":"https://yusei193.github.io/imoutoid-audio/s1/1iYJbnQYlClSBxyY1v5iRycP-5QfIk47s.mp3","c":"s1"},{"t":"Bird Of Song Test 2","u":"https://yusei193.github.io/imoutoid-audio/s1/1qmRja1O-WFUKPrHXNLbmcTBR2TTxu6DY.mp3","c":"s1"},{"t":"今井メロ 夢 FamicomUchujin Remix","u":"https://yusei193.github.io/imoutoid-audio/s1/1rXcp58e6yQEXtbjESq-Wn0HRiIiDNIHq.mp3","c":"s1"},{"t":"ピコピコバトル","u":"https://yusei193.github.io/imoutoid-audio/s1/1NUKfYcUhP7R-bgTIR5VvI4w_4ytbpovE.mp3","c":"s1"},{"t":"Sakura and the Hysterious magic book","u":"https://yusei193.github.io/imoutoid-audio/s1/1LDzmst_xckiDp1GXg24ogdwZuE2Kd5_i.mp3","c":"s1"},{"t":"ありがとう FamicomUchujin Gothiclolita-Remix","u":"https://yusei193.github.io/imoutoid-audio/s1/14BtCLfK_PtYSdss6S6WMdwVwW4QqWqlO.mp3","c":"s1"},{"t":"Higurashi no Nakukoroni * FCNoisePollutionRemix","u":"https://yusei193.github.io/imoutoid-audio/s1/1FcDfv90ceJROMh3j3Rur5U3ijr6slzlh.mp3","c":"s1"},{"t":"Higurashi no Nakukoroni *2 FCStimulantRemix","u":"https://yusei193.github.io/imoutoid-audio/s1/1-UUNN0emNSJDuDzVRbFtaXmP5sztSww0.mp3","c":"s1"},{"t":"キラキラドポップハウス","u":"https://yusei193.github.io/imoutoid-audio/s1/1LCJZdeaSSvMK0uJpEUApFEpSaf234wvk.mp3","c":"s1"},{"t":"夢想の詩","u":"https://yusei193.github.io/imoutoid-audio/s1/1tFmjwJHg1wTtSCenRKEqbLSmpzfLWHHk.mp3","c":"s1"},{"t":"3和音でのアレンジについてのメモ","u":"https://yusei193.github.io/imoutoid-audio/s1/1OIC1O12oWPT17rAfbD1Ob9d4bJIiNmHZ.mp3","c":"s1"},{"t":"キーボードでギターロック","u":"https://yusei193.github.io/imoutoid-audio/s1/1HEOfFa4zuURP4VCH8iVsHfuL-V8kNqv3.mp3","c":"s1"},{"t":"潮風に流して","u":"https://yusei193.github.io/imoutoid-audio/s1/1kZz01vkXQGssDYV7UwEKToAgJM0g19F2.mp3","c":"s1"},{"t":"ファミコンテーマソング","u":"https://yusei193.github.io/imoutoid-audio/s1/1Q8s2Ih4iS5tJNazyhZS_wryyyyu0eV3K.mp3","c":"s1"},{"t":"タンクマニア実況用BGM OP","u":"https://yusei193.github.io/imoutoid-audio/s1/1zcf9V1Z6KbDY3ezXsGLwVJ51HrOCd5nv.mp3","c":"s1"},{"t":"タンクマニア実況用BGM ED","u":"https://yusei193.github.io/imoutoid-audio/s1/1feQBFYWPMbM9sRSucutsHRVDnzmdDNT9.mp3","c":"s1"},{"t":"タンクマニア実況用BGM BATTELE","u":"https://yusei193.github.io/imoutoid-audio/s1/1sL7mTCDbA3HPRPLc4TSFiMO02no-8vYE.mp3","c":"s1"},{"t":"タンクマニア実況用BGM BATTLE FAST","u":"https://yusei193.github.io/imoutoid-audio/s1/1ab5eFFiLrjI6IJj4gvFdHjL6-N0SScsO.mp3","c":"s1"},{"t":"NekomimiOgino750799800","u":"https://yusei193.github.io/imoutoid-audio/s1/12X60x190MRb8EXpsh33aApjCfDFyHYDP.mp3","c":"s1"},{"t":"NyokiNyoki Famicom remix","u":"https://yusei193.github.io/imoutoid-audio/s1/17JmAH5DGmkROshtu0scqR-KC-g8G4nL2.mp3","c":"s1"},{"t":"Amagakure","u":"https://yusei193.github.io/imoutoid-audio/s1/1RNICWRModWrDOaaouGSmiUlLa7hr34kj.mp3","c":"s1"},{"t":"and so, swing like Gunso","u":"https://yusei193.github.io/imoutoid-audio/s1/1bzfCnbyww_cPB6PAzefTmXYztNCoxDyN.mp3","c":"s1"},{"t":"Field glass","u":"https://yusei193.github.io/imoutoid-audio/s1/1jRbDsWyODVC5k3GixGNRbYzl2eli21_P.mp3","c":"s1"},{"t":"Have A Bad Dream(SHUT THE HELL UP)","u":"https://yusei193.github.io/imoutoid-audio/s1/1ZoxwE7KDqVhtgW3PHAXGviowCiyrO6F0.mp3","c":"s1"},{"t":"Field glass mkII","u":"https://yusei193.github.io/imoutoid-audio/s1/1Iykn9SdyLeP8-PjOfZYvZybv4X3lE6LF.mp3","c":"s1"},{"t":"恋のミクル伝説FamicomUchujin Remix","u":"https://yusei193.github.io/imoutoid-audio/s1/1-AggcxG_1T-Oc6jFDs3XHR5BpexdZsj_.mp3","c":"s1"},{"t":"Brute Force Attack","u":"https://yusei193.github.io/imoutoid-audio/s1/1cl1oyE1U91WqsdHPWD5pq-DvQcQZuFIU.mp3","c":"s1"},{"t":"game5p_practice","u":"https://yusei193.github.io/imoutoid-audio/s1/1jMH9qYyxt4b96i3H1QWRD0XqpSM5WrCJ.mp3","c":"s1"},{"t":"Rozen Cuten Musen","u":"https://yusei193.github.io/imoutoid-audio/s1/1IIkbW6nDKQQ0rEy-W9gKqdKRLdB3MRej.mp3","c":"s1"},{"t":"マチャチュチェッチュナイト","u":"https://yusei193.github.io/imoutoid-audio/s1/1e7ViSIuZbb8rY_PmxVI0G3xIhbE80n4b.mp3","c":"s1"},{"t":"ココネギポルカ","u":"https://yusei193.github.io/imoutoid-audio/s1/1oCTz1o3084oIaYDeDpaa8OGj3QMZQXIi.mp3","c":"s1"},{"t":"Windows起動音","u":"https://yusei193.github.io/imoutoid-audio/s1/1xzDCcJTJV9alLUnIh1Q9Ws3wDCKyfnH_.mp3","c":"s1"},{"t":"Gymnopedie*Underachiever Remix","u":"https://yusei193.github.io/imoutoid-audio/s1/1CP9yOKEHkd6GieVp5PexSoNW-AHBR_jv.mp3","c":"s1"},{"t":"Last regrets(imoutoid's First regrets remix)","u":"https://yusei193.github.io/imoutoid-audio/s1/1wyaWXKMo6ZjRxPeZOdPfIKZ5nNznkblu.mp3","c":"s1"},{"t":"for-hirameki07_snd001","u":"https://yusei193.github.io/imoutoid-audio/s1/15hsUh5iBQhstFiz93qgWpL2aQSLiRnxz.mp3","c":"s1"},{"t":"for-hirameki07_snd002","u":"https://yusei193.github.io/imoutoid-audio/s1/1D0pTvdqlKX2-9KVNMG5QO8f6adh9dvoF.mp3","c":"s1"},{"t":"for-hirameki07_snd003","u":"https://yusei193.github.io/imoutoid-audio/s1/1oR6DsBikdxJfpG8fsju-Y9s25NUzQpB7.mp3","c":"s1"},{"t":"for-hirameki07_snd004","u":"https://yusei193.github.io/imoutoid-audio/s1/1lNq79eNwx4DlahOIz94oF6WqGwEQ6Sb6.mp3","c":"s1"},{"t":"for-hirameki07_snd005","u":"https://yusei193.github.io/imoutoid-audio/s1/1bOSaqxy9fIiefDkBov-jaPUBY-TzBz1m.mp3","c":"s1"},{"t":"for-hirameki07_snd006","u":"https://yusei193.github.io/imoutoid-audio/s1/1EXP6fEqaa9OzPok9OBLEVNhwB8BpoqXs.mp3","c":"s1"},{"t":"Artist:Aphex Twin","u":"https://yusei193.github.io/imoutoid-audio/s1/1XAV0L2B5UWrjYFwnvVR9FOM8y_Hhe0RW.mp3","c":"s1"},{"t":"for-hirameki07_snd007","u":"https://yusei193.github.io/imoutoid-audio/s1/1aU97cDB09Fqo8ETWWei-pjL4_IMCGte3.mp3","c":"s1"},{"t":"for-hirameki07_snd008","u":"https://yusei193.github.io/imoutoid-audio/s1/1plYuqknKxHXcAQMft5UECpj9erRveViq.mp3","c":"s1"},{"t":"for-hirameki07_snd009","u":"https://yusei193.github.io/imoutoid-audio/s1/1qIVooEzVMDMM8E-viG0_caM3I38tk9MS.mp3","c":"s1"},{"t":"Agent yoru wo iku(imoutoid's Liquefied Remix)","u":"https://yusei193.github.io/imoutoid-audio/s1/1FcTUs1l5R1rxACyiEa9Gy9T_paQLaH6a.mp3","c":"s1"},{"t":"Agent yoru wo iku(imoutoid's Liquefied Remix Loop)","u":"https://yusei193.github.io/imoutoid-audio/s1/1tLWL8EFJbRpo3ksDAVinDyFBgbFwDEWe.mp3","c":"s1"},{"t":"Agent yoru wo iku(imoutoid's Liquefied Remix +haruhi)","u":"https://yusei193.github.io/imoutoid-audio/s1/1_Ps5OFpp7G13_bwZL0RUbv0Qj9lgS3Nv.mp3","c":"s1"},{"t":"（変なダイエット暗示音声）","u":"https://yusei193.github.io/imoutoid-audio/s1/1eOwlP_GzNRwjon5Qun52xOYHcdpzmKw6.mp3","c":"s1"},{"t":"（わざとショボショボ音源で作ってみるテスト）","u":"https://yusei193.github.io/imoutoid-audio/s1/1IPMdJZEzMsAa_B_E-v9CTyl5-1D8dNCD.mp3","c":"s1"},{"t":"（エロゲ日常BGM的なものを量産したいと思うテスト）","u":"https://yusei193.github.io/imoutoid-audio/s1/116uIMgpkbPHWL48QXChnpyUd6HUBf7t-.mp3","c":"s1"},{"t":"dubbedradioid001","u":"https://yusei193.github.io/imoutoid-audio/s1/1s97JU_HbTrqfNZJKdvgxHh7pxSalIy3H.mp3","c":"s1"},{"t":"もってけ！セーラーふく（※imoutoid's remix）","u":"https://yusei193.github.io/imoutoid-audio/s1/1hBmP9mBFmwwsWdi9wMLsbPQiIYevs64Y.mp3","c":"s1"},{"t":"（やっぱノイズ最高）","u":"https://yusei193.github.io/imoutoid-audio/s1/1mqZ6WNigaxBfvdaAjkQe8yfbOWqUfvQH.mp3","c":"s1"},{"t":"あたまのよくなるやきそばのうた (Atama no Yoku naru Yakisoba no Uta)","u":"https://yusei193.github.io/imoutoid-audio/s1/1j2cjR3HyAaxAbr4fNbUIQ8E-MDKcRZeY.mp3","c":"s1"},{"t":"あたまのよくなるやきそばのうた(Instrumental)","u":"https://yusei193.github.io/imoutoid-audio/s1/1IQVzxGaIvrF6_2iF5RnMylSqXlm3BHnq.mp3","c":"s1"},{"t":"PVOCとか云々なアンビエント","u":"https://yusei193.github.io/imoutoid-audio/s1/1FbtDoCqL0fbPGuu1V6AW5YIByektnlw5.mp3","c":"s1"},{"t":"ピアノンドウズ","u":"https://yusei193.github.io/imoutoid-audio/s1/1VlVWtvMbWl5qhANGJmOH1w_17FsHTseH.mp3","c":"s1"},{"t":"キュッキュッキュしました","u":"https://yusei193.github.io/imoutoid-audio/s1/1jKqpBZplfANlvKao1ABm5ezj9uClQ62R.mp3","c":"s1"},{"t":"Motteke! Sailor Fuku(imoutoid's FF6 Remix)","u":"https://yusei193.github.io/imoutoid-audio/s1/1gb6HD-u20Y6GOqwg2oIB2kZuoUX169I0.mp3","c":"s1"},{"t":"今日のグリッチノイズ","u":"https://yusei193.github.io/imoutoid-audio/s1/1tqzJaloSn0xg3iNQhnyHPM9Ava22Qjbs.mp3","c":"s1"},{"t":"強進行テスト","u":"https://yusei193.github.io/imoutoid-audio/s1/1jiCCaipX49fdy69Wq6xf5bUFZgc1PeQB.mp3","c":"s1"},{"t":"普通の曲テスト","u":"https://yusei193.github.io/imoutoid-audio/s1/1ZwuWdDm_h-Ib9ZDNgVyekYgLm5A7ypDk.mp3","c":"s1"},{"t":"（良いトランスの作り方）","u":"https://yusei193.github.io/imoutoid-audio/s1/1RLJf1fVXb0IuyT4mxyiP2qulcJAjbW7a.mp3","c":"s1"},{"t":"（SuperColliderでこんなん）","u":"https://yusei193.github.io/imoutoid-audio/s1/1OCrl8qCYkw7xY6bV6pcoBX4wr2Iid_k6.mp3","c":"s1"},{"t":"サイコ・アコースティクス・イリュージョン（相手は死ぬ）","u":"https://yusei193.github.io/imoutoid-audio/s1/1QSxU2XIkLLJzHpTNfWFiF3NlYVjJORyZ.mp3","c":"s1"},{"t":"サイコ・アコースティクス・イリュージョン（相手は死ぬ）（※強調バージョン）","u":"https://yusei193.github.io/imoutoid-audio/s1/15Fy3eBauJMgpXXspqvBxd4MhymWQE4W7.mp3","c":"s1"},{"t":"P.B.ロケッツ(imoutoid's remix)","u":"https://yusei193.github.io/imoutoid-audio/s1/1s8SamCNjyY75fADZX7C51q29TBvY7SHt.mp3","c":"s1"},{"t":"バレンタイン・キッス（※imoutoid's remix）","u":"https://yusei193.github.io/imoutoid-audio/s1/1hEs2tonoR96hxH4wZnnJzqHR925MEq-9.mp3","c":"s1"},{"t":"Walky Techy(Steriogram vs. Yoji)","u":"https://yusei193.github.io/imoutoid-audio/s1/1HQ5lGayTMhipA1vDeBXxHPLRV83Sj02L.mp3","c":"s1"},{"t":"One Jackpot Per Child","u":"https://yusei193.github.io/imoutoid-audio/s1/1s_DzealqGftuBtdZqsnAfFBOa0xvFyUC.mp3","c":"s1"},{"t":"アザラシのスネアと犬のイコライザー ～大きなコンプの実～","u":"https://yusei193.github.io/imoutoid-audio/s1/1BQfCCRxAEA3vD13vgIuyJ3lBoXhN5AmE.mp3","c":"s1"},{"t":"アザラシのスネアと犬のイコライザー ～大きなコンプの実～（※別EQバージョン）","u":"https://yusei193.github.io/imoutoid-audio/s1/1lYwUF5abfOtG9esA5K6wpKnFLdOfcWtr.mp3","c":"s1"},{"t":"ほーら、たまには日に当たらないと、カビが生えるわよ","u":"https://yusei193.github.io/imoutoid-audio/s1/1NZPxj4HuQNIvQs2v_9M5eBN9tjZoBSdJ.mp3","c":"s1"},{"t":"ファンファーレ","u":"https://yusei193.github.io/imoutoid-audio/s1/11GKhPd5TCq1bF_VRHI6Ox8qgVX7piOWt.mp3","c":"s1"},{"t":"オールFM8バンザイ（090103fm8arpTest3.mp3）","u":"https://yusei193.github.io/imoutoid-audio/s1/1mZJKA610hCB6cHd7frqjSnz2y2Zj87os.mp3","c":"s1"},{"t":"Sound/EcritureのYosi*風のオリジナル曲","u":"https://yusei193.github.io/imoutoid-audio/s1/1Mg7JLpfVceKjfnTQEq6MJJFHuz0El1bV.mp3","c":"s1"},{"t":"20090112PhysicalMash","u":"https://yusei193.github.io/imoutoid-audio/s1/1vIDJESND4LFtx7n2Hv31qDFWFm7Z76tJ.mp3","c":"s1"},{"t":"Bay Dream / TOFUBEATS REMIX（imoutoid 神頼みEDIT）","u":"https://yusei193.github.io/imoutoid-audio/s1/17aJ7Ynvd1ACisxRfDyi0PH1RyDPlUHtW.mp3","c":"s1"},{"t":"（何がやりたいんだかぶれてきた m3なし平坦／m3あり飛ぶ）","u":"https://yusei193.github.io/imoutoid-audio/s1/1lyJJnRQad4xxWfcWweLavRmd0UeVSsQ-.mp3","c":"s1"},{"t":"ちゅうこうおんがじりじりいってるかんじのべーすおん","u":"https://yusei193.github.io/imoutoid-audio/s1/1dkgy1DCSGVqT-mserDIxFtZgQaT6bnVH.mp3","c":"s1"},{"t":"エチオピア饅頭（Ethiopia Manju）","u":"https://yusei193.github.io/imoutoid-audio/s1/15EfZZ82Qu2mJwwbFVQccUveaxsH5XSnm.mp3","c":"s1"},{"t":"（今日弄ったものうp）","u":"https://yusei193.github.io/imoutoid-audio/s1/1nzoz62tEEX_SNo1wVXSgjR0AFE75Vnfn.mp3","c":"s1"},{"t":"tofubeatsの唄","u":"https://yusei193.github.io/imoutoid-audio/s1/1rgtNfI6RVkkYrI4-wVFRL7um1SKxstix.mp3","c":"s1"},{"t":"ファミコン宇宙人 in the house（トークとか）(20051106)","u":"https://yusei193.github.io/imoutoid-audio/s1/1DY5XEbEXr5EMoNIcwcYOp9pO5T-E3hZC.mp3","c":"s1"},{"t":"imoutoidの楽しい堕落ラジオ(20080602)","u":"https://yusei193.github.io/imoutoid-audio/s1/13fRZUlmwsjMZ7LgwM2kdX1pjR3-bU-cv.mp3","c":"s1"},{"t":"PART3+PART2 (tomad short edit)","u":"https://yusei193.github.io/imoutoid-audio/s1/12GvOv840sp-jEjlS_AvvdLvV-Dw8qsoW.mp3","c":"s1"},{"t":"11823","u":"https://yusei193.github.io/imoutoid-audio/s2/17DNd2Z4vfNCJwd6GhZsMZSsB-DUdnRr4.mp3","c":"s2"},{"t":"ballad tune","u":"https://yusei193.github.io/imoutoid-audio/s2/1NB-XbqGG2leLGcQ6d99lTten-MOkkMoN.mp3","c":"s2"},{"t":"disco tune","u":"https://yusei193.github.io/imoutoid-audio/s2/1AGQpGPpQN4IqT-xKZG1YA715-qmdmhvt.mp3","c":"s2"},{"t":"Ethnic inprovisation","u":"https://yusei193.github.io/imoutoid-audio/s2/18VQlmr5w7OztCtXfci2pqWjVHm2pcqmp.mp3","c":"s2"},{"t":"voice with synth","u":"https://yusei193.github.io/imoutoid-audio/s2/1lz7ySSNyzd_-InXrJMq6RC-sbdEgzKyO.mp3","c":"s2"},{"t":"Where sjyamato(imoutoid)","u":"https://yusei193.github.io/imoutoid-audio/s2/1Nf9iy-lZSzdb5jviMyiPC3zawEw0BoOo.mp3","c":"s2"},{"t":"sjymato sjyamato(imoutoid)","u":"https://yusei193.github.io/imoutoid-audio/s2/16h0d7ciGFXb5TJCPLZajLLZyIiW1RT7p.mp3","c":"s2"},{"t":"Talking In Your Sleep","u":"https://yusei193.github.io/imoutoid-audio/s2/1PLTQboICB7lV0aSNpNri3trPpiBlxyD5.mp3","c":"s2"},{"t":"Cold Fire sjyamato(imoutoid)","u":"https://yusei193.github.io/imoutoid-audio/s2/1dBZ6g1M0C5Q-_YscRFnzUTcLcs0m4XHr.mp3","c":"s2"},{"t":"-TIME- sjyamato(imoutoid)","u":"https://yusei193.github.io/imoutoid-audio/s2/1hiOUprhZhHCldja_7Zh51PkgOcF6Pb0E.mp3","c":"s2"},{"t":"8450 / 8467","u":"https://yusei193.github.io/imoutoid-audio/s2/1Ec_0NBKN7vtnsDwvDyZVV03GUMzHIH9z.mp3","c":"s2"},{"t":"11853","u":"https://yusei193.github.io/imoutoid-audio/s2/1Rzxm9f4PLRCq0PG1dfPGWAwtva1AQjDX.mp3","c":"s2"},{"t":"mc202","u":"https://yusei193.github.io/imoutoid-audio/s2/1sucshhf9SZpqGk_ep_8b6IwNBTBJW34t.mp3","c":"s2"},{"t":"hinekure_CF","u":"https://yusei193.github.io/imoutoid-audio/s2/13EtUebLC7-fBtmc2a0foGEvyikLIP2gy.mp3","c":"s2"},{"t":"ofuronihairutovocoder","u":"https://yusei193.github.io/imoutoid-audio/s2/1u_1ElyB2tEFxqedardNOY_ysR5dUD0MD.mp3","c":"s2"},{"t":"PRR007","u":"https://yusei193.github.io/imoutoid-audio/s2/1NYA9NsG-f85l6Y2T7Un3x4t9uF6elhXE.mp3","c":"s2"},{"t":"moxuse","u":"https://yusei193.github.io/imoutoid-audio/s2/1YbZLBf_Ukn9zPvOilR855xfiU1_3RwGO.mp3","c":"s2"},{"t":"novotempo","u":"https://yusei193.github.io/imoutoid-audio/s2/1LkJlSBo0G8FUqYlq-MxeQtnmo5qzFPP5.mp3","c":"s2"},{"t":"up","u":"https://yusei193.github.io/imoutoid-audio/s2/12kliWfV5N7ABGQxTwVq6m0IKHzdSrcK0.mp3","c":"s2"},{"t":"1A1A1A1A1A1AQ","u":"https://yusei193.github.io/imoutoid-audio/s2/1OFEcf_rtjoowqG75mHJxn5T-Sb_tT4Si.mp3","c":"s2"},{"t":"piano improvisation imoutoid","u":"https://yusei193.github.io/imoutoid-audio/s2/1F5Emm-w_S7kWYS0teRRlVcRDpgIsLmc_.mp3","c":"s2"}];
+</script>
+<script>
+(function(){
+"use strict";
+const $ = (id)=>document.getElementById(id);
+const params = new URLSearchParams(location.search);
+const ROOM = (params.get('id') || params.get('host') || params.get('room') || 'kaeru-radio-live').trim() || 'kaeru-radio-live';
+
+const S = {
+  peer:null, conn:null, call:null, stream:null, ctx:null, analyser:null,
+  live:false, connecting:false, retryTimer:null, wantPlay:false, playing:false,
+  vol:0.8, info:{title:'', dj:'', note:'', guestOn:false, guestName:'', now:''},
+  silentDest:null, lastError:'',
+  aiLoaded:false,
+  ai:{ playing:false, track:null, index:0, order:[], orderKey:'', djOn:true, speaking:false, errors:0, slot:-1,
+       decks:null, active:0, master:null, xfade:3.0, xfading:false }
+};
+
+const el = {
+  dial:$('dial'), onairTxt:$('onairTxt'), bandTxt:$('bandTxt'), modeText:$('modeText'), stationLabel:$('stationLabel'),
+  topChip:$('topChip'), topChipText:$('topChipText'),
+  nowLabel:$('nowLabel'), progTitle:$('progTitle'), progDj:$('progDj'), progNote:$('progNote'),
+  guestBadge:$('guestBadge'), guestBadgeText:$('guestBadgeText'), nowTag:$('nowTag'), nowTagText:$('nowTagText'),
+  aiPanel:$('aiPanel'), aiState:$('aiState'), aiTitle:$('aiTitle'), aiSub:$('aiSub'), aiNext:$('aiNext'),
+  djBtn:$('djBtn'), aiNextBtn:$('aiNextBtn'), djLine:$('djLine'), djText:$('djText'),
+  wave:$('wave'), recTag:$('recTag'), recText:$('recText'), scopeInfo:$('scopeInfo'),
+  playBtn:$('playBtn'), playTitle:$('playTitle'), playSub:$('playSub'), volume:$('volume'),
+  statusText:$('statusText'), retryBtn:$('retryBtn'), audio:$('audio'), aiAudioA:$('aiAudioA'), aiAudioB:$('aiAudioB'), footId:$('footId')
+};
+
+/* ================= 小道具 ================= */
+function fillRange(i){
+  const v = Number(i.value), min = Number(i.min||0), max = Number(i.max||100);
+  i.style.setProperty('--p', ((v-min)/(max-min)*100).toFixed(1)+'%');
+}
+function pad2(n){ return String(n).padStart(2,'0'); }
+function jstNow(){
+  const d = new Date(Date.now() + 9*3600*1000);
+  return {y:d.getUTCFullYear(), m:d.getUTCMonth()+1, d:d.getUTCDate(),
+          h:d.getUTCHours(), mi:d.getUTCMinutes(), s:d.getUTCSeconds()};
+}
+function hashStr(s){ let h = 2166136261; for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function shuffleWithSeed(arr, seed){
+  const a = arr.slice(), r = mulberry32(seed);
+  for(let i=a.length-1;i>0;i--){ const j = Math.floor(r()*(i+1)); const t=a[i]; a[i]=a[j]; a[j]=t; }
+  return a;
+}
+/* 日本時間の「日付」で並びを固定し、「3分枠」で曲を進める＝同じ時間に聴くとみんな同じ曲 */
+function scheduleOrder(){
+  const p = jstNow();
+  const key = String(p.y) + pad2(p.m) + pad2(p.d);
+  if(el.ai && S.ai.orderKey === key && S.ai.order.length) return S.ai.order;
+  S.ai.orderKey = key;
+  S.ai.order = shuffleWithSeed(TRACKS, hashStr(key));
+  return S.ai.order;
+}
+function currentSlot(){
+  const p = jstNow();
+  return Math.floor((p.h*60 + p.mi) / 3);
+}
+function trackAtSlot(slot){
+  const order = scheduleOrder();
+  return order[((slot % order.length) + order.length) % order.length];
+}
+function pickNow(){ return trackAtSlot(currentSlot()); }
+function nextScheduled(){
+  const order = scheduleOrder();
+  const cur = S.ai.track;
+  const slot = currentSlot();
+  let tr = order[slot % order.length];
+  if(cur && tr.u === cur.u) tr = order[(slot+1) % order.length];
+  return tr;
+}
+
+/* ================= 音声 ================= */
+function ensureCtx(){
+  if(S.ctx) return S.ctx;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if(!AC) return null;
+  S.ctx = new AC({latencyHint:'interactive'});
+  // 受信専用コールでも音声m-lineを受け入れるための無音ストリーム
+  try{ S.silentDest = S.ctx.createMediaStreamDestination(); }catch(e){ S.silentDest = null; }
+  // AIラジオ：デッキA/B（クロスフェード用）＋マスター
+  if(!S.ai.decks){
+    S.ai.master = S.ctx.createGain();
+    S.ai.master.gain.value = S.vol;
+    S.ai.master.connect(S.ctx.destination);
+    S.ai.decks = [el.aiAudioA, el.aiAudioB].map((a, i)=>{
+      const src = S.ctx.createMediaElementSource(a);
+      const fade = S.ctx.createGain(); fade.gain.value = 0;
+      const duck = S.ctx.createGain(); duck.gain.value = 1;
+      src.connect(fade); fade.connect(duck); duck.connect(S.ai.master);
+      a.addEventListener('timeupdate', ()=>onAiTime(S.ai.decks[i]));
+      a.addEventListener('ended', ()=>onAiEnded(S.ai.decks[i]));
+      a.addEventListener('error', ()=>{
+        if(!S.ai.playing) return;
+        S.ai.errors++;
+        if(S.ai.errors <= 5) aiStart(pickNowForNext());
+      });
+      return {i, el:a, src, fade, duck, track:null};
+    });
+  }
+  return S.ctx;
+}
+async function unlockAudio(){
+  const ctx = ensureCtx();
+  if(ctx && ctx.state === 'suspended'){ try{ await ctx.resume(); }catch(e){} }
+}
+
+function setVolume(v){
+  S.vol = v;
+  el.audio.volume = v;
+  if(S.ai.master) S.ai.master.gain.value = v;
+}
+
+/* ================= 表示 ================= */
+function updatePlayUi(){
+  const playing = S.live ? S.playing : S.ai.playing;
+  el.playBtn.classList.toggle('waiting', !playing);
+  el.playBtn.textContent = playing ? '❚❚' : '▶';
+  if(S.live){
+    el.playTitle.textContent = playing ? '生放送を再生中' : 'タップして聴く';
+    el.playSub.textContent = playing ? 'タップで停止' : '生放送が届いています';
+  } else {
+    el.playTitle.textContent = playing ? 'AIラジオ再生中' : 'タップして聴く';
+    el.playSub.textContent = playing ? 'タップで停止' : '24時間AIラジオが流れます';
+  }
+}
+function updateModeUi(){
+  const live = S.live && S.stream;
+  const aiOn = S.ai.playing;
+  el.aiPanel.classList.toggle('dim', !!live);
+  el.aiState.classList.toggle('on', !live && aiOn);
+  el.aiState.textContent = live ? '生放送中はお休み' : aiOn ? 'ON AIR (AUTO-DJ)' : '待機中';
+
+  if(live){
+    el.dial.classList.add('live'); el.dial.classList.remove('ai');
+    el.onairTxt.textContent = 'ON AIR';
+    el.bandTxt.textContent = 'LIVE / P2P';
+    el.modeText.textContent = '生放送中';
+    el.topChip.className = 'chip on'; el.topChipText.textContent = 'LIVE';
+    el.recTag.className = 'rec on'; el.recText.textContent = 'LIVE WAVEFORM';
+    el.scopeInfo.textContent = 'P2P / WebRTC';
+    el.nowLabel.textContent = 'NOW ON AIR';
+    el.aiTitle.textContent = '生放送中はお休み';
+    el.aiSub.textContent = '生放送が終わると、AIラジオに自動で戻ります。';
+    renderLiveInfo();
+  } else if(aiOn){
+    el.dial.classList.remove('live'); el.dial.classList.add('ai');
+    el.onairTxt.textContent = 'ON AIR';
+    el.bandTxt.textContent = 'AI RADIO / 24H';
+    el.modeText.textContent = '24時間AIラジオ';
+    el.topChip.className = 'chip ai'; el.topChipText.textContent = 'AI RADIO';
+    el.recTag.className = 'rec ai on'; el.recText.textContent = 'AUTO-DJ WAVEFORM';
+    el.scopeInfo.textContent = 'AUTO-DJ / ' + TRACKS.length + ' TRACKS';
+    el.nowLabel.textContent = 'NOW PLAYING (AUTO-DJ)';
+    renderAiInfo();
+  } else {
+    el.dial.classList.remove('live'); el.dial.classList.remove('ai');
+    el.onairTxt.textContent = 'OFF AIR';
+    el.bandTxt.textContent = 'AUTO-DJ';
+    el.modeText.textContent = 'ただいま放送準備中';
+    el.topChip.className = 'chip wait'; el.topChipText.textContent = 'OFF AIR';
+    el.recTag.className = 'rec'; el.recText.textContent = 'WAVEFORM';
+    el.scopeInfo.textContent = 'AUTO-DJ / ' + TRACKS.length + ' TRACKS';
+    el.nowLabel.textContent = 'NOW ON AIR';
+    renderAiInfo();
+  }
+  updatePlayUi();
+}
+function renderLiveInfo(){
+  const d = S.info;
+  el.progTitle.textContent = d.title || '深夜のネットラジオ';
+  el.progDj.textContent = d.dj ? ('DJ ' + d.dj) : 'DJ';
+  el.progNote.textContent = d.note || '放送中です。';
+  el.stationLabel.textContent = d.stationId || ROOM;
+  el.footId.textContent = d.stationId || ROOM;
+  document.title = (d.title || 'NET RADIO') + ' — NET RADIO';
+  if(d.guestOn){
+    el.guestBadge.hidden = false;
+    el.guestBadgeText.textContent = 'ゲスト出演中' + (d.guestName ? '：' + d.guestName : '') + '（2人でお届け中）';
+  } else el.guestBadge.hidden = true;
+  if(d.now){ el.nowTag.hidden = false; el.nowTagText.textContent = '♪ ' + d.now; }
+  else { el.nowTag.hidden = false; el.nowTagText.textContent = 'LIVE'; }
+}
+function renderAiInfo(){
+  el.progTitle.textContent = 'imoutoid 24時間アーカイブ・ラジオ';
+  el.progDj.textContent = 'AI DJ / AUTO-DJ';
+  el.progNote.textContent = '生放送がOFF AIRのあいだ、imoutoid の音源を24時間ノンストップでお届けします。';
+  el.stationLabel.textContent = ROOM;
+  el.footId.textContent = ROOM;
+  document.title = 'imoutoid 24時間AIラジオ — NET RADIO';
+  el.guestBadge.hidden = true;
+  el.nowTag.hidden = false;
+  el.nowTagText.textContent = S.ai.track ? ('♪ ' + S.ai.track.t) : '▶ 再生ボタンでスタート';
+}
+function renderAiTrack(){
+  const t = S.ai.track;
+  el.aiTitle.textContent = t ? t.t : '再生ボタンでスタート';
+  el.aiSub.textContent = t
+    ? ('imoutoid archive / ' + (t.c === 's2' ? 'SERIES 2' : 'SERIES 1') + ' ・ ' + jstTimeLabel() + ' の選曲')
+    : (TRACKS.length + '曲のアーカイブから、いまの時刻に合わせて自動選曲します。');
+  const nx = t ? nextScheduled() : pickNow();
+  el.aiNext.textContent = 'NEXT: ' + (nx ? nx.t : '—');
+  if(!S.live) el.nowTagText.textContent = t ? ('♪ ' + t.t) : '▶ 再生ボタンでスタート';
+}
+function jstTimeLabel(){ const p = jstNow(); return pad2(p.h) + ':' + pad2(p.mi); }
+
+/* ================= AI DJ（音声合成・音楽に重ねる） ================= */
+function canSpeak(){
+  return !!(window.speechSynthesis && typeof window.SpeechSynthesisUtterance === 'function');
+}
+function pickJaVoice(){
+  try{
+    const vs = window.speechSynthesis.getVoices() || [];
+    if(!vs.length) return null;
+    return vs.find(v=>/^ja[-_]?/i.test(v.lang)) || vs.find(v=>/japan/i.test(v.name)) || null;
+  }catch(e){ return null; }
+}
+function introText(t){
+  const p = jstNow();
+  const h = p.h;
+  const greet = h < 5 ? '深夜のひとときに' : h < 11 ? '朝のひとときに' : h < 15 ? 'お昼のひとときに' : h < 19 ? '午後のひとときに' : h < 23 ? '夜のひとときに' : '深夜のひとときに';
+  const pats = [
+    'imoutoid 24時間アーカイブ・ラジオをお聴きのみなさん、続いてお送りするのは、' + t.t + ' です。',
+    greet + '、imoutoid で「' + t.t + '」をお届けします。',
+    '時刻は' + h + '時' + p.mi + '分。ここからは「' + t.t + '」をどうぞ。',
+    'imoutoid アーカイブから、「' + t.t + '」です。',
+    '続いては、imoutoid の「' + t.t + '」。ゆっくりお楽しみください。'
+  ];
+  const seed = hashStr(String(t.t) + p.d + p.h);
+  return pats[seed % pats.length];
+}
+function clearSilent(){
+  try{ if(window.speechSynthesis) window.speechSynthesis.cancel(); }catch(e){}
+}
+function duckDeck(d, on){
+  if(!d || !S.ctx) return;
+  d.duck.gain.setTargetAtTime(on ? 0.3 : 1, S.ctx.currentTime, on ? 0.12 : 0.45);
+}
+/* 曲紹介：音楽を止めずに、音量を下げて重ねる */
+function speakOver(track, deck){
+  let finished = false, hardTimer = null, startTimer = null;
+  const finish = ()=>{
+    if(finished) return;
+    finished = true;
+    clearTimeout(hardTimer); clearTimeout(startTimer);
+    S.ai.speaking = false;
+    el.djLine.hidden = true;
+    duckDeck(deck, false);
+  };
+  if(!S.ai.djOn || !canSpeak()) return;
+  let text = '';
+  try{ text = introText(track); }catch(e){ return; }
+  S.ai.speaking = true;
+  el.djText.textContent = text;
+  el.djLine.hidden = false;
+  clearSilent();
+  duckDeck(deck, true);
+  try{
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'ja-JP';
+    u.rate = 1.02;
+    u.pitch = 1.0;
+    u.volume = 1;
+    const v = pickJaVoice();
+    if(v) u.voice = v;
+    u.onend = finish;
+    u.onerror = finish;
+    window.speechSynthesis.speak(u);
+    // 声が出ない環境（ヘッドレス等）でも固まらない
+    startTimer = setTimeout(()=>{
+      let speaking = false, voices = 0;
+      try{ speaking = !!window.speechSynthesis.speaking; }catch(e){}
+      try{ voices = (window.speechSynthesis.getVoices() || []).length; }catch(e){}
+      if(!speaking || voices === 0) finish();
+    }, 1300);
+    hardTimer = setTimeout(finish, 12000);
+  }catch(e){ finish(); }
+}
+
+/* ================= AIラジオ本体（デッキA/B・クロフェード） ================= */
+function aiDeckCur(){ return S.ai.decks ? S.ai.decks[S.ai.active] : null; }
+function aiDeckOther(){ return S.ai.decks ? S.ai.decks[1 - S.ai.active] : null; }
+function aiRamp(param, to, sec){
+  if(!S.ctx) return;
+  const t = S.ctx.currentTime;
+  param.cancelScheduledValues(t);
+  param.setValueAtTime(param.value, t);
+  param.linearRampToValueAtTime(to, t + Math.max(0.05, sec));
+}
+
+function aiStart(track, opts){
+  opts = opts || {};
+  if(!track) return false;
+  if(!S.ctx || !S.ai.decks){ ensureCtx(); }
+  if(!S.ctx || !S.ai.decks){
+    // AudioContext が使えない環境：要素を直接再生（クロスフェードなしのフォールバック）
+    try{
+      const a = el.aiAudioA;
+      a.src = track.u; a.volume = S.vol;
+      a.play().catch(()=>{});
+      S.ai.playing = true; S.ai.track = track;
+      renderAiTrack(); updateModeUi();
+      return true;
+    }catch(e){ return false; }
+  }
+  const cur = aiDeckCur();
+  const curPlaying = !!(cur && cur.track && !cur.el.paused);
+  const target = curPlaying ? aiDeckOther() : cur;
+  const fade = curPlaying ? S.ai.xfade : 0.9;
+
+  try{ target.el.pause(); }catch(e){}
+  target.track = track;
+  target.el.src = track.u;
+  try{ target.el.load(); }catch(e){}
+  try{ target.el.currentTime = 0; }catch(e){}
+  target.fade.gain.cancelScheduledValues(S.ctx.currentTime);
+  target.fade.gain.setValueAtTime(0, S.ctx.currentTime);
+  target.duck.gain.cancelScheduledValues(S.ctx.currentTime);
+  target.duck.gain.setValueAtTime(1, S.ctx.currentTime);
+
+  const p = target.el.play();
+  const go = ()=>{
+    aiRamp(target.fade.gain, 1, fade);
+    if(curPlaying && cur !== target){
+      aiRamp(cur.fade.gain, 0, fade);
+      setTimeout(()=>{
+        if(aiDeckCur() !== cur){ try{ cur.el.pause(); }catch(e){} cur.track = null; }
+      }, fade*1000 + 220);
+    }
+    S.ai.active = S.ai.decks.indexOf(target);
+    S.ai.playing = true;
+    S.ai.track = track;
+    S.ai.slot = currentSlot();
+    renderAiTrack();
+    updateModeUi();
+    if(S.ai.djOn) speakOver(track, target);
+  };
+  if(p && p.then) p.then(go).catch(()=>{
+    S.ai.errors++;
+    S.ai.playing = false;
+    updateModeUi();
+    el.playSub.textContent = 'もう一度タップしてください';
+  });
+  else go();
+  return true;
+}
+
+function startAi(){
+  unlockAudio();
+  if(!S.ctx) ensureCtx();
+  const d = aiDeckCur();
+  if(d && d.track){
+    if(d.el.paused){
+      d.fade.gain.setValueAtTime(1, S.ctx.currentTime);
+      d.duck.gain.setValueAtTime(1, S.ctx.currentTime);
+      const p = d.el.play();
+      if(p && p.catch) p.catch(()=>{});
+    }
+    S.ai.playing = true;
+    updateModeUi();
+    return;
+  }
+  aiStart(S.ai.track || pickNow());
+}
+function pauseAi(){
+  S.ai.playing = false;
+  if(S.ai.decks){
+    S.ai.decks.forEach(d=>{
+      try{ d.el.pause(); }catch(e){}
+      if(d.fade) d.fade.gain.value = 0;
+      if(d.duck) d.duck.gain.value = 1;
+    });
+  }
+  clearSilent();
+  S.ai.speaking = false;
+  el.djLine.hidden = true;
+  updateModeUi();
+}
+function nextAi(){
+  const order = scheduleOrder();
+  const cur = S.ai.track;
+  if(!cur){ aiStart(pickNow()); return; }
+  const i = order.findIndex(x=>x.u === cur.u);
+  aiStart(order[(i + 1) % order.length]);
+}
+function onAiTime(d){
+  if(!S.ai.playing || d !== aiDeckCur()) return;
+  if(S.ai.xfading || S.ai.xfade < 0.2) return;
+  const a = d.el;
+  if(a.duration && a.duration > S.ai.xfade + 4 && (a.duration - a.currentTime) <= S.ai.xfade){
+    S.ai.xfading = true;
+    aiStart(pickNowForNext());
+    setTimeout(()=>{ S.ai.xfading = false; }, S.ai.xfade*1000 + 300);
+  }
+}
+function onAiEnded(d){
+  if(d !== aiDeckCur() || !S.ai.playing) return;
+  aiStart(pickNowForNext());
+}
+function pickNowForNext(){
+  const order = scheduleOrder();
+  const slot = currentSlot();
+  let tr = order[slot % order.length];
+  if(S.ai.track && tr.u === S.ai.track.u){
+    const i = order.findIndex(x=>x.u === tr.u);
+    tr = order[(i + 1) % order.length];
+  }
+  return tr;
+}
+
+/* ================= PeerJS（生放送） ================= */
+function ensurePeerLib(){
+  if(window.Peer) return Promise.resolve(true);
+  return new Promise((resolve)=>{
+    const s = document.createElement('script');
+    s.src = 'vendor/peerjs.min.js';
+    s.onload = ()=>resolve(!!window.Peer);
+    s.onerror = ()=>resolve(false);
+    document.head.appendChild(s);
+  });
+}
+function ensurePeer(){
+  return new Promise((resolve, reject)=>{
+    if(S.peer && S.peer.open) return resolve();
+    if(S.peer && !S.peer.destroyed){ try{ S.peer.destroy(); }catch(e){} S.peer = null; }
+    const peer = new Peer({debug:0});
+    S.peer = peer;
+    let opened = false;
+    peer.on('open', ()=>{ opened = true; resolve(); });
+    peer.on('call', onCall);
+    peer.on('error', (err)=>{
+      const type = (err && err.type) || '';
+      if(type === 'peer-unavailable'){
+        S.connecting = false;
+        if(S.live){ S.live = false; }
+        updateModeUi();
+        setStatusWaiting();
+        return;
+      }
+      if(type === 'network' || type === 'server-error' || type === 'socket-error'){
+        S.connecting = false;
+        el.statusText.textContent = 'ネットワークに接続できません。5秒ごとに再試行します。';
+        return;
+      }
+      S.lastError = type + ':' + (err && err.message ? err.message : '');
+      if(window.console) console.warn('[peer]', type, err && err.message);
+      if(!opened) reject(err);
+    });
+    peer.on('disconnected', ()=>{
+      if(S.peer && !S.peer.destroyed){ try{ S.peer.reconnect(); }catch(e){} }
+      if(S.live){ S.live = false; updateModeUi(); }
+    });
+    setTimeout(()=>{ if(!opened && peer.open) resolve(); }, 7000);
+  });
+}
+async function connect(){
+  if(S.connecting) return;
+  S.connecting = true;
+  try{
+    const okLib = await ensurePeerLib();
+    if(!okLib){ el.statusText.textContent = '通信ライブラリを読み込めませんでした。AIラジオは再生できます。'; return; }
+    await ensurePeer();
+    dial();
+  }catch(e){
+    el.statusText.textContent = '生放送の接続に失敗しました。AIラジオは再生できます。';
+  }finally{
+    S.connecting = false;
+  }
+}
+function dial(){
+  if(!S.peer || !S.peer.open) return;
+  if(S.conn) return;                    // 接続試行中／接続済みはそのまま待つ（途中で切らない）
+  const conn = S.peer.connect(ROOM, {reliable:true, metadata:{role:'listener'}});
+  S.conn = conn;
+  const t = setTimeout(()=>{
+    if(S.conn === conn && !conn.open){ try{ conn.close(); }catch(e){} S.conn = null; }
+  }, 15000);
+  conn.on('open', ()=>{
+    clearTimeout(t);
+    try{ conn.send({type:'hello', role:'listener', t:Date.now()}); }catch(e){}
+  });
+  conn.on('data', onData);
+  conn.on('close', ()=>{
+    clearTimeout(t);
+    if(S.conn === conn) S.conn = null;
+    if(S.live){ S.live = false; onLiveLost(); }
+  });
+  conn.on('error', ()=>{ if(S.conn === conn) S.conn = null; });
+}
+function onData(d){
+  if(!d || typeof d !== 'object') return;
+  if(d.type === 'info'){
+    S.info = Object.assign(S.info, d);
+    if(S.live) renderLiveInfo();
+  }
+}
+function onCall(call){
+  S.call = call;
+  let answerStream = null;
+  try{ answerStream = S.silentDest ? S.silentDest.stream : null; }catch(e){ answerStream = null; }
+  try{ call.answer(answerStream || undefined); }
+  catch(e){ try{ call.answer(); }catch(e2){ try{ call.close(); }catch(e3){} return; } }
+  call.on('stream', (stream)=>attachStream(stream));
+  call.on('close', ()=>{ if(S.live){ S.live = false; onLiveLost(); } });
+  call.on('error', ()=>{});
+}
+function attachStream(stream){
+  S.stream = stream;
+  el.audio.srcObject = stream;
+  setupAnalyser(stream);
+  S.live = true;
+  clearSilent();
+  if(S.ai.playing) pauseAi();
+  updateModeUi();
+  el.statusText.innerHTML = '<b>ON AIR</b> — 生放送が始まりました。AIラジオから自動で切り替わりました。';
+  stream.getAudioTracks().forEach(t=>t.addEventListener('ended', ()=>{
+    if(S.stream === stream){ S.live = false; onLiveLost(); }
+  }));
+  if(S.wantPlay){
+    el.audio.play().then(()=>{ S.playing = true; updatePlayUi(); }).catch(()=>{ S.playing=false; updatePlayUi(); });
+  }
+}
+function onLiveLost(){
+  S.playing = false;
+  el.audio.pause();
+  el.statusText.innerHTML = '<b>放送が終了しました（OFF AIR）</b> — AIラジオに戻ります。';
+  updateModeUi();
+  if(S.wantPlay){ startAi(); }
+}
+function setStatusWaiting(){
+  if(S.live) return;
+  el.statusText.innerHTML = '<b>ただいま放送準備中（OFF AIR）</b> — AIラジオをどうぞ。生放送が始まると自動で切り替わります。';
+}
+
+/* ================= 再生制御 ================= */
+function playLive(){
+  const p = el.audio.play();
+  if(p && p.then) p.then(()=>{ S.playing = true; updatePlayUi(); }).catch(()=>{ S.playing=false; updatePlayUi(); });
+}
+function onPlayClick(){
+  unlockAudio();
+  if(S.live && S.stream){
+    if(S.playing){ el.audio.pause(); S.playing = false; updatePlayUi(); }
+    else playLive();
+  } else {
+    if(S.ai.playing) pauseAi();
+    else startAi();
+  }
+}
+
+/* ================= 波形 ================= */
+const wave = {w:0,h:0,raf:0,buf:null,t:0,peak:0};
+function sizeWave(){
+  const c = el.wave, r = c.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio||1, 2);
+  wave.w = Math.max(1, Math.round(r.width));
+  wave.h = Math.max(1, Math.round(r.height));
+  c.width = Math.round(wave.w*dpr); c.height = Math.round(wave.h*dpr);
+  c.getContext('2d').setTransform(dpr,0,0,dpr,0,0);
+}
+function setupAnalyser(stream){
+  const ctx = ensureCtx();
+  if(!ctx) return;
+  try{
+    const an = ctx.createAnalyser();
+    an.fftSize = 2048;
+    an.smoothingTimeConstant = 0.75;
+    const src = ctx.createMediaStreamSource(stream);
+    src.connect(an);
+    // 解析のためにグラフを流す（音は出さない：生放送は audio 要素で再生）
+    const sink = ctx.createGain(); sink.gain.value = 0;
+    an.connect(sink); sink.connect(ctx.destination);
+    S.analyser = an;
+    wave.buf = new Float32Array(an.fftSize);
+  }catch(e){ S.analyser = null; }
+}
+function drawWave(){
+  wave.raf = requestAnimationFrame(drawWave);
+  const c = el.wave, g = c.getContext('2d');
+  if(!wave.w) sizeWave();
+  const w = wave.w, h = wave.h, mid = h/2;
+  g.clearRect(0,0,w,h);
+
+  g.strokeStyle = 'rgba(255,255,255,.05)'; g.lineWidth = 1;
+  for(let i=1;i<4;i++){ const y=(h/4)*i; g.beginPath(); g.moveTo(0,y); g.lineTo(w,y); g.stroke(); }
+  g.strokeStyle = 'rgba(242,180,100,.18)';
+  g.beginPath(); g.moveTo(0,mid); g.lineTo(w,mid); g.stroke();
+  g.strokeStyle = 'rgba(255,255,255,.07)';
+  for(let x=0;x<w;x+=Math.max(24,w/22)){ g.beginPath(); g.moveTo(x,mid-3); g.lineTo(x,mid+3); g.stroke(); }
+
+  const live = S.live && S.stream && S.analyser;
+  if(live){
+    S.analyser.getFloatTimeDomainData(wave.buf);
+    let peak = 0;
+    g.lineWidth = 1.7;
+    const grad = g.createLinearGradient(0,0,w,0);
+    grad.addColorStop(0,'rgba(242,180,100,.35)');
+    grad.addColorStop(.5,'rgba(255,214,157,.95)');
+    grad.addColorStop(1,'rgba(242,180,100,.35)');
+    g.strokeStyle = grad;
+    g.shadowColor = 'rgba(242,180,100,.45)'; g.shadowBlur = 8;
+    g.beginPath();
+    const n = wave.buf.length;
+    for(let i=0;i<w;i++){
+      const v = wave.buf[Math.floor(i/w*n)] || 0;
+      if(Math.abs(v) > peak) peak = Math.abs(v);
+      const y = mid - v*(mid-8);
+      i ? g.lineTo(i,y) : g.moveTo(i,y);
+    }
+    g.stroke(); g.shadowBlur = 0;
+    wave.peak = peak;
+  } else {
+    // AIラジオ／待機中：音楽的なゆらぎ（装飾）
+    wave.t += S.ai.playing ? 0.055 : 0.016;
+    const amp = S.ai.playing ? (mid-10)*0.55 : (mid-10)*0.06;
+    g.lineWidth = 1.5;
+    g.strokeStyle = S.ai.playing ? 'rgba(121,224,194,.55)' : 'rgba(242,180,100,.22)';
+    g.shadowColor = S.ai.playing ? 'rgba(121,224,194,.4)' : 'transparent';
+    g.shadowBlur = S.ai.playing ? 7 : 0;
+    g.beginPath();
+    for(let i=0;i<w;i++){
+      const x = i/w;
+      const v = Math.sin(x*10 + wave.t)*0.55 + Math.sin(x*23 - wave.t*1.6)*0.3 + Math.sin(x*41 + wave.t*2.3)*0.15;
+      const beat = S.ai.playing ? (0.55 + 0.45*Math.abs(Math.sin(wave.t*0.9))) : 1;
+      const y = mid - v*amp*beat*0.45;
+      i ? g.lineTo(i,y) : g.moveTo(i,y);
+    }
+    g.stroke(); g.shadowBlur = 0;
+    wave.peak = S.ai.playing ? 0.2 : 0.01;
+  }
+
+  g.fillStyle = 'rgba(255,255,255,.10)';
+  g.fillRect(w-1, mid-14, 1, 28);
+}
+
+/* ================= バインド ================= */
+function bind(){
+  fillRange(el.volume);
+  el.stationLabel.textContent = ROOM;
+  el.footId.textContent = ROOM;
+
+  el.volume.addEventListener('input', ()=>{
+    fillRange(el.volume);
+    setVolume(Number(el.volume.value)/100);
+  });
+  setVolume(Number(el.volume.value)/100);
+
+  el.playBtn.addEventListener('click', onPlayClick);
+
+  el.djBtn.addEventListener('click', ()=>{
+    S.ai.djOn = !S.ai.djOn;
+    el.djBtn.classList.toggle('on', S.ai.djOn);
+    el.djBtn.textContent = S.ai.djOn ? '🎙️ AI DJ：ON' : '🎙️ AI DJ：OFF';
+    if(!S.ai.djOn){
+      clearSilent();
+      S.ai.speaking = false;
+      el.djLine.hidden = true;
+      const d = aiDeckCur(); if(d) duckDeck(d, false);
+    }
+  });
+  el.aiNextBtn.addEventListener('click', ()=>{
+    if(!S.ai.playing && !S.ai.track){ startAi(); return; }
+    nextAi();
+  });
+
+  el.retryBtn.addEventListener('click', ()=>{
+    if(S.conn && S.conn.open){ try{ S.conn.send({type:'hello', role:'listener'}); }catch(e){} }
+    else {
+      if(S.conn){ try{ S.conn.close(); }catch(e){} S.conn = null; }
+      if(S.peer && S.peer.open) dial(); else connect();
+    }
+    el.statusText.textContent = '再接続しています…';
+  });
+
+  el.audio.addEventListener('play', ()=>{ S.playing = true; updatePlayUi(); });
+  el.audio.addEventListener('pause', ()=>{ S.playing = false; updatePlayUi(); });
+
+  window.addEventListener('resize', sizeWave);
+  window.addEventListener('pagehide', ()=>{
+    try{ if(S.peer) S.peer.destroy(); }catch(e){}
+    try{ if(window.speechSynthesis) window.speechSynthesis.cancel(); }catch(e){}
+  });
+}
+
+function init(){
+  bind();
+  sizeWave();
+  drawWave();
+  el.aiTitle.textContent = '再生ボタンでスタート';
+  el.aiNext.textContent = 'NEXT: ' + pickNow().t;
+  updateModeUi();
+  setStatusWaiting();
+  el.statusText.textContent = '放送局に接続しています…';
+
+  const unlock = ()=>{
+    unlockAudio();
+    if(S.wantPlay && S.live && S.stream && !S.playing) playLive();
+  };
+  document.addEventListener('pointerdown', unlock, {once:true});
+  document.addEventListener('keydown', unlock, {once:true});
+
+  connect();
+  startRetry();
+}
+function startRetry(){
+  if(S.retryTimer) return;
+  S.retryTimer = setInterval(()=>{
+    if(S.live) return;
+    if(S.connecting) return;
+    if(S.conn) return;                    // 接続試行中は待つ
+    if(!S.peer || S.peer.destroyed || !S.peer.open) return;
+    dial();
+  }, 5000);
+}
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+
+window.__nrDebug = {
+  state(){
+    return {
+      live:S.live, connecting:S.connecting, ctx:S.ctx ? S.ctx.state : null,
+      peerOpen:!!(S.peer && S.peer.open), connOpen:!!(S.conn && S.conn.open),
+      hasStream:!!S.stream, playing:!!(el.audio && !el.audio.paused),
+      aiPlaying:S.ai.playing, aiTrack:S.ai.track ? S.ai.track.t : null,
+      aiSrc:aiDeckCur() ? aiDeckCur().el.currentSrc : null,
+      aiTime:aiDeckCur() ? aiDeckCur().el.currentTime : 0,
+      aiVol:aiDeckCur() ? Math.round(aiDeckCur().fade.gain.value*100)/100 : null,
+      djOn:S.ai.djOn, speaking:S.ai.speaking, activeDeck:S.ai.active,
+      djLine:!el.djLine.hidden, djText:el.djText.textContent,
+      peak:wave.peak||0, room:ROOM, guestOn:!!S.info.guestOn, guestName:S.info.guestName,
+      title:S.info.title, tracks:TRACKS.length, speech:canSpeak(), lastError:S.lastError,
+      peerId:S.peer ? S.peer.id : null
+    };
+  },
+  wishPlay(){ S.wantPlay = true; },
+  nearEnd(){
+    const d = aiDeckCur();
+    if(!d || !d.el.duration) return false;
+    d.el.currentTime = Math.max(0, d.el.duration - (S.ai.xfade + 0.3));
+    return true;
+  },
+  aiGains(){
+    const d = aiDeckCur();
+    return d ? {fade:Math.round(d.fade.gain.value*100)/100, duck:Math.round(d.duck.gain.value*100)/100, playing:!d.el.paused} : null;
+  },
+  fakeInfo(obj){
+    S.info = Object.assign(S.info, obj || {});
+    if(S.live) renderLiveInfo(); else updateModeUi();
+    return S.info;
+  },
+  fakeLive(freq){
+    const ctx = ensureCtx();
+    if(!ctx) return false;
+    const osc = ctx.createOscillator(); osc.type='sine'; osc.frequency.value = freq || 440;
+    const g = ctx.createGain(); g.gain.value = 0.3;
+    const dest = ctx.createMediaStreamDestination();
+    osc.connect(g); g.connect(dest); osc.start();
+    S.fakeOsc = osc;
+    attachStream(dest.stream);
+    return true;
+  },
+  fakeLiveEnd(){
+    if(S.fakeOsc){ try{ S.fakeOsc.stop(); }catch(e){} S.fakeOsc = null; }
+    if(S.live){ S.live = false; onLiveLost(); }
+  }
+};
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,2425 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0b10">
+<title>配信者コンソール — NET RADIO</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a0b10'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='%23f2b464' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23ff5a5a'/%3E%3C/svg%3E">
+<style>
+/* ============ 基本 ============ */
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none !important}
+:root{
+  --bg:#08090e;
+  --bg2:#101219;
+  --panel:rgba(255,255,255,.042);
+  --panel2:rgba(255,255,255,.025);
+  --line:rgba(255,255,255,.085);
+  --line2:rgba(255,255,255,.14);
+  --txt:#eae7e0;
+  --dim:#97948d;
+  --dim2:#6d6a64;
+  --amber:#f2b464;
+  --amber-d:#c98a34;
+  --mint:#79e0c2;
+  --red:#ff5a5a;
+  --blue:#93b9ff;
+  --mono:"SFMono-Regular",Menlo,Consolas,"Roboto Mono","DejaVu Sans Mono",monospace;
+  --serif:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,"Noto Sans JP",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+html,body{margin:0;padding:0;max-width:100%}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--sans);
+  color:var(--txt);
+  background:
+    radial-gradient(1100px 520px at 12% -10%,rgba(242,180,100,.10),transparent 62%),
+    radial-gradient(900px 500px at 92% 0%,rgba(121,224,194,.07),transparent 60%),
+    linear-gradient(180deg,#0a0b11 0%,#08090e 45%,#06070b 100%);
+  background-attachment:scroll;
+  min-height:100vh;
+  line-height:1.55;
+  padding-bottom:32px;
+  overflow-x:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.035;
+  background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.wrap{width:100%;max-width:1340px;margin:0 auto;padding:0 18px;position:relative;z-index:1}
+button{font-family:inherit;color:inherit}
+input,select,output{font-family:inherit}
+
+/* ============ ヘッダー ============ */
+.topbar{
+  position:sticky;top:0;z-index:20;
+  background:rgba(8,9,14,.82);
+  backdrop-filter:blur(14px) saturate(120%);
+  -webkit-backdrop-filter:blur(14px) saturate(120%);
+  border-bottom:1px solid var(--line);
+}
+.bar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding-top:13px;padding-bottom:13px}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.mark{
+  width:34px;height:34px;flex:0 0 34px;border-radius:50%;
+  border:1px solid rgba(242,180,100,.55);
+  display:grid;place-items:center;color:var(--amber);font-size:13px;
+  box-shadow:inset 0 0 14px rgba(242,180,100,.18),0 0 16px rgba(242,180,100,.08);
+}
+.brand-t{font-size:13px;letter-spacing:.16em;font-weight:600;white-space:nowrap}
+.brand-t .thin{color:var(--dim);font-weight:400;letter-spacing:.04em}
+.brand-s{font-family:var(--mono);font-size:10.5px;color:var(--dim2);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:44vw}
+.bar-right{display:flex;align-items:center;gap:12px;margin-left:auto;flex-wrap:wrap}
+.onair{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:7px 13px;border-radius:999px;
+  border:1px solid var(--line2);background:rgba(255,255,255,.03);
+  font-family:var(--mono);font-size:11px;letter-spacing:.15em;color:var(--dim);
+}
+.onair .lamp{width:9px;height:9px;border-radius:50%;background:#3a3a3f;box-shadow:inset 0 0 4px rgba(0,0,0,.7)}
+.onair.live{border-color:rgba(255,90,90,.55);color:#ffd9d9;background:rgba(255,90,90,.10)}
+.onair.live .lamp{background:var(--red);box-shadow:0 0 10px rgba(255,90,90,.9),0 0 22px rgba(255,90,90,.5);animation:pulse 1.8s infinite}
+.onair.wait{border-color:rgba(242,180,100,.45);color:#f6dcb4}
+.onair.wait .lamp{background:var(--amber);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.stat{display:flex;flex-direction:column;gap:1px;line-height:1.15}
+.stat .k{font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;color:var(--dim2)}
+.stat b{font-family:var(--mono);font-size:13.5px;font-weight:600;color:#f3efe6;letter-spacing:.02em}
+.stat b.hot{color:var(--amber)}
+
+/* ============ ボタン ============ */
+.btn{
+  border:1px solid var(--line2);background:rgba(255,255,255,.05);
+  color:var(--txt);border-radius:11px;padding:9px 14px;font-size:12.5px;cursor:pointer;
+  transition:background .15s,border-color .15s,transform .06s,color .15s;
+  white-space:nowrap;
+}
+.btn:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.24)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.45;cursor:default;transform:none}
+.btn.primary{
+  background:linear-gradient(180deg,#f7c67f,#e3a34e);color:#231803;border-color:#f7c67f;
+  font-weight:700;letter-spacing:.06em;padding:11px 20px;box-shadow:0 4px 18px rgba(242,180,100,.28)
+}
+.btn.primary:hover{background:linear-gradient(180deg,#ffd49a,#eda94f)}
+.btn.stop{background:linear-gradient(180deg,#ff7b7b,#d94141);color:#2a0505;border-color:#ff8b8b;font-weight:700;padding:11px 20px;box-shadow:0 4px 18px rgba(255,90,90,.25)}
+.btn.small{padding:7px 11px;font-size:11.5px;border-radius:9px}
+.btn.icon{padding:8px 12px;font-size:14px;line-height:1}
+.btn.ghost{background:transparent}
+
+/* ============ グリッド ============ */
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:15px;padding-top:18px}
+.panel{
+  grid-column:span 12;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.018));
+  padding:16px 17px 17px;
+  min-width:0;
+  position:relative;
+}
+.panel::after{
+  content:"";position:absolute;inset:0;border-radius:16px;pointer-events:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.055);
+}
+.p-settings{grid-column:span 12}
+.p-guest{grid-column:span 12}
+.p-mic{grid-column:span 12}
+.p-bgm{grid-column:span 12}
+.p-pads{grid-column:span 12}
+.p-master{grid-column:span 12}
+@media (min-width:860px){
+  .p-settings{grid-column:span 6}
+  .p-guest{grid-column:span 6}
+  .p-master{grid-column:span 12}
+  .p-mic{grid-column:span 5}
+  .p-bgm{grid-column:span 7}
+  .p-pads{grid-column:span 12}
+}
+@media (min-width:1180px){
+  .p-settings{grid-column:span 4}
+  .p-guest{grid-column:span 4}
+  .p-master{grid-column:span 4}
+  .p-mic{grid-column:span 4}
+  .p-bgm{grid-column:span 8}
+  .p-pads{grid-column:span 12}
+}
+.p-head{display:flex;align-items:center;gap:10px;margin:0 0 13px;flex-wrap:wrap}
+.p-head h2{
+  margin:0;font-size:11px;letter-spacing:.2em;font-weight:600;color:#cfc9bd;
+  font-family:var(--mono);text-transform:uppercase;
+}
+.p-head h2::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--amber);margin-right:8px;vertical-align:middle;opacity:.85}
+.p-head .grow{flex:1}
+.hint{margin:9px 0 0;font-size:11px;line-height:1.6;color:var(--dim2)}
+.hint.warn{color:#e9b06b}
+
+/* ============ フォーム ============ */
+.field{display:block;margin-bottom:11px;min-width:0}
+.field>span,.field>.lbl{display:block;font-size:10.5px;letter-spacing:.1em;color:var(--dim);margin-bottom:5px;font-family:var(--mono)}
+.row{display:flex;align-items:center;gap:8px;min-width:0}
+input[type=text],input:not([type]),select{
+  width:100%;min-width:0;
+  background:rgba(0,0,0,.42);border:1px solid var(--line2);border-radius:10px;
+  padding:9px 11px;color:var(--txt);font-size:13px;outline:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+input[type=text]:focus,input:not([type]):focus,select:focus{border-color:rgba(242,180,100,.65);box-shadow:0 0 0 3px rgba(242,180,100,.10)}
+input[readonly]{color:var(--dim);font-family:var(--mono);font-size:11px;background:rgba(0,0,0,.3)}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--dim) 50%),linear-gradient(135deg,var(--dim) 50%,transparent 50%);background-position:calc(100% - 16px) 50%,calc(100% - 11px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:30px}
+select option{background:#14161e;color:var(--txt)}
+.checks{display:flex;gap:16px;flex-wrap:wrap;margin:4px 0 2px}
+.chk{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--dim);cursor:pointer;user-select:none}
+.chk input[type=checkbox]{appearance:none;width:15px;height:15px;border-radius:4px;border:1px solid var(--line2);background:rgba(0,0,0,.5);position:relative;cursor:pointer;flex:0 0 15px;margin:0}
+.chk input[type=checkbox]:checked{background:var(--amber);border-color:var(--amber)}
+.chk input[type=checkbox]:checked::after{content:"";position:absolute;left:4px;top:1px;width:5px;height:9px;border:2px solid #20160a;border-top:0;border-left:0;transform:rotate(42deg)}
+
+/* レンジ */
+input[type=range]{
+  -webkit-appearance:none;appearance:none;height:6px;border-radius:99px;width:100%;min-width:0;
+  background:linear-gradient(90deg,var(--amber) 0 calc(var(--p,50%)),rgba(255,255,255,.13) calc(var(--p,50%)) 100%);
+  outline:none;cursor:pointer;margin:6px 0;
+}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:#14161e;border:2px solid var(--amber);box-shadow:0 0 0 4px rgba(242,180,100,.10);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:#14161e;border:2px solid var(--amber)}
+input[type=range].mint{background:linear-gradient(90deg,var(--mint) 0 calc(var(--p,50%)),rgba(255,255,255,.13) calc(var(--p,50%)) 100%)}
+input[type=range].mint::-webkit-slider-thumb{border-color:var(--mint);box-shadow:0 0 0 4px rgba(121,224,194,.10)}
+output{font-family:var(--mono);font-size:11px;color:var(--amber);min-width:38px;text-align:right;flex:0 0 auto}
+
+/* パワーボタン */
+.power{
+  display:inline-flex;align-items:center;gap:8px;margin-left:auto;
+  border:1px solid var(--line2);background:rgba(255,255,255,.04);
+  border-radius:999px;padding:8px 14px;font-size:11.5px;font-weight:600;letter-spacing:.05em;cursor:pointer;
+}
+.power i{width:8px;height:8px;border-radius:50%;background:#45454b;display:block}
+.power.on{border-color:rgba(121,224,194,.5);color:#d8fff3;background:rgba(121,224,194,.10)}
+.power.on i{background:var(--mint);box-shadow:0 0 8px rgba(121,224,194,.8)}
+
+/* ============ BGMデッキ ============ */
+.track{border:1px solid var(--line);border-radius:13px;background:rgba(0,0,0,.30);padding:12px 13px}
+.track-now{display:flex;align-items:center;gap:11px;min-width:0}
+.eq{display:inline-flex;align-items:flex-end;gap:2px;height:16px;flex:0 0 16px;opacity:.35}
+.eq i{width:3px;background:var(--amber);border-radius:1px;height:5px}
+.eq.on{opacity:1}
+.eq.on i:nth-child(1){animation:eq1 .9s infinite ease-in-out}
+.eq.on i:nth-child(2){animation:eq2 .7s infinite ease-in-out}
+.eq.on i:nth-child(3){animation:eq3 1.1s infinite ease-in-out}
+@keyframes eq1{0%,100%{height:5px}50%{height:15px}}
+@keyframes eq2{0%,100%{height:13px}50%{height:4px}}
+@keyframes eq3{0%,100%{height:7px}50%{height:16px}}
+.tname{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.tsub{font-size:10.5px;color:var(--dim2);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seek-row{display:flex;align-items:center;gap:9px;margin-top:9px}
+.seek-row span{font-family:var(--mono);font-size:10px;color:var(--dim2);flex:0 0 34px;text-align:center}
+.seek-row input[type=range]{height:5px;margin:0}
+.transport{display:flex;align-items:center;gap:9px;margin-top:11px;flex-wrap:wrap}
+.btn.play{width:42px;height:42px;border-radius:50%;padding:0;display:grid;place-items:center;font-size:15px;background:linear-gradient(180deg,rgba(242,180,100,.22),rgba(242,180,100,.08));border-color:rgba(242,180,100,.5);color:#ffe6bd}
+.vol{display:flex;align-items:center;gap:8px;flex:1 1 130px;min-width:110px}
+.vol span{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--dim2);flex:0 0 auto}
+.btn.talk{
+  margin-left:auto;border-color:rgba(121,224,194,.45);background:rgba(121,224,194,.10);color:#d8fff3;
+  font-weight:600;font-size:11.5px;letter-spacing:.03em;padding:9px 13px;border-radius:10px;
+  touch-action:manipulation;user-select:none;
+}
+.btn.talk.down{background:rgba(121,224,194,.3);border-color:var(--mint);box-shadow:0 0 16px rgba(121,224,194,.3)}
+.xfade-row{display:flex;align-items:center;gap:9px;margin-top:10px;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--dim2)}
+.xfade-row span{flex:0 0 auto}
+.xfade-row input{flex:1 1 90px;min-width:70px}
+.xfade-row output{color:var(--mint);min-width:38px}
+.playlist{list-style:none;margin:11px 0 0;padding:0;max-height:196px;overflow:auto;border-radius:11px;border:1px solid var(--line);background:rgba(0,0,0,.2)}
+.playlist li{display:flex;align-items:center;gap:9px;padding:8px 11px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;min-width:0}
+.playlist li:last-child{border-bottom:0}
+.playlist li:hover{background:rgba(255,255,255,.05)}
+.playlist li.playing{background:rgba(242,180,100,.11);color:#ffe7c4}
+.playlist li .n{font-family:var(--mono);font-size:9.5px;color:var(--dim2);flex:0 0 18px}
+.playlist li .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.playlist li .del{border:0;background:transparent;color:var(--dim2);cursor:pointer;font-size:13px;padding:0 3px;line-height:1}
+.playlist li .del:hover{color:var(--red)}
+.playlist li.empty{cursor:default;color:var(--dim2);font-size:11.5px;justify-content:center;padding:16px 10px}
+.playlist li.empty:hover{background:transparent}
+
+/* ============ パッド ============ */
+.pads{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+@media (max-width:640px){.pads{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.pad{
+  position:relative;border:1px solid var(--line2);border-radius:14px;background:rgba(255,255,255,.04);
+  padding:14px 12px 12px;text-align:left;cursor:pointer;min-width:0;overflow:hidden;
+  transition:transform .07s,box-shadow .2s,background .2s,border-color .2s;
+}
+.pad::after{content:"";position:absolute;inset:0;border-radius:14px;opacity:0;transition:opacity .25s;background:radial-gradient(120% 90% at 50% 120%,rgba(255,255,255,.18),transparent 60%)}
+.pad:hover{background:rgba(255,255,255,.075);border-color:rgba(255,255,255,.22)}
+.pad:active{transform:scale(.98)}
+.pad.hit{animation:hit .45s ease-out}
+@keyframes hit{0%{box-shadow:0 0 0 0 rgba(242,180,100,.5)}100%{box-shadow:0 0 0 16px rgba(242,180,100,0)}}
+.pad .pe{display:block;font-size:19px;line-height:1.1;margin-bottom:6px}
+.pad .pl{display:block;font-size:12.5px;font-weight:700;letter-spacing:.02em}
+.pad small{display:block;font-size:10px;color:var(--dim2);margin-top:2px;letter-spacing:.02em}
+.pad.op{border-color:rgba(242,180,100,.4)} .pad.op .pe{color:var(--amber)}
+.pad.chime{border-color:rgba(147,185,255,.35)} .pad.chime .pe{color:var(--blue)}
+.pad.buzz{border-color:rgba(255,90,90,.35)} .pad.buzz .pe{color:var(--red)}
+.pad.clap{border-color:rgba(121,224,194,.35)} .pad.clap .pe{color:var(--mint)}
+
+/* ============ マスター ============ */
+#vu{display:block;width:100%;height:158px;border-radius:11px;background:rgba(0,0,0,.34);border:1px solid var(--line)}
+.meter-foot{display:flex;align-items:center;gap:12px;margin-top:9px;flex-wrap:wrap}
+.meter-foot .peak{font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:.06em}
+.meter-foot .spacer{flex:1}
+.lim{font-family:var(--mono);font-size:9px;letter-spacing:.16em;padding:4px 8px;border-radius:6px;border:1px solid rgba(255,90,90,.3);color:#8a5b5b;background:rgba(255,90,90,.05);transition:color .1s,background .1s,border-color .1s}
+.lim.on{color:#fff;background:rgba(255,90,90,.85);border-color:#ff8b8b;box-shadow:0 0 14px rgba(255,90,90,.5)}
+
+/* ============ ゲスト ============ */
+.gstatus{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:999px;border:1px solid var(--line2);font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--dim);max-width:100%}
+.gstatus i{width:7px;height:7px;border-radius:50%;background:#4a4a52;flex:0 0 7px}
+.gstatus.live{border-color:rgba(121,224,194,.55);color:#d8fff3;background:rgba(121,224,194,.10)}
+.gstatus.live i{background:var(--mint);box-shadow:0 0 8px rgba(121,224,194,.8);animation:pulse 2s infinite}
+.gstatus.wait{border-color:rgba(242,180,100,.45);color:#f6dcb4}
+.gstatus.wait i{background:var(--amber);animation:pulse 1.2s infinite}
+.guest-actions{margin-top:2px;flex-wrap:wrap}
+.btn.muting{border-color:rgba(255,90,90,.55);background:rgba(255,90,90,.12);color:#ffd9d9}
+
+/* ============ ボイスチェンジャー ============ */
+.voice{margin-top:13px;padding-top:12px;border-top:1px dashed rgba(255,255,255,.1)}
+.voice-head{display:flex;align-items:center;gap:10px;margin-bottom:9px;flex-wrap:wrap}
+.voice-head .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--dim)}
+.voice-head .btn{margin-left:auto}
+.voice-head .btn.on{border-color:rgba(242,180,100,.6);background:rgba(242,180,100,.14);color:#ffe6bd}
+.vpresets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+@media (max-width:420px){.vpresets{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.vp{
+  border:1px solid var(--line2);background:rgba(255,255,255,.035);border-radius:9px;
+  padding:8px 6px;font-size:11px;color:var(--dim);cursor:pointer;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;transition:all .15s;
+}
+.vp:hover{background:rgba(255,255,255,.08);color:var(--txt)}
+.vp.on{border-color:rgba(242,180,100,.7);background:rgba(242,180,100,.15);color:#ffe6bd;font-weight:700;box-shadow:0 0 14px rgba(242,180,100,.12)}
+
+/* ============ トースト ============ */
+#toasts{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;width:calc(100% - 28px);max-width:440px;pointer-events:none}
+.toast{
+  background:rgba(20,22,30,.96);border:1px solid var(--line2);border-radius:11px;padding:10px 14px;
+  font-size:12px;line-height:1.5;color:#eae7e0;box-shadow:0 12px 30px rgba(0,0,0,.5);
+  animation:tin .22s ease-out;max-width:100%;
+}
+.toast.ok{border-color:rgba(121,224,194,.5)}
+.toast.err{border-color:rgba(255,90,90,.6)}
+.toast.warn{border-color:rgba(242,180,100,.55)}
+@keyframes tin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ============ キューシート ============ */
+.cue-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.cue-bar .grow{flex:1}
+.cues{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:460px;overflow:auto}
+.cue-row{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:11px;padding:8px 9px;background:rgba(0,0,0,.22);min-width:0}
+.cue-row.now{border-color:rgba(255,90,90,.55);background:rgba(255,90,90,.07);box-shadow:inset 3px 0 0 var(--red)}
+.cue-row.next{border-color:rgba(242,180,100,.4);box-shadow:inset 3px 0 0 rgba(242,180,100,.6)}
+.cue-row.done{opacity:.6}
+.ci{font-family:var(--mono);font-size:10px;color:var(--dim2);width:20px;flex:0 0 20px;text-align:right;padding-top:8px}
+.ct{font-size:14px;flex:0 0 20px;text-align:center;padding-top:6px}
+.cbody{flex:1 1 160px;min-width:0;display:flex;flex-direction:column;gap:3px}
+.ctitle,.cmemo{width:100%;min-width:0;background:transparent;border:1px solid transparent;border-radius:6px;padding:3px 6px;color:var(--txt);font-size:12.5px;font-weight:600}
+.ctitle:hover,.cmemo:hover{border-color:var(--line)}
+.ctitle:focus,.cmemo:focus{border-color:rgba(242,180,100,.5);background:rgba(0,0,0,.35);outline:none}
+.cmemo{font-size:10.5px;font-weight:400;color:var(--dim)}
+.csrc{font-family:var(--mono);font-size:9.5px;color:var(--dim2);padding-left:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.csrc.missing{color:#e9b06b}
+.cbtns{display:flex;gap:3px;flex-wrap:wrap;justify-content:flex-end;flex:0 0 auto}
+.cbtns button{border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:7px;height:26px;min-width:26px;font-size:11px;cursor:pointer;padding:0 4px;color:var(--dim)}
+.cbtns button:hover{background:rgba(255,255,255,.1);color:var(--txt)}
+.cbtns button.run{width:auto;padding:0 9px;color:#ffe6bd;border-color:rgba(242,180,100,.45);background:rgba(242,180,100,.1)}
+.cbtns button.del:hover{color:var(--red);border-color:rgba(255,90,90,.5)}
+.cue-row .cbtns{max-width:160px}
+@media (max-width:620px){
+  .cue-row{flex-wrap:wrap}
+  .cbtns{flex:1 1 100%;max-width:none;justify-content:flex-end;margin-top:2px}
+}
+.picker{margin-top:10px;border:1px solid var(--line2);border-radius:12px;padding:9px;background:rgba(0,0,0,.35)}
+.picker-head{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.picker-head input{flex:1 1 160px}
+.picker-list{list-style:none;margin:0;padding:0;max-height:230px;overflow:auto}
+.picker-list li{padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.05);font-size:11.5px;cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.picker-list li:hover{background:rgba(255,255,255,.06)}
+.picker-list li small{color:var(--dim2);font-family:var(--mono);font-size:9px;flex:0 0 auto}
+.picker-list li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cue-empty{color:var(--dim2);font-size:11.5px;text-align:center;padding:16px 8px;border:1px dashed var(--line);border-radius:11px}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap bar">
+    <div class="brand">
+      <span class="mark">◉</span>
+      <div style="min-width:0">
+        <div class="brand-t">NET RADIO <span class="thin">/ 配信者コンソール</span></div>
+        <div class="brand-s" id="brandSub">局ID: kaeru-radio-live</div>
+      </div>
+    </div>
+    <div class="bar-right">
+      <div class="onair off" id="onairBadge"><i class="lamp"></i><span id="onairText">OFF AIR</span></div>
+      <div class="stat"><span class="k">ON AIR</span><b id="elapsed">00:00:00</b></div>
+      <div class="stat"><span class="k">LISTENERS</span><b id="listenerCount">0</b></div>
+      <button id="broadcastBtn" class="btn primary">配信開始</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap grid">
+
+  <!-- 放送設定 -->
+  <section class="panel p-settings">
+    <div class="p-head"><h2>放送設定</h2></div>
+    <label class="field"><span>放送局ID</span>
+      <input id="stationInput" type="text" value="kaeru-radio-live" spellcheck="false" autocomplete="off" maxlength="40">
+    </label>
+    <label class="field"><span>番組タイトル</span>
+      <input id="titleInput" type="text" maxlength="60" placeholder="深夜のなんでもラジオ" autocomplete="off">
+    </label>
+    <label class="field"><span>DJ名</span>
+      <input id="djInput" type="text" maxlength="30" placeholder="Kaeru" autocomplete="off">
+    </label>
+    <label class="field"><span>ひとことメモ</span>
+      <input id="noteInput" type="text" maxlength="80" placeholder="今夜は電気グルーヴを流します" autocomplete="off">
+    </label>
+    <div class="field">
+      <span>リスナー用URL</span>
+      <div class="row">
+        <input id="listenUrl" type="text" readonly>
+        <button class="btn small" id="copyUrlBtn" type="button">コピー</button>
+      </div>
+    </div>
+    <p class="hint">同じIDの聴取ページを開いた人が自動でつながります。映すのは音声だけです。IDは英数字・ハイフン・アンダースコアのみ。</p>
+    <p class="hint" id="peerHint">「配信開始」を押すと、この端末が配信局としてネットに登録されます。</p>
+  </section>
+
+  <!-- ゲスト（2人対談） -->
+  <section class="panel p-guest">
+    <div class="p-head">
+      <h2>ゲスト（2人対談）</h2>
+      <span class="grow"></span>
+      <span class="gstatus" id="guestStatus"><i></i><span id="guestStatusText">未接続</span></span>
+    </div>
+    <div class="field">
+      <span>ゲスト招待リンク</span>
+      <div class="row">
+        <input id="guestUrl" type="text" readonly>
+        <button class="btn small" id="copyGuestBtn" type="button">コピー</button>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:9px">
+      <span>ゲスト音量（番組に乗る音量）</span>
+      <div class="row">
+        <input id="guestVol" type="range" min="0" max="150" value="100">
+        <output id="guestVolVal">100</output>
+      </div>
+    </div>
+    <div class="row guest-actions">
+      <button class="btn small" id="guestMuteBtn" type="button" disabled>ゲストをミュート</button>
+      <button class="btn small" id="guestKickBtn" type="button" disabled>切断</button>
+      <label class="chk" style="margin-left:auto"><input type="checkbox" id="guestMonChk" checked><span>ゲストの声を聴く</span></label>
+    </div>
+    <p class="hint" id="guestHint">リンクを相手に送ると、その人がマイクで参加できます。ゲストの声はリスナーに届き、ゲスト自身には返りません（ハウリング防止）。</p>
+  </section>
+
+  <!-- マスター -->
+  <section class="panel p-master">
+    <div class="p-head">
+      <h2>マスター出力</h2>
+      <span class="grow"></span>
+      <span class="lim" id="limitLamp" title="ピークがしきい値（-6dB）を超えると点灯">LIMIT</span>
+    </div>
+    <canvas id="vu"></canvas>
+    <div class="meter-foot">
+      <span class="peak" id="peakDb">-∞ dB</span>
+      <span class="spacer"></span>
+      <label class="chk"><input type="checkbox" id="monitorChk"><span>モニター（ヘッドホン推奨）</span></label>
+    </div>
+    <div class="field" style="margin:12px 0 0">
+      <span>マスター音量</span>
+      <div class="row">
+        <input id="masterVol" type="range" min="0" max="100" value="90">
+        <output id="masterVolVal">90</output>
+      </div>
+    </div>
+    <p class="hint">マイク・BGM・効果音はここで1本にまとまり、リミッターを通ってリスナーへ送られます。</p>
+  </section>
+
+  <!-- マイク -->
+  <section class="panel p-mic">
+    <div class="p-head">
+      <h2>マイク</h2>
+      <button id="micToggle" class="power off" type="button"><i></i><span id="micState">マイク OFF</span></button>
+    </div>
+    <div class="field" style="margin-bottom:10px">
+      <span>マイク音量</span>
+      <div class="row">
+        <input id="micVol" type="range" min="0" max="150" value="100">
+        <output id="micVolVal">100</output>
+      </div>
+    </div>
+    <div class="field">
+      <span>入力デバイス</span>
+      <div class="row">
+        <select id="micDevice"><option value="">（既定のマイク）</option></select>
+        <button class="btn small" id="micRefresh" type="button">更新</button>
+      </div>
+    </div>
+    <div class="checks">
+      <label class="chk"><input type="checkbox" id="echoChk" checked><span>エコーキャンセル</span></label>
+      <label class="chk"><input type="checkbox" id="noiseChk" checked><span>ノイズ抑制</span></label>
+    </div>
+    <p class="hint" id="micHint">「配信開始」でマイクの使用許可を求められます。</p>
+    <div class="voice">
+      <div class="voice-head">
+        <span class="lbl">ボイスチェンジャー</span>
+        <button class="btn small" id="voiceMonitorBtn" type="button">試し聞き OFF</button>
+      </div>
+      <div class="vpresets" id="vPresets">
+        <button class="vp on" type="button" data-vp="off">素の声</button>
+        <button class="vp" type="button" data-vp="radio">📻 AMラジオ</button>
+        <button class="vp" type="button" data-vp="robot">🤖 ロボット</button>
+        <button class="vp" type="button" data-vp="alien">🛸 エイリアン</button>
+        <button class="vp" type="button" data-vp="echo">🎤 ライブエコー</button>
+        <button class="vp" type="button" data-vp="low">🗣 低音ピッチ</button>
+        <button class="vp" type="button" data-vp="high">🗣 高音ピッチ</button>
+      </div>
+      <p class="hint" id="voiceHint">効果はマイクの声に掛かり、リスナーとゲスト返しの両方に乗ります。</p>
+    </div>
+  </section>
+
+  <!-- BGM -->
+  <section class="panel p-bgm">
+    <div class="p-head">
+      <h2>BGMデッキ</h2>
+      <span class="grow"></span>
+      <label class="btn small" for="bgmFiles" style="cursor:pointer">音源を追加</label>
+      <input type="file" id="bgmFiles" accept="audio/*,.mp3,.wav,.m4a,.ogg,.aac,.flac" multiple hidden>
+    </div>
+    <div class="track">
+      <div class="track-now">
+        <span class="eq" id="bgmEq"><i></i><i></i><i></i></span>
+        <div style="min-width:0">
+          <div class="tname" id="bgmNow">音源が選ばれていません</div>
+          <div class="tsub" id="bgmSub">MP3 / WAV / M4A / OGG ほか</div>
+        </div>
+      </div>
+      <div class="seek-row">
+        <span id="bgmCur">0:00</span>
+        <input id="bgmSeek" type="range" min="0" max="1000" value="0" aria-label="再生位置">
+        <span id="bgmDur">0:00</span>
+      </div>
+      <div class="transport">
+        <button class="btn icon" id="bgmPrev" type="button" aria-label="前の曲">⏮</button>
+        <button class="btn play" id="bgmPlay" type="button" aria-label="再生">▶</button>
+        <button class="btn icon" id="bgmNext" type="button" aria-label="次の曲">⏭</button>
+        <div class="vol">
+          <span>BGM</span>
+          <input id="bgmVol" type="range" min="0" max="100" value="65" aria-label="BGM音量">
+          <output id="bgmVolVal">65</output>
+        </div>
+        <button class="btn talk" id="talkBtn" type="button">トーク（BGM下げる）</button>
+      </div>
+      <div class="xfade-row">
+        <span>クロスフェード</span>
+        <input id="xfade" type="range" min="0" max="8" step="0.5" value="3.5" aria-label="クロスフェード秒数">
+        <output id="xfadeVal">3.5s</output>
+      </div>
+    </div>
+    <ul class="playlist" id="playlist"><li class="empty">追加した音源がここに並びます</li></ul>
+    <p class="hint">「トーク」は押している間だけBGMが自動で下がります（離すと戻ります）。</p>
+  </section>
+
+  <!-- パッド -->
+  <section class="panel p-pads">
+    <div class="p-head"><h2>ジングル / 効果音</h2><span class="grow"></span><span class="hint" style="margin:0">内蔵シンセ・外部ファイル不要</span></div>
+    <div class="pads">
+      <button class="pad op" type="button" data-pad="op"><span class="pe">♪</span><span class="pl">OPジングル</span><small>キラキラ4音</small></button>
+      <button class="pad chime" type="button" data-pad="chime"><span class="pe">🔔</span><span class="pl">ピンポン</span><small>チャイム</small></button>
+      <button class="pad buzz" type="button" data-pad="buzz"><span class="pe">✖</span><span class="pl">ブブー</span><small>不正解ブザー</small></button>
+      <button class="pad clap" type="button" data-pad="clap"><span class="pe">👏</span><span class="pl">拍手</span><small>観客の拍手</small></button>
+    </div>
+  </section>
+
+  <!-- キューシート -->
+  <section class="panel p-cues">
+    <div class="p-head">
+      <h2>📋 キューシート（番組進行表）</h2>
+      <span class="grow"></span>
+      <button class="btn small" id="cueAddTalk" type="button">＋ トーク</button>
+      <button class="btn small" id="cueAddMp3" type="button">＋ MP3</button>
+      <button class="btn small" id="cueAddArc" type="button">＋ アーカイブ</button>
+      <button class="btn small" id="cueAddJingle" type="button">＋ ジングル</button>
+    </div>
+    <div class="cue-bar">
+      <button class="btn small" id="cueNextBtn" type="button">⏭ 次のキューへ</button>
+      <label class="chk"><input type="checkbox" id="cueAutoChk"><span>自動連続進行</span></label>
+      <span class="grow"></span>
+      <button class="btn small" id="cueExportBtn" type="button">JSON書き出し</button>
+      <label class="btn small" for="cueImportFile" style="cursor:pointer">読み込み</label>
+      <input type="file" id="cueImportFile" accept="application/json,.json" hidden>
+    </div>
+    <ul class="cues" id="cueList"></ul>
+    <p class="hint">NOW（進行中）と NEXT をハイライト。「▶」で今すぐそのキューを実行、「⏭」で順番通りに進みます。ローカルMP3はブラウザの制限で、再読み込み後に選び直しが必要です。</p>
+    <div class="picker" id="cuePicker" hidden>
+      <div class="picker-head">
+        <input id="cueSearch" type="text" placeholder="imoutoid アーカイブを検索（146曲）">
+        <button class="btn small" id="cuePickerClose" type="button">閉じる</button>
+      </div>
+      <ul class="picker-list" id="cuePickerList"></ul>
+    </div>
+    <input type="file" id="cueMp3File" accept="audio/*" hidden>
+  </section>
+</main>
+
+<audio id="bgmAudioA" crossOrigin="anonymous" preload="auto"></audio>
+<audio id="bgmAudioB" crossOrigin="anonymous" preload="auto"></audio>
+<div id="toasts" aria-live="polite"></div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+/* imoutoid アーカイブ（146曲）— キューシート用 */
+const ARCHIVE = [{"t":"Strings improvisation","u":"https://yusei193.github.io/imoutoid-audio/s1/1Yx70yOXq2LL-b7Ba7rEglfSzMiJxClwx.mp3","c":"s1"},{"t":"E.piano improvisation","u":"https://yusei193.github.io/imoutoid-audio/s1/1-OGcv5cyfU9-orQ99icgmg2kI_CkXSDx.mp3","c":"s1"},{"t":"Hit Star（funk）","u":"https://yusei193.github.io/imoutoid-audio/s1/1jhm4AtZNBLPYhNvtpJ39b-bkrsX-feI1.mp3","c":"s1"},{"t":"Art Sit（mid ballad）","u":"https://yusei193.github.io/imoutoid-audio/s1/1Mm9T791RxnkllTFrwkwfnjQrO6A-u15n.mp3","c":"s1"},{"t":"Rock tune #2","u":"https://yusei193.github.io/imoutoid-audio/s1/1jLZuOjIgvUahhztbZS-jaZ0YUv1UPgkV.mp3","c":"s1"},{"t":"Rock tune #3","u":"https://yusei193.github.io/imoutoid-audio/s1/1Hhtd-K-IicIO9LI4G2esPoFwVSmPSlyQ.mp3","c":"s1"},{"t":"Rock tune #4","u":"https://yusei193.github.io/imoutoid-audio/s1/12Iya5De_-Bs6_FAAz5QQKrCOdpi9C6JG.mp3","c":"s1"},{"t":"Rock tune #5","u":"https://yusei193.github.io/imoutoid-audio/s1/1N9hcNjS_ETdmECtpU0DrgVKySGaTv0bz.mp3","c":"s1"},{"t":"techno re mix001116","u":"https://yusei193.github.io/imoutoid-audio/s1/1TbpP-nA5YoWoBF_jVy_ovckMS7TtgS1E.mp3","c":"s1"},{"t":"techno tune#1","u":"https://yusei193.github.io/imoutoid-audio/s1/1pkCDimSA6SUCVWHhnSZUkDxCUw9Dg4fR.mp3","c":"s1"},{"t":"techno tune#2","u":"https://yusei193.github.io/imoutoid-audio/s1/1BwRxgtr-rF1gBHeMk9Z7_ox5op2QlhUz.mp3","c":"s1"},{"t":"techno tune#3","u":"https://yusei193.github.io/imoutoid-audio/s1/1Jh_o3r6tEkeE7VBNdjIZWRzdwcm-gwqs.mp3","c":"s1"},{"t":"unbalance000808","u":"https://yusei193.github.io/imoutoid-audio/s1/1cuxmKVRRmWk6zV6nagoXr12sIwAZtCHk.mp3","c":"s1"},{"t":"ZIGOKU song","u":"https://yusei193.github.io/imoutoid-audio/s1/1NrNQgcAkT76gZt2dXMJeorDWw6dw64jv.mp3","c":"s1"},{"t":"1294116918","u":"https://yusei193.github.io/imoutoid-audio/s1/1weizegST0RknJ5hLiKvHo8A9uHJChAUN.mp3","c":"s1"},{"t":"Dark","u":"https://yusei193.github.io/imoutoid-audio/s1/1Ohgw7npicIeqM92ajrSNoQiwLU8sEU-0.mp3","c":"s1"},{"t":"GORIPANDA","u":"https://yusei193.github.io/imoutoid-audio/s1/1QjwU5a3ixnimfy2ASuAL621kzjQGrcBr.mp3","c":"s1"},{"t":"OKLUN","u":"https://yusei193.github.io/imoutoid-audio/s1/1MeGzgiTxJ0BdkYumR_Fk-EAhohUnULQU.mp3","c":"s1"},{"t":"Omusubi","u":"https://yusei193.github.io/imoutoid-audio/s1/1RAtz-isuE6fGGYd2YSLI6n2U219Q7FOf.mp3","c":"s1"},{"t":"PATCH-MAN","u":"https://yusei193.github.io/imoutoid-audio/s1/1M1HaKJg6ODM1QpDW-KGkw4QeH6vUi6Wu.mp3","c":"s1"},{"t":"PIano Improvisation","u":"https://yusei193.github.io/imoutoid-audio/s1/1FYDqLS8L2_E6AX_Nd_PdrOjjCPs0QvXy.mp3","c":"s1"},{"t":"A lost battle","u":"https://yusei193.github.io/imoutoid-audio/s1/17obE9AxvupM0wPZ1CapSkGXAd7Mnfy2Z.mp3","c":"s1"},{"t":"365","u":"https://yusei193.github.io/imoutoid-audio/s1/1AIFEqtnequwwjXisY3noJdiKos6GZXnv.mp3","c":"s1"},{"t":"-X-","u":"https://yusei193.github.io/imoutoid-audio/s1/1Mz73wJ8hFKtBnqCzY3LQMi5q6X0NuXP2.mp3","c":"s1"},{"t":"TRANCE-FORMER（vocorder）","u":"https://yusei193.github.io/imoutoid-audio/s1/15ESfF96mOrfAPIsXo1yBFJ84FrBF_iEN.mp3","c":"s1"},{"t":"Sand pil2ar","u":"https://yusei193.github.io/imoutoid-audio/s1/12UmXMMmPCgXpsmKdV90CY0wQhkU-Flz6.mp3","c":"s1"},{"t":"Rubber","u":"https://yusei193.github.io/imoutoid-audio/s1/1sJf-MQTqNRQ6WfVAIeXgwUd_vsRV-dqK.mp3","c":"s1"},{"t":"Hysterical boy","u":"https://yusei193.github.io/imoutoid-audio/s1/1RGYzaW98GY1EKCYsDsb8AJSEB8FD-dIR.mp3","c":"s1"},{"t":"Pandora's door","u":"https://yusei193.github.io/imoutoid-audio/s1/1qT_KmP1jUMGPyAHDgMHLZFu5pcBQEdPL.mp3","c":"s1"},{"t":"Stationery","u":"https://yusei193.github.io/imoutoid-audio/s1/1Q4e8pfslYGreIVqZ2q5AR363-2Y9V_I9.mp3","c":"s1"},{"t":"Unknown soldier","u":"https://yusei193.github.io/imoutoid-audio/s1/1JPgVUoPnrWBrnJhEccAQTg4Bevx3wxQT.mp3","c":"s1"},{"t":"Kamikaze","u":"https://yusei193.github.io/imoutoid-audio/s1/1HoeOeSqiBPlXTrjzY_bCQ6jdCy3HdlVH.mp3","c":"s1"},{"t":"Famicom Sangyo","u":"https://yusei193.github.io/imoutoid-audio/s1/1dU7naPRqnLify_opePOG7j4PdQ-q_ljl.mp3","c":"s1"},{"t":"Illusionist","u":"https://yusei193.github.io/imoutoid-audio/s1/1Oozy1Tk3Tixt00g8Fmb3lpdfd8H5uS73.mp3","c":"s1"},{"t":"Movement to suppress evil books","u":"https://yusei193.github.io/imoutoid-audio/s1/1Gu5BIwvLw300jAs4QYRyl8PFiJxehxHm.mp3","c":"s1"},{"t":"（SHUT THE HELL UP!!）","u":"https://yusei193.github.io/imoutoid-audio/s1/14Ie4-uqfyxhNpmtlG_EbiPNkdAYxBVsR.mp3","c":"s1"},{"t":"（ヒップホップのようなR&Bのようなもの）","u":"https://yusei193.github.io/imoutoid-audio/s1/1Jdk2ULyKLBozB-uzBZBXsPfTs6yk2ojB.mp3","c":"s1"},{"t":"音源（奇跡的に良いゲームミュージック）","u":"https://yusei193.github.io/imoutoid-audio/s1/1h13CGhEiFJ1egh7raCdTAGY5QEWGK7ut.mp3","c":"s1"},{"t":"キラキラ80's","u":"https://yusei193.github.io/imoutoid-audio/s1/14--g3L_oTEf74KW_5uWdPM10Tf9LmrdU.mp3","c":"s1"},{"t":"Bird Of Song Test","u":"https://yusei193.github.io/imoutoid-audio/s1/1iYJbnQYlClSBxyY1v5iRycP-5QfIk47s.mp3","c":"s1"},{"t":"Bird Of Song Test 2","u":"https://yusei193.github.io/imoutoid-audio/s1/1qmRja1O-WFUKPrHXNLbmcTBR2TTxu6DY.mp3","c":"s1"},{"t":"今井メロ 夢 FamicomUchujin Remix","u":"https://yusei193.github.io/imoutoid-audio/s1/1rXcp58e6yQEXtbjESq-Wn0HRiIiDNIHq.mp3","c":"s1"},{"t":"ピコピコバトル","u":"https://yusei193.github.io/imoutoid-audio/s1/1NUKfYcUhP7R-bgTIR5VvI4w_4ytbpovE.mp3","c":"s1"},{"t":"Sakura and the Hysterious magic book","u":"https://yusei193.github.io/imoutoid-audio/s1/1LDzmst_xckiDp1GXg24ogdwZuE2Kd5_i.mp3","c":"s1"},{"t":"ありがとう FamicomUchujin Gothiclolita-Remix","u":"https://yusei193.github.io/imoutoid-audio/s1/14BtCLfK_PtYSdss6S6WMdwVwW4QqWqlO.mp3","c":"s1"},{"t":"Higurashi no Nakukoroni * FCNoisePollutionRemix","u":"https://yusei193.github.io/imoutoid-audio/s1/1FcDfv90ceJROMh3j3Rur5U3ijr6slzlh.mp3","c":"s1"},{"t":"Higurashi no Nakukoroni *2 FCStimulantRemix","u":"https://yusei193.github.io/imoutoid-audio/s1/1-UUNN0emNSJDuDzVRbFtaXmP5sztSww0.mp3","c":"s1"},{"t":"キラキラドポップハウス","u":"https://yusei193.github.io/imoutoid-audio/s1/1LCJZdeaSSvMK0uJpEUApFEpSaf234wvk.mp3","c":"s1"},{"t":"夢想の詩","u":"https://yusei193.github.io/imoutoid-audio/s1/1tFmjwJHg1wTtSCenRKEqbLSmpzfLWHHk.mp3","c":"s1"},{"t":"3和音でのアレンジについてのメモ","u":"https://yusei193.github.io/imoutoid-audio/s1/1OIC1O12oWPT17rAfbD1Ob9d4bJIiNmHZ.mp3","c":"s1"},{"t":"キーボードでギターロック","u":"https://yusei193.github.io/imoutoid-audio/s1/1HEOfFa4zuURP4VCH8iVsHfuL-V8kNqv3.mp3","c":"s1"},{"t":"潮風に流して","u":"https://yusei193.github.io/imoutoid-audio/s1/1kZz01vkXQGssDYV7UwEKToAgJM0g19F2.mp3","c":"s1"},{"t":"ファミコンテーマソング","u":"https://yusei193.github.io/imoutoid-audio/s1/1Q8s2Ih4iS5tJNazyhZS_wryyyyu0eV3K.mp3","c":"s1"},{"t":"タンクマニア実況用BGM OP","u":"https://yusei193.github.io/imoutoid-audio/s1/1zcf9V1Z6KbDY3ezXsGLwVJ51HrOCd5nv.mp3","c":"s1"},{"t":"タンクマニア実況用BGM ED","u":"https://yusei193.github.io/imoutoid-audio/s1/1feQBFYWPMbM9sRSucutsHRVDnzmdDNT9.mp3","c":"s1"},{"t":"タンクマニア実況用BGM BATTELE","u":"https://yusei193.github.io/imoutoid-audio/s1/1sL7mTCDbA3HPRPLc4TSFiMO02no-8vYE.mp3","c":"s1"},{"t":"タンクマニア実況用BGM BATTLE FAST","u":"https://yusei193.github.io/imoutoid-audio/s1/1ab5eFFiLrjI6IJj4gvFdHjL6-N0SScsO.mp3","c":"s1"},{"t":"NekomimiOgino750799800","u":"https://yusei193.github.io/imoutoid-audio/s1/12X60x190MRb8EXpsh33aApjCfDFyHYDP.mp3","c":"s1"},{"t":"NyokiNyoki Famicom remix","u":"https://yusei193.github.io/imoutoid-audio/s1/17JmAH5DGmkROshtu0scqR-KC-g8G4nL2.mp3","c":"s1"},{"t":"Amagakure","u":"https://yusei193.github.io/imoutoid-audio/s1/1RNICWRModWrDOaaouGSmiUlLa7hr34kj.mp3","c":"s1"},{"t":"and so, swing like Gunso","u":"https://yusei193.github.io/imoutoid-audio/s1/1bzfCnbyww_cPB6PAzefTmXYztNCoxDyN.mp3","c":"s1"},{"t":"Field glass","u":"https://yusei193.github.io/imoutoid-audio/s1/1jRbDsWyODVC5k3GixGNRbYzl2eli21_P.mp3","c":"s1"},{"t":"Have A Bad Dream(SHUT THE HELL UP)","u":"https://yusei193.github.io/imoutoid-audio/s1/1ZoxwE7KDqVhtgW3PHAXGviowCiyrO6F0.mp3","c":"s1"},{"t":"Field glass mkII","u":"https://yusei193.github.io/imoutoid-audio/s1/1Iykn9SdyLeP8-PjOfZYvZybv4X3lE6LF.mp3","c":"s1"},{"t":"恋のミクル伝説FamicomUchujin Remix","u":"https://yusei193.github.io/imoutoid-audio/s1/1-AggcxG_1T-Oc6jFDs3XHR5BpexdZsj_.mp3","c":"s1"},{"t":"Brute Force Attack","u":"https://yusei193.github.io/imoutoid-audio/s1/1cl1oyE1U91WqsdHPWD5pq-DvQcQZuFIU.mp3","c":"s1"},{"t":"game5p_practice","u":"https://yusei193.github.io/imoutoid-audio/s1/1jMH9qYyxt4b96i3H1QWRD0XqpSM5WrCJ.mp3","c":"s1"},{"t":"Rozen Cuten Musen","u":"https://yusei193.github.io/imoutoid-audio/s1/1IIkbW6nDKQQ0rEy-W9gKqdKRLdB3MRej.mp3","c":"s1"},{"t":"マチャチュチェッチュナイト","u":"https://yusei193.github.io/imoutoid-audio/s1/1e7ViSIuZbb8rY_PmxVI0G3xIhbE80n4b.mp3","c":"s1"},{"t":"ココネギポルカ","u":"https://yusei193.github.io/imoutoid-audio/s1/1oCTz1o3084oIaYDeDpaa8OGj3QMZQXIi.mp3","c":"s1"},{"t":"Windows起動音","u":"https://yusei193.github.io/imoutoid-audio/s1/1xzDCcJTJV9alLUnIh1Q9Ws3wDCKyfnH_.mp3","c":"s1"},{"t":"Gymnopedie*Underachiever Remix","u":"https://yusei193.github.io/imoutoid-audio/s1/1CP9yOKEHkd6GieVp5PexSoNW-AHBR_jv.mp3","c":"s1"},{"t":"Last regrets(imoutoid's First regrets remix)","u":"https://yusei193.github.io/imoutoid-audio/s1/1wyaWXKMo6ZjRxPeZOdPfIKZ5nNznkblu.mp3","c":"s1"},{"t":"for-hirameki07_snd001","u":"https://yusei193.github.io/imoutoid-audio/s1/15hsUh5iBQhstFiz93qgWpL2aQSLiRnxz.mp3","c":"s1"},{"t":"for-hirameki07_snd002","u":"https://yusei193.github.io/imoutoid-audio/s1/1D0pTvdqlKX2-9KVNMG5QO8f6adh9dvoF.mp3","c":"s1"},{"t":"for-hirameki07_snd003","u":"https://yusei193.github.io/imoutoid-audio/s1/1oR6DsBikdxJfpG8fsju-Y9s25NUzQpB7.mp3","c":"s1"},{"t":"for-hirameki07_snd004","u":"https://yusei193.github.io/imoutoid-audio/s1/1lNq79eNwx4DlahOIz94oF6WqGwEQ6Sb6.mp3","c":"s1"},{"t":"for-hirameki07_snd005","u":"https://yusei193.github.io/imoutoid-audio/s1/1bOSaqxy9fIiefDkBov-jaPUBY-TzBz1m.mp3","c":"s1"},{"t":"for-hirameki07_snd006","u":"https://yusei193.github.io/imoutoid-audio/s1/1EXP6fEqaa9OzPok9OBLEVNhwB8BpoqXs.mp3","c":"s1"},{"t":"Artist:Aphex Twin","u":"https://yusei193.github.io/imoutoid-audio/s1/1XAV0L2B5UWrjYFwnvVR9FOM8y_Hhe0RW.mp3","c":"s1"},{"t":"for-hirameki07_snd007","u":"https://yusei193.github.io/imoutoid-audio/s1/1aU97cDB09Fqo8ETWWei-pjL4_IMCGte3.mp3","c":"s1"},{"t":"for-hirameki07_snd008","u":"https://yusei193.github.io/imoutoid-audio/s1/1plYuqknKxHXcAQMft5UECpj9erRveViq.mp3","c":"s1"},{"t":"for-hirameki07_snd009","u":"https://yusei193.github.io/imoutoid-audio/s1/1qIVooEzVMDMM8E-viG0_caM3I38tk9MS.mp3","c":"s1"},{"t":"Agent yoru wo iku(imoutoid's Liquefied Remix)","u":"https://yusei193.github.io/imoutoid-audio/s1/1FcTUs1l5R1rxACyiEa9Gy9T_paQLaH6a.mp3","c":"s1"},{"t":"Agent yoru wo iku(imoutoid's Liquefied Remix Loop)","u":"https://yusei193.github.io/imoutoid-audio/s1/1tLWL8EFJbRpo3ksDAVinDyFBgbFwDEWe.mp3","c":"s1"},{"t":"Agent yoru wo iku(imoutoid's Liquefied Remix +haruhi)","u":"https://yusei193.github.io/imoutoid-audio/s1/1_Ps5OFpp7G13_bwZL0RUbv0Qj9lgS3Nv.mp3","c":"s1"},{"t":"（変なダイエット暗示音声）","u":"https://yusei193.github.io/imoutoid-audio/s1/1eOwlP_GzNRwjon5Qun52xOYHcdpzmKw6.mp3","c":"s1"},{"t":"（わざとショボショボ音源で作ってみるテスト）","u":"https://yusei193.github.io/imoutoid-audio/s1/1IPMdJZEzMsAa_B_E-v9CTyl5-1D8dNCD.mp3","c":"s1"},{"t":"（エロゲ日常BGM的なものを量産したいと思うテスト）","u":"https://yusei193.github.io/imoutoid-audio/s1/116uIMgpkbPHWL48QXChnpyUd6HUBf7t-.mp3","c":"s1"},{"t":"dubbedradioid001","u":"https://yusei193.github.io/imoutoid-audio/s1/1s97JU_HbTrqfNZJKdvgxHh7pxSalIy3H.mp3","c":"s1"},{"t":"もってけ！セーラーふく（※imoutoid's remix）","u":"https://yusei193.github.io/imoutoid-audio/s1/1hBmP9mBFmwwsWdi9wMLsbPQiIYevs64Y.mp3","c":"s1"},{"t":"（やっぱノイズ最高）","u":"https://yusei193.github.io/imoutoid-audio/s1/1mqZ6WNigaxBfvdaAjkQe8yfbOWqUfvQH.mp3","c":"s1"},{"t":"あたまのよくなるやきそばのうた (Atama no Yoku naru Yakisoba no Uta)","u":"https://yusei193.github.io/imoutoid-audio/s1/1j2cjR3HyAaxAbr4fNbUIQ8E-MDKcRZeY.mp3","c":"s1"},{"t":"あたまのよくなるやきそばのうた(Instrumental)","u":"https://yusei193.github.io/imoutoid-audio/s1/1IQVzxGaIvrF6_2iF5RnMylSqXlm3BHnq.mp3","c":"s1"},{"t":"PVOCとか云々なアンビエント","u":"https://yusei193.github.io/imoutoid-audio/s1/1FbtDoCqL0fbPGuu1V6AW5YIByektnlw5.mp3","c":"s1"},{"t":"ピアノンドウズ","u":"https://yusei193.github.io/imoutoid-audio/s1/1VlVWtvMbWl5qhANGJmOH1w_17FsHTseH.mp3","c":"s1"},{"t":"キュッキュッキュしました","u":"https://yusei193.github.io/imoutoid-audio/s1/1jKqpBZplfANlvKao1ABm5ezj9uClQ62R.mp3","c":"s1"},{"t":"Motteke! Sailor Fuku(imoutoid's FF6 Remix)","u":"https://yusei193.github.io/imoutoid-audio/s1/1gb6HD-u20Y6GOqwg2oIB2kZuoUX169I0.mp3","c":"s1"},{"t":"今日のグリッチノイズ","u":"https://yusei193.github.io/imoutoid-audio/s1/1tqzJaloSn0xg3iNQhnyHPM9Ava22Qjbs.mp3","c":"s1"},{"t":"強進行テスト","u":"https://yusei193.github.io/imoutoid-audio/s1/1jiCCaipX49fdy69Wq6xf5bUFZgc1PeQB.mp3","c":"s1"},{"t":"普通の曲テスト","u":"https://yusei193.github.io/imoutoid-audio/s1/1ZwuWdDm_h-Ib9ZDNgVyekYgLm5A7ypDk.mp3","c":"s1"},{"t":"（良いトランスの作り方）","u":"https://yusei193.github.io/imoutoid-audio/s1/1RLJf1fVXb0IuyT4mxyiP2qulcJAjbW7a.mp3","c":"s1"},{"t":"（SuperColliderでこんなん）","u":"https://yusei193.github.io/imoutoid-audio/s1/1OCrl8qCYkw7xY6bV6pcoBX4wr2Iid_k6.mp3","c":"s1"},{"t":"サイコ・アコースティクス・イリュージョン（相手は死ぬ）","u":"https://yusei193.github.io/imoutoid-audio/s1/1QSxU2XIkLLJzHpTNfWFiF3NlYVjJORyZ.mp3","c":"s1"},{"t":"サイコ・アコースティクス・イリュージョン（相手は死ぬ）（※強調バージョン）","u":"https://yusei193.github.io/imoutoid-audio/s1/15Fy3eBauJMgpXXspqvBxd4MhymWQE4W7.mp3","c":"s1"},{"t":"P.B.ロケッツ(imoutoid's remix)","u":"https://yusei193.github.io/imoutoid-audio/s1/1s8SamCNjyY75fADZX7C51q29TBvY7SHt.mp3","c":"s1"},{"t":"バレンタイン・キッス（※imoutoid's remix）","u":"https://yusei193.github.io/imoutoid-audio/s1/1hEs2tonoR96hxH4wZnnJzqHR925MEq-9.mp3","c":"s1"},{"t":"Walky Techy(Steriogram vs. Yoji)","u":"https://yusei193.github.io/imoutoid-audio/s1/1HQ5lGayTMhipA1vDeBXxHPLRV83Sj02L.mp3","c":"s1"},{"t":"One Jackpot Per Child","u":"https://yusei193.github.io/imoutoid-audio/s1/1s_DzealqGftuBtdZqsnAfFBOa0xvFyUC.mp3","c":"s1"},{"t":"アザラシのスネアと犬のイコライザー ～大きなコンプの実～","u":"https://yusei193.github.io/imoutoid-audio/s1/1BQfCCRxAEA3vD13vgIuyJ3lBoXhN5AmE.mp3","c":"s1"},{"t":"アザラシのスネアと犬のイコライザー ～大きなコンプの実～（※別EQバージョン）","u":"https://yusei193.github.io/imoutoid-audio/s1/1lYwUF5abfOtG9esA5K6wpKnFLdOfcWtr.mp3","c":"s1"},{"t":"ほーら、たまには日に当たらないと、カビが生えるわよ","u":"https://yusei193.github.io/imoutoid-audio/s1/1NZPxj4HuQNIvQs2v_9M5eBN9tjZoBSdJ.mp3","c":"s1"},{"t":"ファンファーレ","u":"https://yusei193.github.io/imoutoid-audio/s1/11GKhPd5TCq1bF_VRHI6Ox8qgVX7piOWt.mp3","c":"s1"},{"t":"オールFM8バンザイ（090103fm8arpTest3.mp3）","u":"https://yusei193.github.io/imoutoid-audio/s1/1mZJKA610hCB6cHd7frqjSnz2y2Zj87os.mp3","c":"s1"},{"t":"Sound/EcritureのYosi*風のオリジナル曲","u":"https://yusei193.github.io/imoutoid-audio/s1/1Mg7JLpfVceKjfnTQEq6MJJFHuz0El1bV.mp3","c":"s1"},{"t":"20090112PhysicalMash","u":"https://yusei193.github.io/imoutoid-audio/s1/1vIDJESND4LFtx7n2Hv31qDFWFm7Z76tJ.mp3","c":"s1"},{"t":"Bay Dream / TOFUBEATS REMIX（imoutoid 神頼みEDIT）","u":"https://yusei193.github.io/imoutoid-audio/s1/17aJ7Ynvd1ACisxRfDyi0PH1RyDPlUHtW.mp3","c":"s1"},{"t":"（何がやりたいんだかぶれてきた m3なし平坦／m3あり飛ぶ）","u":"https://yusei193.github.io/imoutoid-audio/s1/1lyJJnRQad4xxWfcWweLavRmd0UeVSsQ-.mp3","c":"s1"},{"t":"ちゅうこうおんがじりじりいってるかんじのべーすおん","u":"https://yusei193.github.io/imoutoid-audio/s1/1dkgy1DCSGVqT-mserDIxFtZgQaT6bnVH.mp3","c":"s1"},{"t":"エチオピア饅頭（Ethiopia Manju）","u":"https://yusei193.github.io/imoutoid-audio/s1/15EfZZ82Qu2mJwwbFVQccUveaxsH5XSnm.mp3","c":"s1"},{"t":"（今日弄ったものうp）","u":"https://yusei193.github.io/imoutoid-audio/s1/1nzoz62tEEX_SNo1wVXSgjR0AFE75Vnfn.mp3","c":"s1"},{"t":"tofubeatsの唄","u":"https://yusei193.github.io/imoutoid-audio/s1/1rgtNfI6RVkkYrI4-wVFRL7um1SKxstix.mp3","c":"s1"},{"t":"ファミコン宇宙人 in the house（トークとか）(20051106)","u":"https://yusei193.github.io/imoutoid-audio/s1/1DY5XEbEXr5EMoNIcwcYOp9pO5T-E3hZC.mp3","c":"s1"},{"t":"imoutoidの楽しい堕落ラジオ(20080602)","u":"https://yusei193.github.io/imoutoid-audio/s1/13fRZUlmwsjMZ7LgwM2kdX1pjR3-bU-cv.mp3","c":"s1"},{"t":"PART3+PART2 (tomad short edit)","u":"https://yusei193.github.io/imoutoid-audio/s1/12GvOv840sp-jEjlS_AvvdLvV-Dw8qsoW.mp3","c":"s1"},{"t":"11823","u":"https://yusei193.github.io/imoutoid-audio/s2/17DNd2Z4vfNCJwd6GhZsMZSsB-DUdnRr4.mp3","c":"s2"},{"t":"ballad tune","u":"https://yusei193.github.io/imoutoid-audio/s2/1NB-XbqGG2leLGcQ6d99lTten-MOkkMoN.mp3","c":"s2"},{"t":"disco tune","u":"https://yusei193.github.io/imoutoid-audio/s2/1AGQpGPpQN4IqT-xKZG1YA715-qmdmhvt.mp3","c":"s2"},{"t":"Ethnic inprovisation","u":"https://yusei193.github.io/imoutoid-audio/s2/18VQlmr5w7OztCtXfci2pqWjVHm2pcqmp.mp3","c":"s2"},{"t":"voice with synth","u":"https://yusei193.github.io/imoutoid-audio/s2/1lz7ySSNyzd_-InXrJMq6RC-sbdEgzKyO.mp3","c":"s2"},{"t":"Where sjyamato(imoutoid)","u":"https://yusei193.github.io/imoutoid-audio/s2/1Nf9iy-lZSzdb5jviMyiPC3zawEw0BoOo.mp3","c":"s2"},{"t":"sjymato sjyamato(imoutoid)","u":"https://yusei193.github.io/imoutoid-audio/s2/16h0d7ciGFXb5TJCPLZajLLZyIiW1RT7p.mp3","c":"s2"},{"t":"Talking In Your Sleep","u":"https://yusei193.github.io/imoutoid-audio/s2/1PLTQboICB7lV0aSNpNri3trPpiBlxyD5.mp3","c":"s2"},{"t":"Cold Fire sjyamato(imoutoid)","u":"https://yusei193.github.io/imoutoid-audio/s2/1dBZ6g1M0C5Q-_YscRFnzUTcLcs0m4XHr.mp3","c":"s2"},{"t":"-TIME- sjyamato(imoutoid)","u":"https://yusei193.github.io/imoutoid-audio/s2/1hiOUprhZhHCldja_7Zh51PkgOcF6Pb0E.mp3","c":"s2"},{"t":"8450 / 8467","u":"https://yusei193.github.io/imoutoid-audio/s2/1Ec_0NBKN7vtnsDwvDyZVV03GUMzHIH9z.mp3","c":"s2"},{"t":"11853","u":"https://yusei193.github.io/imoutoid-audio/s2/1Rzxm9f4PLRCq0PG1dfPGWAwtva1AQjDX.mp3","c":"s2"},{"t":"mc202","u":"https://yusei193.github.io/imoutoid-audio/s2/1sucshhf9SZpqGk_ep_8b6IwNBTBJW34t.mp3","c":"s2"},{"t":"hinekure_CF","u":"https://yusei193.github.io/imoutoid-audio/s2/13EtUebLC7-fBtmc2a0foGEvyikLIP2gy.mp3","c":"s2"},{"t":"ofuronihairutovocoder","u":"https://yusei193.github.io/imoutoid-audio/s2/1u_1ElyB2tEFxqedardNOY_ysR5dUD0MD.mp3","c":"s2"},{"t":"PRR007","u":"https://yusei193.github.io/imoutoid-audio/s2/1NYA9NsG-f85l6Y2T7Un3x4t9uF6elhXE.mp3","c":"s2"},{"t":"moxuse","u":"https://yusei193.github.io/imoutoid-audio/s2/1YbZLBf_Ukn9zPvOilR855xfiU1_3RwGO.mp3","c":"s2"},{"t":"novotempo","u":"https://yusei193.github.io/imoutoid-audio/s2/1LkJlSBo0G8FUqYlq-MxeQtnmo5qzFPP5.mp3","c":"s2"},{"t":"up","u":"https://yusei193.github.io/imoutoid-audio/s2/12kliWfV5N7ABGQxTwVq6m0IKHzdSrcK0.mp3","c":"s2"},{"t":"1A1A1A1A1A1AQ","u":"https://yusei193.github.io/imoutoid-audio/s2/1OFEcf_rtjoowqG75mHJxn5T-Sb_tT4Si.mp3","c":"s2"},{"t":"piano improvisation imoutoid","u":"https://yusei193.github.io/imoutoid-audio/s2/1F5Emm-w_S7kWYS0teRRlVcRDpgIsLmc_.mp3","c":"s2"}];
+</script>
+<script>
+(function(){
+"use strict";
+
+/* =========================================================
+   状態
+   ========================================================= */
+const DEFAULT_ID = 'kaeru-radio-live';
+const S = {
+  ctx:null, bus:null, masterGain:null, limiter:null, outGain:null, streamDest:null,
+  monitorGain:null, micGain:null, bgmGain:null, jingleGain:null,
+  anL:null, anR:null, meterSplit:null,
+  guestGain:null, guestMonGain:null, returnDest:null, limiterB:null, outB:null,
+  monitorOn:false, dbgMixed:null, dbgRet:null,
+  guest:{id:null, name:'', conn:null, micCall:null, retCall:null, stream:null, source:null, on:false, mute:false, vol:1, monVol:0.85},
+  cue:{items:[], index:-1, auto:false, playingId:null, pendingFileId:null},
+  micStream:null, micSource:null, micOn:false, micVol:1, echo:true, noise:true, deviceId:'',
+  decks:null, active:0, xfade:3.5, xfading:false, playlist:[], index:-1, bgmVol:0.65, ducked:false,
+  peer:null, conns:new Map(), mediaCalls:new Map(), listeners:new Set(),
+  live:false, starting:false, startedAt:0, timerId:null,
+  noiseBuf:null, lastInfoSent:0
+};
+
+const $ = (id)=>document.getElementById(id);
+const el = {
+  station:$('stationInput'), title:$('titleInput'), dj:$('djInput'), note:$('noteInput'),
+  listenUrl:$('listenUrl'), copyUrlBtn:$('copyUrlBtn'),
+  guestUrl:$('guestUrl'), copyGuestBtn:$('copyGuestBtn'), guestStatus:$('guestStatus'), guestStatusText:$('guestStatusText'),
+  guestVol:$('guestVol'), guestVolVal:$('guestVolVal'), guestMuteBtn:$('guestMuteBtn'), guestKickBtn:$('guestKickBtn'),
+  guestMonChk:$('guestMonChk'), guestHint:$('guestHint'), voiceMonitorBtn:$('voiceMonitorBtn'),
+  cueList:$('cueList'), cueAddTalk:$('cueAddTalk'), cueAddMp3:$('cueAddMp3'), cueAddArc:$('cueAddArc'), cueAddJingle:$('cueAddJingle'),
+  cueNextBtn:$('cueNextBtn'), cueAutoChk:$('cueAutoChk'), cueExportBtn:$('cueExportBtn'), cueImportFile:$('cueImportFile'),
+  cuePicker:$('cuePicker'), cueSearch:$('cueSearch'), cuePickerList:$('cuePickerList'), cuePickerClose:$('cuePickerClose'),
+  cueMp3File:$('cueMp3File'),
+  onair:$('onairBadge'), onairText:$('onairText'), elapsed:$('elapsed'), listenerCount:$('listenerCount'),
+  broadcastBtn:$('broadcastBtn'), brandSub:$('brandSub'), peerHint:$('peerHint'),
+  micToggle:$('micToggle'), micState:$('micState'), micVol:$('micVol'), micVolVal:$('micVolVal'),
+  micDevice:$('micDevice'), micRefresh:$('micRefresh'), echoChk:$('echoChk'), noiseChk:$('noiseChk'), micHint:$('micHint'),
+  bgmFiles:$('bgmFiles'), bgmElA:$('bgmAudioA'), bgmElB:$('bgmAudioB'), bgmNow:$('bgmNow'), bgmSub:$('bgmSub'), bgmSeek:$('bgmSeek'), bgmCur:$('bgmCur'), bgmDur:$('bgmDur'),
+  bgmPlay:$('bgmPlay'), bgmPrev:$('bgmPrev'), bgmNext:$('bgmNext'), bgmVol:$('bgmVol'), bgmVolVal:$('bgmVolVal'),
+  xfade:$('xfade'), xfadeVal:$('xfadeVal'),
+  talkBtn:$('talkBtn'), playlist:$('playlist'), bgmEq:$('bgmEq'),
+  vu:$('vu'), peakDb:$('peakDb'), limitLamp:$('limitLamp'), monitorChk:$('monitorChk'),
+  masterVol:$('masterVol'), masterVolVal:$('masterVolVal'), toasts:$('toasts')
+};
+
+/* =========================================================
+   小道具
+   ========================================================= */
+function toast(msg, kind){
+  const d = document.createElement('div');
+  d.className = 'toast' + (kind ? ' ' + kind : '');
+  d.textContent = msg;
+  el.toasts.appendChild(d);
+  setTimeout(()=>{ d.style.transition='opacity .3s'; d.style.opacity='0'; setTimeout(()=>d.remove(),320); }, 3600);
+}
+function fmtTime(sec){
+  if(!isFinite(sec) || sec < 0) sec = 0;
+  const m = Math.floor(sec/60), s = Math.floor(sec%60);
+  return m + ':' + String(s).padStart(2,'0');
+}
+function fmtClock(ms){
+  const t = Math.max(0, Math.floor(ms/1000));
+  const h = Math.floor(t/3600), m = Math.floor((t%3600)/60), s = t%60;
+  return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+function setRangeFill(input){
+  const v = Number(input.value), min = Number(input.min||0), max = Number(input.max||100);
+  input.style.setProperty('--p', ((v-min)/(max-min)*100).toFixed(1) + '%');
+}
+function stationId(){
+  const raw = (el.station.value || '').trim().replace(/[^A-Za-z0-9_-]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
+  return (raw || DEFAULT_ID).slice(0,40);
+}
+function infoPayload(){
+  return {
+    type:'info',
+    live:S.live,
+    stationId:stationId(),
+    title:(el.title.value||'').trim() || '深夜のなんでもラジオ',
+    dj:(el.dj.value||'').trim() || 'DJ',
+    note:(el.note.value||'').trim(),
+    now:(S.nowTitle||''),
+    listeners:S.listeners.size,
+    guestOn:!!S.guest.on,
+    guestName:S.guest.on ? S.guest.name : '',
+    voice:V.preset,
+    startedAt:S.startedAt
+  };
+}
+function updateListenerUrl(){
+  const base = location.href.split('?')[0].replace(/broadcaster\.html?$/i,'index.html');
+  el.listenUrl.value = base + '?id=' + encodeURIComponent(stationId());
+  el.guestUrl.value = location.href.split('?')[0].replace(/broadcaster\.html?$/i,'guest.html') + '?host=' + encodeURIComponent(stationId());
+}
+function setMonitor(on){
+  on = !!on;
+  if(on && !S.ctx) on = false;
+  S.monitorOn = on;
+  if(S.ctx && S.monitorGain) S.monitorGain.gain.setTargetAtTime(on ? 0.9 : 0, S.ctx.currentTime, 0.05);
+  el.monitorChk.checked = on;
+  el.voiceMonitorBtn.classList.toggle('on', on);
+  el.voiceMonitorBtn.textContent = on ? '試し聞き ON' : '試し聞き OFF';
+  if(on) toast('試し聞き中。ハウリング防止にヘッドホンを使ってください','warn');
+}
+async function copyText(text){
+  try{
+    if(navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(text); return true; }
+  }catch(e){}
+  try{
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    const ok = document.execCommand('copy'); ta.remove(); return ok;
+  }catch(e){ return false; }
+}
+
+/* =========================================================
+   PeerJS ライブラリ読み込み（CDN失敗時はローカル）
+   ========================================================= */
+function ensurePeerLib(){
+  if(window.Peer) return Promise.resolve(true);
+  return new Promise((resolve)=>{
+    const s = document.createElement('script');
+    s.src = 'vendor/peerjs.min.js';
+    s.onload = ()=>resolve(!!window.Peer);
+    s.onerror = ()=>resolve(false);
+    document.head.appendChild(s);
+  });
+}
+
+/* =========================================================
+   オーディオ・グラフ
+     mic ─┐
+     bgm ─┼→ bus → master → limiter → out ─┬→ streamDest → リスナー
+     pad ─┘                                ├→ monitor → スピーカー
+                                           └→ splitter → L/R メーター
+   ========================================================= */
+async function ensureAudio(){
+  if(S.ctx){
+    if(S.ctx.state === 'suspended') await S.ctx.resume().catch(()=>{});
+    return;
+  }
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const ctx = new AC({latencyHint:'interactive'});
+  S.ctx = ctx;
+
+  S.bus        = ctx.createGain();  S.bus.gain.value = 1;
+  S.masterGain = ctx.createGain();  S.masterGain.gain.value = 0.9;
+  S.limiter    = ctx.createDynamicsCompressor();
+  S.limiter.threshold.value = -6; S.limiter.knee.value = 6; S.limiter.ratio.value = 12;
+  S.limiter.attack.value = 0.003; S.limiter.release.value = 0.25;
+  S.outGain    = ctx.createGain();  S.outGain.gain.value = 1;
+  S.streamDest = ctx.createMediaStreamDestination();
+  S.monitorGain= ctx.createGain();  S.monitorGain.gain.value = 0;
+  S.micGain    = ctx.createGain();  S.micGain.gain.value = 0;
+  S.bgmGain    = ctx.createGain();  S.bgmGain.gain.value = 0;
+  S.jingleGain = ctx.createGain();  S.jingleGain.gain.value = 0.85;
+
+  S.meterSplit = ctx.createChannelSplitter(2);
+  S.anL = ctx.createAnalyser(); S.anL.fftSize = 2048;
+  S.anR = ctx.createAnalyser(); S.anR.fftSize = 2048;
+
+  // リスナー向け（ホスト＋ゲスト＋BGM＋SE）と、ゲスト返し（ゲストを抜く）の2系統
+  S.guestGain    = ctx.createGain(); S.guestGain.gain.value = 0;
+  S.guestMonGain = ctx.createGain(); S.guestMonGain.gain.value = 0;
+  S.returnDest   = ctx.createMediaStreamDestination();
+  S.limiterB     = ctx.createDynamicsCompressor();
+  S.limiterB.threshold.value = -6; S.limiterB.knee.value = 6; S.limiterB.ratio.value = 12;
+  S.limiterB.attack.value = 0.003; S.limiterB.release.value = 0.25;
+  S.outB = ctx.createGain(); S.outB.gain.value = 1;
+  S.dbgMixed = ctx.createAnalyser(); S.dbgMixed.fftSize = 4096;
+  S.dbgRet   = ctx.createAnalyser(); S.dbgRet.fftSize = 4096;
+
+  initVoice(ctx, S.micGain);   // マイク → ボイスチェンジャー → micGain
+  S.micGain.connect(S.bus);
+  S.bgmGain.connect(S.bus);
+  S.jingleGain.connect(S.bus);
+  S.bus.connect(S.masterGain);
+  S.masterGain.connect(S.limiter);
+  S.masterGain.connect(S.limiterB);
+  S.guestGain.connect(S.limiter);
+  S.guestMonGain.connect(ctx.destination);
+  S.limiter.connect(S.outGain);
+  S.outGain.connect(S.streamDest);
+  S.outGain.connect(S.monitorGain);
+  S.monitorGain.connect(ctx.destination);
+  S.outGain.connect(S.meterSplit);
+  S.outGain.connect(S.dbgMixed);
+  S.meterSplit.connect(S.anL, 0);
+  S.meterSplit.connect(S.anR, 1);
+  S.limiterB.connect(S.outB);
+  S.outB.connect(S.returnDest);
+  S.outB.connect(S.dbgRet);
+
+  // BGM は2デッキ（A/B）。クロスフェード用に各デッキが自分の Gain を持つ。
+  S.decks = [el.bgmElA, el.bgmElB].map((a)=>{
+    const src = ctx.createMediaElementSource(a);
+    const gain = ctx.createGain(); gain.gain.value = 0;
+    src.connect(gain); gain.connect(S.bgmGain);
+    return {el:a, src, gain, item:null};
+  });
+  S.active = 0;
+
+  applyBgmGain(0);
+  updateVuLoop();
+}
+
+/* ---- マイク ---- */
+async function acquireMic(){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    el.micHint.textContent = 'このブラウザではマイクを使えません（BGMのみで配信できます）。';
+    return false;
+  }
+  const base = {echoCancellation:S.echo, noiseSuppression:S.noise, autoGainControl:true};
+  let stream = null;
+  try{
+    const c = Object.assign({}, base);
+    if(S.deviceId) c.deviceId = {exact:S.deviceId};
+    stream = await navigator.mediaDevices.getUserMedia({audio:c, video:false});
+  }catch(e1){
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({audio:base, video:false});
+      S.deviceId = '';
+    }catch(e2){
+      el.micHint.textContent = 'マイクを取得できませんでした：' + (e2 && e2.name ? e2.name : '不明') + '（BGMのみで配信できます）';
+      setMicUi(false);
+      return false;
+    }
+  }
+
+  if(S.micSource){ try{ S.micSource.disconnect(); }catch(e){} S.micSource = null; }
+  if(S.micStream){ S.micStream.getTracks().forEach(t=>{ try{ t.stop(); }catch(e){} }); }
+  S.micStream = stream;
+  S.micSource = S.ctx.createMediaStreamSource(stream);
+  S.micSource.connect(V.inNode);
+
+  const track = stream.getAudioTracks()[0];
+  if(track){
+    const st = track.getSettings ? track.getSettings() : {};
+    const label = (st.deviceId && S.deviceId) ? '' : '';
+    el.micHint.textContent = 'マイク接続中' + (st.sampleRate ? ' / ' + Math.round(st.sampleRate/1000) + 'kHz' : '') +
+      (st.echoCancellation ? ' / EC有効' : '') + (st.noiseSuppression ? ' / NS有効' : '') + '。' + label;
+    track.addEventListener('ended', ()=>{ if(S.micOn) setMicUi(false); });
+  }
+  await refreshDeviceList();
+  applyMicGain();
+  return true;
+}
+
+function applyMicGain(){
+  if(!S.ctx) return;
+  const target = (S.micOn && S.micStream) ? S.micVol : 0;
+  S.micGain.gain.setTargetAtTime(target, S.ctx.currentTime, 0.02);
+}
+function setMicUi(on){
+  S.micOn = on;
+  el.micToggle.classList.toggle('on', on);
+  el.micToggle.classList.toggle('off', !on);
+  el.micState.textContent = on ? 'マイク ON' : 'マイク OFF';
+  applyMicGain();
+}
+async function toggleMic(){
+  if(!S.micStream){
+    if(!S.ctx){ toast('先に「配信開始」を押してください','warn'); return; }
+    const ok = await acquireMic();
+    if(!ok) return;
+  }
+  setMicUi(!S.micOn);
+  if(S.micOn) toast('マイクをオンにしました','ok');
+}
+async function refreshDeviceList(){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+  try{
+    const devs = await navigator.mediaDevices.enumerateDevices();
+    const ins = devs.filter(d=>d.kind === 'audioinput');
+    const cur = el.micDevice.value;
+    el.micDevice.innerHTML = '';
+    const def = document.createElement('option');
+    def.value = ''; def.textContent = '（既定のマイク）';
+    el.micDevice.appendChild(def);
+    ins.forEach((d,i)=>{
+      if(!d.deviceId) return;
+      const o = document.createElement('option');
+      o.value = d.deviceId;
+      o.textContent = d.label || ('マイク ' + (i+1));
+      el.micDevice.appendChild(o);
+    });
+    if(cur && ins.some(d=>d.deviceId === cur)) el.micDevice.value = cur;
+  }catch(e){}
+}
+
+/* ---- BGM ---- */
+function applyBgmGain(ramp){
+  if(!S.ctx) return;
+  const base = S.bgmVol;
+  const target = S.ducked ? base * 0.22 : base;
+  const t = S.ctx.currentTime;
+  const r = (ramp === undefined) ? 0.08 : ramp;
+  if(r <= 0){ S.bgmGain.gain.value = target; }
+  else { S.bgmGain.gain.setTargetAtTime(target, t, Math.max(0.01, r/3)); }
+}
+function addFiles(fileList){
+  const files = Array.from(fileList || []).filter(f=>/^audio\//.test(f.type) || /\.(mp3|wav|m4a|ogg|aac|flac|opus)$/i.test(f.name));
+  if(!files.length){ toast('音声ファイルを選んでください','warn'); return; }
+  files.forEach(f=>{
+    S.playlist.push({name:f.name.replace(/\.[^.]+$/,''), file:f, url:URL.createObjectURL(f)});
+  });
+  renderPlaylist();
+  toast(files.length + '曲を追加しました','ok');
+  if(S.index < 0) selectTrack(S.playlist.length - files.length, false);
+}
+function renderPlaylist(){
+  el.playlist.innerHTML = '';
+  if(!S.playlist.length){
+    const li = document.createElement('li');
+    li.className = 'empty';
+    li.textContent = '追加した音源がここに並びます';
+    el.playlist.appendChild(li);
+    return;
+  }
+  S.playlist.forEach((t,i)=>{
+    const li = document.createElement('li');
+    if(i === S.index) li.className = 'playing';
+    const n = document.createElement('span'); n.className='n'; n.textContent = String(i+1).padStart(2,'0');
+    const nm = document.createElement('span'); nm.className='nm'; nm.textContent = t.name;
+    const del = document.createElement('button'); del.className='del'; del.type='button'; del.textContent='✕'; del.setAttribute('aria-label','削除');
+    del.addEventListener('click',(ev)=>{
+      ev.stopPropagation();
+      const wasCurrent = (i === S.index);
+      URL.revokeObjectURL(t.url);
+      S.playlist.splice(i,1);
+      if(wasCurrent){
+        pauseBgm();
+        S.index = Math.min(i, S.playlist.length-1);
+        S.nowTitle = '';
+        updateNowUi();
+        renderPlaylist();
+      } else {
+        if(i < S.index) S.index--;
+        renderPlaylist();
+      }
+    });
+    li.addEventListener('click', ()=>selectTrack(i, true));
+    li.appendChild(n); li.appendChild(nm); li.appendChild(del);
+    el.playlist.appendChild(li);
+  });
+}
+function deckCur(){ return S.decks ? S.decks[S.active] : null; }
+function deckOpposite(){ return S.decks ? S.decks[1 - S.active] : null; }
+function bgmItemFromPlaylist(i){
+  const t = S.playlist[i];
+  return t ? {kind:'playlist', index:i, url:t.url, title:t.name} : null;
+}
+function bgmItemFromCue(c){
+  if(!c || (c.type !== 'mp3' && c.type !== 'archive') || !c.src) return null;
+  return {kind:'cue', cueId:c.id, url:c.src, title:c.title || c.srcLabel || 'キュー'};
+}
+function nextPlaylistItem(){
+  if(S.playlist.length < 2) return null;
+  return bgmItemFromPlaylist((Math.max(0, S.index) + 1) % S.playlist.length);
+}
+function nextCueItem(fromIndex){
+  for(let i = fromIndex + 1; i < S.cue.items.length; i++){
+    const it = bgmItemFromCue(S.cue.items[i]);
+    if(it) return Object.assign(it, {cueIndex:i});
+  }
+  return null;
+}
+function nextItemForCurrent(){
+  const d = deckCur();
+  const cur = d && d.item;
+  if(!cur) return null;
+  if(cur.kind === 'playlist') return nextPlaylistItem();
+  if(cur.kind === 'cue'){
+    if(!S.cue.auto) return null;
+    const idx = S.cue.items.findIndex(x=>x.id === cur.cueId);
+    const nxt = S.cue.items[idx + 1];
+    const it = bgmItemFromCue(nxt);
+    return it ? Object.assign(it, {cueIndex:idx + 1}) : null;
+  }
+  return null;
+}
+
+function updateNowUi(){
+  const d = deckCur();
+  const item = d && d.item;
+  const playing = !!(d && item && !d.el.paused);
+  if(item){
+    const k = item.kind === 'cue' ? 'キューシート' : 'BGMデッキ';
+    el.bgmNow.textContent = item.title;
+    el.bgmSub.textContent = k + (playing ? ' / 再生中' : ' / 停止中');
+  } else if(S.playlist[S.index]){
+    el.bgmNow.textContent = S.playlist[S.index].name;
+    el.bgmSub.textContent = '停止中';
+  } else {
+    el.bgmNow.textContent = S.playlist.length ? '曲を選んでください' : '音源が選ばれていません';
+    el.bgmSub.textContent = 'MP3 / WAV / M4A / OGG ほか';
+  }
+  el.bgmEq.classList.toggle('on', playing);
+  el.bgmPlay.textContent = playing ? '❚❚' : '▶';
+  el.bgmPlay.setAttribute('aria-label', playing ? '一時停止' : '再生');
+  if(d && d.el.duration) el.bgmDur.textContent = fmtTime(d.el.duration);
+}
+function notifyNow(){
+  const d = deckCur();
+  S.nowTitle = (d && d.item) ? d.item.title : '';
+  sendInfoSoon();
+}
+
+function setDeckItem(d, item){
+  d.item = item;
+  d.el.src = item.url;
+  try{ d.el.load(); }catch(e){}
+  try{ d.el.currentTime = 0; }catch(e){}
+}
+function fadeInDeck(d, sec){
+  const t = S.ctx.currentTime;
+  d.gain.gain.cancelScheduledValues(t);
+  d.gain.gain.setValueAtTime(0, t);
+  d.gain.gain.linearRampToValueAtTime(1, t + Math.max(0.05, sec));
+}
+function fadeOutDeck(d, sec, then){
+  if(!d) return;
+  const t = S.ctx.currentTime;
+  d.gain.gain.cancelScheduledValues(t);
+  const v = d.gain.gain.value;
+  d.gain.gain.setValueAtTime(v, t);
+  d.gain.gain.linearRampToValueAtTime(0, t + Math.max(0.05, sec));
+  if(then) setTimeout(then, Math.max(60, sec*1000) + 60);
+}
+
+function startItem(item, opts){
+  opts = opts || {};
+  if(!S.ctx || !S.decks){ toast('先に「配信開始」を押してください','warn'); return false; }
+  if(!item) return false;
+  const cur = deckCur();
+  const curPlaying = !!(cur && cur.item && !cur.el.paused);
+  const target = curPlaying ? deckOpposite() : cur;
+  const fadeIn = curPlaying ? ((opts.fade === undefined) ? S.xfade : Math.max(0, opts.fade)) : 0.25;
+
+  try{ target.el.pause(); }catch(e){}
+  setDeckItem(target, item);
+  target.gain.gain.cancelScheduledValues(S.ctx.currentTime);
+  target.gain.gain.setValueAtTime(0, S.ctx.currentTime);
+
+  el.bgmSeek.value = 0; setRangeFill(el.bgmSeek);
+  el.bgmCur.textContent = '0:00'; el.bgmDur.textContent = '0:00';
+
+  const p = target.el.play();
+  const go = ()=>{
+    if(fadeIn > 0.05) fadeInDeck(target, fadeIn);
+    else { target.gain.gain.cancelScheduledValues(S.ctx.currentTime); target.gain.gain.setValueAtTime(1, S.ctx.currentTime); }
+    if(curPlaying && cur !== target){
+      fadeOutDeck(cur, fadeIn, ()=>{
+        if(deckCur() !== cur){ try{ cur.el.pause(); }catch(e){} cur.item = null; }
+      });
+    }
+    S.active = S.decks.indexOf(target);
+    if(fadeIn > 0.05){
+      S.xfading = true;
+      setTimeout(()=>{ S.xfading = false; }, fadeIn*1000 + 250);
+    }
+    updateNowUi();
+  };
+  if(p && p.then){
+    p.then(go).catch(()=>{
+      toast('この音源を再生できません','err');
+      target.item = null;
+      if(item.kind === 'cue' && S.cue.playingId === item.cueId) S.cue.playingId = null;
+      updateNowUi();
+    });
+  } else go();
+
+  if(item.kind === 'cue'){
+    S.cue.playingId = item.cueId;
+    if(typeof item.cueIndex === 'number') S.cue.index = item.cueIndex;
+    renderCues();
+  } else {
+    S.cue.playingId = null;
+    S.index = item.index;
+    renderPlaylist();
+  }
+  notifyNow();
+  updateNowUi();
+  return true;
+}
+
+function selectTrack(i, autoplay){
+  if(i < 0 || i >= S.playlist.length) return;
+  const item = bgmItemFromPlaylist(i);
+  S.index = i;
+  renderPlaylist();
+  if(autoplay && S.ctx){
+    startItem(item);
+  } else {
+    S.nowTitle = item.title;
+    updateNowUi();
+    sendInfoSoon();
+  }
+}
+function playBgm(){
+  if(!S.ctx){ toast('先に「配信開始」を押してください','warn'); return; }
+  const d = deckCur();
+  if(d && d.item && d.el.paused){
+    const t = S.ctx.currentTime;
+    d.gain.gain.cancelScheduledValues(t);
+    d.gain.gain.setValueAtTime(1, t);
+    d.el.play().catch(()=>{ toast('この音源を再生できません','err'); });
+    updateNowUi();
+    return;
+  }
+  let item = S.playlist.length ? bgmItemFromPlaylist(Math.max(0, S.index)) : null;
+  if(!item){
+    const c = S.cue.items.find(x=>bgmItemFromCue(x));
+    item = c ? bgmItemFromCue(c) : null;
+  }
+  if(!item){ toast('先に音源を追加してください','warn'); return; }
+  startItem(item);
+}
+function pauseBgm(){
+  if(S.decks){
+    S.decks.forEach(d=>{ try{ d.el.pause(); }catch(e){} d.gain.gain.cancelScheduledValues(S.ctx.currentTime); d.gain.gain.setValueAtTime(0, S.ctx.currentTime); });
+  }
+  updateNowUi();
+}
+function toggleBgm(){
+  const d = deckCur();
+  if(d && d.item && !d.el.paused) pauseBgm(); else playBgm();
+}
+function nextTrack(auto){
+  const d = deckCur();
+  if(d && d.item && d.item.kind === 'cue'){ cueNext(); return; }
+  if(!S.playlist.length) return;
+  selectTrack(((Math.max(0, S.index)) + 1) % S.playlist.length, true);
+}
+function prevTrack(){
+  const d = deckCur();
+  if(d && d.item && d.item.kind === 'cue'){ if(S.cue.index > 0) runCue(S.cue.index - 1); return; }
+  if(!S.playlist.length) return;
+  if(d && d.el.currentTime > 3){ d.el.currentTime = 0; return; }
+  selectTrack(((Math.max(0, S.index)) - 1 + S.playlist.length) % S.playlist.length, true);
+}
+
+function onDeckTime(d){
+  if(!S.decks || d !== deckCur()) return;
+  const a = d.el;
+  if(a.duration){
+    el.bgmDur.textContent = fmtTime(a.duration);
+    if(!S.seeking){
+      el.bgmSeek.value = Math.round((a.currentTime / a.duration) * 1000);
+      setRangeFill(el.bgmSeek);
+      el.bgmCur.textContent = fmtTime(a.currentTime);
+    }
+  }
+  if(S.xfading || !S.ctx || S.xfade <= 0.2) return;
+  const dur = a.duration;
+  if(dur && dur > S.xfade + 3 && (dur - a.currentTime) <= S.xfade){
+    const nx = nextItemForCurrent();
+    if(nx) startItem(nx, {fade:S.xfade});
+  }
+}
+function onDeckEnded(d){
+  if(!S.decks || d !== deckCur()) return;
+  S.xfading = false;
+  const item = d.item;
+  if(!item) return;
+  if(item.kind === 'cue'){
+    S.cue.playingId = null;
+    updateNowUi();
+    if(S.cue.auto) cueNext(); else renderCues();
+    return;
+  }
+  if(item.kind === 'playlist'){
+    if(S.playlist.length > 1){
+      const nx = nextPlaylistItem();
+      if(nx){ startItem(nx, {fade:0.8}); return; }
+    }
+    updateNowUi();
+  }
+}
+
+function onDuck(on){
+  S.ducked = on;
+  applyBgmGain(0.12);
+  el.talkBtn.classList.toggle('down', on);
+}
+
+/* ---- ジングル（内蔵シンセ） ---- */
+function noiseBuffer(sec){
+  if(S.noiseBuf && S.noiseBuf.duration >= sec) return S.noiseBuf;
+  const len = Math.floor(S.ctx.sampleRate * Math.max(sec, 2));
+  const buf = S.ctx.createBuffer(1, len, S.ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for(let i=0;i<len;i++) d[i] = Math.random()*2 - 1;
+  S.noiseBuf = buf;
+  return buf;
+}
+function tone(freq, t0, dur, type, peak, dest, glideTo){
+  const o = S.ctx.createOscillator(); const g = S.ctx.createGain();
+  o.type = type || 'sine';
+  o.frequency.setValueAtTime(freq, t0);
+  if(glideTo) o.frequency.exponentialRampToValueAtTime(glideTo, t0 + dur);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(peak, t0 + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(g); g.connect(dest);
+  o.start(t0); o.stop(t0 + dur + 0.05);
+}
+function playPad(kind){
+  if(!S.ctx){
+    toast('先に「配信開始」を押すと効果音が鳴ります','warn');
+    return false;
+  }
+  if(S.ctx.state === 'suspended') S.ctx.resume().catch(()=>{});
+  const t0 = S.ctx.currentTime + 0.03;
+  const out = S.jingleGain;
+
+  if(kind === 'op'){
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((f,i)=>{
+      const t = t0 + i*0.115;
+      tone(f, t, 0.95, 'triangle', 0.34, out);
+      tone(f*2, t, 0.55, 'sine', 0.10, out);
+    });
+    // 上昇ノイズスイープ
+    const src = S.ctx.createBufferSource(); src.buffer = noiseBuffer(1.2);
+    const bp = S.ctx.createBiquadFilter(); bp.type='bandpass'; bp.Q.value = 1.1;
+    bp.frequency.setValueAtTime(420, t0);
+    bp.frequency.exponentialRampToValueAtTime(7200, t0 + 0.55);
+    const ng = S.ctx.createGain();
+    ng.gain.setValueAtTime(0.0001, t0);
+    ng.gain.exponentialRampToValueAtTime(0.16, t0 + 0.4);
+    ng.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.85);
+    src.connect(bp); bp.connect(ng); ng.connect(out);
+    src.start(t0); src.stop(t0 + 0.9);
+    // 最後のキラッ
+    tone(1567.98, t0 + 0.52, 0.7, 'sine', 0.12, out);
+  }
+
+  if(kind === 'chime'){
+    tone(880, t0, 0.55, 'sine', 0.42, out);
+    tone(1760, t0, 0.30, 'sine', 0.10, out);
+    tone(1174.66, t0 + 0.26, 0.72, 'sine', 0.38, out);
+    tone(2349.32, t0 + 0.26, 0.35, 'sine', 0.07, out);
+  }
+
+  if(kind === 'buzz'){
+    const t = t0;
+    const o1 = S.ctx.createOscillator(), o2 = S.ctx.createOscillator();
+    const g = S.ctx.createGain(), lp = S.ctx.createBiquadFilter();
+    o1.type = 'sawtooth'; o2.type = 'square';
+    o1.frequency.setValueAtTime(150, t); o1.frequency.exponentialRampToValueAtTime(105, t + 0.62);
+    o2.frequency.setValueAtTime(152, t); o2.frequency.exponentialRampToValueAtTime(107, t + 0.62);
+    lp.type = 'lowpass'; lp.frequency.value = 900;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.22, t + 0.02);
+    g.gain.setValueAtTime(0.22, t + 0.55);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.68);
+    o1.connect(lp); o2.connect(lp); lp.connect(g); g.connect(out);
+    o1.start(t); o2.start(t); o1.stop(t + 0.72); o2.stop(t + 0.72);
+  }
+
+  if(kind === 'clap'){
+    const claps = 16;
+    for(let i=0;i<claps;i++){
+      const t = t0 + (i < 10 ? i*0.055 + Math.random()*0.02 : 0.6 + Math.random()*0.55);
+      const src = S.ctx.createBufferSource(); src.buffer = noiseBuffer(1.4);
+      const bp = S.ctx.createBiquadFilter(); bp.type='bandpass';
+      bp.frequency.value = 1400 + Math.random()*1500; bp.Q.value = 0.8;
+      const hp = S.ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value = 700;
+      const g = S.ctx.createGain();
+      const peak = i < 10 ? 0.10 + Math.random()*0.07 : 0.07 + Math.random()*0.05;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(peak, t + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.05 + Math.random()*0.03);
+      src.connect(bp); bp.connect(hp); hp.connect(g); g.connect(out);
+      src.start(t); src.stop(t + 0.12);
+    }
+  }
+
+  const btn = document.querySelector('.pad[data-pad="' + kind + '"]');
+  if(btn){ btn.classList.remove('hit'); void btn.offsetWidth; btn.classList.add('hit'); }
+  return true;
+}
+
+/* ---- ボイスチェンジャー（Web Audio リアルタイム処理） ----
+   構造: micSource → inNode ─┬→ dry ──────────→ out → micGain
+                            └→ fxSend → 効果 → wet ─┬→ out
+   out → 試し聞き(monitor) → スピーカー
+   効果は「リスナー向け」「ゲスト返し」の両方に乗る（micGain より前段）。            */
+const V = {preset:'off', inNode:null, out:null, dry:null, wet:null, fxSend:null, nodes:[], shifter:null};
+
+function initVoice(ctx, dest){
+  if(V.inNode){ try{ V.out.disconnect(); }catch(e){} V.out.connect(dest); return; }
+  V.inNode = ctx.createGain();
+  V.out    = ctx.createGain();
+  V.dry    = ctx.createGain(); V.dry.gain.value = 1;
+  V.wet    = ctx.createGain(); V.wet.gain.value = 0;
+  V.fxSend = ctx.createGain(); V.fxSend.gain.value = 1;
+  V.inNode.connect(V.dry);
+  V.dry.connect(V.out);
+  V.inNode.connect(V.fxSend);
+  V.wet.connect(V.out);
+  V.out.connect(dest);
+  buildVoice('off');
+}
+
+function shaperCurve(amount){
+  const n = 1024, curve = new Float32Array(n);
+  const k = Math.max(0.1, amount);
+  for(let i=0;i<n;i++){ const x = i*2/n - 1; curve[i] = Math.tanh(x*k)/Math.tanh(k); }
+  return curve;
+}
+function clearFx(){
+  try{ V.fxSend.disconnect(); }catch(e){}
+  V.nodes.forEach(n=>{ try{ n.disconnect(); }catch(e){} });
+  V.nodes = [];
+  if(V.shifter){ try{ V.shifter.disconnect(); }catch(e){} V.shifter = null; }
+}
+function addNode(n){ V.nodes.push(n); return n; }
+
+function buildVoice(preset){
+  if(!S.ctx || !V.fxSend) return;
+  const ctx = S.ctx;
+  clearFx();
+  V.preset = preset;
+  const mix = (d,w)=>{ V.dry.gain.setTargetAtTime(d, ctx.currentTime, 0.02); V.wet.gain.setTargetAtTime(w, ctx.currentTime, 0.02); };
+
+  if(preset === 'off'){ mix(1,0); }
+  else if(preset === 'radio'){
+    const hp = addNode(ctx.createBiquadFilter()); hp.type='highpass'; hp.frequency.value=430; hp.Q.value=0.8;
+    const lp = addNode(ctx.createBiquadFilter()); lp.type='lowpass'; lp.frequency.value=2900; lp.Q.value=0.9;
+    const pk = addNode(ctx.createBiquadFilter()); pk.type='peaking'; pk.frequency.value=1800; pk.Q.value=1.1; pk.gain.value=4.5;
+    const sh = addNode(ctx.createWaveShaper()); sh.curve = shaperCurve(1.5); sh.oversample='2x';
+    const g  = addNode(ctx.createGain()); g.gain.value = 1.6;
+    V.fxSend.connect(hp); hp.connect(lp); lp.connect(pk); pk.connect(sh); sh.connect(g); g.connect(V.wet);
+    mix(0,1);
+  }
+  else if(preset === 'robot'){
+    const ring = addNode(ctx.createGain()); ring.gain.value = 0;
+    const osc = addNode(ctx.createOscillator()); osc.type='sine'; osc.frequency.value = 42;
+    osc.connect(ring.gain); osc.start();
+    const bp = addNode(ctx.createBiquadFilter()); bp.type='bandpass'; bp.frequency.value=1400; bp.Q.value=0.6;
+    const sh = addNode(ctx.createWaveShaper()); sh.curve = shaperCurve(1.1);
+    const g  = addNode(ctx.createGain()); g.gain.value = 2.2;
+    V.fxSend.connect(ring); ring.connect(bp); bp.connect(sh); sh.connect(g); g.connect(V.wet);
+    mix(0,1);
+  }
+  else if(preset === 'alien'){
+    const d1 = addNode(ctx.createDelay(0.2)); d1.delayTime.value = 0.019;
+    const d2 = addNode(ctx.createDelay(0.2)); d2.delayTime.value = 0.033;
+    const lfo = addNode(ctx.createOscillator()); lfo.frequency.value = 5.2;
+    const lfoG = addNode(ctx.createGain()); lfoG.gain.value = 0.0045;
+    lfo.connect(lfoG); lfoG.connect(d1.delayTime); lfoG.connect(d2.delayTime); lfo.start();
+    const ring = addNode(ctx.createGain()); ring.gain.value = 0;
+    const osc = addNode(ctx.createOscillator()); osc.type='sine'; osc.frequency.value = 185;
+    osc.connect(ring.gain); osc.start();
+    const sh = addNode(ctx.createWaveShaper()); sh.curve = shaperCurve(1.0);
+    const bp = addNode(ctx.createBiquadFilter()); bp.type='bandpass'; bp.frequency.value=1300; bp.Q.value=0.5;
+    const g  = addNode(ctx.createGain()); g.gain.value = 2.6;
+    V.fxSend.connect(d1); V.fxSend.connect(d2);
+    d1.connect(ring); d2.connect(ring);
+    ring.connect(sh); sh.connect(bp); bp.connect(g); g.connect(V.wet);
+    mix(0.12, 1);
+  }
+  else if(preset === 'echo'){
+    const dly = addNode(ctx.createDelay(1.5)); dly.delayTime.value = 0.22;
+    const fb  = addNode(ctx.createGain()); fb.gain.value = 0.38;
+    const lp  = addNode(ctx.createBiquadFilter()); lp.type='lowpass'; lp.frequency.value = 2600;
+    const wg  = addNode(ctx.createGain()); wg.gain.value = 0.9;
+    V.fxSend.connect(dly); dly.connect(lp); lp.connect(fb); fb.connect(dly); lp.connect(wg); wg.connect(V.wet);
+    mix(0.8, 0.9);
+  }
+  else if(preset === 'low' || preset === 'high'){
+    const ratio = preset === 'low' ? 0.76 : 1.32;
+    const sh = createPitchShifter(ctx, ratio);
+    V.shifter = sh;
+    V.fxSend.connect(sh);
+    const lp = addNode(ctx.createBiquadFilter()); lp.type='lowpass';
+    lp.frequency.value = preset === 'low' ? 6000 : 9000;
+    sh.connect(lp); lp.connect(V.wet);
+    mix(0, 1);
+  }
+  else { mix(1,0); }
+}
+
+/* グラニュラー方式のピッチシフター（リングバッファ2粒クロスフェード） */
+function createPitchShifter(ctx, ratio){
+  if(!ctx.createScriptProcessor){
+    const g = ctx.createGain(); return g;   // 非対応環境は素通し（無音にはしない）
+  }
+  const grain = Math.max(512, Math.round(ctx.sampleRate * 0.055));
+  const size  = Math.max(grain * 8, Math.round(ctx.sampleRate * 1.5));
+  const ring  = new Float32Array(size);
+  let write = 0, phase = 0;
+  const step = 1 - ratio;   // 読み取り位置を ratio 倍速で進める
+  const node = ctx.createScriptProcessor(4096, 1, 1);
+  const readAt = (pos)=>{
+    let p = pos % size; if(p < 0) p += size;
+    const i0 = Math.floor(p), fr = p - i0, i1 = (i0 + 1) % size;
+    return ring[i0]*(1-fr) + ring[i1]*fr;
+  };
+  node.onaudioprocess = (e)=>{
+    const inp = e.inputBuffer.getChannelData(0);
+    const out = e.outputBuffer.getChannelData(0);
+    for(let i=0;i<out.length;i++){
+      ring[write] = inp[i] || 0;
+      let dB = phase + grain/2; if(dB >= grain) dB -= grain;
+      const wA = Math.sin(Math.PI * phase / grain);
+      const wB = Math.cos(Math.PI * phase / grain);
+      const a = readAt(write - phase);
+      const b = readAt(write - dB);
+      out[i] = a*wA*wA + b*wB*wB;
+      write++; if(write >= size) write = 0;
+      phase += step; if(phase >= grain) phase -= grain; else if(phase < 0) phase += grain;
+    }
+  };
+  return node;
+}
+
+function setVoice(preset, quiet){
+  if(!S.ctx){
+    // 配信開始前でも選択を覚えておく
+    V.preset = preset;
+  } else {
+    buildVoice(preset);
+  }
+  document.querySelectorAll('.vp').forEach(b=>{
+    b.classList.toggle('on', b.dataset.vp === preset);
+  });
+  const names = {off:'素の声',radio:'AMラジオ風',robot:'ロボット',alien:'エイリアン',echo:'ライブエコー',low:'低音ピッチ',high:'高音ピッチ'};
+  if(!quiet && preset !== 'off') toast('ボイス：' + (names[preset] || preset) + ' に切り替えました','');
+}
+
+/* ---- VU メーター ---- */
+const vu = {w:0,h:0,buf:new Float32Array(2048),holdL:-54,holdR:-54,dpr:1};
+function sizeVu(){
+  const r = el.vu.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  vu.w = Math.max(1, Math.round(r.width));
+  vu.h = Math.max(1, Math.round(r.height));
+  vu.dpr = dpr;
+  el.vu.width = Math.round(vu.w * dpr);
+  el.vu.height = Math.round(vu.h * dpr);
+  const g = el.vu.getContext('2d');
+  g.setTransform(dpr,0,0,dpr,0,0);
+}
+function peakDb(an){
+  if(!an) return -Infinity;
+  an.getFloatTimeDomainData(vu.buf);
+  let p = 0;
+  for(let i=0;i<vu.buf.length;i++){ const a = Math.abs(vu.buf[i]); if(a > p) p = a; }
+  return p > 0 ? 20*Math.log10(p) : -Infinity;
+}
+const DB_MIN = -54;
+function drawVu(){
+  const g = el.vu.getContext('2d');
+  const w = vu.w, h = vu.h;
+  g.clearRect(0,0,w,h);
+
+  // 背景の目盛り
+  const padL = 26, padR = 12, top = 14, barH = 20, gap = 12;
+  g.font = '9px ' + 'Menlo, monospace';
+  g.textBaseline = 'middle';
+  [-6,-12,-24,-36,-48].forEach(db=>{
+    const x = padL + (w - padL - padR) * ((db - DB_MIN) / (0 - DB_MIN));
+    g.strokeStyle = db === -6 ? 'rgba(255,90,90,.28)' : 'rgba(255,255,255,.09)';
+    g.beginPath(); g.moveTo(x, top - 5); g.lineTo(x, top + barH*2 + gap + 4); g.stroke();
+    g.fillStyle = 'rgba(255,255,255,.30)';
+    const label = String(db);
+    g.fillText(label, x - (label.length*2.4), h - 8);
+  });
+
+  const anL = S.anL, anR = S.anR;
+  const dL = peakDb(anL), dR = peakDb(anR);
+  vu.holdL = Math.max(vu.holdL - 0.7, dL);
+  vu.holdR = Math.max(vu.holdR - 0.7, dR);
+
+  const drawBar = (y, db, hold, label)=>{
+    g.fillStyle = 'rgba(255,255,255,.05)';
+    g.fillRect(padL, y, w - padL - padR, barH);
+    const norm = Math.max(0, Math.min(1, (db - DB_MIN) / (0 - DB_MIN)));
+    const bwidth = (w - padL - padR) * norm;
+    if(bwidth > 0.5){
+      const grad = g.createLinearGradient(padL, 0, padL + (w - padL - padR), 0);
+      grad.addColorStop(0, '#4bd6a8');
+      grad.addColorStop(0.58, '#a8e05f');
+      grad.addColorStop(0.82, '#f2b464');
+      grad.addColorStop(1, '#ff5a5a');
+      g.fillStyle = grad;
+      g.fillRect(padL, y, bwidth, barH);
+      // 光
+      g.fillStyle = 'rgba(255,255,255,.16)';
+      g.fillRect(padL, y, bwidth, 4);
+    }
+    // ピークホールド
+    if(hold > DB_MIN){
+      const hx = padL + (w - padL - padR) * Math.max(0, Math.min(1, (hold - DB_MIN) / (0 - DB_MIN)));
+      g.fillStyle = hold > -6 ? 'rgba(255,90,90,.95)' : 'rgba(255,255,255,.7)';
+      g.fillRect(hx - 1.5, y, 3, barH);
+    }
+    g.fillStyle = 'rgba(255,255,255,.42)';
+    g.font = '9px Menlo, monospace';
+    g.fillText(label, 8, y + barH/2);
+  };
+
+  drawBar(top, dL, vu.holdL, 'L');
+  drawBar(top + barH + gap, dR, vu.holdR, 'R');
+
+  // 数値
+  const mx = Math.max(dL, dR);
+  el.peakDb.textContent = (mx === -Infinity || mx < DB_MIN) ? '-∞ dB' : mx.toFixed(1) + ' dB';
+  const loud = mx > -6;
+  el.limitLamp.classList.toggle('on', loud);
+
+  // 状態ラベル
+  g.font = '9px Menlo, monospace';
+  g.fillStyle = 'rgba(255,255,255,.25)';
+  g.textAlign = 'right';
+  g.fillText(S.ctx ? (S.live ? 'STREAMING' : 'STANDBY') : 'IDLE', w - padR, h - 8);
+  g.textAlign = 'left';
+}
+let vuStarted = false;
+function updateVuLoop(){
+  if(vuStarted) return;
+  vuStarted = true;
+  sizeVu();
+  window.addEventListener('resize', sizeVu);
+  const loop = ()=>{
+    drawVu();
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+}
+
+/* =========================================================
+   PeerJS 配信
+   ========================================================= */
+function setOnair(state, text){
+  el.onair.className = 'onair ' + state;
+  el.onairText.textContent = text;
+}
+function setBroadcastBtn(label, disabled, isLive){
+  el.broadcastBtn.textContent = label;
+  el.broadcastBtn.disabled = !!disabled;
+  el.broadcastBtn.className = 'btn ' + (isLive ? 'stop' : 'primary');
+}
+function updateListenerCount(){
+  el.listenerCount.textContent = String(S.listeners.size);
+  el.listenerCount.classList.toggle('hot', S.listeners.size > 0);
+}
+function startTimer(){
+  stopTimer();
+  S.timerId = setInterval(()=>{ el.elapsed.textContent = fmtClock(Date.now() - S.startedAt); }, 500);
+}
+function stopTimer(){ if(S.timerId){ clearInterval(S.timerId); S.timerId = null; } }
+
+function initPeer(){
+  const id = stationId();
+  const peer = new Peer(id, {debug:0});
+  S.peer = peer;
+
+  peer.on('open', (pid)=>{
+    S.live = true; S.starting = false; S.startedAt = Date.now();
+    startTimer(); setOnair('live','ON AIR'); setBroadcastBtn('配信終了', false, true);
+    el.brandSub.textContent = '局ID: ' + pid;
+    el.station.disabled = true;
+    el.peerHint.textContent = '配信中。この端末が配信局として登録されています。';
+    updateListenerUrl();
+    toast('配信を開始しました。リスナー用URLを共有してください。','ok');
+  });
+
+  peer.on('connection', handleConn);
+  peer.on('call', handleIncomingCall);
+  peer.on('disconnected', ()=>{
+    if(!S.live) return;
+    toast('シグナリングから切断されました。再接続します…','warn');
+    try{ peer.reconnect(); }catch(e){}
+  });
+  peer.on('error', (err)=>{
+    const type = (err && err.type) || '';
+    if(type === 'peer-unavailable') return;   // リスナーが去っただけ
+    if(type === 'unavailable-id'){
+      toast('このIDは使用中です。放送局IDを変えてから、もう一度「配信開始」を押してください。','err');
+      teardownBroadcast(true);
+      el.peerHint.textContent = 'このIDは他の人が使用中です。別のIDにしてください。';
+      return;
+    }
+    if(type === 'network' || type === 'server-error' || type === 'socket-error'){
+      toast('ネットワークに接続できません。通信環境を確認してください。','err');
+      if(!S.live) teardownBroadcast(true);
+      return;
+    }
+    if(type === 'browser-incompatible'){
+      toast('このブラウザはWebRTCに対応していません。','err');
+      return;
+    }
+    if(window.console && console.warn) console.warn('[peer]', type, err && err.message);
+  });
+}
+
+function handleConn(conn){
+  S.conns.set(conn.peer, conn);
+  conn.on('data', (d)=>onData(conn, d));
+  conn.on('close', ()=>{
+    S.conns.delete(conn.peer); S.listeners.delete(conn.peer);
+    updateListenerCount();
+    if(S.guest.conn === conn) guestLeft();
+  });
+  conn.on('error', ()=>{
+    S.conns.delete(conn.peer); S.listeners.delete(conn.peer);
+    updateListenerCount();
+  });
+  // 接続直後に向こうから hello が来る想定。念のため情報だけ先に送っておく。
+  try{ conn.send(infoPayload()); }catch(e){}
+}
+
+function onData(conn, d){
+  if(!d || typeof d !== 'object') return;
+  if(d.type === 'guest-hello'){ onGuestHello(conn, d); return; }
+  if(d.type === 'guest-bye'){ if(S.guest.conn === conn) guestLeft(); return; }
+  if(d.type === 'hello'){
+    const first = !S.listeners.has(conn.peer);
+    S.listeners.add(conn.peer);
+    updateListenerCount();
+    try{ conn.send(infoPayload()); }catch(e){}
+    callListener(conn.peer);
+    if(first) toast('リスナーが接続しました','ok');
+    return;
+  }
+  if(d.type === 'ping'){ try{ conn.send({type:'pong', t:d.t}); }catch(e){} return; }
+  if(d.type === 'bye'){
+    S.listeners.delete(conn.peer); updateListenerCount();
+    return;
+  }
+}
+
+function callListener(peerId){
+  if(!S.peer || !S.streamDest) return;
+  if(!S.streamDest.stream.getAudioTracks().length){
+    toast('配信音声のトラックがありません','err');
+    return;
+  }
+  const prev = S.mediaCalls.get(peerId);
+  if(prev){ try{ prev.close(); }catch(e){} S.mediaCalls.delete(peerId); }
+  let call = null;
+  try{
+    call = S.peer.call(peerId, S.streamDest.stream, {metadata:{title:infoPayload().title}});
+  }catch(e){
+    toast('リスナーへの音声送信に失敗しました','err');
+    return;
+  }
+  if(!call){ toast('リスナーへの音声送信に失敗しました','err'); return; }
+  S.mediaCalls.set(peerId, call);
+  call.on('close', ()=>{ S.mediaCalls.delete(peerId); S.listeners.delete(peerId); updateListenerCount(); });
+  call.on('error', ()=>{ S.mediaCalls.delete(peerId); });
+}
+
+function handleIncomingCall(call){
+  const meta = call.metadata || {};
+
+  // ゲストのマイク（ゲスト→ホスト）: この1本の回線で、ホストの返り音声も返す
+  if(meta.role === 'guest-mic'){
+    if(S.guest.id && S.guest.id !== call.peer){ try{ call.close(); }catch(e){} return; }
+    try{ call.answer(S.returnDest.stream); }
+    catch(e){ try{ call.answer(); }catch(e2){ try{ call.close(); }catch(e3){} return; } }
+    S.guest.micCall = call;
+    if(meta.name && !S.guest.name) S.guest.name = String(meta.name).slice(0,24);
+    call.on('stream', (stream)=>attachGuest(stream, call.peer));
+    call.on('close', ()=>{ if(S.guest.micCall === call) guestLeft(); });
+    call.on('error', ()=>{});
+    return;
+  }
+
+  // リスナー側から call してきた場合も、ミックス済み音声を返す
+  try{ call.answer(S.streamDest.stream); }catch(e){ try{ call.close(); }catch(e2){} }  const id = call.peer;
+  S.conns.set(id, S.conns.get(id) || call);
+  if(!S.listeners.has(id)){ S.listeners.add(id); updateListenerCount(); }
+  call.on('close', ()=>{ S.listeners.delete(id); updateListenerCount(); });
+}
+
+/* =========================================================
+   ゲスト（2人対談）
+   ゲスト → ホスト: マイク音声（MediaConnection）
+   ホスト → ゲスト: returnDest（マイク＋BGM＋SE、ゲスト自身の声は入れない）
+   ========================================================= */
+function onGuestHello(conn, d){
+  if(S.guest.on && S.guest.id && S.guest.id !== conn.peer){
+    try{ conn.send({type:'guest-busy'}); }catch(e){}
+    try{ conn.close(); }catch(e){}
+    return;
+  }
+  S.guest.conn = conn;
+  S.guest.id = conn.peer;
+  S.guest.name = (d && d.name ? String(d.name).slice(0,24) : 'ゲスト');
+  try{ conn.send(infoPayload()); }catch(e){}
+  try{ conn.send({type:'guest-accept', name:S.guest.name}); }catch(e){}
+  setGuestUi(false, 'wait');
+  sendInfoSoon();
+  toast('ゲスト「' + S.guest.name + '」が参加しました','ok');
+}
+
+function callGuestReturn(){
+  if(!S.peer || !S.returnDest || !S.guest.id) return;
+  if(S.guest.retCall){ try{ S.guest.retCall.close(); }catch(e){} S.guest.retCall = null; }
+  let call = null;
+  try{ call = S.peer.call(S.guest.id, S.returnDest.stream, {metadata:{role:'return', title:infoPayload().title}}); }
+  catch(e){ return; }
+  if(!call) return;
+  S.guest.retCall = call;
+  call.on('close', ()=>{ if(S.guest.retCall === call) S.guest.retCall = null; });
+  call.on('error', ()=>{});
+}
+
+function attachGuest(stream, peerId){
+  if(!S.ctx) return;
+  if(S.guest.source){ try{ S.guest.source.disconnect(); }catch(e){} }
+  S.guest.stream = stream;
+  S.guest.id = peerId || S.guest.id;
+  S.guest.source = S.ctx.createMediaStreamSource(stream);
+  S.guest.source.connect(S.guestGain);
+  S.guest.source.connect(S.guestMonGain);
+  S.guest.on = true;
+  applyGuestGain(0);
+  applyGuestMon(0);
+  stream.getAudioTracks().forEach(t=>t.addEventListener('ended', ()=>{ if(S.guest.stream === stream) guestLeft(); }));
+  setGuestUi(true);
+  sendInfoSoon();
+}
+
+function applyGuestGain(ramp){
+  if(!S.ctx || !S.guestGain) return;
+  const target = S.guest.mute ? 0 : S.guest.vol;
+  const r = (ramp === undefined) ? 0.06 : ramp;
+  if(r <= 0) S.guestGain.gain.value = target;
+  else S.guestGain.gain.setTargetAtTime(target, S.ctx.currentTime, Math.max(0.01, r/3));
+}
+function applyGuestMon(ramp){
+  if(!S.ctx || !S.guestMonGain) return;
+  const target = S.guest.on ? S.guest.monVol : 0;
+  const r = (ramp === undefined) ? 0.06 : ramp;
+  if(r <= 0) S.guestMonGain.gain.value = target;
+  else S.guestMonGain.gain.setTargetAtTime(target, S.ctx.currentTime, Math.max(0.01, r/3));
+}
+
+function detachGuestAudio(){
+  if(S.guest.source){ try{ S.guest.source.disconnect(); }catch(e){} }
+  S.guest.source = null;
+  S.guest.stream = null;
+  S.guest.on = false;
+  if(S.guestGain) S.guestGain.gain.value = 0;
+  if(S.guestMonGain) S.guestMonGain.gain.value = 0;
+}
+
+function guestLeft(){
+  const had = S.guest.on || !!S.guest.id;
+  detachGuestAudio();
+  if(S.guest.micCall){ try{ S.guest.micCall.close(); }catch(e){} S.guest.micCall = null; }
+  if(S.guest.retCall){ try{ S.guest.retCall.close(); }catch(e){} S.guest.retCall = null; }
+  if(S.guest.conn){ try{ S.guest.conn.close(); }catch(e){} S.conns.delete(S.guest.conn.peer); S.guest.conn = null; }
+  S.guest.id = null; S.guest.name = '';
+  setGuestUi(false);
+  sendInfoSoon();
+  if(had) toast('ゲストが退出しました','');
+}
+
+function kickGuest(){
+  if(!S.guest.id && !S.guest.conn) return;
+  try{ if(S.guest.conn) S.guest.conn.send({type:'guest-kick'}); }catch(e){}
+  guestLeft();
+  toast('ゲストを切断しました','');
+}
+
+function setGuestUi(on, state){
+  const st = el.guestStatus, txt = el.guestStatusText;
+  let mode = state || (on ? 'live' : 'off');
+  st.className = 'gstatus ' + (mode === 'live' ? 'live' : mode === 'wait' ? 'wait' : '');
+  if(mode === 'live') txt.textContent = '通話中' + (S.guest.name ? '：' + S.guest.name : '');
+  else if(mode === 'wait') txt.textContent = '待機中';
+  else txt.textContent = '未接続';
+  el.guestMuteBtn.disabled = !on;
+  el.guestKickBtn.disabled = !(on || !!S.guest.id);
+  el.guestMuteBtn.classList.toggle('muting', !!S.guest.mute);
+  el.guestMuteBtn.textContent = S.guest.mute ? 'ミュート解除' : 'ゲストをミュート';
+  el.guestHint.textContent = on
+    ? 'ゲストの声はリスナーとあなた（モニター）に届き、ゲスト自身には返っていません。'
+    : 'リンクを相手に送ると、その人がマイクで参加できます。ゲストの声はリスナーに届き、ゲスト自身には返りません（ハウリング防止）。';
+}
+
+function sendInfo(){
+  if(!S.peer || S.peer.destroyed) return;
+  const payload = infoPayload();
+  S.conns.forEach((conn)=>{
+    try{ if(conn && conn.open) conn.send(payload); }catch(e){}
+  });
+  if(S.guest.conn){
+    try{ if(S.guest.conn.open) S.guest.conn.send(payload); }catch(e){}
+  }
+}
+let infoTimer = null;
+function sendInfoSoon(){
+  if(infoTimer) return;
+  infoTimer = setTimeout(()=>{ infoTimer = null; sendInfo(); }, 220);
+}
+
+/* ---- 開始 / 終了 ---- */
+async function startBroadcast(){
+  if(S.live || S.starting) return;
+  S.starting = true;
+  setBroadcastBtn('起動中…', true, false);
+  setOnair('wait','接続中');
+  try{
+    const okLib = await ensurePeerLib();
+    if(!okLib){ toast('PeerJS を読み込めませんでした（通信環境を確認してください）','err'); throw new Error('no peerjs'); }
+    await ensureAudio();
+    await S.ctx.resume().catch(()=>{});
+
+    updateListenerUrl();
+    if(!S.micStream){
+      const got = await acquireMic();
+      if(got) setMicUi(true);
+      else setMicUi(false);
+    }
+    updateVuLoop();
+    initPeer();
+  }catch(e){
+    S.starting = false;
+    setBroadcastBtn('配信開始', false, false);
+    setOnair('off','OFF AIR');
+    if(e && e.message !== 'no peerjs') console.warn(e);
+  }
+}
+
+function teardownBroadcast(silent){
+  S.mediaCalls.forEach(c=>{ try{ c.close(); }catch(e){} });
+  S.mediaCalls.clear();
+  S.conns.forEach(c=>{ try{ if(c && c.close) c.close(); }catch(e){} });
+  S.conns.clear();
+  S.listeners.clear();
+  updateListenerCount();
+  if(S.peer){ try{ S.peer.destroy(); }catch(e){} S.peer = null; }
+  S.live = false; S.starting = false;
+  stopTimer();
+  el.elapsed.textContent = '00:00:00';
+  setOnair('off','OFF AIR');
+  setBroadcastBtn('配信開始', false, false);
+  el.station.disabled = false;
+  el.peerHint.textContent = '「配信開始」を押すと、この端末が配信局としてネットに登録されます。';
+  pauseBgm();
+  if(S.micStream){
+    S.micStream.getTracks().forEach(t=>{ try{ t.stop(); }catch(e){} });
+    if(S.micSource){ try{ S.micSource.disconnect(); }catch(e){} }
+    S.micStream = null; S.micSource = null;
+  }
+  setMicUi(false);
+  el.micHint.textContent = '「配信開始」でマイクの使用許可を求められます。';
+  detachGuestAudio();
+  S.guest.micCall = null; S.guest.retCall = null; S.guest.conn = null;
+  S.guest.id = null; S.guest.name = ''; S.guest.mute = false;
+  setGuestUi(false);
+  setMonitor(false);
+  if(!silent) toast('配信を終了しました','');
+}
+function stopBroadcast(){ if(!S.live && !S.starting) return; teardownBroadcast(false); }
+
+/* =========================================================
+   キューシート（番組進行表）
+   ========================================================= */
+const CUE_KEY = 'netradio.cuesheet.v1';
+const CUE_TYPES = {
+  talk:{icon:'🎙️', label:'トーク'},
+  mp3:{icon:'🎵', label:'MP3'},
+  archive:{icon:'📻', label:'アーカイブ'},
+  jingle:{icon:'🔔', label:'ジングル'}
+};
+const JINGLES = {op:'OPジングル', chime:'ピンポン', buzz:'ブブー', clap:'拍手'};
+
+function cueNewId(){ return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function cueSave(){
+  try{
+    const items = S.cue.items.map(c=>({
+      id:c.id, type:c.type, title:c.title, memo:c.memo,
+      src:(c.type === 'mp3' ? '' : c.src), srcLabel:c.srcLabel, jingle:c.jingle,
+      needsFile:!!c.needsFile
+    }));
+    localStorage.setItem(CUE_KEY, JSON.stringify({items, index:S.cue.index, auto:S.cue.auto}));
+  }catch(e){ /* file:// 等で保存できない場合は何もしない */ }
+}
+function cueLoad(){
+  try{
+    const raw = localStorage.getItem(CUE_KEY);
+    if(!raw) return;
+    const d = JSON.parse(raw);
+    if(!d || !Array.isArray(d.items)) return;
+    S.cue.items = d.items.slice(0,300).map(c=>({
+      id:c.id || cueNewId(),
+      type:(CUE_TYPES[c.type] ? c.type : 'talk'),
+      title:String(c.title||'').slice(0,120), memo:String(c.memo||'').slice(0,200),
+      src:c.src||'', srcLabel:c.srcLabel||'', jingle:c.jingle||'op',
+      needsFile:(c.type === 'mp3') ? true : !!c.needsFile
+    }));
+    S.cue.index = Math.min(Math.max(-1, Number(d.index)||0), S.cue.items.length-1);
+    S.cue.auto = !!d.auto;
+    el.cueAutoChk.checked = S.cue.auto;
+  }catch(e){}
+}
+
+function cueSourceText(c){
+  if(c.type === 'talk') return 'トーク（MC）';
+  if(c.type === 'archive') return 'アーカイブ：' + (c.title || c.srcLabel || '—');
+  if(c.type === 'jingle') return 'SE：' + (JINGLES[c.jingle] || 'OPジングル');
+  if(c.type === 'mp3') return c.src ? ('ローカル：' + (c.srcLabel || 'MP3')) : 'ローカルMP3：再選択が必要';
+  return '';
+}
+
+function renderCues(){
+  const ul = el.cueList;
+  ul.innerHTML = '';
+  if(!S.cue.items.length){
+    const li = document.createElement('li');
+    li.className = 'cue-empty';
+    li.textContent = '「＋トーク」「＋MP3」「＋アーカイブ」「＋ジングル」で番組の流れを作れます';
+    ul.appendChild(li);
+    return;
+  }
+  S.cue.items.forEach((c, i)=>{
+    const li = document.createElement('li');
+    li.className = 'cue-row' + (i === S.cue.index ? ' now' : '') + (i === S.cue.index + 1 ? ' next' : '') + (i < S.cue.index ? ' done' : '');
+    li.dataset.id = c.id;
+
+    const n = document.createElement('span'); n.className = 'ci'; n.textContent = String(i+1).padStart(2,'0');
+    const ic = document.createElement('span'); ic.className = 'ct'; ic.textContent = (CUE_TYPES[c.type]||CUE_TYPES.talk).icon;
+
+    const body = document.createElement('div'); body.className = 'cbody';
+    const title = document.createElement('input');
+    title.className = 'ctitle'; title.type = 'text'; title.maxLength = 120;
+    title.value = c.title; title.placeholder = (CUE_TYPES[c.type]||CUE_TYPES.talk).label + 'のタイトル';
+    title.addEventListener('input', ()=>{ c.title = title.value; cueSave(); renderCueSourceOnly(li, c); });
+
+    const memo = document.createElement('input');
+    memo.className = 'cmemo'; memo.type = 'text'; memo.maxLength = 200;
+    memo.value = c.memo; memo.placeholder = 'カンペ・メモ';
+    memo.addEventListener('input', ()=>{ c.memo = memo.value; cueSave(); });
+
+    const src = document.createElement('div'); src.className = 'csrc' + ((c.type === 'mp3' && !c.src) ? ' missing' : '');
+    src.textContent = cueSourceText(c);
+
+    body.appendChild(title); body.appendChild(memo);
+    if(c.type === 'jingle'){
+      const sel = document.createElement('select');
+      sel.style.maxWidth = '170px';
+      Object.keys(JINGLES).forEach(k=>{
+        const o = document.createElement('option'); o.value = k; o.textContent = JINGLES[k];
+        if(k === c.jingle) o.selected = true;
+        sel.appendChild(o);
+      });
+      sel.addEventListener('change', ()=>{ c.jingle = sel.value; src.textContent = cueSourceText(c); cueSave(); });
+      body.appendChild(sel);
+    }
+    body.appendChild(src);
+
+    const btns = document.createElement('div'); btns.className = 'cbtns';
+    const mk = (label, cls, fn, aria)=>{
+      const b = document.createElement('button'); b.type='button'; b.textContent = label;
+      if(cls) b.className = cls; if(aria) b.title = aria;
+      b.addEventListener('click', fn); btns.appendChild(b); return b;
+    };
+    mk('↑', '', ()=>cueMove(i, -1), '上へ');
+    mk('↓', '', ()=>cueMove(i, 1), '下へ');
+    mk('▶ 実行', 'run', ()=>runCue(i), 'このキューを実行');
+    const del = mk('✕', 'del', ()=>cueRemove(i), '削除');
+
+    li.appendChild(n); li.appendChild(ic); li.appendChild(body); li.appendChild(btns);
+    ul.appendChild(li);
+  });
+}
+function renderCueSourceOnly(li, c){
+  const src = li.querySelector('.csrc');
+  if(src){ src.textContent = cueSourceText(c); }
+}
+
+function cueAdd(type, data){
+  const c = Object.assign({
+    id:cueNewId(), type, title:'', memo:'', src:'', srcLabel:'', jingle:'op', needsFile:false
+  }, data || {});
+  S.cue.items.push(c);
+  if(S.cue.index < 0) S.cue.index = 0;
+  renderCues(); cueSave();
+  setTimeout(()=>{
+    const row = el.cueList.querySelector('[data-id="' + c.id + '"] .ctitle');
+    if(row){ row.focus(); if(row.setSelectionRange && !row.value) row.setSelectionRange(0,0); }
+  }, 30);
+  return c;
+}
+function cueRemove(i){
+  if(i < 0 || i >= S.cue.items.length) return;
+  const c = S.cue.items[i];
+  if(c.type === 'mp3' && c.src){ try{ URL.revokeObjectURL(c.src); }catch(e){} }
+  S.cue.items.splice(i,1);
+  if(S.cue.index > i) S.cue.index--;
+  else if(S.cue.index === i) S.cue.index = Math.min(i, S.cue.items.length-1);
+  if(!S.cue.items.length) S.cue.index = -1;
+  renderCues(); cueSave();
+}
+function cueMove(i, dir){
+  const j = i + dir;
+  if(j < 0 || j >= S.cue.items.length) return;
+  const a = S.cue.items;
+  const tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+  if(S.cue.index === i) S.cue.index = j;
+  else if(S.cue.index === j) S.cue.index = i;
+  renderCues(); cueSave();
+}
+
+function runCue(i){
+  const c = S.cue.items[i];
+  if(!c) return;
+  S.cue.index = i;
+  renderCues(); cueSave();
+
+  if(c.type === 'talk'){
+    onDuck(true);
+    S.cue.playingId = null;
+    toast('🎙️ トーク：' + (c.title || 'MC') + (c.memo ? '（' + c.memo + '）' : ''), '');
+    sendInfoSoon();
+    return;
+  }
+  onDuck(false);
+  if(c.type === 'jingle'){
+    playPad(c.jingle || 'op');
+    S.cue.playingId = null;
+    setTimeout(()=>{ if(S.cue.auto) cueNext(); }, 1800);
+    return;
+  }
+  if(c.type === 'mp3' && !c.src){ cuePickFile(c.id); return; }
+  if(!c.src){ toast('音源が設定されていません','warn'); return; }
+  playCueAudio(c);
+}
+
+function playCueAudio(c){
+  const item = bgmItemFromCue(c);
+  if(!item){ toast('音源が設定されていません','warn'); return; }
+  if(!S.ctx){ toast('先に「配信開始」を押してください','warn'); return; }
+  onDuck(false);
+  S.cue.index = S.cue.items.indexOf(c);
+  startItem(item, {fade: (deckCur() && deckCur().item ? S.xfade : 0.3)});
+}
+function cueNext(){
+  if(!S.cue.items.length){ toast('キューが空です','warn'); return; }
+  const n = S.cue.index + 1;
+  if(n >= S.cue.items.length){ toast('キューシートの最後まで進みました',''); return; }
+  runCue(n);
+}
+
+function cuePickFile(id){
+  S.cue.pendingFileId = id;
+  el.cueMp3File.value = '';
+  el.cueMp3File.click();
+}
+function onCueFilePicked(file){
+  if(!file) return;
+  const url = URL.createObjectURL(file);
+  const name = file.name.replace(/\.[^.]+$/,'');
+  if(S.cue.pendingFileId){
+    const c = S.cue.items.find(x=>x.id === S.cue.pendingFileId);
+    if(c){
+      if(c.src){ try{ URL.revokeObjectURL(c.src); }catch(e){} }
+      c.src = url; c.srcLabel = file.name; c.needsFile = false;
+      if(!c.title) c.title = name;
+      renderCues(); cueSave();
+      const i = S.cue.items.indexOf(c);
+      if(i >= 0) runCue(i);
+    }
+    S.cue.pendingFileId = null;
+    return;
+  }
+  cueAdd('mp3', {title:name, src:url, srcLabel:file.name});
+  const c = S.cue.items[S.cue.items.length-1];
+  if(c && S.cue.index === S.cue.items.length-1) runCue(S.cue.index);
+}
+
+/* --- アーカイブ選択 --- */
+function openArchivePicker(){
+  el.cuePicker.hidden = false;
+  el.cueSearch.value = '';
+  renderArchiveList('');
+  el.cueSearch.focus();
+}
+function renderArchiveList(q){
+  const list = el.cuePickerList;
+  list.innerHTML = '';
+  const qq = (q||'').trim().toLowerCase();
+  const items = ARCHIVE.filter(t=>!qq || t.t.toLowerCase().includes(qq));
+  items.slice(0, 200).forEach(t=>{
+    const li = document.createElement('li');
+    const sp = document.createElement('span'); sp.textContent = t.t;
+    const sm = document.createElement('small'); sm.textContent = t.c.toUpperCase();
+    li.appendChild(sp); li.appendChild(sm);
+    li.addEventListener('click', ()=>{
+      cueAdd('archive', {title:t.t, src:t.u, srcLabel:'アーカイブ'});
+      el.cuePicker.hidden = true;
+      toast('キューに追加：' + t.t, 'ok');
+    });
+    list.appendChild(li);
+  });
+  if(!items.length){
+    const li = document.createElement('li'); li.textContent = '該当する曲がありません';
+    list.appendChild(li);
+  }
+}
+
+/* --- 保存・入出力 --- */
+function cueExport(){
+  const data = {version:1, auto:S.cue.auto, items:S.cue.items.map(c=>({
+    type:c.type, title:c.title, memo:c.memo,
+    src:(c.type === 'mp3' ? '' : c.src), srcLabel:c.srcLabel, jingle:c.jingle
+  }))};
+  try{
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'cue-sheet.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 3000);
+    toast('キューシートを書き出しました','ok');
+  }catch(e){ toast('書き出しに失敗しました','err'); }
+}
+async function cueImport(file){
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const d = JSON.parse(text);
+    const arr = Array.isArray(d) ? d : d.items;
+    if(!Array.isArray(arr)) throw new Error('bad');
+    S.cue.items = arr.slice(0,300).map(c=>({
+      id:cueNewId(),
+      type:(CUE_TYPES[c.type] ? c.type : 'talk'),
+      title:String(c.title||'').slice(0,120), memo:String(c.memo||'').slice(0,200),
+      src:c.src||'', srcLabel:c.srcLabel||'', jingle:c.jingle||'op',
+      needsFile:(c.type === 'mp3')
+    }));
+    S.cue.index = S.cue.items.length ? 0 : -1;
+    if(!Array.isArray(d)) S.cue.auto = !!d.auto;
+    el.cueAutoChk.checked = S.cue.auto;
+    renderCues(); cueSave();
+    toast(S.cue.items.length + '件のキューを読み込みました','ok');
+  }catch(e){ toast('読み込めないファイルです','err'); }
+}
+
+/* =========================================================
+   UI バインド
+   ========================================================= */
+function bind(){
+  // 数値表示とレンジ
+  [el.micVol, el.bgmVol, el.masterVol, el.bgmSeek].forEach(i=>{
+    setRangeFill(i);
+    i.addEventListener('input', ()=>setRangeFill(i));
+  });
+
+  el.station.addEventListener('input', ()=>{ updateListenerUrl(); el.brandSub.textContent = '局ID: ' + stationId(); });
+  [el.title, el.dj, el.note].forEach(i=>i.addEventListener('input', sendInfoSoon));
+
+  el.copyUrlBtn.addEventListener('click', async ()=>{
+    updateListenerUrl();
+    const ok = await copyText(el.listenUrl.value);
+    el.listenUrl.select();
+    toast(ok ? 'リスナー用URLをコピーしました' : 'URLを選択しました。コピーしてください', ok ? 'ok' : 'warn');
+  });
+
+  el.broadcastBtn.addEventListener('click', ()=>{
+    if(S.live || S.starting) stopBroadcast(); else startBroadcast();
+  });
+
+  // マイク
+  el.micToggle.addEventListener('click', toggleMic);
+  el.micVol.addEventListener('input', ()=>{
+    S.micVol = Number(el.micVol.value)/100;
+    el.micVolVal.textContent = el.micVol.value;
+    applyMicGain();
+  });
+  el.micDevice.addEventListener('change', async ()=>{
+    S.deviceId = el.micDevice.value;
+    if(S.micStream){ await acquireMic(); setMicUi(S.micOn); }
+  });
+  el.micRefresh.addEventListener('click', async ()=>{
+    await refreshDeviceList();
+    toast('マイク一覧を更新しました','');
+  });
+  el.echoChk.addEventListener('change', async ()=>{
+    S.echo = el.echoChk.checked;
+    if(S.micStream){ await acquireMic(); setMicUi(S.micOn); }
+  });
+  el.noiseChk.addEventListener('change', async ()=>{
+    S.noise = el.noiseChk.checked;
+    if(S.micStream){ await acquireMic(); setMicUi(S.micOn); }
+  });
+  if(navigator.mediaDevices) navigator.mediaDevices.addEventListener && navigator.mediaDevices.addEventListener('devicechange', ()=>refreshDeviceList());
+
+  // BGM
+  el.bgmFiles.addEventListener('change', (e)=>{ addFiles(e.target.files); e.target.value=''; });
+  el.bgmPlay.addEventListener('click', toggleBgm);
+  el.bgmNext.addEventListener('click', ()=>nextTrack(true));
+  el.bgmPrev.addEventListener('click', prevTrack);
+  el.bgmVol.addEventListener('input', ()=>{
+    S.bgmVol = Number(el.bgmVol.value)/100;
+    el.bgmVolVal.textContent = el.bgmVol.value;
+    applyBgmGain(0.05);
+  });
+  el.xfade.addEventListener('input', ()=>{
+    S.xfade = Number(el.xfade.value);
+    el.xfadeVal.textContent = S.xfade.toFixed(1) + 's';
+    setRangeFill(el.xfade);
+  });
+  el.bgmSeek.addEventListener('input', ()=>{
+    const d = deckCur();
+    if(!d || !d.el.duration) return;
+    S.seeking = true;
+    el.bgmCur.textContent = fmtTime(d.el.duration * (el.bgmSeek.value/1000));
+  });
+  el.bgmSeek.addEventListener('change', ()=>{
+    const d = deckCur();
+    if(d && d.el.duration) d.el.currentTime = d.el.duration * (el.bgmSeek.value/1000);
+    S.seeking = false;
+  });
+  [el.bgmElA, el.bgmElB].forEach((a, i)=>{
+    a.addEventListener('timeupdate', ()=>onDeckTime(S.decks[i]));
+    a.addEventListener('ended', ()=>onDeckEnded(S.decks[i]));
+    a.addEventListener('play', updateNowUi);
+    a.addEventListener('pause', updateNowUi);
+    a.addEventListener('loadedmetadata', ()=>{ if(S.decks && S.decks[i] === deckCur()) el.bgmDur.textContent = fmtTime(a.duration); });
+    a.addEventListener('error', ()=>{ if(S.decks && S.decks[i].item) toast('音源の読み込みに失敗しました','err'); });
+  });
+
+  // ダッキング（押している間）
+  const down = (e)=>{ e.preventDefault(); onDuck(true); };
+  const up = ()=>{ onDuck(false); };
+  el.talkBtn.addEventListener('pointerdown', down);
+  el.talkBtn.addEventListener('pointerup', up);
+  el.talkBtn.addEventListener('pointercancel', up);
+  el.talkBtn.addEventListener('pointerleave', up);
+  el.talkBtn.addEventListener('keydown', (e)=>{ if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); onDuck(true); } });
+  el.talkBtn.addEventListener('keyup', up);
+
+  // パッド
+  document.querySelectorAll('.pad').forEach(b=>{
+    b.addEventListener('click', ()=>playPad(b.dataset.pad));
+  });
+
+  // ボイスチェンジャー
+  document.querySelectorAll('.vp').forEach(b=>{
+    b.addEventListener('click', ()=>setVoice(b.dataset.vp));
+  });
+  el.voiceMonitorBtn.addEventListener('click', ()=>setMonitor(!S.monitorOn));
+
+  // ゲスト
+  el.guestVol.addEventListener('input', ()=>{
+    S.guest.vol = Number(el.guestVol.value)/100;
+    el.guestVolVal.textContent = el.guestVol.value;
+    applyGuestGain(0.05);
+  });
+  el.guestMuteBtn.addEventListener('click', ()=>{
+    S.guest.mute = !S.guest.mute;
+    applyGuestGain(0.05);
+    setGuestUi(S.guest.on);
+    toast(S.guest.mute ? 'ゲストをミュートしました' : 'ゲストのミュートを解除しました','');
+  });
+  el.guestKickBtn.addEventListener('click', kickGuest);
+  el.guestMonChk.addEventListener('change', ()=>{
+    S.guest.monVol = el.guestMonChk.checked ? 0.85 : 0;
+    applyGuestMon(0.06);
+  });
+  el.copyGuestBtn.addEventListener('click', async ()=>{
+    updateListenerUrl();
+    const ok = await copyText(el.guestUrl.value);
+    el.guestUrl.select();
+    toast(ok ? 'ゲスト招待リンクをコピーしました' : 'リンクを選択しました。コピーしてください', ok ? 'ok' : 'warn');
+  });
+
+  // キューシート
+  el.cueAddTalk.addEventListener('click', ()=>cueAdd('talk', {title:'トーク'}));
+  el.cueAddMp3.addEventListener('click', ()=>cuePickFile(null));
+  el.cueAddArc.addEventListener('click', openArchivePicker);
+  el.cueAddJingle.addEventListener('click', ()=>cueAdd('jingle', {title:'ジングル', jingle:'op'}));
+  el.cueNextBtn.addEventListener('click', cueNext);
+  el.cueAutoChk.addEventListener('change', ()=>{ S.cue.auto = el.cueAutoChk.checked; cueSave(); });
+  el.cueExportBtn.addEventListener('click', cueExport);
+  el.cueImportFile.addEventListener('change', (e)=>{ cueImport(e.target.files[0]); e.target.value = ''; });
+  el.cueMp3File.addEventListener('change', (e)=>{ onCueFilePicked(e.target.files[0]); e.target.value = ''; });
+  el.cuePickerClose.addEventListener('click', ()=>{ el.cuePicker.hidden = true; });
+  el.cueSearch.addEventListener('input', ()=>renderArchiveList(el.cueSearch.value));
+
+  // マスター
+  el.masterVol.addEventListener('input', ()=>{
+    if(S.ctx) S.masterGain.gain.setTargetAtTime(Number(el.masterVol.value)/100, S.ctx.currentTime, 0.03);
+    el.masterVolVal.textContent = el.masterVol.value;
+  });
+  el.monitorChk.addEventListener('change', ()=>setMonitor(el.monitorChk.checked));
+
+  // スペースキーでトーク（入力中は無効）
+  document.addEventListener('keydown', (e)=>{
+    const t = e.target;
+    if(t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) return;
+    if(e.code === 'Space' && !e.repeat){ e.preventDefault(); onDuck(true); }
+  });
+  document.addEventListener('keyup', (e)=>{
+    const t = e.target;
+    if(t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) return;
+    if(e.code === 'Space'){ e.preventDefault(); onDuck(false); }
+  });
+
+  window.addEventListener('pagehide', ()=>{ try{ if(S.peer) S.peer.destroy(); }catch(e){} });
+  window.addEventListener('beforeunload', ()=>{ try{ if(S.peer) S.peer.destroy(); }catch(e){} });
+}
+
+/* =========================================================
+   初期化
+   ========================================================= */
+function init(){
+  bind();
+  updateListenerUrl();
+  setRangeFill(el.micVol); setRangeFill(el.bgmVol); setRangeFill(el.masterVol); setRangeFill(el.bgmSeek);
+  el.bgmVolVal.textContent = el.bgmVol.value;
+  el.xfadeVal.textContent = Number(el.xfade.value).toFixed(1) + 's';
+  setRangeFill(el.xfade);
+  S.xfade = Number(el.xfade.value);
+  el.masterVolVal.textContent = el.masterVol.value;
+  el.micVolVal.textContent = el.micVol.value;
+  el.guestVolVal.textContent = el.guestVol.value;
+  setRangeFill(el.guestVol);
+  el.guestVol.addEventListener('input', ()=>setRangeFill(el.guestVol));
+  S.bgmVol = Number(el.bgmVol.value)/100;
+  S.micVol = Number(el.micVol.value)/100;
+  setMicUi(false);
+  updateNowUi();
+  updateListenerCount();
+  setGuestUi(false);
+  setVoice(V.preset, true);
+  cueLoad();
+  renderCues();
+  el.guestMonChk.checked = true;
+  sizeVu();
+  drawVu();
+  refreshDeviceList();
+  // CDN が読めていなければ事前にローカルへ切り替え
+  ensurePeerLib();
+}
+
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+
+/* テスト用フック */
+window.__nrDebug = {
+  state(){
+    return {
+      live:S.live, starting:S.starting, ctx:S.ctx ? S.ctx.state : null,
+      micOn:S.micOn, hasMic:!!S.micStream,
+      listeners:S.listeners.size, conns:S.conns.size, mediaCalls:S.mediaCalls.size,
+      peerId:S.peer ? S.peer.id : null, peerOpen:!!(S.peer && S.peer.open),
+      bgmPlaying:!!(deckCur() && deckCur().item && !deckCur().el.paused), bgmTracks:S.playlist.length, xfade:S.xfade, deck:S.active,
+      peak:Math.max(peakDb(S.anL), peakDb(S.anR)),
+      stationId:stationId(), limit:el.limitLamp.classList.contains('on'),
+      guestOn:!!S.guest.on, guestId:S.guest.id, guestName:S.guest.name,
+      guestStream:!!S.guest.stream, guestSource:!!S.guest.source,
+      guestConn:!!(S.guest.conn && S.guest.conn.open), guestMicCall:!!(S.guest.micCall && S.guest.micCall.open),
+      voice:V.preset, monitor:S.monitorOn
+    };
+  },
+  mag(freqs){
+    const read = (an)=>{
+      if(!an || !S.ctx) return null;
+      const arr = new Float32Array(an.frequencyBinCount);
+      an.getFloatFrequencyData(arr);
+      const out = {};
+      (freqs || []).forEach(f=>{
+        const bin = Math.round(f / (S.ctx.sampleRate/2) * arr.length);
+        let best = -Infinity;
+        for(let i=Math.max(0,bin-4); i<=Math.min(arr.length-1,bin+4); i++) if(arr[i] > best) best = arr[i];
+        out[String(f)] = Math.round(best*10)/10;
+      });
+      return out;
+    };
+    return {mixed:read(S.dbgMixed), ret:read(S.dbgRet)};
+  },
+  pad:playPad,
+  voice:setVoice,
+  guest:K_GUEST,
+  deck(){
+    const d = deckCur();
+    return d ? {active:S.active, title:d.item?d.item.title:null, kind:d.item?d.item.kind:null,
+      playing:!!(d.item && !d.el.paused), time:Math.round(d.el.currentTime*10)/10,
+      dur:Math.round((d.el.duration||0)*10)/10, gain:Math.round(d.gain.gain.value*100)/100,
+      other:d.item?S.decks[1-S.active].item&&S.decks[1-S.active].item.title:null,
+      otherGain:Math.round(S.decks[1-S.active].gain.gain.value*100)/100} : null;
+  },
+  nearEnd(){
+    const d = deckCur();
+    if(!d || !d.el.duration) return false;
+    d.el.currentTime = Math.max(0, d.el.duration - (S.xfade + 0.2));
+    return true;
+  },
+  peakFreqs(n){
+    if(!S.ctx || !S.dbgMixed) return [];
+    const arr = new Float32Array(S.dbgMixed.frequencyBinCount);
+    S.dbgMixed.getFloatFrequencyData(arr);
+    const binHz = (S.ctx.sampleRate/2) / arr.length;
+    const list = [];
+    for(let i=2;i<arr.length-2;i++){
+      if(arr[i] > arr[i-1] && arr[i] >= arr[i+1] && arr[i] > -92) list.push([Math.round(i*binHz), arr[i]]);
+    }
+    list.sort((a,b)=>b[1]-a[1]);
+    return list.slice(0, n||5).map(x=>({f:x[0], db:Math.round(x[1]*10)/10}));
+  },
+  simGuest(freq){
+    if(!S.ctx) return false;
+    const ctx = S.ctx;
+    const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = freq || 880;
+    const g = ctx.createGain(); g.gain.value = 0.4;
+    const dest = ctx.createMediaStreamDestination();
+    osc.connect(g); g.connect(dest); osc.start();
+    attachGuest(dest.stream, 'sim-' + Date.now());
+    return true;
+  },
+  cue:{
+    add:(type,data)=>cueAdd(type,data),
+    move:(i,d)=>cueMove(i,d),
+    remove:(i)=>cueRemove(i),
+    run:(i)=>runCue(i),
+    next:()=>cueNext(),
+    list:()=>S.cue.items.map(c=>({id:c.id,type:c.type,title:c.title,memo:c.memo,src:c.src,jingle:c.jingle})),
+    index:()=>S.cue.index,
+    auto:()=>S.cue.auto
+  }
+};
+function K_GUEST(){
+  return {on:S.guest.on, id:S.guest.id, name:S.guest.name, mute:S.guest.mute, vol:S.guest.vol};
+}
+})();
+</script>
+</body>
+</html>

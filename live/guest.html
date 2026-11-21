@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0b10">
+<title>ゲストスタジオ — NET RADIO</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a0b10'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='%2379e0c2' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23f2b464'/%3E%3C/svg%3E">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none !important}
+:root{
+  --bg:#08090e; --panel:rgba(255,255,255,.045); --line:rgba(255,255,255,.085); --line2:rgba(255,255,255,.14);
+  --txt:#eae7e0; --dim:#97948d; --dim2:#6d6a64;
+  --amber:#f2b464; --mint:#79e0c2; --red:#ff5a5a; --blue:#93b9ff;
+  --mono:"SFMono-Regular",Menlo,Consolas,"Roboto Mono","DejaVu Sans Mono",monospace;
+  --serif:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,"Noto Sans JP",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+html,body{margin:0;padding:0;max-width:100%}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--sans);color:var(--txt);min-height:100vh;line-height:1.55;overflow-x:hidden;
+  background:
+    radial-gradient(900px 480px at 50% -12%,rgba(121,224,194,.10),transparent 62%),
+    radial-gradient(800px 420px at 100% 100%,rgba(242,180,100,.06),transparent 60%),
+    linear-gradient(180deg,#0a0b11 0%,#08090e 50%,#06070b 100%);
+  background-attachment:scroll;
+  padding-bottom:28px;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.035;
+  background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px;position:relative;z-index:1}
+button{font-family:inherit;color:inherit}
+input,select,output{font-family:inherit}
+
+/* ヘッダー */
+header{padding:20px 0 8px}
+.brandline{display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+.mark{width:36px;height:36px;flex:0 0 36px;border-radius:50%;border:1px solid rgba(121,224,194,.55);display:grid;place-items:center;color:var(--mint);font-size:13px;box-shadow:inset 0 0 14px rgba(121,224,194,.18)}
+.brand-t{font-size:13px;letter-spacing:.16em;font-weight:600}
+.brand-t .thin{color:var(--dim);font-weight:400;letter-spacing:.04em}
+.brand-s{font-family:var(--mono);font-size:10.5px;color:var(--dim2);letter-spacing:.04em}
+.chip{
+  margin-left:auto;display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:999px;
+  border:1px solid var(--line2);background:rgba(255,255,255,.03);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--dim);white-space:nowrap;
+}
+.chip i{width:8px;height:8px;border-radius:50%;background:#45454b;flex:0 0 8px}
+.chip.wait{border-color:rgba(242,180,100,.5);color:#f6dcb4}
+.chip.wait i{background:var(--amber);animation:pulse 1.2s infinite}
+.chip.live{border-color:rgba(121,224,194,.55);color:#d8fff3;background:rgba(121,224,194,.1)}
+.chip.live i{background:var(--mint);box-shadow:0 0 9px rgba(121,224,194,.9);animation:pulse 2s infinite}
+.chip.err{border-color:rgba(255,90,90,.5);color:#ffd9d9}
+.chip.err i{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+h1{font-family:var(--serif);font-size:clamp(22px,5.2vw,30px);font-weight:500;letter-spacing:.02em;margin:16px 0 4px}
+.lead{color:var(--dim);font-size:12.5px;margin:0 0 14px}
+
+.panel{
+  border:1px solid var(--line);border-radius:16px;padding:16px 17px 17px;margin-bottom:14px;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.018));
+  min-width:0;
+}
+.p-head{display:flex;align-items:center;gap:9px;margin:0 0 12px;flex-wrap:wrap}
+.p-head h2{margin:0;font-size:10.5px;letter-spacing:.2em;font-family:var(--mono);font-weight:600;color:#cfc9bd}
+.p-head h2::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--mint);margin-right:8px;vertical-align:middle}
+.p-head .grow{flex:1}
+.hint{font-size:11px;color:var(--dim2);line-height:1.65;margin:9px 0 0}
+
+.field{display:block;margin-bottom:11px;min-width:0}
+.field>span{display:block;font-size:10.5px;letter-spacing:.1em;color:var(--dim);margin-bottom:5px;font-family:var(--mono)}
+.row{display:flex;align-items:center;gap:8px;min-width:0}
+input[type=text],input:not([type]),select{
+  width:100%;min-width:0;background:rgba(0,0,0,.42);border:1px solid var(--line2);border-radius:10px;
+  padding:10px 11px;color:var(--txt);font-size:13px;outline:none;transition:border-color .15s,box-shadow .15s;
+}
+input[type=text]:focus,input:not([type]):focus,select:focus{border-color:rgba(121,224,194,.65);box-shadow:0 0 0 3px rgba(121,224,194,.10)}
+input[readonly]{color:var(--dim);font-family:var(--mono);font-size:11.5px;background:rgba(0,0,0,.3)}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--dim) 50%),linear-gradient(135deg,var(--dim) 50%,transparent 50%);background-position:calc(100% - 16px) 50%,calc(100% - 11px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:30px}
+select option{background:#14161e;color:var(--txt)}
+
+input[type=range]{-webkit-appearance:none;appearance:none;height:6px;border-radius:99px;width:100%;min-width:0;cursor:pointer;margin:6px 0;
+  background:linear-gradient(90deg,var(--mint) 0 calc(var(--p,50%)),rgba(255,255,255,.13) calc(var(--p,50%)) 100%);}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:#14161e;border:2px solid var(--mint);box-shadow:0 0 0 4px rgba(121,224,194,.1)}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:#14161e;border:2px solid var(--mint)}
+input[type=range].amber{background:linear-gradient(90deg,var(--amber) 0 calc(var(--p,50%)),rgba(255,255,255,.13) calc(var(--p,50%)),rgba(255,255,255,.13) 100%)}
+input[type=range].amber::-webkit-slider-thumb{border-color:var(--amber);box-shadow:0 0 0 4px rgba(242,180,100,.1)}
+output{font-family:var(--mono);font-size:11px;color:var(--mint);min-width:38px;text-align:right;flex:0 0 auto}
+
+.btn{
+  border:1px solid var(--line2);background:rgba(255,255,255,.05);border-radius:11px;
+  padding:9px 14px;font-size:12.5px;cursor:pointer;white-space:nowrap;transition:all .15s;
+}
+.btn:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.24)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.small{padding:7px 11px;font-size:11.5px;border-radius:9px}
+.btn.join{width:100%;padding:15px;font-size:15px;font-weight:700;letter-spacing:.06em;border-radius:13px;
+  background:linear-gradient(180deg,#9df0d8,#5ecbb0);color:#062019;border-color:#9df0d8;box-shadow:0 6px 22px rgba(121,224,194,.22)}
+.btn.join:hover{background:linear-gradient(180deg,#b4f7e4,#6ed6bd)}
+.btn.leave{width:100%;padding:15px;font-size:15px;font-weight:700;letter-spacing:.06em;border-radius:13px;
+  background:linear-gradient(180deg,#ff8080,#d94141);color:#2a0505;border-color:#ff8f8f;box-shadow:0 6px 22px rgba(255,90,90,.2)}
+.btn.leave:hover{background:linear-gradient(180deg,#ff9a9a,#e15151)}
+.btn.on{border-color:rgba(121,224,194,.55);background:rgba(121,224,194,.12);color:#d8fff3}
+.btn.muting{border-color:rgba(255,90,90,.55);background:rgba(255,90,90,.12);color:#ffd9d9}
+
+/* 参加パネル */
+.join-state{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--dim);margin-top:4px;flex-wrap:wrap}
+.dot{width:7px;height:7px;border-radius:50%;background:#4a4a52}
+.dot.live{background:var(--mint);box-shadow:0 0 8px rgba(121,224,194,.8)}
+
+/* 番組情報 */
+.prog{display:flex;gap:13px;align-items:flex-start}
+.prog .lamp{
+  width:44px;height:44px;flex:0 0 44px;border-radius:50%;border:1px solid rgba(255,90,90,.35);
+  display:grid;place-items:center;background:rgba(255,90,90,.06);position:relative;
+}
+.prog .lamp::after{content:"";width:12px;height:12px;border-radius:50%;background:#3b3b42}
+.prog.on .lamp{border-color:rgba(255,90,90,.7);box-shadow:0 0 18px rgba(255,90,90,.18)}
+.prog.on .lamp::after{background:var(--red);box-shadow:0 0 12px rgba(255,90,90,.95)}
+.prog .tt{font-family:var(--serif);font-size:clamp(17px,4.4vw,22px);line-height:1.35;margin:0;word-break:break-word}
+.prog .dj{font-size:11.5px;color:var(--amber);font-family:var(--mono);letter-spacing:.06em;margin-top:4px}
+.prog .note{font-size:12px;color:var(--dim);margin-top:6px;word-break:break-word}
+.prog .live-tag{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;padding:4px 9px;border-radius:6px;border:1px solid rgba(255,90,90,.4);color:#ffb3b3;background:rgba(255,90,90,.07)}
+.prog .live-tag i{width:6px;height:6px;border-radius:50%;background:var(--red);box-shadow:0 0 8px rgba(255,90,90,.9)}
+.prog-idle{font-family:var(--serif);font-size:16px;color:var(--dim);margin:2px 0 0}
+
+/* 声 */
+.voice-head{display:flex;align-items:center;gap:10px;margin:14px 0 9px;padding-top:12px;border-top:1px dashed rgba(255,255,255,.1);flex-wrap:wrap}
+.voice-head .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--dim)}
+.voice-head .btn{margin-left:auto}
+.vpresets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+@media (max-width:420px){.vpresets{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.vp{border:1px solid var(--line2);background:rgba(255,255,255,.035);border-radius:9px;padding:8px 6px;font-size:11px;color:var(--dim);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:all .15s}
+.vp:hover{background:rgba(255,255,255,.08);color:var(--txt)}
+.vp.on{border-color:rgba(121,224,194,.7);background:rgba(121,224,194,.14);color:#d8fff3;font-weight:700}
+
+/* ホストの音声 */
+.host-audio{display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+.btn.playbtn{width:46px;height:46px;border-radius:50%;padding:0;display:grid;place-items:center;font-size:16px;
+  background:linear-gradient(180deg,rgba(242,180,100,.24),rgba(242,180,100,.08));border-color:rgba(242,180,100,.5);color:#ffe6bd;flex:0 0 46px}
+#hostMeter{display:block;width:100%;height:56px;margin-top:11px;border-radius:10px;background:rgba(0,0,0,.32);border:1px solid var(--line)}
+.vol-row{display:flex;align-items:center;gap:9px;flex:1 1 150px;min-width:120px}
+.vol-row span{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--dim2)}
+#toasts{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;width:calc(100% - 28px);max-width:420px;pointer-events:none}
+.toast{background:rgba(20,22,30,.96);border:1px solid var(--line2);border-radius:11px;padding:10px 14px;font-size:12px;line-height:1.5;box-shadow:0 12px 30px rgba(0,0,0,.5);animation:tin .22s ease-out;max-width:100%}
+.toast.ok{border-color:rgba(121,224,194,.5)}
+.toast.err{border-color:rgba(255,90,90,.6)}
+@keyframes tin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.steps{font-size:11.5px;color:var(--dim2);line-height:1.9;padding-left:18px;margin:8px 0 0}
+.steps li::marker{color:var(--mint)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brandline">
+      <span class="mark">◉</span>
+      <div style="min-width:0">
+        <div class="brand-t">NET RADIO <span class="thin">/ ゲストスタジオ</span></div>
+        <div class="brand-s" id="brandSub">ホスト: kaeru-radio-live</div>
+      </div>
+      <span class="chip" id="statusChip"><i></i><span id="statusText">未参加</span></span>
+    </div>
+    <h1>2人で喋れるスタジオ</h1>
+    <p class="lead">ホストから届いたリンクを開いて「スタジオに参加する」を押すだけ。あなたの声はホストのラジオにそのまま乗ります。</p>
+  </header>
+
+  <section class="panel">
+    <div class="p-head"><h2>スタジオ参加</h2></div>
+    <label class="field">
+      <span>ホストの放送局ID</span>
+      <input id="hostInput" type="text" readonly autocapitalize="off">
+    </label>
+    <label class="field">
+      <span>表示名（ホストに伝わります）</span>
+      <input id="nameInput" type="text" maxlength="24" placeholder="ゲスト" autocomplete="off">
+    </label>
+    <button class="btn join" id="joinBtn" type="button">スタジオに参加する</button>
+    <div class="join-state">
+      <span class="dot" id="stateDot"></span>
+      <span id="stateLine">まだ参加していません</span>
+    </div>
+    <p class="hint" id="joinHint">スマホはマイクの許可を求められたら「許可」を押してください。スピーカーだとハウリングするので、ヘッドホン推奨です。</p>
+  </section>
+
+  <section class="panel" id="progPanel">
+    <div class="p-head"><h2>放送中の番組</h2></div>
+    <div class="prog" id="progBox">
+      <div class="lamp"></div>
+      <div style="min-width:0">
+        <p class="prog-idle" id="progIdle">ホストの放送を待っています…</p>
+        <p class="tt" id="progTitle" hidden></p>
+        <div class="dj" id="progDj" hidden></div>
+        <div class="note" id="progNote" hidden></div>
+        <span class="live-tag" id="guestTag" hidden><i></i><span id="guestTagText">ゲスト出演中</span></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="p-head">
+      <h2>あなたのマイク</h2>
+      <span class="grow"></span>
+      <button class="btn small" id="micBtn" type="button" disabled>マイク OFF</button>
+    </div>
+    <div class="field" style="margin-bottom:10px">
+      <span>マイク音量</span>
+      <div class="row">
+        <input id="micVol" type="range" min="0" max="150" value="100">
+        <output id="micVolVal">100</output>
+      </div>
+    </div>
+    <div class="field">
+      <span>入力デバイス</span>
+      <div class="row">
+        <select id="micDevice"><option value="">（既定のマイク）</option></select>
+        <button class="btn small" id="micRefresh" type="button">更新</button>
+      </div>
+    </div>
+    <div class="voice-head">
+      <span class="lbl">ボイスチェンジャー</span>
+      <button class="btn small" id="selfMonBtn" type="button">自分の声を聴く OFF</button>
+    </div>
+    <div class="vpresets" id="vPresets">
+      <button class="vp on" type="button" data-vp="off">素の声</button>
+      <button class="vp" type="button" data-vp="radio">📻 AMラジオ</button>
+      <button class="vp" type="button" data-vp="robot">🤖 ロボット</button>
+      <button class="vp" type="button" data-vp="alien">🛸 エイリアン</button>
+      <button class="vp" type="button" data-vp="echo">🎤 エコー</button>
+      <button class="vp" type="button" data-vp="low">🗣 低音</button>
+      <button class="vp" type="button" data-vp="high">🗣 高音</button>
+    </div>
+    <p class="hint">変えた声はホストのラジオ（リスナー）にそのまま届きます。</p>
+  </section>
+
+  <section class="panel">
+    <div class="p-head">
+      <h2>ホストの音声</h2>
+      <span class="grow"></span>
+      <button class="btn small" id="hostMuteBtn" type="button" disabled>ミュート</button>
+    </div>
+    <div class="host-audio">
+      <button class="btn playbtn" id="hostPlayBtn" type="button" aria-label="ホストの音声を再生" disabled>▶</button>
+      <div class="vol-row">
+        <span>VOL</span>
+        <input id="hostVol" class="amber" type="range" min="0" max="100" value="85">
+        <output id="hostVolVal">85</output>
+      </div>
+    </div>
+    <canvas id="hostMeter"></canvas>
+    <p class="hint">ここには「ホストの声＋BGM＋効果音」が届きます（あなた自身の声は返ってきません）。</p>
+  </section>
+
+  <section class="panel">
+    <div class="p-head"><h2>うまくつながらないとき</h2></div>
+    <ol class="steps">
+      <li>ホストが「配信開始」を押しているか確認する</li>
+      <li>リンクの <code>?host=</code> がホストの放送局IDと同じか確認する</li>
+      <li>マイクの許可をブロックしていないか確認する</li>
+      <li>このページを再読み込みして、もう一度参加する</li>
+    </ol>
+    <p class="hint">参加中は5秒ごとに自動で再接続を試みます。</p>
+  </section>
+</div>
+
+<audio id="hostAudio" autoplay></audio>
+<div id="toasts" aria-live="polite"></div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+(function(){
+"use strict";
+const $ = (id)=>document.getElementById(id);
+const qs = new URLSearchParams(location.search);
+const HOST_ID = (qs.get('host') || qs.get('id') || 'kaeru-radio-live').trim() || 'kaeru-radio-live';
+
+const S = {
+  joined:false, status:'idle', ctx:null, micStream:null, micSource:null, micGain:null, micDest:null,
+  monitorGain:null, monitorOn:false, micOn:true, micVol:1, deviceId:'',
+  voice:'off', vnodes:[], shifter:null,
+  peer:null, conn:null, micCall:null, returnCall:null, hostStream:null, analyser:null,
+  hostMuted:false, hostVol:0.85, hostPlaying:false,
+  connecting:false, retryId:null, retryTimer:null, elapsedTimer:null, joinedAt:0,
+  lastMicTry:0, lastError:'', hostPlayErr:'', startedAudio:false
+};
+
+const el = {
+  statusChip:$('statusChip'), statusText:$('statusText'), stateDot:$('stateDot'), stateLine:$('stateLine'),
+  hostInput:$('hostInput'), nameInput:$('nameInput'), joinBtn:$('joinBtn'), joinHint:$('joinHint'),
+  brandSub:$('brandSub'), progBox:$('progBox'), progIdle:$('progIdle'), progTitle:$('progTitle'),
+  progDj:$('progDj'), progNote:$('progNote'), guestTag:$('guestTag'), guestTagText:$('guestTagText'),
+  micBtn:$('micBtn'), micVol:$('micVol'), micVolVal:$('micVolVal'), micDevice:$('micDevice'), micRefresh:$('micRefresh'),
+  selfMonBtn:$('selfMonBtn'), vPresets:$('vPresets'),
+  hostAudio:$('hostAudio'), hostPlayBtn:$('hostPlayBtn'), hostMuteBtn:$('hostMuteBtn'), hostVol:$('hostVol'),
+  hostVolVal:$('hostVolVal'), hostMeter:$('hostMeter'), toasts:$('toasts')
+};
+
+/* ---------- 小道具 ---------- */
+function toast(msg, kind){
+  const d = document.createElement('div');
+  d.className = 'toast' + (kind ? ' ' + kind : '');
+  d.textContent = msg;
+  while(el.toasts.children.length >= 3) el.toasts.removeChild(el.toasts.firstChild);
+  el.toasts.appendChild(d);
+  setTimeout(()=>{ d.style.transition='opacity .3s'; d.style.opacity='0'; setTimeout(()=>d.remove(),320); }, 3600);
+}
+function fillRange(i){
+  const v = Number(i.value), min = Number(i.min || 0), max = Number(i.max || 100);
+  i.style.setProperty('--p', ((v-min)/(max-min)*100).toFixed(1) + '%');
+}
+function setStatus(mode, text, line){
+  S.status = mode;
+  el.statusChip.className = 'chip ' + (mode === 'live' ? 'live' : mode === 'wait' || mode === 'connecting' ? 'wait' : mode === 'err' ? 'err' : '');
+  el.statusText.textContent = text;
+  el.stateDot.className = 'dot' + (mode === 'live' ? ' live' : '');
+  if(line !== undefined) el.stateLine.textContent = line;
+}
+
+/* ---------- PeerJS ---------- */
+function ensurePeerLib(){
+  if(window.Peer) return Promise.resolve(true);
+  return new Promise((resolve)=>{
+    const s = document.createElement('script');
+    s.src = 'vendor/peerjs.min.js';
+    s.onload = ()=>resolve(!!window.Peer);
+    s.onerror = ()=>resolve(false);
+    document.head.appendChild(s);
+  });
+}
+
+/* ---------- 音声グラフ ----------
+   mic → in ─┬→ dry ─────────────→ out ─┬→ micGain → micDest（ホストへ送る）
+             └→ fxSend → 効果 → wet ─┘   └→ monitorGain → 自分のスピーカー
+*/
+const V = {inNode:null, out:null, dry:null, wet:null, fxSend:null};
+function ensureCtx(){
+  if(S.ctx) return S.ctx;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const ctx = new AC({latencyHint:'interactive'});
+  S.ctx = ctx;
+  V.inNode = ctx.createGain();
+  V.out = ctx.createGain();
+  V.dry = ctx.createGain(); V.dry.gain.value = 1;
+  V.wet = ctx.createGain(); V.wet.gain.value = 0;
+  V.fxSend = ctx.createGain(); V.fxSend.gain.value = 1;
+  S.micGain = ctx.createGain(); S.micGain.gain.value = 1;
+  S.micDest = ctx.createMediaStreamDestination();
+  S.monitorGain = ctx.createGain(); S.monitorGain.gain.value = 0;
+
+  V.inNode.connect(V.dry); V.dry.connect(V.out);
+  V.inNode.connect(V.fxSend);
+  V.wet.connect(V.out);
+  V.out.connect(S.micGain);
+  S.micGain.connect(S.micDest);
+  V.out.connect(S.monitorGain);
+  S.monitorGain.connect(ctx.destination);
+  return ctx;
+}
+
+function shaperCurve(amount){
+  const n = 1024, curve = new Float32Array(n), k = Math.max(0.1, amount);
+  for(let i=0;i<n;i++){ const x = i*2/n - 1; curve[i] = Math.tanh(x*k)/Math.tanh(k); }
+  return curve;
+}
+function clearFx(){
+  try{ V.fxSend.disconnect(); }catch(e){}
+  S.vnodes.forEach(n=>{ try{ n.disconnect(); }catch(e){} });
+  S.vnodes = [];
+  if(S.shifter){ try{ S.shifter.disconnect(); }catch(e){} S.shifter = null; }
+}
+function addN(n){ S.vnodes.push(n); return n; }
+
+function buildVoice(preset){
+  if(!S.ctx || !V.fxSend) return;
+  const ctx = S.ctx;
+  clearFx();
+  S.voice = preset;
+  const mix = (d,w)=>{ V.dry.gain.setTargetAtTime(d, ctx.currentTime, 0.02); V.wet.gain.setTargetAtTime(w, ctx.currentTime, 0.02); };
+
+  if(preset === 'off'){ mix(1,0); }
+  else if(preset === 'radio'){
+    const hp = addN(ctx.createBiquadFilter()); hp.type='highpass'; hp.frequency.value=430; hp.Q.value=0.8;
+    const lp = addN(ctx.createBiquadFilter()); lp.type='lowpass'; lp.frequency.value=2900; lp.Q.value=0.9;
+    const pk = addN(ctx.createBiquadFilter()); pk.type='peaking'; pk.frequency.value=1800; pk.Q.value=1.1; pk.gain.value=4.5;
+    const sh = addN(ctx.createWaveShaper()); sh.curve = shaperCurve(1.5); sh.oversample='2x';
+    const g  = addN(ctx.createGain()); g.gain.value = 1.6;
+    V.fxSend.connect(hp); hp.connect(lp); lp.connect(pk); pk.connect(sh); sh.connect(g); g.connect(V.wet);
+    mix(0,1);
+  }
+  else if(preset === 'robot'){
+    const ring = addN(ctx.createGain()); ring.gain.value = 0;
+    const osc = addN(ctx.createOscillator()); osc.type='sine'; osc.frequency.value = 42;
+    osc.connect(ring.gain); osc.start();
+    const bp = addN(ctx.createBiquadFilter()); bp.type='bandpass'; bp.frequency.value=1400; bp.Q.value=0.6;
+    const sh = addN(ctx.createWaveShaper()); sh.curve = shaperCurve(1.1);
+    const g  = addN(ctx.createGain()); g.gain.value = 2.2;
+    V.fxSend.connect(ring); ring.connect(bp); bp.connect(sh); sh.connect(g); g.connect(V.wet);
+    mix(0,1);
+  }
+  else if(preset === 'alien'){
+    const d1 = addN(ctx.createDelay(0.2)); d1.delayTime.value = 0.019;
+    const d2 = addN(ctx.createDelay(0.2)); d2.delayTime.value = 0.033;
+    const lfo = addN(ctx.createOscillator()); lfo.frequency.value = 5.2;
+    const lfoG = addN(ctx.createGain()); lfoG.gain.value = 0.0045;
+    lfo.connect(lfoG); lfoG.connect(d1.delayTime); lfoG.connect(d2.delayTime); lfo.start();
+    const ring = addN(ctx.createGain()); ring.gain.value = 0;
+    const osc = addN(ctx.createOscillator()); osc.type='sine'; osc.frequency.value = 185;
+    osc.connect(ring.gain); osc.start();
+    const sh = addN(ctx.createWaveShaper()); sh.curve = shaperCurve(1.0);
+    const bp = addN(ctx.createBiquadFilter()); bp.type='bandpass'; bp.frequency.value=1300; bp.Q.value=0.5;
+    const g  = addN(ctx.createGain()); g.gain.value = 2.6;
+    V.fxSend.connect(d1); V.fxSend.connect(d2);
+    d1.connect(ring); d2.connect(ring);
+    ring.connect(sh); sh.connect(bp); bp.connect(g); g.connect(V.wet);
+    mix(0.12, 1);
+  }
+  else if(preset === 'echo'){
+    const dly = addN(ctx.createDelay(1.5)); dly.delayTime.value = 0.22;
+    const fb  = addN(ctx.createGain()); fb.gain.value = 0.38;
+    const lp  = addN(ctx.createBiquadFilter()); lp.type='lowpass'; lp.frequency.value = 2600;
+    const wg  = addN(ctx.createGain()); wg.gain.value = 0.9;
+    V.fxSend.connect(dly); dly.connect(lp); lp.connect(fb); fb.connect(dly); lp.connect(wg); wg.connect(V.wet);
+    mix(0.8, 0.9);
+  }
+  else if(preset === 'low' || preset === 'high'){
+    const sh = createPitchShifter(ctx, preset === 'low' ? 0.76 : 1.32);
+    S.shifter = sh;
+    V.fxSend.connect(sh);
+    const lp = addN(ctx.createBiquadFilter()); lp.type='lowpass';
+    lp.frequency.value = preset === 'low' ? 6000 : 9000;
+    sh.connect(lp); lp.connect(V.wet);
+    mix(0,1);
+  }
+  else { mix(1,0); }
+
+  document.querySelectorAll('.vp').forEach(b=>b.classList.toggle('on', b.dataset.vp === preset));
+}
+
+function createPitchShifter(ctx, ratio){
+  if(!ctx.createScriptProcessor){
+    const g = ctx.createGain(); return g;
+  }
+  const grain = Math.max(512, Math.round(ctx.sampleRate * 0.055));
+  const size  = Math.max(grain * 8, Math.round(ctx.sampleRate * 1.5));
+  const ring  = new Float32Array(size);
+  let write = 0, phase = 0;
+  const step = 1 - ratio;   // 読み取り位置を ratio 倍速で進める
+  const node = ctx.createScriptProcessor(4096, 1, 1);
+  const readAt = (pos)=>{
+    let p = pos % size; if(p < 0) p += size;
+    const i0 = Math.floor(p), fr = p - i0, i1 = (i0 + 1) % size;
+    return ring[i0]*(1-fr) + ring[i1]*fr;
+  };
+  node.onaudioprocess = (e)=>{
+    const inp = e.inputBuffer.getChannelData(0);
+    const out = e.outputBuffer.getChannelData(0);
+    for(let i=0;i<out.length;i++){
+      ring[write] = inp[i] || 0;
+      let dB = phase + grain/2; if(dB >= grain) dB -= grain;
+      const wA = Math.sin(Math.PI * phase / grain);
+      const wB = Math.cos(Math.PI * phase / grain);
+      const a = readAt(write - phase);
+      const b = readAt(write - dB);
+      out[i] = a*wA*wA + b*wB*wB;
+      write++; if(write >= size) write = 0;
+      phase += step; if(phase >= grain) phase -= grain; else if(phase < 0) phase += grain;
+    }
+  };
+  return node;
+}
+
+/* ---------- マイク ---------- */
+async function acquireMic(){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return false;
+  const base = {echoCancellation:true, noiseSuppression:true, autoGainControl:true};
+  let stream = null;
+  try{
+    const c = Object.assign({}, base);
+    if(S.deviceId) c.deviceId = {exact:S.deviceId};
+    stream = await navigator.mediaDevices.getUserMedia({audio:c, video:false});
+  }catch(e1){
+    try{ stream = await navigator.mediaDevices.getUserMedia({audio:base, video:false}); S.deviceId=''; }
+    catch(e2){
+      toast('マイクを取得できませんでした。ブラウザの許可設定を確認してください。','err');
+      el.joinHint.textContent = 'マイクが使えないため参加できません。ブラウザのマイク許可を確認してください。';
+      return false;
+    }
+  }
+  if(S.micSource){ try{ S.micSource.disconnect(); }catch(e){} }
+  if(S.micStream){ S.micStream.getTracks().forEach(t=>{ try{ t.stop(); }catch(e){} }); }
+  S.micStream = stream;
+  S.micSource = S.ctx.createMediaStreamSource(stream);
+  S.micSource.connect(V.inNode);
+  applyMic();
+  refreshDevices();
+  return true;
+}
+function applyMic(){
+  if(!S.micGain) return;
+  const target = S.micOn ? S.micVol : 0;
+  S.micGain.gain.setTargetAtTime(target, S.ctx.currentTime, 0.02);
+}
+async function refreshDevices(){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+  try{
+    const devs = await navigator.mediaDevices.enumerateDevices();
+    const ins = devs.filter(d=>d.kind === 'audioinput');
+    const cur = el.micDevice.value;
+    el.micDevice.innerHTML = '';
+    const def = document.createElement('option'); def.value=''; def.textContent='（既定のマイク）';
+    el.micDevice.appendChild(def);
+    ins.forEach((d,i)=>{ if(!d.deviceId) return; const o=document.createElement('option'); o.value=d.deviceId; o.textContent=d.label||('マイク '+(i+1)); el.micDevice.appendChild(o); });
+    if(cur && ins.some(d=>d.deviceId===cur)) el.micDevice.value = cur;
+  }catch(e){}
+}
+
+/* ---------- 参加 / 退出 ---------- */
+function setJoinedUi(joined){
+  S.joined = joined;
+  el.joinBtn.textContent = joined ? 'スタジオから退出する' : 'スタジオに参加する';
+  el.joinBtn.className = 'btn ' + (joined ? 'leave' : 'join');
+  el.hostInput.disabled = joined;
+  el.nameInput.disabled = joined;
+  el.micBtn.disabled = !joined;
+  if(joined){
+    el.micBtn.classList.add('on');
+    el.micBtn.textContent = 'マイク ON';
+  } else {
+    el.micBtn.classList.remove('on');
+    el.micBtn.textContent = 'マイク OFF';
+  }
+}
+
+async function join(){
+  if(S.joined) return;
+  setJoinedUi(true);
+  setStatus('connecting','接続中','ホストに接続しています…');
+  el.joinBtn.disabled = true;
+  try{
+    const okLib = await ensurePeerLib();
+    if(!okLib){ toast('PeerJS を読み込めませんでした','err'); throw new Error('lib'); }
+    ensureCtx();
+    await S.ctx.resume().catch(()=>{});
+    buildVoice(S.voice);
+    const okMic = await acquireMic();
+    if(!okMic){ leave(true); return; }
+    await openPeer();
+    dial();
+    S.joinedAt = Date.now();
+    startElapsed();
+    startRetry();
+  }catch(e){
+    if(e && e.message !== 'lib') console.warn(e);
+    setStatus('err','接続できません','通信環境を確認してください');
+  }finally{
+    el.joinBtn.disabled = false;
+  }
+}
+
+function openPeer(){
+  return new Promise((resolve, reject)=>{
+    if(S.peer && S.peer.open) return resolve();
+    const peer = new Peer({debug:0});
+    S.peer = peer;
+    let done = false;
+    peer.on('open', ()=>{ if(!done){ done = true; resolve(); } });
+    peer.on('call', (call)=>{
+      // 通常はホストからの発信はない（返り音声は自分がかけた回線で受け取る）
+      const role = (call.metadata && call.metadata.role) || '';
+      if(role === 'return'){
+        S.returnCall = call;
+        try{ call.answer(S.micDest ? S.micDest.stream : undefined); }
+        catch(e){ try{ call.close(); }catch(e2){ return; } }
+        call.on('stream', (stream)=>attachHost(stream));
+        call.on('close', ()=>detachHost());
+        call.on('error', ()=>{});
+      } else {
+        try{ call.close(); }catch(e){}
+      }
+    });
+    peer.on('error', (err)=>{
+      const type = (err && err.type) || '';
+      S.lastError = type + ':' + (err && err.message ? err.message : '');
+      if(type === 'peer-unavailable'){
+        setStatus('wait','待機中','ホストがまだ放送を開始していないようです。5秒ごとに再接続します。');
+        S.connecting = false;
+        return;
+      }
+      if(type === 'network' || type === 'server-error' || type === 'socket-error'){
+        setStatus('wait','再接続待ち','ネットワークに接続できません。自動で再試行します。');
+        S.connecting = false;
+        return;
+      }
+      if(type === 'unavailable-id'){ /* ランダムIDなので通常は起きない */ }
+      if(window.console) console.warn('[peer]', type, err && err.message);
+      if(!done){ done = true; reject(err); }
+    });
+    peer.on('disconnected', ()=>{
+      if(!S.joined) return;
+      try{ peer.reconnect(); }catch(e){}
+    });
+    setTimeout(()=>{ if(!done && !peer.destroyed && !peer.open) resolve(); }, 6000);
+  });
+}
+
+function dial(){
+  if(!S.peer || !S.peer.open) return;
+  if(S.conn) return;                       // 接続試行中／接続済みはそのまま待つ
+  const conn = S.peer.connect(HOST_ID, {reliable:true, metadata:{role:'guest'}});
+  S.conn = conn;
+  const t = setTimeout(()=>{
+    if(S.conn === conn && !conn.open){ try{ conn.close(); }catch(e){} S.conn = null; }
+  }, 15000);
+  conn.on('open', ()=>{
+    clearTimeout(t);
+    try{ conn.send({type:'guest-hello', name:guestName(), role:'guest'}); }catch(e){}
+    sendMic();
+  });
+  conn.on('data', onHostData);
+  conn.on('close', ()=>{
+    clearTimeout(t);
+    if(S.conn === conn) S.conn = null;
+    if(!S.joined) return;
+    if(!S.hostStream) setStatus('wait','待機中','ホストとの接続が切れました。再接続します…');
+  });
+  conn.on('error', ()=>{ if(S.conn === conn) S.conn = null; });
+}
+
+function sendMic(){
+  if(!S.peer || !S.peer.open || !S.micDest) return;
+  if(S.micCall && S.micCall.open) return;          // すでに通話中
+  if(S.micCall && Date.now() - S.lastMicTry < 7000) return; // 接続試行中
+  S.lastMicTry = Date.now();
+  try{ if(S.micCall) S.micCall.close(); }catch(e){}
+  let call = null;
+  try{ call = S.peer.call(HOST_ID, S.micDest.stream, {metadata:{role:'guest-mic', name:guestName()}}); }
+  catch(e){ return; }
+  S.micCall = call;
+  if(call){
+    // この回線でホストの返り音声（ホストの声＋BGM＋SE）も受け取る
+    call.on('stream', (stream)=>attachHost(stream));
+    call.on('close', ()=>{
+      if(S.micCall === call){
+        S.micCall = null;
+        if(S.joined && !S.hostStream) setStatus('wait','待機中','通話が切れました。再接続します…');
+      }
+    });
+    call.on('error', ()=>{ if(S.micCall === call) S.micCall = null; });
+  }
+}
+
+function onHostData(d){
+  if(!d || typeof d !== 'object') return;
+  if(d.type === 'info') updateProgram(d);
+  else if(d.type === 'guest-accept'){ /* 受理 */ }
+  else if(d.type === 'guest-busy'){ toast('このスタジオは別のゲストが参加中です','err'); leave(true); }
+  else if(d.type === 'guest-kick'){ toast('ホストが接続を切断しました','err'); leave(true); }
+}
+
+function attachHost(stream){
+  S.hostStream = stream;
+  el.hostAudio.srcObject = stream;
+  el.hostAudio.volume = S.hostMuted ? 0 : S.hostVol;
+  setupMeter(stream);
+  const p = el.hostAudio.play();
+  if(p && p.then) p.then(()=>{ S.hostPlaying = true; el.hostPlayBtn.textContent = '❚❚'; S.hostPlayErr=''; }).catch((e)=>{
+    S.hostPlaying = false; S.hostPlayErr = (e && e.name ? e.name : '') + ':' + (e && e.message ? e.message : '');
+    el.hostPlayBtn.textContent = '▶';
+    toast('▶を押すとホストの声が鳴ります','warn');
+  });
+  el.hostPlayBtn.disabled = false;
+  el.hostMuteBtn.disabled = false;
+  setStatus('live','通話中','ホストと通話中です。');
+  el.joinHint.textContent = '通話中。あなたの声はホストのラジオに乗っています。';
+  stream.getAudioTracks().forEach(t=>t.addEventListener('ended', ()=>detachHost()));
+}
+
+function detachHost(){
+  S.hostStream = null;
+  try{ el.hostAudio.srcObject = null; }catch(e){}
+  el.hostPlayBtn.textContent = '▶';
+  if(S.joined) setStatus('wait','待機中','ホストの音声が止まりました。再接続します…');
+}
+
+function startRetry(){
+  stopRetry();
+  S.retryId = setInterval(()=>{
+    if(!S.joined) return;
+    if(S.hostStream) return;
+    if(!S.peer || S.peer.destroyed || !S.peer.open) return;
+    if(!S.conn || !S.conn.open){ dial(); return; }
+    sendMic();
+  }, 5000);
+}
+function stopRetry(){ if(S.retryId){ clearInterval(S.retryId); S.retryId = null; } }
+
+function startElapsed(){
+  stopElapsed();
+  S.elapsedTimer = setInterval(()=>{
+    if(!S.joined || !S.joinedAt) return;
+    const t = Math.floor((Date.now() - S.joinedAt)/1000);
+    if(S.status === 'live'){
+      el.stateLine.textContent = 'ホストと通話中です（' + String(Math.floor(t/60)).padStart(2,'0') + ':' + String(t%60).padStart(2,'0') + '）';
+    }
+  }, 1000);
+}
+function stopElapsed(){ if(S.elapsedTimer){ clearInterval(S.elapsedTimer); S.elapsedTimer = null; } }
+
+function leave(silent){
+  S.joined = false;
+  stopRetry(); stopElapsed();
+  try{ if(S.micCall) S.micCall.close(); }catch(e){}
+  try{ if(S.returnCall) S.returnCall.close(); }catch(e){}
+  try{ if(S.conn) S.conn.close(); }catch(e){}
+  if(S.peer){ try{ S.peer.destroy(); }catch(e){} S.peer = null; }
+  S.micCall = null; S.returnCall = null; S.conn = null;
+  detachHost();
+  if(S.micStream){ S.micStream.getTracks().forEach(t=>{ try{ t.stop(); }catch(e){} }); }
+  if(S.micSource){ try{ S.micSource.disconnect(); }catch(e){} }
+  S.micStream = null; S.micSource = null;
+  setJoinedUi(false);
+  setStatus('idle','未参加','まだ参加していません');
+  el.progBox.classList.remove('on');
+  el.progTitle.hidden = true; el.progDj.hidden = true; el.progNote.hidden = true; el.guestTag.hidden = true;
+  el.progIdle.hidden = false; el.progIdle.textContent = 'ホストの放送を待っています…';
+  el.joinHint.textContent = 'スマホはマイクの許可を求められたら「許可」を押してください。スピーカーだとハウリングするので、ヘッドホン推奨です。';
+  if(!silent) toast('スタジオから退出しました','');
+}
+
+function guestName(){
+  return (el.nameInput.value || '').trim().slice(0,24) || 'ゲスト';
+}
+
+/* ---------- 番組情報 ---------- */
+function updateProgram(d){
+  el.progBox.classList.add('on');
+  el.progIdle.hidden = true;
+  el.progTitle.hidden = false;
+  el.progTitle.textContent = d.title || 'ノンタイトル';
+  if(d.dj){ el.progDj.hidden = false; el.progDj.textContent = 'DJ: ' + d.dj; } else el.progDj.hidden = true;
+  if(d.note){ el.progNote.hidden = false; el.progNote.textContent = d.note; } else el.progNote.hidden = true;
+  if(d.guestOn){
+    el.guestTag.hidden = false;
+    el.guestTagText.textContent = 'ゲスト出演中' + (d.guestName ? '：' + d.guestName : '');
+  } else {
+    el.guestTag.hidden = true;
+  }
+}
+
+/* ---------- ホスト音声のメーター ---------- */
+const meter = {ctx:{}, raf:0, analyser:null, buf:null, w:0, h:0};
+function setupMeter(stream){
+  if(!S.ctx) return;
+  const an = S.ctx.createAnalyser();
+  an.fftSize = 2048;
+  const src = S.ctx.createMediaStreamSource(stream);
+  src.connect(an);
+  // 解析のためグラフを流す（音は出さない）
+  try{ const sink = S.ctx.createGain(); sink.gain.value = 0; an.connect(sink); sink.connect(S.ctx.destination); }catch(e){}
+  meter.analyser = an;
+  meter.buf = new Float32Array(an.fftSize);
+  if(!meter.raf) meterLoop();
+}
+function sizeMeter(){
+  const c = el.hostMeter, r = c.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  meter.w = Math.max(1, Math.round(r.width));
+  meter.h = Math.max(1, Math.round(r.height));
+  c.width = Math.round(meter.w*dpr); c.height = Math.round(meter.h*dpr);
+  c.getContext('2d').setTransform(dpr,0,0,dpr,0,0);
+}
+function meterLoop(){
+  meter.raf = requestAnimationFrame(meterLoop);
+  const c = el.hostMeter, g = c.getContext('2d');
+  if(!meter.w) sizeMeter();
+  const w = meter.w, h = meter.h;
+  g.clearRect(0,0,w,h);
+  // 中央線
+  g.strokeStyle = 'rgba(255,255,255,.08)';
+  g.beginPath(); g.moveTo(0,h/2); g.lineTo(w,h/2); g.stroke();
+  let peak = 0;
+  if(meter.analyser){
+    meter.analyser.getFloatTimeDomainData(meter.buf);
+    g.lineWidth = 1.6;
+    g.strokeStyle = 'rgba(242,180,100,.85)';
+    g.beginPath();
+    for(let i=0;i<w;i++){
+      const v = meter.buf[Math.floor(i / w * meter.buf.length)] || 0;
+      if(Math.abs(v) > peak) peak = Math.abs(v);
+      const y = h/2 - v*(h/2 - 4);
+      i ? g.lineTo(i,y) : g.moveTo(i,y);
+    }
+    g.stroke();
+    // 反射
+    g.strokeStyle = 'rgba(242,180,100,.18)';
+    g.beginPath();
+    for(let i=0;i<w;i++){
+      const v = meter.buf[Math.floor(i / w * meter.buf.length)] || 0;
+      const y = h/2 + v*(h/2 - 4);
+      i ? g.lineTo(i,y) : g.moveTo(i,y);
+    }
+    g.stroke();
+  } else {
+    g.strokeStyle = 'rgba(255,255,255,.12)';
+    g.beginPath(); g.moveTo(0,h/2); g.lineTo(w,h/2); g.stroke();
+    g.fillStyle = 'rgba(255,255,255,.22)';
+    g.font = '10px Menlo, monospace';
+    g.fillText('WAITING FOR HOST', 12, h/2 - 9);
+  }
+  meter.peak = peak;
+}
+
+/* ---------- バインド ---------- */
+function bind(){
+  [el.micVol, el.hostVol].forEach(i=>{ fillRange(i); i.addEventListener('input', ()=>fillRange(i)); });
+  el.hostInput.value = HOST_ID;
+  el.brandSub.textContent = 'ホスト: ' + HOST_ID;
+
+  el.joinBtn.addEventListener('click', ()=>{
+    if(S.joined) leave(false); else join();
+  });
+  el.micBtn.addEventListener('click', ()=>{
+    S.micOn = !S.micOn;
+    applyMic();
+    el.micBtn.classList.toggle('on', S.micOn);
+    el.micBtn.textContent = S.micOn ? 'マイク ON' : 'マイク OFF';
+  });
+  el.micVol.addEventListener('input', ()=>{
+    S.micVol = Number(el.micVol.value)/100;
+    el.micVolVal.textContent = el.micVol.value;
+    applyMic();
+  });
+  el.micDevice.addEventListener('change', async ()=>{
+    S.deviceId = el.micDevice.value;
+    if(S.micStream) await acquireMic();
+  });
+  el.micRefresh.addEventListener('click', ()=>{ refreshDevices(); toast('マイク一覧を更新しました',''); });
+
+  document.querySelectorAll('.vp').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      if(!S.ctx){ S.voice = b.dataset.vp; document.querySelectorAll('.vp').forEach(x=>x.classList.toggle('on', x === b)); return; }
+      buildVoice(b.dataset.vp);
+    });
+  });
+  el.selfMonBtn.addEventListener('click', ()=>{
+    if(!S.ctx){ toast('先にスタジオへ参加してください','warn'); return; }
+    S.monitorOn = !S.monitorOn;
+    S.monitorGain.gain.setTargetAtTime(S.monitorOn ? 0.9 : 0, S.ctx.currentTime, 0.05);
+    el.selfMonBtn.classList.toggle('on', S.monitorOn);
+    el.selfMonBtn.textContent = S.monitorOn ? '自分の声を聴く ON' : '自分の声を聴く OFF';
+    if(S.monitorOn) toast('ハウリング防止にヘッドホンを使ってください','warn');
+  });
+
+  el.hostPlayBtn.addEventListener('click', ()=>{
+    if(!S.hostStream) return;
+    if(el.hostAudio.paused){
+      el.hostAudio.play().then(()=>{ el.hostPlayBtn.textContent='❚❚'; }).catch(()=>{});
+    } else {
+      el.hostAudio.pause(); el.hostPlayBtn.textContent = '▶';
+    }
+  });
+  el.hostMuteBtn.addEventListener('click', ()=>{
+    S.hostMuted = !S.hostMuted;
+    el.hostAudio.volume = S.hostMuted ? 0 : S.hostVol;
+    el.hostMuteBtn.classList.toggle('muting', S.hostMuted);
+    el.hostMuteBtn.textContent = S.hostMuted ? 'ミュート解除' : 'ミュート';
+  });
+  el.hostVol.addEventListener('input', ()=>{
+    S.hostVol = Number(el.hostVol.value)/100;
+    el.hostVolVal.textContent = el.hostVol.value;
+    if(!S.hostMuted) el.hostAudio.volume = S.hostVol;
+  });
+  el.hostAudio.addEventListener('play', ()=>{ el.hostPlayBtn.textContent = '❚❚'; });
+  el.hostAudio.addEventListener('pause', ()=>{ el.hostPlayBtn.textContent = '▶'; });
+
+  window.addEventListener('resize', sizeMeter);
+  window.addEventListener('pagehide', ()=>{ try{ if(S.peer) S.peer.destroy(); }catch(e){} });
+}
+
+function init(){
+  bind();
+  sizeMeter();
+  meterLoop();
+  setJoinedUi(false);
+  setStatus('idle','未参加','まだ参加していません');
+  el.micBtn.disabled = true;
+  ensurePeerLib();
+}
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+
+window.__nrDebug = {
+  state(){
+    return {
+      joined:S.joined, status:S.status, ctx:S.ctx ? S.ctx.state : null,
+      hasMic:!!S.micStream, micOn:S.micOn, voice:S.voice,
+      peerOpen:!!(S.peer && S.peer.open), connOpen:!!(S.conn && S.conn.open),
+      hostStream:!!S.hostStream, hostPlaying:!!(S.hostAudio && !S.hostAudio.paused),
+      hostPeak:meter.peak || 0, hostId:HOST_ID, monitor:S.monitorOn,
+      micCallOpen:!!(S.micCall && S.micCall.open), lastError:S.lastError,
+      hostPlayErr:S.hostPlayErr, hostPaused:el.hostAudio.paused, hostReady:el.hostAudio.readyState,
+      hostVol:el.hostAudio.volume
+    };
+  },
+  voice:(p)=>{ buildVoice(p); },
+  fakeLive(){
+    ensureCtx();
+    if(S.ctx && S.ctx.state === 'suspended') S.ctx.resume().catch(()=>{});
+    buildVoice(S.voice);
+    const osc = S.ctx.createOscillator(); osc.type='sine'; osc.frequency.value = 220;
+    const lfo = S.ctx.createOscillator(); lfo.frequency.value = 0.7;
+    const lg = S.ctx.createGain(); lg.gain.value = 60;
+    lfo.connect(lg); lg.connect(osc.frequency); lfo.start();
+    const g = S.ctx.createGain(); g.gain.value = 0.25;
+    const dest = S.ctx.createMediaStreamDestination();
+    osc.connect(g); g.connect(dest); osc.start();
+    S.fakeOsc = osc;
+    attachHost(dest.stream);
+    updateProgram({title:'深夜のなんでもラジオ', dj:'Kaeru', note:'今夜はゲストと2人でお届けします', guestOn:true, guestName:'テストゲスト'});
+    setStatus('live','通話中','ホストと通話中です（プレビュー）');
+    return true;
+  }
+};
+})();
+</script>
+</body>
+</html>
