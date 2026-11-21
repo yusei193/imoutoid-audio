@@ -102,6 +102,9 @@ input,select{font-family:inherit}
 .ai-panel.dim{opacity:.55;border-color:var(--line)}
 .ai-head{display:flex;align-items:center;gap:9px;margin-bottom:10px;flex-wrap:wrap}
 .ai-label{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--mint)}
+.ai-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;border:1px solid rgba(242,180,100,.38);background:rgba(242,180,100,.10);color:#f6dcb4;font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;white-space:nowrap}
+.ai-badge.day{border-color:rgba(121,224,194,.45);background:rgba(121,224,194,.10);color:#cffdf0}
+.ai-badge.night{border-color:rgba(147,185,255,.40);background:rgba(147,185,255,.10);color:#d7e6ff}
 .ai-state{margin-left:auto;font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--dim2);padding:3px 8px;border-radius:6px;border:1px solid var(--line)}
 .ai-state.on{color:#cffdf0;border-color:rgba(121,224,194,.5);background:rgba(121,224,194,.08)}
 .ai-now-label{font-family:var(--mono);font-size:8.5px;letter-spacing:.22em;color:var(--dim2);margin-bottom:3px}
@@ -183,6 +186,7 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;bac
   <section class="ai-panel" id="aiPanel">
     <div class="ai-head">
       <span class="ai-label">🤖 AI RADIO (AUTO-DJ)</span>
+      <span class="ai-badge" id="slotBadge">🌙 NIGHT CHILL</span>
       <span class="ai-state" id="aiState">待機中</span>
     </div>
     <div class="ai-now-label">NOW PLAYING</div>
@@ -250,7 +254,7 @@ const S = {
   iceState:'', connState:'', trackCount:0, analyserStream:null, lastRestream:0, srcNote:'',
   aiLoaded:false,
   ai:{ playing:false, track:null, index:0, order:[], orderKey:'', djOn:true, speaking:false, errors:0, slot:-1,
-       decks:null, active:0, master:null, xfade:3.0, xfading:false, gen:0, xfadeTimer:null }
+       decks:null, active:0, master:null, xfade:3.0, xfading:false, gen:0, xfadeTimer:null, slotKey:'' }
 };
 
 const el = {
@@ -258,7 +262,7 @@ const el = {
   topChip:$('topChip'), topChipText:$('topChipText'),
   nowLabel:$('nowLabel'), progTitle:$('progTitle'), progDj:$('progDj'), progNote:$('progNote'),
   guestBadge:$('guestBadge'), guestBadgeText:$('guestBadgeText'), nowTag:$('nowTag'), nowTagText:$('nowTagText'),
-  aiPanel:$('aiPanel'), aiState:$('aiState'), aiTitle:$('aiTitle'), aiSub:$('aiSub'), aiNext:$('aiNext'),
+  aiPanel:$('aiPanel'), aiState:$('aiState'), aiTitle:$('aiTitle'), aiSub:$('aiSub'), aiNext:$('aiNext'), slotBadge:$('slotBadge'),
   djBtn:$('djBtn'), aiNextBtn:$('aiNextBtn'), djLine:$('djLine'), djText:$('djText'),
   wave:$('wave'), recTag:$('recTag'), recText:$('recText'), scopeInfo:$('scopeInfo'),
   playBtn:$('playBtn'), playTitle:$('playTitle'), playSub:$('playSub'), volume:$('volume'),
@@ -283,13 +287,61 @@ function shuffleWithSeed(arr, seed){
   for(let i=a.length-1;i>0;i--){ const j = Math.floor(r()*(i+1)); const t=a[i]; a[i]=a[j]; a[j]=t; }
   return a;
 }
-/* 日本時間の「日付」で並びを固定し、「3分枠」で曲を進める＝同じ時間に聴くとみんな同じ曲 */
+/* =========== 時間帯別の選曲（JST）===========
+   朝 05:00-10:59 / 昼 11:00-16:59 / 夜・深夜 17:00-04:59
+   曲名の雰囲気キーワードから各時間帯への適性を採点し、
+   その時間帯に合う曲を主軸に少しだけ他の曲も混ぜて並べる。 */
+const DAYPARTS = {
+  morning: { id:'morning', label:'🌅 MORNING MIX', name:'MORNING MIX', jp:'朝のミックス' },
+  day:     { id:'day',     label:'☀️ DAYTIME GROOVE', name:'DAYTIME GROOVE', jp:'昼のグルーヴ' },
+  night:   { id:'night',   label:'🌙 NIGHT CHILL', name:'NIGHT CHILL', jp:'夜のチル' }
+};
+const MOOD_WORDS = {
+  morning: ['piano','improvisation','melod','pop','chip','famicom','ファミコン','キラキラ','bird','song','ballad','acoustic','guitar','dream','light','happy','bright','sparkle','sakura','gymnopedie','morning','sun','ピコ','ファンファーレ','スタート','潮風','朝'],
+  day: ['disco','rock','funk','dance','up','happy','mash','beat','techno','rave','house','groove','club','party','drum','bass','fast','battle','tune','swing','electro','trance','remix','boogie','jazz','バトル','ピコピコ','ファンク','ロック','ダンス','マーチ','実況'],
+  night: ['ambient','chill','night','piano','slow','soft','lullaby','sleep','rain','dawn','minimal','dub','warm','dark','mellow','echo','drone','quiet','calm','lonely','sad','reverb','deep','ballad','アンビエント','静','夜','深夜','夢','夢想','ゆめ','月','ほし']
+};
+function dayPart(hour){
+  const h = (hour === undefined) ? jstNow().h : hour;
+  if(h >= 5 && h < 11) return DAYPARTS.morning;
+  if(h >= 11 && h < 17) return DAYPARTS.day;
+  return DAYPARTS.night;
+}
+function moodScore(track, partId){
+  const name = String((track && track.t) || '').toLowerCase();
+  const mine = MOOD_WORDS[partId] || [];
+  let score = 0;
+  mine.forEach(w=>{ if(name.indexOf(w) >= 0) score += 3; });
+  Object.keys(MOOD_WORDS).forEach(other=>{
+    if(other === partId) return;
+    MOOD_WORDS[other].forEach(w=>{
+      if(mine.indexOf(w) >= 0) return;          // 今の時間帯にも合う語は減点しない
+      if(name.indexOf(w) >= 0) score -= 2;
+    });
+  });
+  return score;
+}
+function buildDayPartOrder(partId, seedKey){
+  const scored = TRACKS.map(t=>({t, score:moodScore(t, partId)}));
+  const seeded = shuffleWithSeed(scored, hashStr(seedKey + '|' + partId));
+  // 同じスコア同士はシードシャッフルの順を保つ（安定ソート）
+  const fit  = seeded.filter(x=>x.score > 0).sort((a,b)=>b.score - a.score).map(x=>x.t);
+  const rest = seeded.filter(x=>x.score <= 0).map(x=>x.t);
+  const out = [];
+  let fi = 0, ri = 0;
+  while(fi < fit.length || ri < rest.length){
+    for(let k=0;k<3 && fi<fit.length;k++) out.push(fit[fi++]);   // 3曲
+    if(ri < rest.length) out.push(rest[ri++]);                    // 合間に1曲
+  }
+  return out.length ? out : TRACKS.slice();
+}
+/* 日本時間の「日付＋時間帯」で並びを固定し、「3分枠」で曲を進める＝同じ時間に聴くとみんな同じ曲 */
 function scheduleOrder(){
   const p = jstNow();
-  const key = String(p.y) + pad2(p.m) + pad2(p.d);
-  if(el.ai && S.ai.orderKey === key && S.ai.order.length) return S.ai.order;
+  const key = String(p.y) + pad2(p.m) + pad2(p.d) + '|' + dayPart(p.h).id;
+  if(S.ai.orderKey === key && S.ai.order.length) return S.ai.order;
   S.ai.orderKey = key;
-  S.ai.order = shuffleWithSeed(TRACKS, hashStr(key));
+  S.ai.order = buildDayPartOrder(dayPart(p.h).id, key);
   return S.ai.order;
 }
 function currentSlot(){
@@ -444,6 +496,14 @@ function renderLiveInfo(){
   if(d.now){ el.nowTag.hidden = false; el.nowTagText.textContent = '♪ ' + d.now; }
   else { el.nowTag.hidden = false; el.nowTagText.textContent = 'LIVE'; }
 }
+function updateSlotBadge(){
+  const part = dayPart();
+  S.ai.slotKey = part.id;
+  if(!el.slotBadge) return;
+  el.slotBadge.textContent = part.label;
+  el.slotBadge.className = 'ai-badge ' + part.id;
+  el.slotBadge.title = part.jp + '（JST ' + (part.id === 'morning' ? '05-11' : part.id === 'day' ? '11-17' : '17-05') + '時）';
+}
 function renderAiInfo(){
   el.progTitle.textContent = 'imoutoid 24時間アーカイブ・ラジオ';
   el.progDj.textContent = 'AI DJ / AUTO-DJ';
@@ -457,15 +517,29 @@ function renderAiInfo(){
 }
 function renderAiTrack(){
   const t = S.ai.track;
+  const part = dayPart();
   el.aiTitle.textContent = t ? t.t : '再生ボタンでスタート';
   el.aiSub.textContent = t
-    ? ('imoutoid archive / ' + (t.c === 's2' ? 'SERIES 2' : 'SERIES 1') + ' ・ ' + jstTimeLabel() + ' の選曲')
+    ? ('imoutoid archive / ' + (t.c === 's2' ? 'SERIES 2' : 'SERIES 1') + ' ・ ' + part.jp + ' ・ ' + jstTimeLabel() + ' の選曲')
     : (TRACKS.length + '曲のアーカイブから、いまの時刻に合わせて自動選曲します。');
+  updateSlotBadge();
   const nx = t ? nextScheduled() : pickNow();
   el.aiNext.textContent = 'NEXT: ' + (nx ? nx.t : '—');
   if(!S.live) el.nowTagText.textContent = t ? ('♪ ' + t.t) : '▶ 再生ボタンでスタート';
 }
 function jstTimeLabel(){ const p = jstNow(); return pad2(p.h) + ':' + pad2(p.mi); }
+/* 時間帯（朝・昼・夜）が切り替わったら、次の選曲から新しい並びにする */
+function checkDayPart(){
+  const part = dayPart();
+  if(S.ai.slotKey === part.id) return;
+  S.ai.slotKey = part.id;
+  S.ai.orderKey = '';                       // 次回の scheduleOrder() で新時間帯の並びを造り直す
+  updateSlotBadge();
+  if(!S.live){
+    renderAiTrack();
+    updateModeUi();
+  }
+}
 
 /* ================= AI DJ（音声合成・音楽に重ねる） ================= */
 function canSpeak(){
@@ -484,19 +558,34 @@ function pickEnVoice(){
 }
 function introText(t){
   const p = jstNow();
-  const h = p.h;
-  const night = (h < 5 || h >= 22);
+  const part = dayPart(p.h);
+  const night = (p.h < 5 || p.h >= 22) || (p.h >= 17 && p.h < 22);
   const title = String(t.t || '').trim();
-  const pats = [
-    "You're listening to imoutoid 24-hour archive radio. Up next: " + title + ".",
-    "From the imoutoid archive, this is " + title + ".",
-    "Stay tuned. Playing " + title + " by imoutoid.",
-    (night ? 'Late night sessions on imoutoid archive. Here is ' : 'You are on imoutoid archive radio. Here is ') + title + '.',
-    "This is imoutoid radio. Coming up next, " + title + ".",
-    'The archives are open. ' + title + ', by imoutoid.',
-    "Keep it here on imoutoid archive radio. Now playing " + title + '.'
-  ];
-  const seed = hashStr(title + p.d + p.h + p.mi);
+  const sets = {
+    morning: [
+      'Good morning, you are tuned into imoutoid archive radio. Starting your morning with ' + title + '.',
+      'Morning on imoutoid radio. Here is ' + title + ' to start the day.',
+      'Rise and shine. From the imoutoid archive, this is ' + title + '.',
+      'Good morning. A bright one for you now: ' + title + '.',
+      'You are on imoutoid archive radio. Up next, ' + title + '.'
+    ],
+    day: [
+      'Good afternoon! Keep the energy up on imoutoid radio. Up next: ' + title + '.',
+      'Daytime on imoutoid radio. Here is ' + title + ', turned up.',
+      'This is imoutoid radio. Keeping the groove going with ' + title + '.',
+      'Afternoon energy, coming right up: ' + title + '.',
+      'Stay with us. Now playing ' + title + ' by imoutoid.'
+    ],
+    night: [
+      (night ? 'Late night chill on imoutoid archive radio. Unwind with ' : 'Good evening. Here is a calm track for your night: ') + title + '.',
+      'Good evening. Easing into the night with ' + title + '.',
+      'Night sessions on imoutoid archive radio. This is ' + title + '.',
+      'Slow down and settle in. From the imoutoid archive, ' + title + '.',
+      'Here is something quiet for the evening: ' + title + '.'
+    ]
+  };
+  const pats = sets[part.id] || sets.night;
+  const seed = hashStr(title + p.d + p.h + p.mi + part.id);
   return pats[seed % pats.length];
 }
 function clearSilent(){
@@ -1160,6 +1249,8 @@ function init(){
   drawWave();
   el.aiTitle.textContent = '再生ボタンでスタート';
   el.aiNext.textContent = 'NEXT: ' + pickNow().t;
+  updateSlotBadge();
+  setInterval(checkDayPart, 30000);
   updateModeUi();
   setStatusWaiting();
   el.statusText.textContent = '放送局に接続しています…';
