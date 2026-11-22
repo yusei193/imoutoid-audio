@@ -839,6 +839,23 @@ const S = {
 };
 
 const $ = (id)=>document.getElementById(id);
+
+/* ================= 音量カーブ =================
+   スライダーは 0〜100% の「位置」で、実際のゲインは p^2.5 に変換する。
+   リニアだと 50% でも -6dB しか下がらず、少し上げただけで BGM が爆音になるため、
+     0% = 無音 / 10% ≒ -50dB / 25% ≒ -30dB / 50% ≒ -15dB / 75% ≒ -6dB / 100% = 0dB
+   のように低〜中音量域を細かく動かせるカーブにする。0% は完全無音。
+   100% を超えて振れるスライダー（マイク 150%・ゲスト 150%）は、100% までは同じカーブ、
+   それを超えた分は持ち上げ分としてリニアに足す（100% で連続）。
+   入力ゲイン（inGain）はレベル合わせ用のトリムなので、メーターの dB 表示と合わせてリニアのまま。 */
+function volGain(p){
+  const x = Math.max(0, Math.min(1, Number(p) || 0));
+  return x <= 0 ? 0 : Math.pow(x, 2.5);
+}
+function volGainBoost(p){
+  const x = Math.max(0, Number(p) || 0);
+  return x <= 1 ? volGain(x) : x;
+}
 const el = {
   station:$('stationInput'), title:$('titleInput'), dj:$('djInput'), note:$('noteInput'),
   listenUrl:$('listenUrl'), copyUrlBtn:$('copyUrlBtn'),
@@ -1138,7 +1155,7 @@ async function ensureAudio(){
   S.ctx = ctx;
 
   S.bus        = ctx.createGain();  S.bus.gain.value = 1;
-  S.masterGain = ctx.createGain();  S.masterGain.gain.value = 0.9;
+  S.masterGain = ctx.createGain();  S.masterGain.gain.value = volGain(Number(el.masterVol.value)/100);
   S.limiter    = ctx.createDynamicsCompressor();
   S.limiter.threshold.value = -6; S.limiter.knee.value = 6; S.limiter.ratio.value = 12;
   S.limiter.attack.value = 0.003; S.limiter.release.value = 0.25;
@@ -3294,7 +3311,7 @@ function bind(){
   // マイク
   el.micToggle.addEventListener('click', toggleMic);
   el.micVol.addEventListener('input', ()=>{
-    S.micVol = Number(el.micVol.value)/100;
+    S.micVol = volGainBoost(Number(el.micVol.value)/100);
     el.micVolVal.textContent = el.micVol.value;
     applyMicGain();
   });
@@ -3331,7 +3348,7 @@ function bind(){
   });
   el.djMonBtn.addEventListener('click', ()=>{ setDjMonitor(!S.djMonOn); });
   el.djMonVol.addEventListener('input', ()=>{
-    S.djMonVol = Number(el.djMonVol.value)/100;
+    S.djMonVol = volGain(Number(el.djMonVol.value)/100);
     el.djMonVolVal.textContent = el.djMonVol.value;
     setRangeFill(el.djMonVol);
     applyMonitorVolume();
@@ -3348,7 +3365,7 @@ function bind(){
   el.bgmNext.addEventListener('click', ()=>nextTrack(true));
   el.bgmPrev.addEventListener('click', prevTrack);
   el.bgmVol.addEventListener('input', ()=>{
-    S.bgmVol = Number(el.bgmVol.value)/100;
+    S.bgmVol = volGain(Number(el.bgmVol.value)/100);
     el.bgmVolVal.textContent = el.bgmVol.value;
     applyBgmGain(0.05);
   });
@@ -3410,7 +3427,7 @@ function bind(){
 
   // ゲスト
   el.guestVol.addEventListener('input', ()=>{
-    S.guest.vol = Number(el.guestVol.value)/100;
+    S.guest.vol = volGainBoost(Number(el.guestVol.value)/100);
     el.guestVolVal.textContent = el.guestVol.value;
     applyGuestGain(0.05);
   });
@@ -3453,7 +3470,7 @@ function bind(){
 
   // マスター
   el.masterVol.addEventListener('input', ()=>{
-    if(S.ctx) S.masterGain.gain.setTargetAtTime(Number(el.masterVol.value)/100, S.ctx.currentTime, 0.03);
+    if(S.ctx) S.masterGain.gain.setTargetAtTime(volGain(Number(el.masterVol.value)/100), S.ctx.currentTime, 0.03);
     el.masterVolVal.textContent = el.masterVol.value;
   });
   el.monitorChk.addEventListener('change', ()=>setMonitor(el.monitorChk.checked));
@@ -3490,8 +3507,10 @@ function init(){
   el.guestVolVal.textContent = el.guestVol.value;
   setRangeFill(el.guestVol);
   el.guestVol.addEventListener('input', ()=>setRangeFill(el.guestVol));
-  S.bgmVol = Number(el.bgmVol.value)/100;
-  S.micVol = Number(el.micVol.value)/100;
+  S.bgmVol = volGain(Number(el.bgmVol.value)/100);
+  S.micVol = volGainBoost(Number(el.micVol.value)/100);
+  S.guest.vol = volGainBoost(Number(el.guestVol.value)/100);
+  S.djMonVol = volGain(Number(el.djMonVol.value)/100);
   setMicUi(false);
   updateNowUi();
   updateListenerCount();
@@ -3530,6 +3549,13 @@ window.__nrDebug = {
       guestConn:!!(S.guest.conn && S.guest.conn.open), guestMicCall:!!(S.guest.micCall && S.guest.micCall.open),
       voice:V.preset, monitor:S.monitorOn,
       inputMode:S.inputMode, echo:S.echo, noise:S.noise, agc:S.agc, inGain:S.inGain,
+      vols:{
+        mic:S.micVol, bgm:S.bgmVol, guest:S.guest.vol, djMon:S.djMonVol, inGain:S.inGain,
+        master:(S.masterGain ? S.masterGain.gain.value : null),
+        micSlider:Number(el.micVol.value), bgmSlider:Number(el.bgmVol.value),
+        masterSlider:Number(el.masterVol.value), guestSlider:Number(el.guestVol.value),
+        monSlider:Number(el.djMonVol.value), inGainSlider:Number(el.inGain.value)
+      },
       micSettings:S.micSettings, djMon:S.djMonOn, clip:el.clipLamp.classList.contains('on'),
       outDevices:el.monDevice ? el.monDevice.options.length - 1 : 0
     };

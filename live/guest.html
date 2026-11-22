@@ -362,6 +362,19 @@ function iceServers(){
 }
 
 
+/* ================= 音量カーブ =================
+   スライダーの位置（0〜100%）はそのままゲインにせず、p^2.5 で聴感に合わせて変換する。
+   0% = 無音 / 10% ≒ -50dB / 25% ≒ -30dB / 50% ≒ -15dB / 100% = 0dB。
+   100% を超えるマイク音量（150%まで）は 100% までカーブ、超えた分はリニアに持ち上げる。 */
+function volGain(p){
+  const x = Math.max(0, Math.min(1, Number(p) || 0));
+  return x <= 0 ? 0 : Math.pow(x, 2.5);
+}
+function volGainBoost(p){
+  const x = Math.max(0, Number(p) || 0);
+  return x <= 1 ? volGain(x) : x;
+}
+
 const S = {
   joined:false, status:'idle', ctx:null, micStream:null, micSource:null, micGain:null, micDest:null,
   monitorGain:null, monitorOn:false, micOn:true, micVol:1, deviceId:'',
@@ -875,7 +888,7 @@ function attachHost(stream){
   S.hostStream = stream;
   el.hostAudio.srcObject = stream;
   el.hostAudio.muted = false;
-  el.hostAudio.volume = S.hostMuted ? 0 : S.hostVol;
+  el.hostAudio.volume = S.hostMuted ? 0 : volGain(S.hostVol);
   setupMeter(stream);                   // 波形は clone() で解析（再生は <audio> に一本化）
   const p = el.hostAudio.play();
   if(p && p.then) p.then(()=>{ S.hostPlaying = true; el.hostPlayBtn.textContent = '❚❚'; S.hostPlayErr=''; }).catch((e)=>{
@@ -1053,7 +1066,7 @@ function bind(){
     el.micBtn.textContent = S.micOn ? 'マイク ON' : 'マイク OFF';
   });
   el.micVol.addEventListener('input', ()=>{
-    S.micVol = Number(el.micVol.value)/100;
+    S.micVol = volGainBoost(Number(el.micVol.value)/100);
     el.micVolVal.textContent = el.micVol.value;
     applyMic();
   });
@@ -1088,14 +1101,14 @@ function bind(){
   });
   el.hostMuteBtn.addEventListener('click', ()=>{
     S.hostMuted = !S.hostMuted;
-    el.hostAudio.volume = S.hostMuted ? 0 : S.hostVol;
+    el.hostAudio.volume = S.hostMuted ? 0 : volGain(S.hostVol);
     el.hostMuteBtn.classList.toggle('muting', S.hostMuted);
     el.hostMuteBtn.textContent = S.hostMuted ? 'ミュート解除' : 'ミュート';
   });
   el.hostVol.addEventListener('input', ()=>{
     S.hostVol = Number(el.hostVol.value)/100;
     el.hostVolVal.textContent = el.hostVol.value;
-    if(!S.hostMuted) el.hostAudio.volume = S.hostVol;
+    if(!S.hostMuted) el.hostAudio.volume = volGain(S.hostVol);
   });
   el.hostAudio.addEventListener('play', ()=>{ el.hostPlayBtn.textContent = '❚❚'; });
   el.hostAudio.addEventListener('pause', ()=>{ el.hostPlayBtn.textContent = '▶'; });
@@ -1126,7 +1139,7 @@ window.__nrDebug = {
       hostPeak:meter.peak || 0, hostId:HOST_ID, monitor:S.monitorOn,
       micCallOpen:!!(S.micCall && S.micCall.open), lastError:S.lastError,
       hostPlayErr:S.hostPlayErr, hostPaused:el.hostAudio.paused, hostReady:el.hostAudio.readyState,
-      hostVol:el.hostAudio.volume
+      hostVol:el.hostAudio.volume, hostVolPos:S.hostVol, micVol:S.micVol
     };
   },
   voice:(p)=>{ buildVoice(p); },

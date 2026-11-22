@@ -363,7 +363,8 @@ function iceServers(){
 const S = {
   peer:null, conn:null, call:null, stream:null, ctx:null, analyser:null,
   live:false, connecting:false, retryTimer:null, wantPlay:false, playing:false,
-  vol:0.8, info:{title:'', dj:'', note:'', guestOn:false, guestName:'', now:''},
+  vol:0.8,   // 音量スライダーの位置（0〜1）。実際のゲインは volGain() で聴感カーブに変換する
+  info:{title:'', dj:'', note:'', guestOn:false, guestName:'', now:''},
   silentDest:null, silentOsc:null, silentGain:null, lastError:'',
   iceState:'', connState:'', trackCount:0, analyserStream:null, lastRestream:0, srcNote:'', srcWarn:false,
   room:ROOM, roomFails:0,
@@ -494,13 +495,16 @@ function ensureCtx(){
     // 波形解析のため、同一オリジンでも CORS 付きで読み込む
     try{ el.aiAudioA.crossOrigin = 'anonymous'; el.aiAudioB.crossOrigin = 'anonymous'; }catch(e){}
     S.ai.master = S.ctx.createGain();
-    S.ai.master.gain.value = S.vol;
+    S.ai.master.gain.value = volGain(S.vol);   // 音量はこの1か所だけで掛ける（下の要素の volume=1 と二重にしない）
     S.aiAnalyser = S.ctx.createAnalyser();
     S.aiAnalyser.fftSize = 2048;
     S.aiAnalyser.smoothingTimeConstant = 0.75;
     S.ai.master.connect(S.aiAnalyser);          // 実音声をここで解析（ゲイン後）
     S.aiAnalyser.connect(S.ctx.destination);    // 音は Analyser を通してそのまま出力
     S.ai.decks = [el.aiAudioA, el.aiAudioB].map((a, i)=>{
+      // MediaElementSource を通すと <audio>.volume も出力に掛かるため、要素側は 1 に固定し
+      // 音量はマスターの GainNode だけで調整する（二重掛けで急に小さくなるのを防ぐ）
+      try{ a.volume = 1; }catch(e){}
       const src = S.ctx.createMediaElementSource(a);
       const fade = S.ctx.createGain(); fade.gain.value = 0;
       const duck = S.ctx.createGain(); duck.gain.value = 1;
@@ -545,10 +549,21 @@ async function unlockAudio(){
   ensureSilentDest();
 }
 
+/* ================= 音量カーブ =================
+   スライダーは 0〜100% の「位置」で、実際のゲインは p^2.5 に変換する。
+   リニア（位置をそのままゲインに使う）だと 10% でも -20dB しか下がらず、
+   少し上げただけで爆音になりやすい。p^2.5 なら
+     0% = 無音 / 10% ≒ -50dB / 25% ≒ -30dB / 50% ≒ -15dB / 75% ≒ -6dB / 100% = 0dB
+   となり、低〜中音量域を細かく動かせる。0% は完全無音。 */
+function volGain(p){
+  const x = Math.max(0, Math.min(1, Number(p) || 0));
+  return x <= 0 ? 0 : Math.pow(x, 2.5);
+}
 function setVolume(v){
-  S.vol = v;
-  el.audio.volume = v;
-  if(S.ai.master) S.ai.master.gain.value = v;
+  S.vol = Math.max(0, Math.min(1, Number(v) || 0));
+  const g = volGain(S.vol);
+  el.audio.volume = g;                     // 生放送（<audio> 直接）
+  if(S.ai.master) S.ai.master.gain.value = g;   // AIラジオ（WebAudio）
 }
 
 /* ================= 表示 ================= */
@@ -721,6 +736,7 @@ function clearSilent(){
 }
 function duckDeck(d, on){
   if(!d || !S.ctx) return;
+  // 曲紹介中は BGM を -10.5dB（0.3倍）まで落とし、声を前に出す
   d.duck.gain.setTargetAtTime(on ? 0.3 : 1, S.ctx.currentTime, on ? 0.12 : 0.45);
 }
 /* 曲紹介：音楽を止めずに、音量を下げて重ねる */
@@ -747,7 +763,8 @@ function speakOver(track, deck){
     u.lang = 'en-US';
     u.rate = 1.05;
     u.pitch = 1.35;
-    u.volume = 1;
+    // 読み上げは音量スライダーを通らないので、曲より少し大きくなるよう同じカーブから作る
+    u.volume = Math.min(1, volGain(S.vol) * 1.6);
     const v = pickEnVoice();
     if(v) u.voice = v;
     u.onend = finish;
@@ -803,7 +820,7 @@ function aiStart(track, opts){
     try{
       const a = el.aiAudioA;
       try{ el.aiAudioB.pause(); }catch(e){}
-      a.src = track.u; a.volume = S.vol;
+      a.src = track.u; a.volume = volGain(S.vol);
       a.play().catch(()=>{});
       S.ai.playing = true; S.ai.track = track;
       renderAiTrack(); updateModeUi();
@@ -1399,7 +1416,7 @@ function attachStream(stream){
   // 再生経路は <audio> 1本に統一（Android Chrome の無音バグ回避）
   try{ el.audio.srcObject = stream; }catch(e){}
   el.audio.muted = false;
-  el.audio.volume = S.vol;
+  el.audio.volume = volGain(S.vol);
   setupAnalyser(stream);           // 波形は clone() でのみ解析（再生を止めない）
 
   S.live = true;
@@ -1447,7 +1464,7 @@ function setStatusWaiting(){
 function playLive(){
   if(!S.stream) return;
   el.audio.muted = false;
-  el.audio.volume = S.vol;
+  el.audio.volume = volGain(S.vol);
   const p = el.audio.play();
   if(p && p.then){
     p.then(()=>{
@@ -1691,6 +1708,8 @@ window.__nrDebug = {
       hasStream:!!S.stream, playing:!!(el.audio && !el.audio.paused),
       silentDest:!!S.silentDest, trackCount:S.trackCount, iceState:S.iceState, connState:S.connState,
       audioVol:el.audio.volume, audioMuted:el.audio.muted, wantPlay:S.wantPlay,
+      volPos:S.vol, volGain:volGain(S.vol), aiMaster:(S.ai.master ? S.ai.master.gain.value : null),
+      aiElemVol:(S.ai.decks ? S.ai.decks.map(d=>d.el.volume) : null),
       aiPlaying:S.ai.playing, aiTrack:S.ai.track ? S.ai.track.t : null,
       aiSrc:aiDeckCur() ? aiDeckCur().el.currentSrc : null,
       aiTime:aiDeckCur() ? aiDeckCur().el.currentTime : 0,
@@ -1734,6 +1753,15 @@ window.__nrDebug = {
   aiGains(){
     const d = aiDeckCur();
     return d ? {fade:Math.round(d.fade.gain.value*100)/100, duck:Math.round(d.duck.gain.value*100)/100, playing:!d.el.paused} : null;
+  },
+  /* 実際に出ている音の実効値（AIラジオはマスター後、生放送はアナライザー側） */
+  level(){
+    const an = (S.live && S.analyser) ? S.analyser : S.aiAnalyser;
+    if(!an) return null;
+    const b = new Float32Array(an.fftSize);
+    try{ an.getFloatTimeDomainData(b); }catch(e){ return null; }
+    let s = 0; for(let i=0;i<b.length;i++) s += b[i]*b[i];
+    return Math.sqrt(s/b.length);
   },
   fakeInfo(obj){
     S.info = Object.assign(S.info, obj || {});
