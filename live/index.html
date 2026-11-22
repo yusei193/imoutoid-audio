@@ -122,13 +122,53 @@ input,select{font-family:inherit}
 
 /* 波形 */
 .scope{margin-top:16px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(0,0,0,.28));box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
-.scope-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 13px;border-bottom:1px solid rgba(255,255,255,.05);font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--dim2)}
+.scope-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 13px;border-bottom:1px solid rgba(255,255,255,.05);font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--dim2);flex-wrap:wrap}
 .scope-head .rec{display:inline-flex;align-items:center;gap:6px}
 .scope-head .rec i{width:5px;height:5px;border-radius:50%;background:#45454b}
 .scope-head .rec.on i{background:var(--red);box-shadow:0 0 7px rgba(255,90,90,.9);animation:pulse 1.6s infinite}
 .scope-head .rec.ai.on i{background:var(--mint);box-shadow:0 0 7px rgba(121,224,194,.9)}
 #wave{display:block;width:100%;height:146px}
-@media (max-width:420px){#wave{height:116px}}
+@media (max-width:420px){#wave{height:116px}#scopeInfo{display:none}}
+.vjmodes{display:inline-flex;align-items:center;gap:2px;padding:2px;border:1px solid var(--line);border-radius:8px;background:rgba(0,0,0,.32);margin-left:auto}
+.vjbtn{border:0;background:transparent;color:var(--dim2);font-family:var(--mono);font-size:8px;letter-spacing:.06em;padding:4px 7px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.vjbtn:hover{color:var(--txt)}
+.vjbtn.on{background:rgba(242,180,100,.18);color:#ffe6bd;box-shadow:inset 0 0 0 1px rgba(242,180,100,.35)}
+@media (max-width:420px){.vjbtn{font-size:7.5px;padding:4px 5px}}
+
+/* 💌 おたより・曲リクエスト */
+.letter-card{margin-top:16px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(0,0,0,.26));box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.letter-head{display:flex;align-items:center;gap:9px;padding:9px 13px;border-bottom:1px solid rgba(255,255,255,.05);font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--dim2)}
+.letter-head .lab{color:var(--amber)}
+.letter-head .st{margin-left:auto;padding:3px 8px;border-radius:999px;border:1px solid var(--line);font-size:8.5px;letter-spacing:.12em;white-space:nowrap}
+.letter-card.live .letter-head .st{color:#cffdf0;border-color:rgba(121,224,194,.45);background:rgba(121,224,194,.08)}
+.letter-body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px}
+.letter-note{margin:0;font-size:11px;line-height:1.6;color:var(--dim2)}
+.lrow{display:flex;align-items:center;gap:8px;min-width:0}
+.lrow-end{justify-content:flex-end}
+.letter-card input[type=text],.letter-card input[type=search],.letter-card textarea{width:100%;min-width:0;background:rgba(0,0,0,.35);border:1px solid var(--line2);border-radius:10px;padding:8px 11px;color:var(--txt);font-size:12.5px;outline:none;line-height:1.5;font-family:inherit}
+.letter-card textarea{resize:vertical;min-height:66px}
+.letter-card input:focus,.letter-card textarea:focus{border-color:rgba(242,180,100,.6);box-shadow:0 0 0 3px rgba(242,180,100,.1)}
+.letter-card input:disabled,.letter-card textarea:disabled{opacity:.55}
+.letter-card ::placeholder{color:var(--dim2)}
+.lreq{border:1px solid var(--line);border-radius:11px;background:rgba(0,0,0,.22);padding:8px 9px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.lreq-head{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:var(--dim2);min-width:0}
+.lreq-head .picked{margin-left:auto;color:var(--amber);max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lreq-head .picked.none{color:var(--dim2)}
+.lreq-list{list-style:none;margin:0;padding:0;max-height:160px;overflow-y:auto;overscroll-behavior:contain;border-top:1px solid var(--line);border-radius:0 0 8px 8px}
+.lreq-list li{padding:6px 7px;font-size:11.5px;color:var(--dim);border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;display:flex;gap:8px;align-items:center;min-width:0}
+.lreq-list li:hover{background:rgba(242,180,100,.1);color:#ffe6bd}
+.lreq-list li span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lreq-list li small{font-family:var(--mono);font-size:8px;color:var(--dim2);flex:0 0 auto}
+.lreq-list li.more{justify-content:center;color:var(--dim2);cursor:default;font-size:10px}
+.letter-count{font-family:var(--mono);font-size:9px;color:var(--dim2);margin-right:auto;white-space:nowrap}
+.letter-send{border-color:rgba(242,180,100,.5);background:rgba(242,180,100,.14);color:#ffebcb;padding:8px 16px}
+.letter-send:hover{background:rgba(242,180,100,.24)}
+.letter-send:disabled{opacity:.4;cursor:default}
+.letter-msg{margin:0;font-size:11px;line-height:1.55;border-radius:9px;padding:7px 10px;border:1px solid var(--line);background:rgba(0,0,0,.3);color:var(--dim)}
+.letter-msg.ok{border-color:rgba(121,224,194,.45);background:rgba(121,224,194,.08);color:#cffdf0}
+.letter-msg.warn{border-color:rgba(242,180,100,.45);background:rgba(242,180,100,.08);color:#ffe7c4}
+.letter-msg.err{border-color:rgba(255,90,90,.45);background:rgba(255,90,90,.08);color:#ffd2d2}
+@media (max-width:420px){.letter-body .chat-note{display:none}}
 
 /* 操作 */
 .controls{display:flex;align-items:center;gap:13px;margin-top:16px;flex-wrap:wrap}
@@ -244,6 +284,11 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;bac
   <div class="scope">
     <div class="scope-head">
       <span class="rec" id="recTag"><i></i><span id="recText">WAVEFORM</span></span>
+      <div class="vjmodes" role="group" aria-label="表示モード">
+        <button class="vjbtn on" type="button" data-vj="wave">WAVE</button>
+        <button class="vjbtn" type="button" data-vj="spectrum">SPECTRUM</button>
+        <button class="vjbtn" type="button" data-vj="retro">RETRO VJ</button>
+      </div>
       <span id="scopeInfo">AUTO-DJ / 146 TRACKS</span>
     </div>
     <canvas id="wave"></canvas>
@@ -284,6 +329,32 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;bac
         <button class="creact-btn" type="button" data-emoji="🔥" aria-label="熱い">🔥</button>
         <button class="creact-btn" type="button" data-emoji="🎵" aria-label="音楽">🎵</button>
         <div class="chat-counts" id="chatCounts"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 💌 おたより・曲リクエスト -->
+  <section class="letter-card" id="letterPanel">
+    <div class="letter-head">
+      <span class="lab">💌 おたより・曲リクエスト</span>
+      <span class="st" id="letterState">OFF AIR</span>
+    </div>
+    <div class="letter-body">
+      <p class="letter-note" id="letterNote">生放送中にDJへ届きます。ラジオネームは任意、リクエスト曲は146曲から選べます。</p>
+      <div class="lrow">
+        <input id="letterName" type="text" maxlength="24" placeholder="ラジオネーム（任意）" autocomplete="nickname" spellcheck="false">
+        <span class="chat-note">空なら匿名</span>
+      </div>
+      <textarea id="letterText" maxlength="500" rows="3" placeholder="メッセージ（例：深夜の選曲最高です！）" disabled></textarea>
+      <div class="lreq">
+        <div class="lreq-head"><span>🎵 リクエスト曲（任意）</span><span class="picked none" id="letterPicked">未選択</span></div>
+        <input id="letterSearch" type="search" placeholder="146曲から検索（例：techno / ピアノ / 夜）" autocomplete="off" spellcheck="false" disabled>
+        <ul class="lreq-list" id="letterList" hidden></ul>
+      </div>
+      <p class="letter-msg" id="letterMsg" hidden></p>
+      <div class="lrow lrow-end">
+        <span class="letter-count" id="letterCount">0 / 500</span>
+        <button class="btn letter-send" id="letterSend" type="button" disabled>送信</button>
       </div>
     </div>
   </section>
@@ -386,8 +457,56 @@ const el = {
   statusText:$('statusText'), retryBtn:$('retryBtn'), srcLine:$('srcLine'), audio:$('audio'), aiAudioA:$('aiAudioA'), aiAudioB:$('aiAudioB'), footId:$('footId'),
   chatPanel:$('chatPanel'), chatLog:$('chatLog'), chatEmpty:$('chatEmpty'), chatOffair:$('chatOffair'),
   chatForm:$('chatForm'), chatName:$('chatName'), chatText:$('chatText'), chatSend:$('chatSend'),
-  chatCounts:$('chatCounts'), chatState:$('chatState')
+  chatCounts:$('chatCounts'), chatState:$('chatState'),
+  letterPanel:$('letterPanel'), letterState:$('letterState'), letterNote:$('letterNote'),
+  letterName:$('letterName'), letterText:$('letterText'), letterSearch:$('letterSearch'),
+  letterList:$('letterList'), letterPicked:$('letterPicked'), letterMsg:$('letterMsg'),
+  letterSend:$('letterSend'), letterCount:$('letterCount')
 };
+
+/* ================= 👤 人間 / 🤖 AI・Bot の自己申告 =================
+   配信者に「このリスナーは人間かAI/Botか」を伝える。
+   判定材料：navigator.webdriver / 自動化UA（HeadlessChrome, Playwright, Puppeteer…）/
+             URLパラメータ（?bot=1, ?client=ai など）/ 実際の操作シグナル。
+   これは証明ではなく目安（スプーフィング可能）。kind は human / ai_bot の2つ。 */
+const CLIENT = (function(){
+  const p = new URLSearchParams(location.search);
+  const ua = navigator.userAgent || '';
+  const reason = [];
+  let score = 0;
+  let webdriver = false;
+  try{ webdriver = !!navigator.webdriver; }catch(e){}
+  if(webdriver){ score += 3; reason.push('navigator.webdriver=true'); }
+  const botUa = /HeadlessChrome|Playwright|Puppeteer|PhantomJS|Selenium|WebDriver|jsdom|HtmlUnit|HeadlessEdg|Electron|curl\/|python-requests|node-fetch/i;
+  const m = ua.match(botUa);
+  if(m){ score += 3; reason.push('自動化UA:' + m[0]); }
+  const rawParam = (p.get('bot') || p.get('client') || p.get('ai') || p.get('agent') || '').trim();
+  const paramBot = /^(1|true|yes|on|ai|bot|llm)$/i.test(rawParam);
+  if(paramBot){ score += 3; reason.push('URLパラメータ:' + rawParam); }
+  const kind = score >= 3 ? 'ai_bot' : 'human';
+  if(kind === 'human' && !reason.length) reason.push('自動化の痕跡なし');
+  return { kind:kind, reason:reason.slice(0,4), webdriver:webdriver, ua:ua.slice(0,90), param:paramBot, score:score,
+           interacted:false, played:false, lastSent:0 };
+})();
+function clientInfo(){
+  return { kind:CLIENT.kind, reason:CLIENT.reason, interacted:CLIENT.interacted, played:CLIENT.played,
+           webdriver:CLIENT.webdriver, ua:CLIENT.ua };
+}
+function clientTouch(kind){
+  let changed = false;
+  if(!CLIENT.interacted){ CLIENT.interacted = true; changed = true; }
+  if(kind === 'play' && !CLIENT.played){ CLIENT.played = true; changed = true; }
+  if(!changed) return;
+  sendClientSoon();
+}
+function sendClientNow(){
+  if(!(S.conn && S.conn.open)) return false;
+  try{ S.conn.send(Object.assign({type:'client', t:Date.now()}, clientInfo())); CLIENT.lastSent = Date.now(); return true; }catch(e){ return false; }
+}
+function sendClientSoon(){
+  const now = Date.now();
+  if(now - (CLIENT.lastSent || 0) > 900) sendClientNow();
+}
 
 /* ================= 小道具 ================= */
 function fillRange(i){
@@ -621,6 +740,7 @@ function updateModeUi(){
   }
   updatePlayUi();
   updateChatUi();
+  setVjMode(VJ.mode);
 }
 function renderLiveInfo(){
   const d = S.info;
@@ -1068,7 +1188,7 @@ function dial(){
   if(!S.peer || !S.peer.open) return;
   if(S.conn) return;                    // 接続試行中／接続済みはそのまま待つ（途中で切らない）
   if(!S.room) S.room = ROOMS[0] || ROOM;
-  const conn = S.peer.connect(S.room, {reliable:true, metadata:{role:'listener'}});
+  const conn = S.peer.connect(S.room, {reliable:true, metadata:{role:'listener', name:chatName(), client:clientInfo()}});
   S.conn = conn;
   const t = setTimeout(()=>{
     if(S.conn === conn && !conn.open){
@@ -1082,7 +1202,7 @@ function dial(){
     S.roomFails = 0;
     if(el.stationLabel) el.stationLabel.textContent = S.room;
     if(el.footId) el.footId.textContent = S.room;
-    try{ conn.send({type:'hello', role:'listener', t:Date.now()}); }catch(e){}
+    try{ conn.send({type:'hello', role:'listener', name:chatName(), client:clientInfo(), t:Date.now()}); }catch(e){}
     if(/^局ID「|^配信者に接続できません/.test(S.srcNote || '')) setSrcNote('', false);
     renderSrc();
     updateChatUi();
@@ -1228,6 +1348,7 @@ function updateChatUi(){
   el.chatPanel.querySelectorAll('.creact-btn').forEach((b)=>{ b.disabled = !liveConn; });
   if(el.chatText) el.chatText.placeholder = can ? 'DJにメッセージを送る' : '生放送が始まるとチャットに参加できます';
   if(el.chatEmpty && can) el.chatEmpty.textContent = 'まだメッセージはありません。最初のひとことを送ってみてください。';
+  letterSendUi();
 }
 function chatSendText(){
   if(!chatCanSend()) return;
@@ -1481,6 +1602,7 @@ function playLive(){
 }
 function onPlayClick(){
   unlockAudio();
+  clientTouch('play');
   if(S.live && S.stream){
     if(S.playing){
       S.wantPlay = false;
@@ -1540,11 +1662,67 @@ function stopAnalyser(){
     S.analyserStream = null;
   }
 }
+/* ================= 波形 / SPECTRUM / RETRO VJ =================
+   WAVE      : 既存の時間軸波形（生放送 / AIラジオの実音声）
+   SPECTRUM  : 低音→高音の棒グラフ
+   RETRO VJ  : 低音・中音・高音に反応する 8bit / Winamp 風のドット絵VJ
+   解析はどのモードでも同じ AnalyserNode を使う。 */
+const VJ = { mode:'wave', bass:0, mid:0, treble:0, peak:0, frame:0, t:0, freq:null, bytes:null };
+function vjAnalyser(){
+  if(S.live && S.stream && S.analyser) return S.analyser;
+  if(!S.live && S.ai.playing && S.aiAnalyser) return S.aiAnalyser;
+  return null;
+}
+function vjFreq(an){
+  if(!an) return null;
+  if(!VJ.bytes || VJ.bytes.length !== an.frequencyBinCount) VJ.bytes = new Uint8Array(an.frequencyBinCount);
+  try{ an.getByteFrequencyData(VJ.bytes); }catch(e){ return null; }
+  return VJ.bytes;
+}
+function vjBands(an){
+  const d = vjFreq(an);
+  const avg = (a,b)=>{
+    if(!d) return 0;
+    let s = 0, c = 0;
+    for(let i=a;i<b && i<d.length;i++){ s += d[i]; c++; }
+    return c ? s/c/255 : 0;
+  };
+  let bass, mid, treble;
+  if(d){
+    bass = avg(1,8); mid = avg(10,70); treble = avg(90,320);
+  } else {
+    bass = 0; mid = 0; treble = 0;
+  }
+  // なめらかに追従（落下は少し遅く）
+  VJ.bass += (bass - VJ.bass) * (bass > VJ.bass ? 0.55 : 0.12);
+  VJ.mid  += (mid  - VJ.mid)  * (mid  > VJ.mid  ? 0.55 : 0.12);
+  VJ.treble += (treble - VJ.treble) * (treble > VJ.treble ? 0.55 : 0.12);
+  return {bass:VJ.bass, mid:VJ.mid, treble:VJ.treble};
+}
+function setVjMode(m){
+  VJ.mode = (m === 'spectrum' || m === 'retro') ? m : 'wave';
+  document.querySelectorAll('.vjbtn').forEach((b)=>{ b.classList.toggle('on', b.getAttribute('data-vj') === VJ.mode); });
+  if(el.scopeInfo){
+    if(VJ.mode === 'spectrum') el.scopeInfo.textContent = 'SPECTRUM ANALYSER';
+    else if(VJ.mode === 'retro') el.scopeInfo.textContent = 'RETRO VJ / 8BIT';
+    else el.scopeInfo.textContent = S.live ? 'P2P / WebRTC' : 'AUTO-DJ / ' + TRACKS.length + ' TRACKS';
+  }
+  const rb = document.querySelector('[data-vj="retro"]');
+  if(rb) rb.title = '音に反応するレトロPC／8bit風のVJ表示';
+  return VJ.mode;
+}
 function drawWave(){
   wave.raf = requestAnimationFrame(drawWave);
-  const c = el.wave, g = c.getContext('2d');
   if(!wave.w) sizeWave();
-  const w = wave.w, h = wave.h, mid = h/2;
+  const g = el.wave.getContext('2d');
+  const w = wave.w, h = wave.h;
+  VJ.frame++;
+  if(VJ.mode === 'spectrum'){ drawSpectrum(g, w, h); return; }
+  if(VJ.mode === 'retro'){ drawRetroVj(g, w, h); return; }
+  drawWaveform(g, w, h);
+}
+function drawWaveform(g, w, h){
+  const mid = h/2;
   g.clearRect(0,0,w,h);
 
   g.strokeStyle = 'rgba(255,255,255,.05)'; g.lineWidth = 1;
@@ -1608,6 +1786,285 @@ function drawWave(){
   g.fillRect(w-1, mid-14, 1, 28);
 }
 
+/* ---- SPECTRUM ---- */
+function drawSpectrum(g, w, h){
+  g.clearRect(0,0,w,h);
+  g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(0,0,w,h);
+  g.strokeStyle = 'rgba(255,255,255,.05)'; g.lineWidth = 1;
+  for(let i=1;i<4;i++){ const y = (h/4)*i; g.beginPath(); g.moveTo(0,y); g.lineTo(w,y); g.stroke(); }
+  const an = vjAnalyser();
+  const d = vjFreq(an);
+  const liveOk = !!(S.live && S.analyser);
+  const bars = Math.max(24, Math.min(64, Math.floor(w/11)));
+  const gap = 2, bw = Math.max(2, (w - gap*(bars-1)) / bars);
+  let peak = 0;
+  for(let i=0;i<bars;i++){
+    let v = 0;
+    if(d){
+      const a = Math.floor(Math.pow(i/bars, 1.7) * d.length * 0.62);
+      const b = Math.max(a+1, Math.floor(Math.pow((i+1)/bars, 1.7) * d.length * 0.62));
+      let s = 0, c = 0;
+      for(let k=a;k<b && k<d.length;k++){ s += d[k]; c++; }
+      v = c ? s/c/255 : 0;
+    } else {
+      v = 0.05 + 0.03*Math.sin(VJ.frame*0.05 + i*0.4);
+    }
+    if(v > peak) peak = v;
+    const bh = Math.max(1, v * (h-18));
+    const x = i*(bw+gap);
+    const y = h - 10 - bh;
+    const grad = g.createLinearGradient(0, h-10, 0, h-10-bh);
+    if(liveOk){ grad.addColorStop(0,'rgba(242,180,100,.35)'); grad.addColorStop(1,'rgba(255,214,157,.95)'); }
+    else { grad.addColorStop(0,'rgba(121,224,194,.35)'); grad.addColorStop(1,'rgba(190,255,235,.95)'); }
+    g.fillStyle = grad;
+    g.fillRect(x, y, bw, bh);
+    g.fillStyle = liveOk ? 'rgba(255,214,157,.55)' : 'rgba(190,255,235,.55)';
+    g.fillRect(x, y, bw, 1);
+  }
+  wave.peak = peak;
+  g.fillStyle = 'rgba(255,255,255,.16)';
+  g.font = '7px monospace'; g.textBaseline = 'alphabetic';
+  g.fillText('20Hz', 2, h-2);
+  g.textAlign = 'right'; g.fillText('20kHz', w-2, h-2); g.textAlign = 'left';
+}
+
+/* ---- RETRO VJ（Winamp / 8bit / レトロPC風）---- */
+function drawRetroVj(g, w, h){
+  const an = vjAnalyser();
+  const bands = vjBands(an);
+  const t = VJ.frame;
+  const bass = bands.bass, mid = bands.mid, treble = bands.treble;
+
+  g.fillStyle = '#070a18'; g.fillRect(0,0,w,h);
+  // ドット背景
+  g.fillStyle = 'rgba(90,120,200,.13)';
+  for(let x=2;x<w;x+=8){ for(let y=2;y<h;y+=8){ g.fillRect(x,y,1,1); } }
+
+  const wx = 4, wy = 4, ww = w-8, wh = h-8;
+  // ベースで脈打つ外枠
+  const glow = 1 + bass*3;
+  g.strokeStyle = 'rgba(242,180,100,' + (0.25 + bass*0.6).toFixed(3) + ')';
+  g.lineWidth = glow; g.strokeRect(wx+.5, wy+.5, ww-1, wh-1);
+  g.lineWidth = 1;
+  g.strokeStyle = 'rgba(147,185,255,.35)'; g.strokeRect(wx+2.5, wy+2.5, ww-5, wh-5);
+
+  // タイトルバー（レトロPC風）
+  const tb = 13;
+  g.fillStyle = '#1a2a63'; g.fillRect(wx+3, wy+3, ww-6, tb);
+  g.fillStyle = 'rgba(255,255,255,.18)'; g.fillRect(wx+3, wy+3, ww-6, 1);
+  g.fillStyle = '#f2b464';
+  g.font = 'bold 8px monospace'; g.textBaseline = 'middle'; g.textAlign = 'left';
+  g.fillText('IMO-9000  RETRO VJ', wx+7, wy+3+tb/2+.5);
+  const on = (Math.floor(t/28) % 2) === 0;
+  g.fillStyle = '#93b9ff'; g.font = '7px monospace'; g.textAlign = 'right';
+  g.fillText('ON AIR', wx+ww-12, wy+3+tb/2+.5);
+  g.fillStyle = on ? '#ff5a5a' : '#5a2530';
+  g.beginPath(); g.arc(wx+ww-9, wy+3+tb/2, 2.6, 0, Math.PI*2); g.fill();
+  g.textAlign = 'left';
+
+  const top = wy + 3 + tb + 4;
+  const bottom = wy + wh - 3;
+  const labW = 24;
+  // ---- 3本のセグメントメーター（BASS / MID / TREB）----
+  const rows = [['B', bass, '#f2b464'], ['M', mid, '#93b9ff'], ['T', treble, '#79e0c2']];
+  const rowH = Math.max(6, Math.min(9, Math.round((h - 60) / 5)));
+  const segs = Math.max(18, Math.min(34, Math.floor((w - labW - 18) / 6)));
+  let y = top;
+  rows.forEach((r)=>{
+    g.fillStyle = '#6d7fb8'; g.font = 'bold 7px monospace'; g.textBaseline = 'middle';
+    g.fillText(r[0], wx+7, y + rowH/2 + 1);
+    const x0 = wx + labW;
+    const sw = (ww - labW - 10) / segs;
+    const n = Math.round(Math.max(0, Math.min(1, r[1])) * segs);
+    for(let i=0;i<segs;i++){
+      g.fillStyle = i < n ? r[2] : 'rgba(120,150,220,.13)';
+      g.fillRect(x0 + i*sw + 1, y + 1, Math.max(1, sw - 2), rowH - 2);
+    }
+    y += rowH + 4;
+  });
+
+  // ---- ドットマトリクスのスペクトラム ----
+  const my = y + 2;
+  const matH = Math.max(14, bottom - my - 12);
+  const cols = Math.max(12, Math.min(26, Math.floor((ww - 14) / 7)));
+  const cell = Math.max(3, Math.min(6, Math.floor(matH / 8)));
+  const rowsN = Math.max(3, Math.floor(matH / (cell + 1)));
+  const d = vjFreq(an);
+  const mx0 = wx + 8;
+  const cgap = (ww - 16) / cols;
+  for(let i=0;i<cols;i++){
+    let v = 0;
+    if(d){
+      const a = Math.floor(Math.pow(i/cols, 1.5) * d.length * 0.6);
+      const b = Math.max(a+1, Math.floor(Math.pow((i+1)/cols, 1.5) * d.length * 0.6));
+      let s = 0, c = 0;
+      for(let k=a;k<b && k<d.length;k++){ s += d[k]; c++; }
+      v = c ? s/c/255 : 0;
+    } else {
+      v = 0.08 + 0.05*Math.sin(t*0.06 + i*0.5);
+    }
+    const n = Math.round(v * rowsN);
+    for(let r=0;r<rowsN;r++){
+      const onCell = r < n;
+      if(!onCell && r > n + 1) continue;
+      const yy = bottom - 10 - (r+1)*(cell+1);
+      if(yy < my) continue;
+      if(onCell){
+        const hot = r >= rowsN - 2;
+        g.fillStyle = hot ? '#ff8c8c' : (i % 3 === 0 ? '#79e0c2' : '#f2b464');
+      } else {
+        g.fillStyle = 'rgba(120,150,220,.12)';
+      }
+      g.fillRect(mx0 + i*cgap, yy, cell, cell);
+    }
+  }
+  // 高い音でグリッチ（決定的な擬似乱数）
+  if(treble > 0.5){
+    const rnd = (n)=>{ const x = Math.sin((t*0.7 + n*12.9898))*43758.5453; return x - Math.floor(x); };
+    for(let i=0;i<3;i++){
+      const gx = Math.floor(rnd(i)*w), gy = Math.floor(rnd(i+9)*h);
+      g.fillStyle = i % 2 ? 'rgba(121,224,194,.55)' : 'rgba(255,90,90,.55)';
+      g.fillRect(gx, gy, 10 + Math.floor(rnd(i+3)*22), 2);
+    }
+  }
+  // ---- 下部ステータス（スクロールするマーキー）----
+  const by = bottom - 8;
+  g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(wx+3, by-2, ww-6, 10);
+  g.fillStyle = '#93b9ff'; g.font = '7px monospace'; g.textBaseline = 'middle';
+  g.fillText((Math.floor(t/28)%2===0 ? '■' : '□') + ' REC  STEREO 48k', wx+7, by+3);
+  const msg = 'IMOUTOID ARCHIVE 146 TRACKS  ***  RETRO VJ MODE  ***  ';
+  g.save();
+  g.beginPath(); g.rect(wx+ww-120, by-3, 112, 12); g.clip();
+  const scroll = (t*0.35) % 260;
+  g.fillStyle = '#f2b464';
+  g.fillText(msg, wx+ww-120 - scroll, by+3);
+  g.fillText(msg, wx+ww-120 - scroll + 260, by+3);
+  g.restore();
+  // 走査線
+  g.fillStyle = 'rgba(0,0,0,.16)';
+  for(let sy=0;sy<h;sy+=3) g.fillRect(0, sy, w, 1);
+  wave.peak = Math.max(bass, mid, treble);
+}
+
+/* ================= 💌 おたより・曲リクエスト =================
+   送信：{type:'letter', name, text, track:{t,u}, client, t} → 配信者
+   リクエストはこの画面の TRACKS（146曲）から選んだものだけ送る。 */
+const LETTER_MAX = 500;
+const letter = { track:null, lastSent:0 };
+function letterMatches(q){
+  const qq = String(q || '').trim().toLowerCase();
+  if(!qq) return TRACKS;
+  return TRACKS.filter(t=>String(t.t).toLowerCase().indexOf(qq) >= 0);
+}
+function letterPickUi(){
+  if(!el.letterPicked) return;
+  if(letter.track){
+    el.letterPicked.textContent = '🎵 ' + letter.track.t + '  ×';
+    el.letterPicked.className = 'picked sel';
+    el.letterPicked.title = 'クリックで選択を解除';
+  } else {
+    el.letterPicked.textContent = '未選択';
+    el.letterPicked.className = 'picked none';
+    el.letterPicked.title = '';
+  }
+}
+function letterRenderList(q, open){
+  if(!el.letterList) return;
+  if(!open){ el.letterList.hidden = true; return; }
+  const items = letterMatches(q);
+  el.letterList.textContent = '';
+  items.slice(0, 30).forEach((t)=>{
+    const li = document.createElement('li');
+    const sp = document.createElement('span'); sp.textContent = t.t;
+    const sm = document.createElement('small'); sm.textContent = String(t.c || '').toUpperCase();
+    li.appendChild(sp); li.appendChild(sm);
+    li.addEventListener('click', ()=>{
+      letter.track = {t:t.t, u:t.u};
+      letterPickUi();
+      el.letterList.hidden = true;
+      el.letterSearch.value = '';
+      letterSendUi();
+    });
+    el.letterList.appendChild(li);
+  });
+  if(!items.length){
+    const li = document.createElement('li'); li.className = 'more'; li.textContent = '該当する曲がありません';
+    el.letterList.appendChild(li);
+  } else if(items.length > 30){
+    const li = document.createElement('li'); li.className = 'more'; li.textContent = 'ほか ' + (items.length - 30) + ' 曲（検索で絞ってください）';
+    el.letterList.appendChild(li);
+  }
+  el.letterList.hidden = false;
+}
+function letterUpdateCount(){
+  if(el.letterCount && el.letterText) el.letterCount.textContent = (el.letterText.value || '').length + ' / ' + LETTER_MAX;
+}
+function letterSendUi(){
+  const can = chatCanSend();
+  if(el.letterPanel) el.letterPanel.classList.toggle('live', can);
+  if(el.letterState) el.letterState.textContent = can ? 'ON AIR' : 'OFF AIR';
+  if(el.letterNote) el.letterNote.textContent = can
+    ? '生放送中です。DJへ届きます。ラジオネームは任意、リクエスト曲は146曲から選べます。'
+    : '生放送が始まると送れます（AIラジオ中は配信者に届きません）。';
+  [el.letterText, el.letterSearch, el.letterSend].forEach((n)=>{ if(n) n.disabled = !can; });
+  if(el.letterSend) el.letterSend.disabled = !can || (!(el.letterText && el.letterText.value.trim()) && !letter.track);
+}
+function letterMsg(text, kind){
+  if(!el.letterMsg) return;
+  el.letterMsg.textContent = text || '';
+  el.letterMsg.className = 'letter-msg' + (kind ? ' ' + kind : '');
+  el.letterMsg.hidden = !text;
+}
+function letterSendText(){
+  if(!(S.conn && S.conn.open)){ letterMsg('生放送が始まると送れます。しばらく待ってください。', 'warn'); return; }
+  const text = (el.letterText.value || '').trim().slice(0, LETTER_MAX);
+  if(!text && !letter.track){ letterMsg('メッセージかリクエスト曲を入れてください。', 'warn'); return; }
+  const now = Date.now();
+  if(now - letter.lastSent < 1500){ letterMsg('少し待ってからもう一度送ってください。', 'warn'); return; }
+  letter.lastSent = now;
+  const name = (el.letterName.value || '').trim().slice(0,24);
+  const payload = { type:'letter', name:name, text:text, time:now, t:now, client:clientInfo() };
+  if(letter.track) payload.track = {t:letter.track.t, u:letter.track.u};
+  try{ S.conn.send(payload); }
+  catch(e){ letterMsg('送信できませんでした。接続を確認してください。', 'err'); return; }
+  letterMsg('送信しました。DJに届きます 📮', 'ok');
+  el.letterText.value = '';
+  letter.track = null; letterPickUi();
+  if(el.letterSearch) el.letterSearch.value = '';
+  letterUpdateCount(); letterSendUi();
+}
+function bindLetter(){
+  if(!el.letterPanel) return;
+  try{
+    const saved = localStorage.getItem(CHAT_NAME_KEY);
+    if(saved && el.letterName) el.letterName.value = saved.slice(0,24);
+  }catch(e){}
+  if(el.letterName){ el.letterName.addEventListener('input', ()=>{
+    try{ localStorage.setItem(CHAT_NAME_KEY, (el.letterName.value || '').trim().slice(0,24)); }catch(e){}
+  }); }
+  if(el.letterText){
+    el.letterText.addEventListener('input', ()=>{ letterUpdateCount(); letterSendUi(); });
+  }
+  if(el.letterSearch){
+    el.letterSearch.addEventListener('focus', ()=>letterRenderList('', true));
+    el.letterSearch.addEventListener('input', ()=>letterRenderList(el.letterSearch.value, true));
+    el.letterSearch.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ el.letterList.hidden = true; } });
+  }
+  if(el.letterPicked){
+    el.letterPicked.addEventListener('click', ()=>{
+      if(!letter.track) return;
+      letter.track = null; letterPickUi(); letterSendUi();
+    });
+  }
+  if(el.letterSend) el.letterSend.addEventListener('click', letterSendText);
+  document.addEventListener('click', (e)=>{
+    if(!el.letterList || el.letterList.hidden) return;
+    if(el.letterList.contains(e.target) || (el.letterSearch && e.target === el.letterSearch)) return;
+    el.letterList.hidden = true;
+  });
+  letterPickUi(); letterUpdateCount(); letterSendUi();
+}
+
 /* ================= バインド ================= */
 function bind(){
   fillRange(el.volume);
@@ -1623,6 +2080,18 @@ function bind(){
   el.playBtn.addEventListener('click', onPlayClick);
 
   bindChat();
+  bindLetter();
+
+  // 波形の表示モード（WAVE / SPECTRUM / RETRO VJ）
+  document.querySelectorAll('.vjbtn').forEach((b)=>{
+    b.addEventListener('click', ()=>setVjMode(b.getAttribute('data-vj')));
+  });
+  setVjMode('wave');
+
+  // 最初の操作（クリック・タップ・キー）を「人間の操作シグナル」として配信者へ送る
+  ['pointerdown','touchstart','keydown'].forEach((ev)=>{
+    document.addEventListener(ev, ()=>{ clientTouch(); }, {once:true, passive:true});
+  });
 
   el.djBtn.addEventListener('click', ()=>{
     S.ai.djOn = !S.ai.djOn;
@@ -1701,6 +2170,19 @@ if(document.readyState === 'loading') document.addEventListener('DOMContentLoade
 else init();
 
 window.__nrDebug = {
+  vj(){
+    const c = el.wave, g = c.getContext('2d');
+    let painted = 0;
+    try{
+      const d = g.getImageData(0, 0, Math.min(c.width, 240), Math.min(c.height, 120)).data;
+      for(let i=3;i<d.length;i+=4){ if(d[i] > 0) painted++; }
+    }catch(e){}
+    return {mode:VJ.mode, bass:Math.round(VJ.bass*1000)/1000, mid:Math.round(VJ.mid*1000)/1000,
+            treble:Math.round(VJ.treble*1000)/1000, frame:VJ.frame, painted:painted};
+  },
+  setVj(m){ setVjMode(m); return VJ.mode; },
+  client(){ return Object.assign({score:CLIENT.score}, clientInfo()); },
+  letterState(){ return {selected:letter.track, canSend:chatCanSend(), value:(el.letterText?el.letterText.value:''), listOpen:!!(el.letterList && !el.letterList.hidden)}; },
   state(){
     return {
       live:S.live, connecting:S.connecting, ctx:S.ctx ? S.ctx.state : null,
