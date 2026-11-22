@@ -21,6 +21,17 @@ var RATE_SECONDS = 20;
 var RATE_HOURLY_MAX = 12;
 var SITE_TITLE = 'imoutoid BBS';
 var SITE_DESC = 'imoutoid と、その音楽について語る場所。';
+var NOTIFY_TO = 'imoutoid.archive@gmail.com';
+var BOARD_URL = 'https://yusei193.github.io/imoutoid-audio/bbs/';
+
+/**
+ * 初回だけ手で実行する設定用（スプレッドシートのタイムゾーンを日本時間に）
+ */
+function setBoardTimeZone() {
+  SpreadsheetApp.getActiveSpreadsheet().setSpreadsheetTimeZone('Asia/Tokyo');
+  getSheet_().getRange('B2:B').setNumberFormat('yyyy-mm-dd hh:mm:ss');
+  return 'timezone=' + SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+}
 
 function doGet(e) {
   var p = (e && e.parameter) || {};
@@ -166,6 +177,36 @@ function listPosts(params) {
   };
 }
 
+function notifyNewPost_(post) {
+  try {
+    var ssUrl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
+    var subject = '[imoutoid BBS] 新規投稿 No.' + post.id + ' (' + post.tag + ')';
+    var lines = [
+      'imoutoid BBS に新しい投稿がありました。',
+      '',
+      'No.' + post.id + (post.reply_to ? '  (>>' + post.reply_to + ' への返信)' : ''),
+      '日時: ' + post.ts + ' (JST)',
+      '名前: ' + post.name + (post.trip ? ' ' + post.trip : ''),
+      'タグ: ' + post.tag,
+      '件名: ' + (post.title || '(なし)'),
+      '',
+      '--- 本文 ---',
+      post.body,
+      '------------',
+      '',
+      '掲示板: ' + BOARD_URL,
+      'スプレッドシート: ' + ssUrl
+    ];
+    MailApp.sendEmail({
+      to: NOTIFY_TO,
+      subject: subject,
+      body: lines.join('\n')
+    });
+  } catch (e) {
+    // メール送信に失敗しても投稿自体は成功として扱う
+  }
+}
+
 function cleanText_(s, max) {
   s = String(s == null ? '' : s);
   s = s.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F\u2028\u2029]/g, '');
@@ -239,17 +280,17 @@ function createPost(data) {
       if (rows[k].id > maxId) maxId = rows[k].id;
     }
     var newId = maxId + 1;
-    var ts = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd HH:mm:ss');
-    getSheet_().appendRow([newId, ts, name, trip, tag, title, body, 'visible', replyTo || '', uid]);
+    var nowDate = new Date();
+    var ts = Utilities.formatDate(nowDate, 'Asia/Tokyo', 'yyyy-MM-dd HH:mm:ss');
+    getSheet_().appendRow([newId, nowDate, name, trip, tag, title, body, 'visible', replyTo || '', uid]);
 
-    return {
-      ok: true,
-      id: newId,
-      post: {
-        id: newId, ts: ts, name: name, trip: trip, tag: tag,
-        title: title, body: body, reply_to: replyTo || 0
-      }
+    var post = {
+      id: newId, ts: ts, name: name, trip: trip, tag: tag,
+      title: title, body: body, reply_to: replyTo || 0
     };
+    notifyNewPost_(post);
+
+    return { ok: true, id: newId, post: post };
   } finally {
     lock.releaseLock();
   }
