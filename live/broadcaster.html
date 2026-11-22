@@ -650,6 +650,9 @@ select:disabled{opacity:.5}
 .dk-x{color:var(--dim2)}
 .dk-row.on .dk-mini[data-act=loopin],.dk-row.on .dk-mini[data-act=loopout]{border-color:var(--mint);color:#d8fff3;background:rgba(121,224,194,.16)}
 .dk-row.on .dk-mini[data-loop]{border-color:rgba(121,224,194,.55);color:#d8fff3}
+.dk-hots{gap:3px}
+.dk-hots .dk-hot{flex:1 1 0;min-width:0;padding:3px 1px;font-size:8px;text-align:center}
+.dk-hots .dk-x{flex:0 0 auto}
 
 /* --- ミキサー --- */
 .mixer{min-width:0;border:1px solid var(--line2);border-radius:12px;padding:7px 7px 8px;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(0,0,0,.28));display:flex;flex-direction:column;gap:6px}
@@ -693,6 +696,102 @@ select:disabled{opacity:.5}
   .dk-row output{flex:0 0 28px;font-size:8px}
   .dk-mini{font-size:8px;padding:3px 4px;min-width:18px}
 }
+
+/* ============ 🎹 MIDI / Pioneer DDJ ============ */
+.p-midi{grid-column:span 12}
+.midi-wrap{display:flex;flex-direction:column;gap:8px;min-width:0}
+.midi-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0}
+.midi-bar .btn{padding:5px 9px;font-size:11px}
+.midi-state{font-family:var(--mono);font-size:10px;letter-spacing:.05em;color:var(--dim2);border:1px solid var(--line);border-radius:999px;padding:2px 8px;white-space:nowrap}
+.midi-state.on{color:#d8fff3;border-color:var(--mint);background:rgba(121,224,194,.12)}
+.midi-state.warn{color:#ffd9a8;border-color:rgba(242,180,100,.5);background:rgba(242,180,100,.10)}
+.midi-sel{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--dim2);white-space:nowrap;min-width:0}
+.midi-sel select{width:auto;min-width:0;max-width:210px;padding:4px 22px 4px 7px;font-size:10.5px;border-radius:7px;background-color:rgba(0,0,0,.45)}
+.midi-chk{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:9.5px;color:var(--dim2);white-space:nowrap;cursor:pointer}
+.midi-chk input{width:auto}
+.midi-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;min-width:0}
+@media (max-width:900px){.midi-grid{grid-template-columns:minmax(0,1fr)}}
+.midi-box{border:1px solid var(--line);border-radius:10px;padding:8px 9px;background:rgba(0,0,0,.26);min-width:0;display:flex;flex-direction:column;gap:6px}
+.midi-box-h{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--dim);display:flex;align-items:center;gap:6px}
+.midi-box-h .grow{flex:1 1 0}
+.midi-raw{font-family:var(--mono);font-size:10px;color:#bfe8d9;background:#060907;border:1px solid rgba(121,224,194,.16);border-radius:7px;padding:6px 7px;height:118px;overflow:auto;white-space:pre;line-height:1.55}
+.midi-raw .nm{color:#ffe6bd}
+.midi-raw .dim{color:#6f7d78}
+.midi-hint{font-size:10.5px;color:var(--dim2);line-height:1.65;margin:0}
+.midi-hint b{color:var(--dim)}
+.wiz{border:1px solid rgba(242,180,100,.4);border-radius:9px;padding:7px 8px;background:rgba(242,180,100,.07);display:flex;flex-direction:column;gap:6px}
+.wiz[hidden]{display:none}
+.wiz-step{font-size:11.5px;color:#ffe6bd;line-height:1.5}
+.wiz-step small{display:block;font-family:var(--mono);font-size:9px;color:var(--dim2);letter-spacing:.08em;margin-top:2px}
+.wiz-prog{height:4px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden}
+.wiz-prog i{display:block;height:100%;width:0;background:var(--amber);transition:width .2s}
+.wiz-btns{display:flex;gap:5px;flex-wrap:wrap}
+.midi-map{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px;max-height:112px;overflow:auto}
+.midi-map li{font-family:var(--mono);font-size:9px;color:var(--dim);border:1px solid var(--line);border-radius:6px;padding:2px 6px;background:rgba(255,255,255,.03);white-space:nowrap}
+.midi-map li.learned{color:#ffe6bd;border-color:rgba(242,180,100,.45);background:rgba(242,180,100,.08)}
+.midi-now{font-family:var(--mono);font-size:11px;color:#ffe6bd;border:1px dashed rgba(242,180,100,.4);border-radius:7px;padding:4px 7px;min-height:0}
+.midi-now[hidden]{display:none}
+
+/* --- デッキ拡張：JOG / VINYL / SYNC --- */
+.dk-jogrow{display:flex;align-items:center;gap:7px;margin-top:5px;min-width:0}
+.dk-jog{position:relative;width:54px;height:54px;flex:0 0 54px;border-radius:50%;border:1px solid var(--line2);
+  background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.13),rgba(0,0,0,.55) 62%);cursor:grab;touch-action:none;
+  display:grid;place-items:center;user-select:none;-webkit-user-select:none}
+.dk-jog:active{cursor:grabbing}
+.dk-jog::before{content:"";position:absolute;inset:7px;border-radius:50%;border:1px solid rgba(255,255,255,.14)}
+.dk-jog i{position:absolute;left:50%;top:6px;width:2px;height:12px;margin-left:-1px;border-radius:1px;background:var(--amber);transform-origin:1px 21px;transform:rotate(0deg)}
+#deckB .dk-jog i{background:var(--blue)}
+.dk-jog b{font-family:var(--mono);font-size:7px;letter-spacing:.1em;color:var(--dim2);font-weight:400}
+.dk-jog.vinyl-on{box-shadow:0 0 0 1px rgba(242,180,100,.4),0 0 12px rgba(242,180,100,.16)}
+.dk-jogbtns{display:flex;flex-direction:row;flex-wrap:wrap;gap:3px;min-width:0}
+.dk-jogbtns .dk-mini{font-size:8px;padding:2px 4px}
+.dk-mini.on{border-color:var(--mint);color:#d8fff3;background:rgba(121,224,194,.18)}
+
+/* --- パフォーマンスパッド --- */
+.perf{margin-top:8px;border:1px solid var(--line);border-radius:11px;padding:7px 8px 8px;background:rgba(255,255,255,.02);min-width:0}
+.perf-head{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:5px;min-width:0}
+.perf-head .lbl{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--dim)}
+.perf-head .grow{flex:1 1 0;min-width:0}
+.perf-decks{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;min-width:0}
+@media (max-width:700px){.perf-decks{grid-template-columns:minmax(0,1fr)}}
+.perf-deck{min-width:0;border:1px solid var(--line);border-radius:9px;padding:5px 6px;background:rgba(0,0,0,.22)}
+.perf-deck[data-perfdeck="0"]{border-top:2px solid rgba(242,180,100,.5)}
+.perf-deck[data-perfdeck="1"]{border-top:2px solid rgba(147,185,255,.55)}
+.perf-modes{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:4px}
+.perf-modes .dk-mini{font-size:7.5px;padding:2px 4px}
+.perf-modes .dk-mini.on{background:rgba(242,180,100,.2);border-color:rgba(242,180,100,.55);color:#ffe6bd}
+.perf-pads{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.perfpad{font-family:var(--mono);font-size:9px;letter-spacing:.03em;padding:8px 2px;border-radius:7px;border:1px solid var(--line2);
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));color:var(--txt);cursor:pointer;
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.1}
+.perfpad:active{transform:scale(.97)}
+.perfpad.set{border-color:rgba(242,180,100,.6);background:rgba(242,180,100,.18);color:#ffe6bd}
+.perf-deck[data-perfdeck="1"] .perfpad.set{border-color:rgba(147,185,255,.6);background:rgba(147,185,255,.18);color:#dce8ff}
+.perfpad.fx{border-color:rgba(121,224,194,.35);color:#d8fff3}
+.perfpad.hold{background:rgba(121,224,194,.3);border-color:var(--mint)}
+
+/* --- BEAT FX / BROWSE --- */
+.fxbox,.browsebox{margin-top:8px;border:1px solid var(--line);border-radius:11px;padding:7px 8px 8px;background:rgba(255,255,255,.022);min-width:0}
+.fx-head{display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-width:0}
+.fx-head .lbl{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--dim)}
+.fx-head .grow{flex:1 1 0;min-width:0}
+.fxstate{font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:var(--dim2);border:1px solid var(--line);border-radius:999px;padding:1px 7px}
+.fxstate.on{color:#d8fff3;border-color:var(--mint);background:rgba(121,224,194,.14)}
+.fx-grid{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:5px;min-width:0}
+.fx-beats{display:flex;gap:3px}
+.fx-beats .dk-mini.on{background:rgba(121,224,194,.18);border-color:var(--mint);color:#d8fff3}
+.fx-on{font-family:var(--mono);font-size:8.5px;padding:3px 7px;border-radius:6px;border:1px solid var(--line2);background:rgba(255,255,255,.05);color:var(--dim);cursor:pointer;white-space:nowrap}
+.fx-on.on{background:rgba(121,224,194,.22);border-color:var(--mint);color:#d8fff3;box-shadow:0 0 10px rgba(121,224,194,.3)}
+.fx-depth{display:flex;align-items:center;gap:6px;margin-top:5px;min-width:0}
+.fx-depth span{font-family:var(--mono);font-size:8px;letter-spacing:.06em;color:var(--dim2);flex:0 0 auto}
+.fx-depth input{flex:1 1 60px;min-width:0;height:4px}
+.fx-depth output{font-family:var(--mono);font-size:9px;color:var(--dim);flex:0 0 30px;text-align:right}
+.browse-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:5px;min-width:0}
+.browse-now{flex:1 1 120px;min-width:0;font-size:11px;color:var(--txt);border:1px solid var(--line);border-radius:7px;padding:3px 7px;background:rgba(0,0,0,.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.browse-src{width:auto;min-width:0;padding:3px 20px 3px 6px;font-size:10px;border-radius:7px;background-color:rgba(0,0,0,.45)}
+#playlist li.sel{border-color:rgba(242,180,100,.65);background:rgba(242,180,100,.12);color:#ffe6bd}
+.smartbtns{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.smartbtns .dk-mini{font-size:8px;padding:2px 6px}
 </style>
 </head>
 <body>
@@ -954,6 +1053,10 @@ select:disabled{opacity:.5}
               <option value="lin">バランス</option>
             </select>
           </label>
+          <div class="djm-sel" style="gap:5px">
+            <button class="dk-mini" id="smartFaderBtn" type="button" title="Smart Fader：クロスフェーダーでBPMシンク＋LOW自動カット＋なめらかクロス">SMART FADER</button>
+            <button class="dk-mini" id="smartCfxBtn" type="button" title="Smart CFX：CFXノブでフィルター＋エコー/リバーブの複合FX">SMART CFX</button>
+          </div>
         </div>
         <div class="djm-grid">
           <!-- DECK A -->
@@ -975,6 +1078,14 @@ select:disabled{opacity:.5}
               <button class="dk-btn dk-play" data-act="play" type="button" aria-label="再生">▶</button>
               <div class="dk-bpm"><b data-el="bpm">--</b><small>BPM</small></div>
             </div>
+            <div class="dk-jogrow">
+              <div class="dk-jog" data-el="jog" role="slider" tabindex="0" aria-label="JOG（ドラッグ・ホイールでスクラッチ／シーク）"><i></i><b>JOG</b></div>
+              <div class="dk-jogbtns">
+                <button class="dk-mini" data-act="vinyl" type="button" title="VINYL：ONでJOG＝スクラッチ／OFFでピッチベンド">VINYL</button>
+                <button class="dk-mini" data-act="sync" type="button" title="BEAT SYNC：相手デッキのBPMに合わせる">SYNC</button>
+                <button class="dk-mini" data-act="beatloop" type="button" title="4BEAT LOOP（1小節ループ／もう一度で解除）">4BEAT</button>
+              </div>
+            </div>
             <div class="dk-row">
               <span class="lbl">PITCH</span>
               <button class="dk-mini" data-act="bend" data-dir="-1" type="button" title="PITCH BEND −（押している間だけ −3%）">−</button>
@@ -988,7 +1099,7 @@ select:disabled{opacity:.5}
               <button class="dk-hot" data-hot="A" type="button">A</button>
               <button class="dk-hot" data-hot="B" type="button">B</button>
               <button class="dk-hot" data-hot="C" type="button">C</button>
-              <button class="dk-hot" data-hot="D" type="button">D</button>
+              <button class="dk-hot" data-hot="D" type="button">D</button><button class="dk-hot" data-hot="E" type="button">E</button><button class="dk-hot" data-hot="F" type="button">F</button><button class="dk-hot" data-hot="G" type="button">G</button><button class="dk-hot" data-hot="H" type="button">H</button>
               <button class="dk-mini dk-x" data-act="hotclear" type="button" title="HOT CUE 全消去">×</button>
             </div>
             <div class="dk-row dk-loops">
@@ -998,7 +1109,7 @@ select:disabled{opacity:.5}
               <button class="dk-mini" data-loop="2" type="button">2s</button>
               <button class="dk-mini" data-loop="4" type="button">4s</button>
               <button class="dk-mini" data-loop="8" type="button">8s</button>
-              <button class="dk-mini dk-x" data-act="loopexit" type="button" title="ループ解除">EXIT</button>
+              <button class="dk-mini" data-act="loophalf" type="button" title="ループ長 1/2X">½X</button><button class="dk-mini" data-act="loopdouble" type="button" title="ループ長 2X">2X</button><button class="dk-mini dk-x" data-act="loopexit" type="button" title="ループ解除">EXIT</button>
             </div>
           </section>
           <!-- MIXER -->
@@ -1052,6 +1163,14 @@ select:disabled{opacity:.5}
               <button class="dk-btn dk-play" data-act="play" type="button" aria-label="再生">▶</button>
               <div class="dk-bpm"><b data-el="bpm">--</b><small>BPM</small></div>
             </div>
+            <div class="dk-jogrow">
+              <div class="dk-jog" data-el="jog" role="slider" tabindex="0" aria-label="JOG（ドラッグ・ホイールでスクラッチ／シーク）"><i></i><b>JOG</b></div>
+              <div class="dk-jogbtns">
+                <button class="dk-mini" data-act="vinyl" type="button" title="VINYL：ONでJOG＝スクラッチ／OFFでピッチベンド">VINYL</button>
+                <button class="dk-mini" data-act="sync" type="button" title="BEAT SYNC：相手デッキのBPMに合わせる">SYNC</button>
+                <button class="dk-mini" data-act="beatloop" type="button" title="4BEAT LOOP（1小節ループ／もう一度で解除）">4BEAT</button>
+              </div>
+            </div>
             <div class="dk-row">
               <span class="lbl">PITCH</span>
               <button class="dk-mini" data-act="bend" data-dir="-1" type="button" title="PITCH BEND −（押している間だけ −3%）">−</button>
@@ -1065,7 +1184,7 @@ select:disabled{opacity:.5}
               <button class="dk-hot" data-hot="A" type="button">A</button>
               <button class="dk-hot" data-hot="B" type="button">B</button>
               <button class="dk-hot" data-hot="C" type="button">C</button>
-              <button class="dk-hot" data-hot="D" type="button">D</button>
+              <button class="dk-hot" data-hot="D" type="button">D</button><button class="dk-hot" data-hot="E" type="button">E</button><button class="dk-hot" data-hot="F" type="button">F</button><button class="dk-hot" data-hot="G" type="button">G</button><button class="dk-hot" data-hot="H" type="button">H</button>
               <button class="dk-mini dk-x" data-act="hotclear" type="button" title="HOT CUE 全消去">×</button>
             </div>
             <div class="dk-row dk-loops">
@@ -1075,9 +1194,70 @@ select:disabled{opacity:.5}
               <button class="dk-mini" data-loop="2" type="button">2s</button>
               <button class="dk-mini" data-loop="4" type="button">4s</button>
               <button class="dk-mini" data-loop="8" type="button">8s</button>
-              <button class="dk-mini dk-x" data-act="loopexit" type="button" title="ループ解除">EXIT</button>
+              <button class="dk-mini" data-act="loophalf" type="button" title="ループ長 1/2X">½X</button><button class="dk-mini" data-act="loopdouble" type="button" title="ループ長 2X">2X</button><button class="dk-mini dk-x" data-act="loopexit" type="button" title="ループ解除">EXIT</button>
             </div>
           </section>
+        </div>
+        <div class="perf">
+          <div class="perf-head"><span class="lbl">🎯 PERFORMANCE PADS（8パッド×4モード）</span><span class="grow"></span><span class="hint" style="margin:0">PAD MODE 切替・Shift相当は長押しでHOT CUE消去</span></div>
+          <div class="perf-decks">
+            <div class="perf-deck" data-perfdeck="0">
+              <div class="perf-modes">
+                <button class="dk-mini on" data-padmode="hot" data-deck="0" type="button">HOT CUE</button>
+                <button class="dk-mini" data-padmode="fx" data-deck="0" type="button">PAD FX</button>
+                <button class="dk-mini" data-padmode="jmp" data-deck="0" type="button">BEAT JUMP</button>
+                <button class="dk-mini" data-padmode="smp" data-deck="0" type="button">SAMPLER</button>
+              </div>
+              <div class="perf-pads" id="padsA"></div>
+            </div>
+            <div class="perf-deck" data-perfdeck="1">
+              <div class="perf-modes">
+                <button class="dk-mini on" data-padmode="hot" data-deck="1" type="button">HOT CUE</button>
+                <button class="dk-mini" data-padmode="fx" data-deck="1" type="button">PAD FX</button>
+                <button class="dk-mini" data-padmode="jmp" data-deck="1" type="button">BEAT JUMP</button>
+                <button class="dk-mini" data-padmode="smp" data-deck="1" type="button">SAMPLER</button>
+              </div>
+              <div class="perf-pads" id="padsB"></div>
+            </div>
+          </div>
+        </div>
+        <div class="fxbox">
+          <div class="fx-head"><span class="lbl">🌀 BEAT FX</span><span class="grow"></span><span class="fxstate" id="fxState">OFF</span></div>
+          <div class="fx-grid">
+            <label class="midi-sel">FX<select id="fxSel">
+              <option value="echo">ECHO</option><option value="reverb">REVERB</option><option value="flanger">FLANGER</option>
+              <option value="phaser">PHASER</option><option value="lpf">LPF</option><option value="hpf">HPF</option>
+            </select></label>
+            <label class="midi-sel">対象<select id="fxTarget">
+              <option value="A">CH1（DECK A）</option><option value="B">CH2（DECK B）</option><option value="M">MASTER</option>
+            </select></label>
+            <div class="fx-beats">
+              <button class="dk-mini" data-fxbeat="0.5" type="button">1/2</button>
+              <button class="dk-mini on" data-fxbeat="1" type="button">1</button>
+              <button class="dk-mini" data-fxbeat="2" type="button">2</button>
+            </div>
+            <button class="fx-on" id="fxOnBtn" type="button">FX ON/OFF</button>
+          </div>
+          <div class="fx-depth">
+            <span>LEVEL/DEPTH</span>
+            <input id="fxDepth" type="range" min="0" max="100" value="70" aria-label="BEAT FX LEVEL/DEPTH">
+            <output id="fxDepthVal">70</output>
+          </div>
+        </div>
+        <div class="browsebox">
+          <div class="fx-head"><span class="lbl">📂 BROWSE / LOAD</span><span class="grow"></span><span class="hint" id="browseCount" style="margin:0"></span></div>
+          <div class="browse-row">
+            <button class="dk-mini" id="browsePrev" type="button" title="前の曲">▲</button>
+            <button class="dk-mini" id="browseNext" type="button" title="次の曲">▼</button>
+            <span class="browse-now" id="browseNow">—</span>
+            <button class="dk-mini" id="browseLoadA" type="button">LOAD A</button>
+            <button class="dk-mini" id="browseLoadB" type="button">LOAD B</button>
+            <select id="browseSrc" class="browse-src" aria-label="選曲リスト">
+              <option value="auto">自動（プレイリスト優先）</option>
+              <option value="playlist">プレイリスト</option>
+              <option value="archive">アーカイブ146曲</option>
+            </select>
+          </div>
         </div>
         <p class="hint" style="margin:6px 0 0">各デッキは独立して再生できます。🎧 はヘッドホンCUE（PFL）：チャンネルフェーダーを下げても、この端末のモニター出力だけで音を確認できます（リスナーには送りません）。波形はクリック／ドラッグでシーク。LOOP は IN→OUT か 2s/4s/8s、EXIT で解除。CUE は長押しで現在位置にCUE点を更新します。</p>
       </div>
@@ -1115,6 +1295,68 @@ select:disabled{opacity:.5}
         <span class="hint">直リンク（GitHub Pages・Dropbox等）はそのまま再生。ドライブはAPIキーがあればDrive API経由で再生します。</span>
         <button class="btn small urlbox-close" id="bgmUrlClose" type="button">閉じる</button>
         <button class="btn small primary urlbox-add" id="bgmUrlAdd" type="button">追加</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🎹 MIDI / Pioneer DDJ -->
+  <section class="panel p-midi" id="midiPanel">
+    <div class="p-head">
+      <h2>🎹 MIDI機器接続（DDJ-FLX4 / Pioneer DDJ 全機種）</h2>
+      <span class="grow"></span>
+      <span class="midi-state" id="midiState">未接続</span>
+    </div>
+    <div class="midi-wrap">
+      <div class="midi-bar">
+        <button class="btn small primary" id="midiEnableBtn" type="button">🔌 MIDIを有効化</button>
+        <label class="midi-sel">入力<select id="midiInput"><option value="">（未接続）</option></select></label>
+        <label class="midi-sel">出力<select id="midiOutput"><option value="">（自動）</option></select></label>
+        <label class="midi-sel">機種<select id="midiPresetSel"></select></label>
+      </div>
+      <div class="midi-bar">
+        <label class="midi-chk"><input type="checkbox" id="midiLedChk" checked>LED同期</label>
+        <label class="midi-chk"><input type="checkbox" id="midiTakeChk" checked>ソフトテイクオーバー</label>
+        <label class="midi-chk"><input type="checkbox" id="midi4chChk">4ch機のCH3/CH4もA/Bに</label>
+        <span class="midi-hint" id="midiDevice" style="margin-left:auto"></span>
+      </div>
+      <p class="midi-hint" id="midiHint">DDJ-FLX4 / DDJ-400 / DDJ-FLX6 / DDJ-FLX10 / DDJ-1000 / DDJ-800 / DDJ-SB3 / DDJ-REV1 などを名前から自動判定して接続します。PCの Chrome / Edge 専用（https または localhost）。</p>
+      <div class="midi-grid">
+        <div class="midi-box">
+          <div class="midi-box-h"><span>🎓 MIDI Learn / 一括セットアップ</span><span class="grow"></span><span class="midi-hint" id="midiWizCount"></span></div>
+          <div class="midi-bar">
+            <label class="midi-sel">項目<select id="midiLearnSel"></select></label>
+            <button class="btn small" id="midiLearnBtn" type="button">学習開始</button>
+            <button class="btn small" id="midiLearnCancel" type="button">キャンセル</button>
+          </div>
+          <div class="midi-hint" id="midiLearnState"></div>
+          <div class="midi-bar">
+            <button class="btn small" id="midiWizBtn" type="button">🪄 順番に動かして一括同期</button>
+            <button class="btn small" id="midiResetBtn" type="button">初期化</button>
+          </div>
+          <div class="wiz" id="wizBox" hidden>
+            <div id="midiWizStep"></div>
+            <div class="wiz-prog"><i id="midiWizProg"></i></div>
+            <div class="wiz-btns">
+              <button class="btn small" id="midiWizPrev" type="button">◀ 戻る</button>
+              <button class="btn small" id="midiWizNext" type="button">スキップ ▶</button>
+              <button class="btn small primary" id="midiWizDone" type="button">完了</button>
+              <button class="btn small" id="midiWizCancel" type="button">中止</button>
+            </div>
+          </div>
+          <div class="midi-bar">
+            <button class="btn small" id="midiExportBtn" type="button">JSON書き出し</button>
+            <label class="btn small" for="midiImportFile" style="cursor:pointer">JSON読み込み</label>
+            <input type="file" id="midiImportFile" accept="application/json,.json" hidden>
+          </div>
+          <div class="midi-hint" id="midiPickup"></div>
+          <ul class="midi-map" id="midiMap"></ul>
+        </div>
+        <div class="midi-box">
+          <div class="midi-box-h"><span>📡 生MIDIモニター</span><span class="grow"></span><span class="midi-hint">ch / Note・CC / 値</span></div>
+          <div class="midi-raw" id="midiRaw"></div>
+          <div class="midi-now" id="midiNow" hidden></div>
+          <p class="midi-hint">LED双方向同期・USB抜き差し自動再接続・14bit(MSB+LSB)対応。学習した割当はこのブラウザに自動保存されます。</p>
+        </div>
       </div>
     </div>
   </section>
@@ -2025,7 +2267,8 @@ async function ensureAudio(){
   S.jingleGain.connect(S.bus);
   S.bus.connect(S.djfLP);
   S.djfLP.connect(S.djfHP);
-  S.djfHP.connect(S.masterGain);
+  S.masterFx = makeFxChain(ctx, S.djfHP);   // 🌀 MASTER への BEAT FX インサート
+  S.masterFx.out.connect(S.masterGain);
   S.masterGain.connect(S.limiter);
   S.masterGain.connect(S.limiterB);
   S.guestGain.connect(S.limiter);
@@ -2077,20 +2320,24 @@ async function ensureAudio(){
     [eqLow, eqMid, eqHigh].forEach(f=>{ f.gain.value = 0; });
     // 🎛️ チャンネルFILTER（1本のノブ：左=LPF / 右=HPF、0でバイパス）
     const flt = ctx.createBiquadFilter(); flt.type = 'lowpass'; flt.frequency.value = 22000; flt.Q.value = 0.7;
+    // 🎚️ Smart Fader 用のLOW自動カット（EQとは独立。0dBが素の音）
+    const smartLow = ctx.createBiquadFilter(); smartLow.type = 'lowshelf'; smartLow.frequency.value = 220; smartLow.gain.value = 0;
+    // 🌀 BEAT FX / PAD FX / Smart CFX のインサート（普段はドライのみで素通し）
+    const fx = makeFxChain(ctx, flt);
     const gain = ctx.createGain(); gain.gain.value = 0;      // 再生/自動フェード用（既存互換）
     const fader = ctx.createGain(); fader.gain.value = 1;    // チャンネルフェーダー
     const xf = ctx.createGain(); xf.gain.value = 0.707;      // クロスフェーダー
     const cue = ctx.createGain(); cue.gain.value = 0;        // PFL tap（プリフェーダー）
     const an = ctx.createAnalyser(); an.fftSize = 1024;       // クロスフェーダー後のレベル計測用
     src.connect(trim);
-    trim.connect(eqLow); eqLow.connect(eqMid); eqMid.connect(eqHigh); eqHigh.connect(flt);
-    flt.connect(cue); cue.connect(S.cueMix);
-    flt.connect(gain); gain.connect(fader); fader.connect(xf); xf.connect(an); an.connect(S.bgmGain);
-    return {el:a, src, trim, gain, fader, xfadeGain:xf, cueTap:cue, an, flt,
+    trim.connect(eqLow); eqLow.connect(eqMid); eqMid.connect(eqHigh); eqHigh.connect(smartLow); smartLow.connect(flt);
+    fx.out.connect(cue); cue.connect(S.cueMix);
+    fx.out.connect(gain); gain.connect(fader); fader.connect(xf); xf.connect(an); an.connect(S.bgmGain);
+    return {el:a, src, trim, gain, fader, xfadeGain:xf, cueTap:cue, an, flt, smartLow, fx, smartLowDb:0, cfxVal:0,
             index:i, ui:DECK_UI[i],
             eq:{low:eqLow, mid:eqMid, high:eqHigh}, eqVal:{low:0, mid:0, high:0},
             trimVal:0, faderVal:1, filterVal:0,
-            hot:{A:null, B:null, C:null, D:null}, pfl:false,
+            hot:{A:null, B:null, C:null, D:null, E:null, F:null, G:null, H:null}, pfl:false, vinyl:true,
             ratePct:0, bend:0,
             bpm:{taps:[], val:0}, bpmEst:0,
             cuePoint:0, holdCue:false,
@@ -2638,7 +2885,7 @@ function applyDeckCrossOrigin(d, url){
 }
 function setDeckItem(d, item){
   d.item = item;
-  d.hot = {A:null, B:null, C:null, D:null};        // 新しい曲では HOT CUE をクリア
+  d.hot = {A:null, B:null, C:null, D:null, E:null, F:null, G:null, H:null};        // 新しい曲では HOT CUE をクリア
   d.cuePoint = 0;                                  // CUE点は頭出し（0秒）
   d.loop = {in:null, out:null, active:false};
   if(d.loopTimer){ clearTimeout(d.loopTimer); d.loopTimer = null; }
@@ -2948,8 +3195,13 @@ const DECK_UI = [0,1].map((i)=>{
     pfl:qa('[data-act="pfl"]'),
     bends:qa('[data-act="bend"]'),
     tap:qa('[data-act="tap"]')[0],
+    vinyl:qa('[data-act="vinyl"]')[0], sync:qa('[data-act="sync"]')[0], beatloop:qa('[data-act="beatloop"]')[0],
+    loophalf:qa('[data-act="loophalf"]')[0], loopdouble:qa('[data-act="loopdouble"]')[0],
+    jog:q('jog'),
     hots:{A:root?root.querySelector('[data-hot="A"]'):null, B:root?root.querySelector('[data-hot="B"]'):null,
-          C:root?root.querySelector('[data-hot="C"]'):null, D:root?root.querySelector('[data-hot="D"]'):null},
+          C:root?root.querySelector('[data-hot="C"]'):null, D:root?root.querySelector('[data-hot="D"]'):null,
+          E:root?root.querySelector('[data-hot="E"]'):null, F:root?root.querySelector('[data-hot="F"]'):null,
+          G:root?root.querySelector('[data-hot="G"]'):null, H:root?root.querySelector('[data-hot="H"]'):null},
     loopRow: root ? root.querySelector('.dk-loops') : null,
     loopBtns: qa('[data-loop]'),
     loopIn:qa('[data-act="loopin"]')[0], loopOut:qa('[data-act="loopout"]')[0], loopExit:qa('[data-act="loopexit"]')[0],
@@ -3020,6 +3272,7 @@ function setXfader(v){
   S.xfader = Math.max(0, Math.min(100, Number(v) || 0));
   setXfaderUi();
   applyCrossfader(0.04);
+  if(S.smartFader) smartFaderApply();
 }
 function xfadeTo(pos, sec, then){
   if(S.xfTimer){ clearInterval(S.xfTimer); S.xfTimer = null; }
@@ -3111,6 +3364,7 @@ function setDeckFader(d, pct){
 function setDeckFilter(d, v){
   if(!d) return;
   d.filterVal = Math.max(-100, Math.min(100, Number(v) || 0));
+  d.cfxVal = d.filterVal;
   applyDeckFilter(d, false);
   syncMixerUi();
 }
@@ -3589,6 +3843,7 @@ function startDeckTimers(){
 /* ---- 描画（デッキ・ミキサー） ---- */
 function renderDeck(d){
   if(!d) return;
+  try{ midiLedSoon(); }catch(e){}
   const u = d.ui;
   d.drawDirty = true;
   if(!u || !u.root) return;
@@ -3616,7 +3871,7 @@ function renderDeck(d){
   (u.pfl || []).forEach(b=>b.classList.toggle('on', !!d.pfl));
   if(u.pitch){ u.pitch.value = String(Number(d.ratePct) || 0); setRangeFill(u.pitch); }
   if(u.pitchval) u.pitchval.textContent = ((d.ratePct > 0) ? '+' : '') + (Number(d.ratePct) || 0).toFixed(1) + '%';
-  ['A','B','C','D'].forEach((k)=>{
+  ['A','B','C','D','E','F','G','H'].forEach((k)=>{
     const b = u.hots ? u.hots[k] : null;
     if(!b) return;
     const v = d.hot ? d.hot[k] : null;
@@ -5985,7 +6240,1605 @@ function init(){
   }catch(e){}
   // CDN が読めていなければ事前にローカルへ切り替え
   ensurePeerLib();
+  // 🎛️ Pioneer DDJ / Web MIDI・パフォーマンスパッド・BEAT FX・BROWSE の初期化
+  try{ ddjUiBoot(); }catch(e){ console.warn('ddjUiBoot:', e && e.message ? e.message : e); }
 }
+
+/* =========================================================
+   🎛️ Pioneer DJ DDJ 全機種 / Web MIDI 同期
+   - DDJ-FLX4 公式MIDIメッセージ一覧 + Mixxx実績マップ（DDJ-400 / FLX4 / SB3 / SB2 / SB）
+     を元にした機種別プリセット（自動判定・手動切替）
+   - 14bit(MSB+LSB) + 7bitフォールバック / ソフトテイクオーバー
+   - LED双方向同期 / USB抜き差し自動再接続 / 生MIDIモニター
+   - MIDI Learn（個別）＋ 一括セットアップウィザード ＋ JSON入出力
+   ========================================================= */
+
+/* ---------- 定数 ---------- */
+const MIDI_HOTKEYS = ['A','B','C','D','E','F','G','H'];
+const MIDI_PADFX_DEF = [
+  {id:'echo',label:'ECHO'},{id:'reverb',label:'REVERB'},{id:'flanger',label:'FLANGER'},{id:'phaser',label:'PHASER'},
+  {id:'roll',label:'ROLL'},{id:'lpf',label:'LPF'},{id:'hpf',label:'HPF'},{id:'gate',label:'GATE'}
+];
+const MIDI_JUMP_DEF = [-4,-2,-1,1,2,4,-8,8];
+const MIDI_SMP_DEF = ['OP','CHIME','BUZZ','CLAP','HORN','SCR','RISE','LASER'];
+const MIDI_BEATLOOP_DEF = [0.25,0.5,1,2,4,8,16,32];
+const MIDI_KEY = 'netradio.midi.v2';
+
+/* ---------- 状態 ---------- */
+if(typeof S.smartFader === 'undefined') S.smartFader = false;
+if(typeof S.smartCfx === 'undefined') S.smartCfx = false;
+if(typeof S.beatFx === 'undefined') S.beatFx = {on:false, fx:'echo', target:'A', beat:1, depth:0.7};
+if(typeof S.padMode === 'undefined') S.padMode = ['hot','hot'];
+if(typeof S.browse === 'undefined') S.browse = {idx:0};
+if(typeof S.smartSyncMark === 'undefined') S.smartSyncMark = null;
+if(typeof S.xfPrev === 'undefined') S.xfPrev = 50;
+
+const MIDIS = {
+  supported: !!(navigator.requestMIDIAccess),
+  access:null, inDev:null, outDev:null, inputs:[], outputs:[],
+  devName:'', modelId:'pioneer-generic', fam:'rb', gen:'', connected:false,
+  bindings:{}, overrides:{}, index:new Map(),
+  soft:true, led:true, fourCh:false,
+  learnRole:'', wizard:null, learned:{},
+  raw:[], sent:[], cc:new Map(), pickup:{},
+  ledTimer:null, ledLast:0, state:'未接続', lastMsg:''
+};
+
+/* ---------- 小さな道具 ---------- */
+function ddjClamp(v,a,b){ return Math.max(a, Math.min(b, Number(v)||0)); }
+function ddjBpmOf(d){
+  if(!d) return 0;
+  if(d.bpm && Number(d.bpm.val)) return Number(d.bpm.val);
+  if(Number(d.bpmEst)) return Number(d.bpmEst);
+  return 0;
+}
+function ddjImpulse(ctx, sec, decay){
+  const rate = ctx.sampleRate, len = Math.max(1, Math.floor(rate * sec));
+  const buf = ctx.createBuffer(2, len, rate);
+  for(let ch=0; ch<2; ch++){
+    const a = buf.getChannelData(ch);
+    for(let i=0;i<len;i++) a[i] = (Math.random()*2-1) * Math.pow(1 - i/len, decay);
+  }
+  return buf;
+}
+
+/* ---------- FXチェーン（BEAT FX / PAD FX / Smart CFX） ---------- */
+function makeFxChain(ctx, input){
+  // 入力は必ず専用のGainを挟む（呼び出し元のノードを直接inputにすると自己接続になり発振する）
+  const inNode = ctx.createGain(); inNode.gain.value = 1;
+  const feed = inNode;
+  if(input && input !== inNode){ try{ input.connect(inNode); }catch(e){} }
+  const out = ctx.createGain(); out.gain.value = 1;      // チェーン出口
+  const trem = ctx.createGain(); trem.gain.value = 1;    // GATE（トレモロ）
+  out.connect(trem);
+  const dry = ctx.createGain(); dry.gain.value = 1;      // ドライ
+  feed.connect(dry); dry.connect(out);
+
+  // ECHO（フィードバックディレイ）
+  const eDelay = ctx.createDelay(2.5); eDelay.delayTime.value = 0.35;
+  const eFb = ctx.createGain(); eFb.gain.value = 0.32;
+  const eTone = ctx.createBiquadFilter(); eTone.type = 'lowpass'; eTone.frequency.value = 4200;
+  const eOut = ctx.createGain(); eOut.gain.value = 0;
+  feed.connect(eDelay); eDelay.connect(eTone); eTone.connect(eFb); eFb.connect(eDelay);
+  eTone.connect(eOut); eOut.connect(out);
+
+  // REVERB（コンプルバー）
+  const conv = ctx.createConvolver(); conv.buffer = ddjImpulse(ctx, 1.8, 2.4);
+  const rOut = ctx.createGain(); rOut.gain.value = 0;
+  feed.connect(conv); conv.connect(rOut); rOut.connect(out);
+
+  // FLANGER（LFO付きショートディレイ）
+  const fDelay = ctx.createDelay(0.08); fDelay.delayTime.value = 0.005;
+  const fFb = ctx.createGain(); fFb.gain.value = 0.55;
+  const fOut = ctx.createGain(); fOut.gain.value = 0;
+  const fLfo = ctx.createOscillator(); fLfo.frequency.value = 0.35;
+  const fLfoG = ctx.createGain(); fLfoG.gain.value = 0.0035;
+  fLfo.connect(fLfoG); fLfoG.connect(fDelay.delayTime); fLfo.start();
+  feed.connect(fDelay); fDelay.connect(fFb); fFb.connect(fDelay); fDelay.connect(fOut); fOut.connect(out);
+
+  // PHASER（オールパス4段）
+  const pOut = ctx.createGain(); pOut.gain.value = 0;
+  const aps = [0,1,2,3].map((k)=>{ const f = ctx.createBiquadFilter(); f.type = 'allpass'; f.frequency.value = 420 + k*680; f.Q.value = 0.8; return f; });
+  feed.connect(aps[0]); aps[0].connect(aps[1]); aps[1].connect(aps[2]); aps[2].connect(aps[3]); aps[3].connect(pOut); pOut.connect(out);
+  const pLfo = ctx.createOscillator(); pLfo.frequency.value = 0.4;
+  const pLfoG = ctx.createGain(); pLfoG.gain.value = 700;
+  pLfo.connect(pLfoG); aps.forEach(f=>pLfoG.connect(f.frequency)); pLfo.start();
+
+  // FILTER（インサート：LPF → HPF）
+  const lpf = ctx.createBiquadFilter(); lpf.type = 'lowpass';  lpf.frequency.value = 20000; lpf.Q.value = 1.2;
+  const hpf = ctx.createBiquadFilter(); hpf.type = 'highpass'; hpf.frequency.value = 20;    hpf.Q.value = 1.2;
+  const flt = ctx.createGain(); flt.gain.value = 0;
+  feed.connect(lpf); lpf.connect(hpf); hpf.connect(flt); flt.connect(out);
+
+  // GATE（矩形波トレモロ）
+  const tLfo = ctx.createOscillator(); tLfo.type = 'square'; tLfo.frequency.value = 8;
+  const tDep = ctx.createGain(); tDep.gain.value = 0;
+  tLfo.connect(tDep); tDep.connect(trem.gain); tLfo.start();
+
+  return {input:inNode, out, trem, dry, eOut, eDelay, eFb, eTone, rOut, conv, fOut, fDelay, fFb, pOut, aps, flt, lpf, hpf, tDep, owner:null, name:'off'};
+}
+function fxGainSet(node, v){
+  if(!node) return;
+  try{
+    if(S.ctx) node.gain.setTargetAtTime(v, S.ctx.currentTime, 0.02);
+    else node.gain.value = v;
+  }catch(e){ try{ node.gain.value = v; }catch(e2){} }
+}
+/* name: off / echo / reverb / flanger / phaser / lpf / hpf / gate / smart / roll */
+function fxApply(chain, name, amt, sec){
+  if(!chain) return;
+  const a = ddjClamp(amt, 0, 1);
+  chain.name = name || 'off';
+  // 全エフェクトを一旦0へ
+  fxGainSet(chain.eOut, 0); fxGainSet(chain.rOut, 0); fxGainSet(chain.fOut, 0);
+  fxGainSet(chain.pOut, 0); fxGainSet(chain.flt, 0); fxGainSet(chain.tDep, 0);
+  fxGainSet(chain.dry, 1);
+  try{ chain.eFb.gain.value = 0.32; }catch(e){}
+  if(!name || name === 'off' || a <= 0) return;
+  if(name === 'echo'){
+    if(sec) try{ chain.eDelay.delayTime.setTargetAtTime(Math.max(0.03, Math.min(2.2, sec)), S.ctx.currentTime, 0.03); }catch(e){}
+    fxGainSet(chain.eOut, a);
+  } else if(name === 'reverb'){
+    fxGainSet(chain.rOut, a * 0.9);
+  } else if(name === 'flanger'){
+    fxGainSet(chain.fOut, Math.min(0.95, a * 1.1));
+  } else if(name === 'phaser'){
+    fxGainSet(chain.pOut, a);
+  } else if(name === 'lpf'){
+    fxGainSet(chain.dry, 0);
+    fxGainSet(chain.flt, 1);
+    try{ chain.lpf.frequency.setTargetAtTime(20000 * Math.pow(180/20000, a), S.ctx.currentTime, 0.02); }catch(e){}
+    try{ chain.hpf.frequency.value = 20; }catch(e){}
+  } else if(name === 'hpf'){
+    fxGainSet(chain.dry, 0);
+    fxGainSet(chain.flt, 1);
+    try{ chain.lpf.frequency.value = 20000; }catch(e){}
+    try{ chain.hpf.frequency.setTargetAtTime(20 * Math.pow(9000/20, a), S.ctx.currentTime, 0.02); }catch(e){}
+  } else if(name === 'gate'){
+    fxGainSet(chain.tDep, a * 0.5);
+  } else if(name === 'smart'){
+    // Smart CFX：軽いエコー＋リバーブ＋フィルター質感
+    if(sec) try{ chain.eDelay.delayTime.setTargetAtTime(Math.max(0.05, Math.min(1.2, sec)), S.ctx.currentTime, 0.03); }catch(e){}
+    fxGainSet(chain.eOut, a * 0.55);
+    fxGainSet(chain.rOut, a * 0.35);
+  }
+}
+function fxOff(chain){ if(chain) fxApply(chain, 'off', 0); }
+
+/* ---------- Smart Fader / Smart CFX ---------- */
+function setSmartLow(d, dB){
+  if(!d || !d.smartLow) return;
+  d.smartLowDb = dB;
+  try{
+    if(S.ctx) d.smartLow.gain.setTargetAtTime(dB, S.ctx.currentTime, 0.05);
+    else d.smartLow.gain.value = dB;
+  }catch(e){ try{ d.smartLow.gain.value = dB; }catch(e2){} }
+}
+function smartSync(toIdx){
+  const d = deckAt(toIdx), o = deckAt(1 - toIdx);
+  if(!d || !o) return false;
+  const tb = ddjBpmOf(o), mb = ddjBpmOf(d);
+  if(!tb || !mb) return false;
+  const cur = 1 + (Number(d.ratePct)||0)/100;
+  const next = ddjClamp((cur * tb / mb - 1) * 100, -10, 10);
+  setDeckPitch(d, next);
+  d.synced = true;
+  return true;
+}
+function smartFaderApply(){
+  if(!S.smartFader || !S.decks) return;
+  const p = ddjClamp((Number(S.xfader)||0)/100, 0, 1);
+  // 出ていく側の LOW を自動カット（0→50% で -26dB）
+  const cutA = p <= 0.5 ? 0 : -(26 * Math.pow((p-0.5)/0.5, 0.7));
+  const cutB = p >= 0.5 ? 0 : -(26 * Math.pow((0.5-p)/0.5, 0.7));
+  setSmartLow(S.decks[0], cutA);
+  setSmartLow(S.decks[1], cutB);
+  // 中央付近を横切るたびに、入ってくる側のBPMを合わせる
+  const dir = p > S.xfPrev ? 1 : (p < S.xfPrev ? -1 : 0);
+  S.xfPrev = p;
+  const inIdx = dir > 0 ? 1 : (dir < 0 ? 0 : null);
+  if(inIdx !== null && Math.abs(p - 0.5) < 0.12 && S.smartSyncMark !== inIdx){
+    S.smartSyncMark = inIdx;
+    if(smartSync(inIdx)) toast('Smart Fader：DECK ' + deckName(inIdx) + ' を相手のBPMにシンク','ok');
+  }
+  if(Math.abs(p - 0.5) > 0.3) S.smartSyncMark = null;
+}
+function setSmartFader(on, quiet){
+  S.smartFader = !!on;
+  const b = $('smartFaderBtn');
+  if(b){ b.classList.toggle('on', S.smartFader); b.setAttribute('aria-pressed', S.smartFader ? 'true' : 'false'); }
+  if(!S.smartFader){
+    if(S.decks) S.decks.forEach(d=>{ setSmartLow(d, 0); d.synced = false; });
+    S.smartSyncMark = null;
+  } else {
+    smartFaderApply();
+  }
+  midiLedSoon();
+  if(!quiet) toast('Smart Fader ' + (S.smartFader ? 'ON（クロスフェーダーでBPMシンク＋LOW自動カット＋なめらかクロス）' : 'OFF'), '');
+}
+function setSmartCfx(on, quiet){
+  S.smartCfx = !!on;
+  const b = $('smartCfxBtn');
+  if(b){ b.classList.toggle('on', S.smartCfx); b.setAttribute('aria-pressed', S.smartCfx ? 'true' : 'false'); }
+  if(!S.smartCfx && S.decks) S.decks.forEach(d=>{ if(d.fx && d.fx.owner === 'smart'){ d.fx.owner = null; fxOff(d.fx); } });
+  midiLedSoon();
+  if(!quiet) toast('Smart CFX ' + (S.smartCfx ? 'ON（CFXノブでフィルター＋エコー/リバーブの複合FX）' : 'OFF'), '');
+}
+function setDeckCfx(d, v){
+  if(!d) return;
+  d.cfxVal = ddjClamp(v, -100, 100);
+  setDeckFilter(d, d.cfxVal);
+  if(S.smartCfx && d.fx){
+    if(!d.fx.owner || d.fx.owner === 'smart'){
+      d.fx.owner = 'smart';
+      fxApply(d.fx, 'smart', Math.abs(d.cfxVal)/100 * 0.85, 0.18);
+    }
+  } else if(d.fx && d.fx.owner === 'smart'){
+    d.fx.owner = null; fxOff(d.fx);
+  }
+  midiLedSoon();
+}
+
+/* ---------- BEAT FX ---------- */
+function beatFxChain(){
+  if(!S.decks) return null;
+  const t = S.beatFx.target;
+  if(t === 'A') return S.decks[0] ? S.decks[0].fx : null;
+  if(t === 'B') return S.decks[1] ? S.decks[1].fx : null;
+  return S.masterFx || null;
+}
+function beatFxApply(){
+  const st = S.beatFx;
+  // 3系統すべて解除してから、対象だけ掛ける
+  if(S.decks) S.decks.forEach(d=>{ if(d && d.fx && (!d.fx.owner || d.fx.owner === 'beat')){ d.fx.owner = null; fxOff(d.fx); } });
+  if(S.masterFx && (!S.masterFx.owner || S.masterFx.owner === 'beat')){ S.masterFx.owner = null; fxOff(S.masterFx); }
+  if(st.on){
+    const chain = beatFxChain();
+    if(chain){
+      chain.owner = 'beat';
+      const d = deckAt(st.target === 'B' ? 1 : 0);
+      const bpm = ddjBpmOf(d) || 120;
+      const sec = (60 / Math.max(60, Math.min(200, bpm))) * st.beat;
+      fxApply(chain, st.fx, st.depth, sec);
+    }
+  }
+  updateBeatFxUi();
+  midiLedSoon();
+}
+function setBeatFx(patch, quiet){
+  Object.assign(S.beatFx, patch || {});
+  beatFxApply();
+  if(!quiet) toast('BEAT FX：' + S.beatFx.fx.toUpperCase() + ' / ' + (S.beatFx.target === 'M' ? 'MASTER' : 'CH' + (S.beatFx.target === 'B' ? '2' : '1')) + ' / ' + (S.beatFx.on ? 'ON' : 'OFF'), '');
+}
+function updateBeatFxUi(){
+  const st = S.beatFx;
+  const on = $('fxOnBtn');
+  if(on) on.classList.toggle('on', !!st.on);
+  const state = $('fxState');
+  if(state){
+    state.textContent = st.on ? (st.fx.toUpperCase() + ' ON') : 'OFF';
+    state.classList.toggle('on', !!st.on);
+  }
+  document.querySelectorAll('[data-fxbeat]').forEach(b=>{
+    b.classList.toggle('on', Math.abs(Number(b.dataset.fxbeat) - st.beat) < 0.01);
+  });
+}
+
+/* ---------- パッド（HOT CUE / PAD FX / BEAT JUMP / SAMPLER / BEAT LOOP） ---------- */
+function setPadMode(i, mode, quiet){
+  if(i !== 0 && i !== 1) return;
+  S.padMode[i] = mode;
+  renderPerfPads();
+  document.querySelectorAll('[data-padmode][data-deck="' + i + '"]').forEach(b=>{
+    b.classList.toggle('on', b.dataset.padmode === mode);
+  });
+  midiLedSoon();
+  const names = {hot:'HOT CUE', fx:'PAD FX', jmp:'BEAT JUMP', smp:'SAMPLER'};
+  if(!quiet) toast('DECK ' + deckName(i) + ' PAD MODE：' + (names[mode] || mode), '');
+}
+function renderPerfPads(){
+  [0,1].forEach((i)=>{
+    const box = $(i === 0 ? 'padsA' : 'padsB');
+    if(!box) return;
+    const mode = S.padMode[i] || 'hot';
+    const d = deckAt(i);
+    box.innerHTML = '';
+    for(let k=0;k<8;k++){
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'perfpad';
+      b.dataset.paddeck = String(i);
+      b.dataset.padidx = String(k);
+      let label = String(k+1);
+      if(mode === 'hot'){
+        label = String(k+1);
+        const v = d && d.hot ? d.hot[MIDI_HOTKEYS[k]] : null;
+        if(v != null) b.classList.add('set');
+        b.title = 'HOT CUE ' + MIDI_HOTKEYS[k] + (v != null ? '（' + fmtTime(v) + '）' : '：空') + '／Shift+パッドで消去';
+      } else if(mode === 'fx'){
+        label = MIDI_PADFX_DEF[k].label;
+        b.classList.add('fx');
+        b.title = 'PAD FX ' + MIDI_PADFX_DEF[k].label + '（押している間だけ）';
+      } else if(mode === 'jmp'){
+        label = (MIDI_JUMP_DEF[k] > 0 ? '+' : '') + MIDI_JUMP_DEF[k] + 'B';
+        b.title = 'BEAT JUMP ' + MIDI_JUMP_DEF[k] + '拍';
+      } else {
+        label = MIDI_SMP_DEF[k];
+        b.title = 'SAMPLER ' + MIDI_SMP_DEF[k];
+      }
+      b.textContent = label;
+      box.appendChild(b);
+    }
+  });
+}
+function perfPadPress(i, k){
+  const d = deckAt(i);
+  const mode = S.padMode[i] || 'hot';
+  if(mode === 'hot'){ if(d && d.item) hotCueAt(d, MIDI_HOTKEYS[k]); else toast('先に音源をロードしてください','warn'); return; }
+  if(mode === 'fx'){ padFxOn(d, k); return; }
+  if(mode === 'jmp'){ beatJump(d, MIDI_JUMP_DEF[k]); return; }
+  samplerPad(k);
+}
+function perfPadRelease(i, k){
+  const d = deckAt(i);
+  if((S.padMode[i] || 'hot') === 'fx') padFxOff(d, k);
+}
+function padFxOn(d, k){
+  if(!d) return;
+  const fx = MIDI_PADFX_DEF[k] ? MIDI_PADFX_DEF[k].id : 'echo';
+  if(fx === 'roll'){
+    quickLoop(d, 0.25);
+    d.rollPad = true;
+    return;
+  }
+  if(!d.fx) return;
+  if(d.fx.owner && d.fx.owner !== 'pad' && d.fx.owner !== 'smart') return;
+  d.fx.owner = 'pad';
+  fxApply(d.fx, (fx === 'lpf' || fx === 'hpf') ? fx : fx, 0.85, 0.24);
+}
+function padFxOff(d, k){
+  if(!d) return;
+  if(d.rollPad){ d.rollPad = false; loopExit(d); return; }
+  if(d.fx && d.fx.owner === 'pad'){ d.fx.owner = null; fxOff(d.fx); }
+  if(S.smartCfx) setDeckCfx(d, d.cfxVal || 0);
+}
+function beatJump(d, beats){
+  if(!d || !d.item){ toast('先に音源をロードしてください','warn'); return; }
+  const bpm = ddjBpmOf(d) || 120;
+  const sec = (60 / bpm) * Number(beats || 0);
+  const t = Math.max(0, Math.min(deckDuration(d) - 0.02, (Number(d.el.currentTime)||0) + sec));
+  try{ d.el.currentTime = t; }catch(e){}
+  d.drawDirty = true;
+  renderDeck(d);
+  toast('BEAT JUMP ' + (beats > 0 ? '+' : '') + beats + '拍（' + fmtTime(t) + '）','');
+}
+function samplerPad(k){
+  MIDIS.samplerHits = (MIDIS.samplerHits || 0) + 1;
+  if(k < 6){ playPad(['op','chime','buzz','clap','horn','scratch'][k]); return; }
+  if(!S.ctx){ toast('先に「配信開始」を押してください','warn'); return; }
+  const ctx = S.ctx, dest = S.jingleGain || ctx.destination, t0 = ctx.currentTime;
+  const g = ctx.createGain(); g.connect(dest);
+  if(k === 6){
+    // RISE（ライザー）
+    const o = ctx.createOscillator(); o.type = 'sawtooth';
+    o.frequency.setValueAtTime(180, t0);
+    o.frequency.exponentialRampToValueAtTime(2600, t0 + 1.1);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(0.5, t0 + 0.9);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.35);
+    o.connect(g); o.start(t0); o.stop(t0 + 1.4);
+  } else {
+    // LASER（レーザー）
+    const o = ctx.createOscillator(); o.type = 'sine';
+    o.frequency.setValueAtTime(2200, t0);
+    o.frequency.exponentialRampToValueAtTime(140, t0 + 0.28);
+    g.gain.setValueAtTime(0.55, t0);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.42);
+    o.connect(g); o.start(t0); o.stop(t0 + 0.45);
+  }
+  setTimeout(()=>{ try{ g.disconnect(); }catch(e){} }, 1600);
+}
+
+/* ---------- BEAT SYNC / VINYL / JOG ---------- */
+function deckSync(d, quiet){
+  if(!d){ return false; }
+  const o = deckAt(1 - d.index);
+  const tb = ddjBpmOf(o), mb = ddjBpmOf(d);
+  if(!tb || !mb){
+    toast('相手デッキのBPMが分かりません（TAP で計測するか波形解析後に押してください）','warn');
+    return false;
+  }
+  const cur = 1 + (Number(d.ratePct)||0)/100;
+  setDeckPitch(d, ddjClamp((cur * tb / mb - 1) * 100, -10, 10));
+  d.synced = true;
+  midiLedSoon();
+  if(!quiet) toast('BEAT SYNC：DECK ' + deckName(d.index) + ' を ' + tb + 'BPM に合わせました','ok');
+  return true;
+}
+function setVinyl(d, on, quiet){
+  if(!d) return;
+  d.vinyl = !!on;
+  const b = d.ui && d.ui.vinyl ? d.ui.vinyl : null;
+  if(b) b.classList.toggle('on', d.vinyl);
+  if(d.ui && d.ui.jog) d.ui.jog.classList.toggle('vinyl-on', d.vinyl);
+  midiLedSoon();
+  if(!quiet) toast('DECK ' + deckName(d.index) + ' VINYL ' + (d.vinyl ? 'ON（JOG＝スクラッチ）' : 'OFF（JOG＝ピッチベンド）'), '');
+}
+function jogTurn(i, ticks){
+  const d = deckAt(i);
+  if(!d || !d.item) return false;
+  const n = Number(ticks) || 0;
+  if(!n) return false;
+  if(d.vinyl !== false){
+    const rate = Number(d.el.playbackRate) || 1;
+    const sec = n * 0.012 / Math.max(0.5, rate);
+    try{
+      d.el.currentTime = Math.max(0, Math.min(Math.max(0, deckDuration(d) - 0.02), (Number(d.el.currentTime)||0) + sec));
+    }catch(e){}
+    d.drawDirty = true;
+    d.drawPos = -1;
+  } else {
+    bendDeck(d, n > 0 ? 1 : -1, true);
+    if(d.jogBendTimer) clearTimeout(d.jogBendTimer);
+    d.jogBendTimer = setTimeout(()=>{ d.jogBendTimer = null; bendDeck(d, 1, false); }, 110);
+  }
+  // JOG の見た目（回転）
+  d.jogAngle = (Number(d.jogAngle) || 0) + n * 4;
+  const mark = d.ui && d.ui.jog ? d.ui.jog.querySelector('i') : null;
+  if(mark) mark.style.transform = 'rotate(' + (d.jogAngle % 360) + 'deg)';
+  return true;
+}
+
+/* ---------- BROWSE（選曲） ---------- */
+function browseSource(){
+  const sel = $('browseSrc');
+  const v = sel ? sel.value : 'auto';
+  if(v === 'archive') return 'archive';
+  if(v === 'playlist') return 'playlist';
+  return (S.playlist && S.playlist.length) ? 'playlist' : 'archive';
+}
+function browseItems(){
+  const src = browseSource();
+  if(src === 'playlist'){
+    return S.playlist.map((it, i)=>({title: it.name || ('BGM ' + (i+1)), kind:'playlist', index:i}));
+  }
+  return ARCHIVE.map((a, i)=>({title: a.t, kind:'archive', index:i}));
+}
+function browseRender(){
+  const list = browseItems();
+  if(S.browse.idx >= list.length) S.browse.idx = 0;
+  if(S.browse.idx < 0) S.browse.idx = Math.max(0, list.length - 1);
+  const it = list[S.browse.idx];
+  const now = $('browseNow');
+  if(now) now.textContent = it ? ((S.browse.idx + 1) + ' / ' + list.length + '  ' + it.title) : '曲がありません';
+  const cnt = $('browseCount');
+  if(cnt) cnt.textContent = (browseSource() === 'archive' ? 'アーカイブ' : 'プレイリスト') + ' ' + list.length + '曲';
+  if(browseSource() === 'playlist' && el.playlist){
+    Array.prototype.forEach.call(el.playlist.children, (li, i)=>{
+      li.classList.toggle('sel', i === S.browse.idx);
+    });
+    const sel = el.playlist.children[S.browse.idx];
+    if(sel && sel.scrollIntoView) try{ sel.scrollIntoView({block:'nearest'}); }catch(e){}
+  }
+}
+function browseMove(delta){
+  const list = browseItems();
+  if(!list.length) return;
+  S.browse.idx = (S.browse.idx + Number(delta) + list.length) % list.length;
+  browseRender();
+}
+function browseLoad(deckIdx){
+  const list = browseItems();
+  const it = list[S.browse.idx];
+  if(!it){ toast('選曲できる曲がありません','warn'); return false; }
+  if(!S.ctx){ toast('先に「配信開始」を押してください','warn'); return false; }
+  const d = deckAt(deckIdx);
+  if(!d) return false;
+  let ok = false;
+  if(it.kind === 'playlist'){
+    ok = loadPlaylistToDeck(it.index, deckIdx, true);
+  } else {
+    const a = ARCHIVE[it.index];
+    ok = loadItemToDeck(d, {kind:'cue', cueId:'br-' + Date.now(), url:a.u, title:a.t}, true);
+  }
+  if(ok) toast('DECK ' + deckName(deckIdx) + ' に LOAD：' + it.title, 'ok');
+  return ok;
+}
+function browseLoadAuto(){
+  let idx = targetDeckIndex();
+  if(idx === null){
+    const a = deckAt(0), b = deckAt(1);
+    idx = (!a || !a.item) ? 0 : ((!b || !b.item) ? 1 : (S.active === 0 ? 1 : 0));
+  }
+  return browseLoad(idx);
+}
+
+/* ---------- 機種プリセット ---------- */
+/* fam: 'rb' = rekordbox世代のPioneer標準（FLX4/400/FLX6/FLX10/1000/800）
+        'serato' = Serato系（SB3/SB2/SB/SR2/SX3/REV1...）
+        'none' = 汎用（学習で作る） */
+const MIDI_MODELS = [
+  {id:'pioneer-generic', name:'Pioneer DDJ（汎用）', fam:'rb', gen:'', match:[]},
+  {id:'ddj-flx4',  name:'DDJ-FLX4',  fam:'rb', gen:'FLX', match:['DDJ-FLX4','DDJ FLX4','FLX4']},
+  {id:'ddj-flx6',  name:'DDJ-FLX6',  fam:'rb', gen:'FLX', match:['DDJ-FLX6','DDJ FLX6','FLX6']},
+  {id:'ddj-flx10', name:'DDJ-FLX10', fam:'rb', gen:'FLX', match:['DDJ-FLX10','DDJ FLX10','FLX10']},
+  {id:'ddj-400',   name:'DDJ-400',   fam:'rb', gen:'', match:['DDJ-400','DDJ400']},
+  {id:'ddj-1000',  name:'DDJ-1000',  fam:'rb', gen:'', match:['DDJ-1000','DDJ1000']},
+  {id:'ddj-800',   name:'DDJ-800',   fam:'rb', gen:'', match:['DDJ-800','DDJ800']},
+  {id:'ddj-1000srt', name:'DDJ-1000SRT', fam:'rb', gen:'', match:['DDJ-1000SRT','DDJ1000SRT']},
+  {id:'ddj-grv6',  name:'DDJ-GRV6',  fam:'rb', gen:'FLX', match:['DDJ-GRV6','DDJ GRV6','GRV6']},
+  {id:'ddj-sb3',   name:'DDJ-SB3',   fam:'serato', gen:'', match:['DDJ-SB3','DDJ SB3','SB3']},
+  {id:'ddj-sb2',   name:'DDJ-SB2',   fam:'serato', gen:'', match:['DDJ-SB2','DDJ SB2','SB2']},
+  {id:'ddj-sb',    name:'DDJ-SB',    fam:'serato', gen:'', match:['DDJ-SB','DDJ SB']},
+  {id:'ddj-sr2',   name:'DDJ-SR2',   fam:'serato', gen:'', match:['DDJ-SR2','DDJ SR2','SR2']},
+  {id:'ddj-sx3',   name:'DDJ-SX3',   fam:'serato', gen:'', match:['DDJ-SX3','DDJ SX3','SX3']},
+  {id:'ddj-sx2',   name:'DDJ-SX2',   fam:'serato', gen:'', match:['DDJ-SX2','DDJ SX2','SX2']},
+  {id:'ddj-sx',    name:'DDJ-SX',    fam:'serato', gen:'', match:['DDJ-SX','DDJ SX']},
+  {id:'ddj-rev1',  name:'DDJ-REV1',  fam:'serato', gen:'', match:['DDJ-REV1','DDJ REV1','REV1']},
+  {id:'ddj-rev5',  name:'DDJ-REV5',  fam:'serato', gen:'FLX', match:['DDJ-REV5','DDJ REV5','REV5']},
+  {id:'ddj-rev7',  name:'DDJ-REV7',  fam:'serato', gen:'FLX', match:['DDJ-REV7','DDJ REV7','REV7']},
+  {id:'ddj-sz2',   name:'DDJ-SZ2',   fam:'serato', gen:'', match:['DDJ-SZ2','DDJ SZ2','SZ2']},
+  {id:'ddj-200',   name:'DDJ-200',   fam:'serato', gen:'', match:['DDJ-200','DDJ200']},
+  {id:'generic',   name:'汎用MIDI（学習で作成）', fam:'none', gen:'', match:[]}
+];
+/* 検証済みの根拠：
+   DDJ-FLX4 … AlphaTheta 公式「DDJ-FLX4 List of MIDI messages」(Ver1.0) 全5ページ
+   DDJ-400 / FLX4 … Mixxx res/controllers/Pioneer-DDJ-400.midi.xml / Pioneer-DDJ-FLX4.midi.xml
+   DDJ-SB3 / SB2 / SB … Mixxx Pioneer-DDJ-SB3.midi.xml / SB2 / SB
+   コア（PLAY 0x0B / CUE 0x0C / PFL 0x54 / SYNC 0x58 / CHフェーダー CC0x13 / XF CC0x1F /
+   TRIM CC0x04 / EQ 0x07,0x0B,0x0F / TEMPO CC0x00 / JOG 0x22,0x23,0x21 / パッド 0x00-0x07）
+   は Pioneer DDJ 全機種で共通であることを上記一次資料で確認済み。 */
+
+function midiFindModel(name){
+  const s = String(name || '').toUpperCase();
+  let best = null;
+  for(const m of MIDI_MODELS){
+    for(const k of m.match){
+      if(s.indexOf(k.toUpperCase()) >= 0){
+        if(!best || k.length > best.k) best = {m, k:k.length};
+      }
+    }
+  }
+  if(best) return best.m;
+  if(/DDJ|PIONEER|ALPHATHETA/.test(s)){
+    if(/SB|SR|SX|REV/.test(s)) return MIDI_MODELS.find(m=>m.id === 'ddj-sb3');
+    return MIDI_MODELS[0];
+  }
+  return MIDI_MODELS.find(m=>m.id === 'generic');
+}
+function midiBuildPreset(modelId){
+  const model = MIDI_MODELS.find(m=>m.id === modelId) || MIDI_MODELS[0];
+  const fam = model.fam;
+  MIDIS.fam = fam; MIDIS.gen = model.gen || '';
+  MIDIS.modelId = model.id;
+  const B = {};
+  if(fam === 'none') return B;
+  const padCh = fam === 'serato' ? [8,9] : [8,10];
+  for(const i of [0,1]){
+    const n = i === 0 ? 'A' : 'B';
+    const ch = i + 1;
+    const put = (role, type, num, kind, extra)=>{
+      const k = kind || (type === 'note' ? 'button' : 'abs');
+      B[role] = Object.assign({ch, type, num, kind:k}, extra || {});
+      if(type === 'cc' && k === 'abs') B[role].lsb = num + 0x20;
+      return B[role];
+    };
+    put('deck' + n + '.play', 'note', 0x0B);
+    put('deck' + n + '.cue', 'note', 0x0C);
+    put('deck' + n + '.pfl', 'note', 0x54);
+    put('deck' + n + '.sync', 'note', 0x58);
+    put('deck' + n + '.fader', 'cc', 0x13);
+    put('deck' + n + '.trim', 'cc', 0x04);
+    put('deck' + n + '.eqHigh', 'cc', 0x07);
+    put('deck' + n + '.eqMid', 'cc', 0x0B);
+    put('deck' + n + '.eqLow', 'cc', 0x0F);
+    put('deck' + n + '.pitch', 'cc', 0x00);
+    put('deck' + n + '.jogPlatter', 'cc', 0x22, 'rel');
+    put('deck' + n + '.jogWheel', 'cc', 0x21, 'rel');
+    put('deck' + n + '.jogTouch', 'note', 0x36);
+    put('deck' + n + '.loopIn', 'note', fam === 'serato' ? 0x61 : 0x10);
+    put('deck' + n + '.loopOut', 'note', fam === 'serato' ? 0x62 : 0x11);
+    put('deck' + n + '.loopExit', 'note', fam === 'serato' ? 0x50 : 0x4D);
+    put('deck' + n + '.loophalf', 'note', fam === 'serato' ? 0x12 : 0x51);
+    put('deck' + n + '.loopdouble', 'note', fam === 'serato' ? 0x13 : 0x53);
+    // パフォーマンスパッド（8パッド×各モード）
+    for(let k=0;k<8;k++){
+      put('deck' + n + '.pad.hot' + k, 'note', k);
+			put('deck' + n + '.pad.fx' + k, 'note', 0x10 + k);
+      put('deck' + n + '.pad.jmp' + k, 'note', 0x20 + k);
+      put('deck' + n + '.pad.smp' + k, 'note', 0x30 + k);
+      put('deck' + n + '.pad.lp' + k, 'note', 0x60 + k);
+      const clear = fam === 'serato'
+        ? {ch: padCh[i], type:'note', num: k + 8, kind:'button', clear:true}
+        : {ch: padCh[i] + 1, type:'note', num: k, kind:'button', clear:true};
+      B['deck' + n + '.pad.cle' + k] = clear;
+    }
+    // パッドモード切替（デッキch）
+    const modes = fam === 'serato'
+      ? {hot:0x1B, fx:0x1E, jmp:0x69, smp:0x22}
+      : {hot:0x1B, fx:0x1E, jmp:0x20, smp:0x34};
+    put('deck' + n + '.padmode.hot', 'note', modes.hot);
+    put('deck' + n + '.padmode.fx', 'note', modes.fx);
+    put('deck' + n + '.padmode.jmp', 'note', modes.jmp);
+    put('deck' + n + '.padmode.smp', 'note', modes.smp);
+    // パッドのMIDI chはデッキchではなくパッドch（8/10 or 8/9）
+    Object.keys(B).forEach((role)=>{
+      if(role.indexOf('deck' + n + '.pad.hot') === 0 || role.indexOf('deck' + n + '.pad.fx') === 0 ||
+         role.indexOf('deck' + n + '.pad.jmp') === 0 || role.indexOf('deck' + n + '.pad.smp') === 0 ||
+         role.indexOf('deck' + n + '.pad.lp') === 0){
+        B[role].ch = padCh[i];
+      }
+    });
+  }
+  // グローバル（ミキサー ch7）
+  B['master.crossfader'] = {ch:7, type:'cc', num:0x1F, kind:'abs', lsb:0x3F};
+  B['master.level'] = {ch:7, type:'cc', num:0x08, kind:'abs', lsb:0x28};
+  B['browse.turn'] = {ch:7, type:'cc', num:0x40, kind:'rel'};
+  B['browse.press'] = {ch:7, type:'note', num:0x41, kind:'button'};
+  B['load.A'] = {ch:7, type:'note', num:0x46, kind:'button'};
+  B['load.B'] = {ch:7, type:'note', num:0x47, kind:'button'};
+  B['beatfx.on'] = {ch:5, type:'note', num:0x47, kind:'button'};
+  if(fam === 'serato'){
+    B['beatfx.level'] = {ch:5, type:'cc', num:0x06, kind:'abs', lsb:0x26};
+    B['beatfx.select'] = {ch:5, type:'note', num:0x63, kind:'button'};
+    B['beatfx.beatPrev'] = {ch:5, type:'note', num:0x4A, kind:'button'};
+    B['beatfx.beatNext'] = {ch:5, type:'note', num:0x4B, kind:'button'};
+  } else {
+    B['beatfx.level'] = {ch:6, type:'cc', num:0x02, kind:'abs', lsb:0x22};
+    B['beatfx.select'] = {ch:5, type:'note', num:0x63, kind:'button'};
+    B['beatfx.beatPrev'] = {ch:5, type:'note', num:0x4A, kind:'button'};
+    B['beatfx.beatNext'] = {ch:5, type:'note', num:0x4B, kind:'button'};
+  }
+  if(model.gen === 'FLX' || model.id === 'ddj-flx4'){
+    B['smartFader'] = {ch:7, type:'note', num:0x01, kind:'button'};
+    B['smartCfx'] = {ch:7, type:'note', num:0x00, kind:'button'};
+  }
+  B['deckA.cfx'] = {ch:7, type:'cc', num:0x17, kind:'abs', lsb:0x37};
+  B['deckB.cfx'] = {ch:7, type:'cc', num:0x18, kind:'abs', lsb:0x38};
+  return B;
+}
+function midiRolesForDeck(deck){
+  return MIDI_ROLE_ORDER.filter(r=>r.group === 'deck' + deck);
+}
+/* 4ch機の CH3/CH4 を DECK A/B に割り当てる（オプション） */
+function midiWithFourCh(bindings){
+  if(!MIDIS.fourCh) return bindings;
+  const out = Object.assign({}, bindings);
+  [['A', 3], ['B', 4]].forEach(([n, ch])=>{
+    midiRolesForDeck(n).forEach((r)=>{
+      const b = bindings[r.id];
+      if(!b || b.ch > 2) return;
+      out[r.id + '.ch' + ch] = Object.assign({}, b, {ch, altOf:r.id});
+    });
+  });
+  return out;
+}
+
+/* ---------- ロール定義（操作の意味） ---------- */
+const MIDI_ROLE = {};
+const MIDI_ROLE_ORDER = [];
+(function(){
+  const add = (id, label, kind, apply, cur, group, extra)=>{
+    const r = Object.assign({id, label, kind, apply, cur, group}, extra || {});
+    MIDI_ROLE[id] = r;
+    MIDI_ROLE_ORDER.push(r);
+    return r;
+  };
+  for(const i of [0,1]){
+    const n = i === 0 ? 'A' : 'B';
+    const d = ()=>deckAt(i);
+    add('deck' + n + '.play', 'DECK ' + n + ' PLAY/PAUSE', 'button', (v)=>{ const x = d(); if(x && v) toggleDeck(x); }, null, 'deck' + n);
+    add('deck' + n + '.cue', 'DECK ' + n + ' CUE', 'button', (v)=>{ const x = d(); if(x && v) cuePressDeck(x); }, null, 'deck' + n);
+    add('deck' + n + '.pfl', 'DECK ' + n + ' ヘッドホンCUE(PFL)', 'button', (v)=>{ const x = d(); if(x) setPfl(x, !!v); }, null, 'deck' + n);
+    add('deck' + n + '.sync', 'DECK ' + n + ' BEAT SYNC', 'button', (v)=>{ const x = d(); if(x && v) deckSync(x); }, null, 'deck' + n);
+    add('deck' + n + '.fader', 'DECK ' + n + ' CHフェーダー', 'abs', (v)=>{ const x = d(); if(x) setDeckFader(x, v*100); }, ()=> d() ? ddjClamp(d().faderVal,0,1) : null, 'deck' + n);
+    add('deck' + n + '.trim', 'DECK ' + n + ' TRIM', 'abs', (v)=>{ const x = d(); if(x) setDeckTrim(x, v*24-12); }, ()=> d() ? (ddjClamp(d().trimVal,-12,12)+12)/24 : null, 'deck' + n);
+    add('deck' + n + '.eqHigh', 'DECK ' + n + ' EQ HIGH', 'abs', (v)=>{ const x = d(); if(x) setDeckEq(x,'high', v*24-12); }, ()=> d() ? (ddjClamp(d().eqVal.high,-12,12)+12)/24 : null, 'deck' + n);
+    add('deck' + n + '.eqMid', 'DECK ' + n + ' EQ MID', 'abs', (v)=>{ const x = d(); if(x) setDeckEq(x,'mid', v*24-12); }, ()=> d() ? (ddjClamp(d().eqVal.mid,-12,12)+12)/24 : null, 'deck' + n);
+    add('deck' + n + '.eqLow', 'DECK ' + n + ' EQ LOW', 'abs', (v)=>{ const x = d(); if(x) setDeckEq(x,'low', v*24-12); }, ()=> d() ? (ddjClamp(d().eqVal.low,-12,12)+12)/24 : null, 'deck' + n);
+    add('deck' + n + '.pitch', 'DECK ' + n + ' TEMPO（ピッチ）', 'abs', (v)=>{ const x = d(); if(x) setDeckPitch(x, v*20-10); }, ()=> d() ? (ddjClamp(d().ratePct,-10,10)+10)/20 : null, 'deck' + n);
+    add('deck' + n + '.cfx', 'DECK ' + n + ' CFX / FILTER', 'abs', (v)=>{ const x = d(); if(x) setDeckCfx(x, v*200-100); }, ()=> d() ? (ddjClamp(d().cfxVal||0,-100,100)+100)/200 : null, 'deck' + n);
+    add('deck' + n + '.jogPlatter', 'DECK ' + n + ' JOG（プラッター）', 'rel', (v)=>jogTurn(i, v), null, 'deck' + n);
+    add('deck' + n + '.jogWheel', 'DECK ' + n + ' JOG（外周）', 'rel', (v)=>jogTurn(i, v), null, 'deck' + n);
+    add('deck' + n + '.jogTouch', 'DECK ' + n + ' JOG タッチ', 'button', (v)=>{ const x = d(); if(x) x.jogTouch = !!v; }, null, 'deck' + n);
+    add('deck' + n + '.loopIn', 'DECK ' + n + ' LOOP IN', 'button', (v)=>{ const x = d(); if(x && v) setLoopIn(x); }, null, 'deck' + n);
+    add('deck' + n + '.loopOut', 'DECK ' + n + ' LOOP OUT', 'button', (v)=>{ const x = d(); if(x && v) setLoopOut(x); }, null, 'deck' + n);
+    add('deck' + n + '.loopExit', 'DECK ' + n + ' 4BEAT / EXIT', 'button', (v)=>{ const x = d(); if(!x || !v) return; if(x.loop && x.loop.active) loopExit(x); else quickLoop(x, (60/(ddjBpmOf(x)||120))*4); }, null, 'deck' + n);
+    add('deck' + n + '.loophalf', 'DECK ' + n + ' ループ 1/2X', 'button', (v)=>{ const x = d(); if(x && v) loopScale(x, 0.5); }, null, 'deck' + n);
+    add('deck' + n + '.loopdouble', 'DECK ' + n + ' ループ 2X', 'button', (v)=>{ const x = d(); if(x && v) loopScale(x, 2); }, null, 'deck' + n);
+    add('deck' + n + '.padmode.hot', 'DECK ' + n + ' HOT CUE モード', 'button', (v)=>{ if(v) setPadMode(i,'hot'); }, null, 'deck' + n);
+    add('deck' + n + '.padmode.fx', 'DECK ' + n + ' PAD FX モード', 'button', (v)=>{ if(v) setPadMode(i,'fx'); }, null, 'deck' + n);
+    add('deck' + n + '.padmode.jmp', 'DECK ' + n + ' BEAT JUMP モード', 'button', (v)=>{ if(v) setPadMode(i,'jmp'); }, null, 'deck' + n);
+    add('deck' + n + '.padmode.smp', 'DECK ' + n + ' SAMPLER モード', 'button', (v)=>{ if(v) setPadMode(i,'smp'); }, null, 'deck' + n);
+    for(let k=0;k<8;k++){
+      add('deck' + n + '.pad.hot' + k, 'DECK ' + n + ' HOT CUE ' + MIDI_HOTKEYS[k], 'button',
+        (v)=>{ const x = d(); if(!x || !v) return; if(x.item) hotCueAt(x, MIDI_HOTKEYS[k]); }, null, 'pad' + n,
+        {clear:()=>{ const x = d(); if(x && x.item) hotCueAt(x, MIDI_HOTKEYS[k], 'clear'); }});
+      add('deck' + n + '.pad.cle' + k, 'DECK ' + n + ' HOT CUE ' + MIDI_HOTKEYS[k] + ' 消去', 'button',
+        (v)=>{ const x = d(); if(x && v && x.item) hotCueAt(x, MIDI_HOTKEYS[k], 'clear'); }, null, 'pad' + n);
+      add('deck' + n + '.pad.fx' + k, 'DECK ' + n + ' PAD FX ' + MIDI_PADFX_DEF[k].label, 'button',
+        (v)=>{ const x = d(); if(!x) return; if(v) padFxOn(x, k); }, null, 'pad' + n,
+        {release:()=>{ const x = d(); if(x) padFxOff(x, k); }});
+      add('deck' + n + '.pad.jmp' + k, 'DECK ' + n + ' BEAT JUMP ' + MIDI_JUMP_DEF[k], 'button',
+        (v)=>{ const x = d(); if(x && v) beatJump(x, MIDI_JUMP_DEF[k]); }, null, 'pad' + n);
+      add('deck' + n + '.pad.smp' + k, 'DECK ' + n + ' SAMPLER ' + MIDI_SMP_DEF[k], 'button',
+        (v)=>{ if(v) samplerPad(k); }, null, 'pad' + n);
+      add('deck' + n + '.pad.lp' + k, 'DECK ' + n + ' BEAT LOOP ' + MIDI_BEATLOOP_DEF[k] + '拍', 'button',
+        (v)=>{ const x = d(); if(!x || !v) return; const bpm = ddjBpmOf(x) || 120; quickLoop(x, (60/bpm)*MIDI_BEATLOOP_DEF[k]);  }, null, 'pad' + n);
+    }
+  }
+  add('master.crossfader', 'クロスフェーダー', 'abs', (v)=>setXfader(v*100), ()=> ddjClamp((Number(S.xfader)||0)/100,0,1), 'master');
+  add('master.level', 'MASTER LEVEL', 'abs', (v)=>{
+    const n = Math.round(v*100);
+    if(el.masterVol){ el.masterVol.value = String(n); if(el.masterVolVal) el.masterVolVal.textContent = String(n); setRangeFill(el.masterVol); }
+    if(S.masterGain && S.ctx) S.masterGain.gain.setTargetAtTime(volGain(n/100), S.ctx.currentTime, 0.03);
+  }, ()=> el.masterVol ? ddjClamp(Number(el.masterVol.value)/100,0,1) : null, 'master');
+  add('browse.turn', 'BROWSE（選曲ダイヤル）', 'rel', (v)=>browseMove(v), null, 'master');
+  add('browse.press', 'BROWSE 押す（LOAD先へ）', 'button', (v)=>{ if(v) browseLoadAuto(); }, null, 'master');
+  add('load.A', 'LOAD DECK A', 'button', (v)=>{ if(v) browseLoad(0); }, null, 'master');
+  add('load.B', 'LOAD DECK B', 'button', (v)=>{ if(v) browseLoad(1); }, null, 'master');
+  add('smartFader', 'SMART FADER ON/OFF', 'button', (v)=>{ if(v) setSmartFader(!S.smartFader); }, null, 'master');
+  add('smartCfx', 'SMART CFX ON/OFF', 'button', (v)=>{ if(v) setSmartCfx(!S.smartCfx); }, null, 'master');
+  add('beatfx.on', 'BEAT FX ON/OFF', 'button', (v)=>{ if(v) setBeatFx({on:!S.beatFx.on}); }, null, 'fx');
+  add('beatfx.level', 'BEAT FX LEVEL/DEPTH', 'abs', (v)=>{ S.beatFx.depth = ddjClamp(v,0,1); const n = $('fxDepth'); if(n){ n.value = String(Math.round(v*100)); } const o = $('fxDepthVal'); if(o) o.textContent = String(Math.round(v*100)); beatFxApply(); }, ()=> ddjClamp(S.beatFx.depth,0,1), 'fx');
+  add('beatfx.select', 'BEAT FX エフェクト選択', 'button', (v)=>{ if(!v) return; const list = ['echo','reverb','flanger','phaser','lpf','hpf']; const k = list.indexOf(S.beatFx.fx); setBeatFx({fx:list[(k+1) % list.length]}); }, null, 'fx');
+  add('beatfx.beatPrev', 'BEAT FX 拍数 ◁', 'button', (v)=>{ if(!v) return; const list=[0.5,1,2]; const k=list.indexOf(Number(S.beatFx.beat)); setBeatFx({beat:list[Math.max(0,k-1)]}); }, null, 'fx');
+  add('beatfx.beatNext', 'BEAT FX 拍数 ▷', 'button', (v)=>{ if(!v) return; const list=[0.5,1,2]; const k=list.indexOf(Number(S.beatFx.beat)); setBeatFx({beat:list[Math.min(list.length-1,k+1)]}); }, null, 'fx');
+})();
+
+function loopScale(d, factor){
+  if(!d || !d.item) return;
+  const L = d.loop || {};
+  if(!L.active || L.in == null || L.out == null){ quickLoop(d, (60/(ddjBpmOf(d)||120))*4); return; }
+  const len = Math.max(0.05, (L.out - L.in) * factor);
+  const t = Math.max(0, Number(d.el.currentTime)||0);
+  d.loop.in = t;
+  d.loop.out = Math.min(deckDuration(d) || (t+len), t + len);
+  d.loop.active = true;
+  scheduleLoopWrap(d);
+  renderDeck(d);
+  toast('ループ長 ' + (factor < 1 ? '1/2X' : '2X') + '（' + len.toFixed(2) + '秒）','');
+}
+
+/* ---------- 生MIDIモニター ---------- */
+function midiRawPush(ch, type, d1, d2){
+  const name = type === 0x90 ? 'NOTE' : (type === 0x80 ? 'NOTEoff' : (type === 0xB0 ? 'CC' : ('0x' + type.toString(16).toUpperCase())));
+  const hex = (n)=> '0x' + ('0' + (n||0).toString(16).toUpperCase()).slice(-2);
+  MIDIS.lastMsg = 'ch' + ch + ' ' + name + ' ' + hex(d1) + ' = ' + d2;
+  MIDIS.raw.push({ch, type, d1, d2, at: Date.now()});
+  if(MIDIS.raw.length > 40) MIDIS.raw.shift();
+  const box = $('midiRaw');
+  if(box){
+    const row = document.createElement('div');
+    row.className = 'nm';
+    row.textContent = MIDIS.lastMsg;
+    box.appendChild(row);
+    while(box.childElementCount > 24) box.removeChild(box.firstChild);
+    box.scrollTop = box.scrollHeight;
+  }
+  const now = $('midiNow');
+  if(now){ now.hidden = false; now.textContent = 'いまの入力：' + MIDIS.lastMsg; }
+}
+
+/* ---------- 学習（個別） ---------- */
+function midiCapture(role, ch, type, d1, d2){
+  if(type === 0x90 && d2 === 0) return false;      // リリースは無視
+  if(type !== 0x90 && type !== 0xB0) return false;
+  const def = MIDI_ROLE[role];
+  if(!def) return false;
+  let kind = 'button';
+  if(type === 0xB0) kind = (def.kind === 'rel') ? 'rel' : 'abs';
+  const b = {ch, type: type === 0x90 ? 'note' : 'cc', num: d1, kind};
+  if(kind === 'abs' && MIDIS.fam !== 'none') b.lsb = d1 + 0x20;
+  MIDIS.overrides[role] = b;
+  MIDIS.learned[role] = true;
+  MIDIS.pickup[role] = false;
+  midiRebuild();
+  midiSave();
+  midiRenderMap();
+  if(MIDIS.learnRole === role){
+    MIDIS.learnRole = '';
+    toast('MIDI Learn：' + def.label + ' → ch' + ch + ' ' + (b.type === 'note' ? 'NOTE ' : 'CC ') + '0x' + d1.toString(16).toUpperCase(), 'ok');
+  }
+  if(MIDIS.wizard && MIDIS.wizard.step < MIDIS.wizard.roles.length){
+    const cur = MIDIS.wizard.roles[MIDIS.wizard.step];
+    if(cur === role){
+      MIDIS.wizard.step++;
+      midiRenderWizard();
+    }
+  }
+  return true;
+}
+function midiLearnStart(role){
+  if(!MIDIS.connected){ toast('先にMIDI機器を接続してください','warn'); return false; }
+  MIDIS.learnRole = role || '';
+  const def = MIDI_ROLE[role];
+  const sel = $('midiLearnSel');
+  if(sel && role) sel.value = role;
+  const box = $('midiLearnState');
+  if(box) box.textContent = def ? ('学習中：' + def.label + ' のツマミ／ボタンを動かしてください') : '';
+  if(MIDIS.learnRole) toast('MIDI Learn：' + (def ? def.label : role) + ' を動かしてください','');
+  return true;
+}
+function midiLearnCancel(){
+  MIDIS.learnRole = '';
+  const box = $('midiLearnState');
+  if(box) box.textContent = '';
+}
+
+/* ---------- 一括セットアップウィザード ---------- */
+const MIDI_WIZARD_ROLES = [
+  'deckA.play','deckA.cue','deckA.pfl','deckA.fader','deckA.trim','deckA.eqLow',
+  'deckB.play','deckB.cue','deckB.pfl','deckB.fader',
+  'master.crossfader','deckA.pitch','deckA.jogPlatter','deckA.pad.hot0',
+  'browse.turn','load.A','deckA.sync','master.level'
+];
+function midiWizardStart(){
+  if(!MIDIS.connected){ toast('先にMIDI機器を接続してください','warn'); return false; }
+  MIDIS.wizard = {roles: MIDI_WIZARD_ROLES.slice(), step:0, done:false};
+  midiRenderWizard();
+  const box = $('wizBox'); if(box) box.hidden = false;
+  toast('🪄 一括セットアップ：画面の順番どおりに実機を動かしてください','ok');
+  return true;
+}
+function midiWizardNext(){ if(MIDIS.wizard){ MIDIS.wizard.step++; midiRenderWizard(); } }
+function midiWizardPrev(){ if(MIDIS.wizard){ MIDIS.wizard.step = Math.max(0, MIDIS.wizard.step - 1); midiRenderWizard(); } }
+function midiWizardFinish(){
+  if(!MIDIS.wizard) return false;
+  MIDIS.wizard.done = true;
+  MIDIS.wizard = null;
+  const box = $('wizBox'); if(box) box.hidden = true;
+  midiSave();
+  midiRenderMap();
+  midiLeds(true);
+  toast('🪄 一括セットアップ完了：主要操作を保存しました','ok');
+  return true;
+}
+function midiWizardCancel(){
+  MIDIS.wizard = null;
+  const box = $('wizBox'); if(box) box.hidden = true;
+  toast('一括セットアップを中止しました','');
+}
+function midiRenderWizard(){
+  const w = MIDIS.wizard;
+  if(!w){ const box = $('wizBox'); if(box) box.hidden = true; return; }
+  const total = w.roles.length;
+  const step = Math.min(w.step, total);
+  const def = step < total ? MIDI_ROLE[w.roles[step]] : null;
+  const text = $('midiWizStep');
+  if(text){
+    text.innerHTML = '';
+    const t = document.createElement('div'); t.className = 'wiz-step';
+    if(step >= total){
+      t.textContent = '✅ 全ステップ完了。「完了」を押して保存してください。';
+    } else {
+      t.textContent = (step + 1) + ' / ' + total + '　' + def.label + ' を動かしてください';
+      const s = document.createElement('small'); s.textContent = '（' + (step + 1) + 'つめ：' + def.label + '）';
+      t.appendChild(s);
+    }
+    text.appendChild(t);
+  }
+  const bar = $('midiWizProg');
+  if(bar) bar.style.width = (Math.round(step / total * 100)) + '%';
+  const cnt = $('midiWizCount');
+  if(cnt) cnt.textContent = String(step) + '/' + String(total);
+}
+
+/* ---------- 保存 / 読み込み ---------- */
+function midiSave(){
+  try{
+    const all = JSON.parse(localStorage.getItem(MIDI_KEY) || '{}') || {};
+    all.dev = all.dev || {};
+    const key = MIDIS.modelId + '|' + (MIDIS.devName || '');
+    all.dev[key] = {overrides: MIDIS.overrides, learned: MIDIS.learned, presetId: MIDIS.modelId};
+    all.soft = MIDIS.soft; all.led = MIDIS.led; all.fourCh = MIDIS.fourCh;
+    localStorage.setItem(MIDI_KEY, JSON.stringify(all));
+  }catch(e){}
+}
+function midiLoad(){
+  try{
+    const all = JSON.parse(localStorage.getItem(MIDI_KEY) || '{}') || {};
+    if(typeof all.soft === 'boolean') MIDIS.soft = all.soft;
+    if(typeof all.led === 'boolean') MIDIS.led = all.led;
+    if(typeof all.fourCh === 'boolean') MIDIS.fourCh = all.fourCh;
+    const key = MIDIS.modelId + '|' + (MIDIS.devName || '');
+    const d = all.dev ? all.dev[key] : null;
+    if(d && d.overrides){
+      Object.keys(d.overrides).forEach(k=>{ MIDIS.overrides[k] = d.overrides[k]; });
+      Object.keys(d.learned || {}).forEach(k=>{ MIDIS.learned[k] = true; });
+    }
+  }catch(e){}
+  if($('midiTakeChk')) $('midiTakeChk').checked = !!MIDIS.soft;
+  if($('midiLedChk')) $('midiLedChk').checked = !!MIDIS.led;
+  if($('midi4chChk')) $('midi4chChk').checked = !!MIDIS.fourCh;
+}
+function midiExport(){
+  const data = {
+    app:'netradio-broadcaster', kind:'midi-map', version:2, at:new Date().toISOString(),
+    device: MIDIS.devName, model: MIDIS.modelId,
+    soft: MIDIS.soft, led: MIDIS.led, fourCh: MIDIS.fourCh,
+    overrides: MIDIS.overrides
+  };
+  const text = JSON.stringify(data, null, 2);
+  try{
+    const blob = new Blob([text], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'netradio-midi-' + (MIDIS.modelId || 'map') + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>{ try{ URL.revokeObjectURL(a.href); }catch(e){} }, 4000);
+    toast('MIDIマップをJSONで書き出しました','ok');
+  }catch(e){ toast('書き出しに失敗しました','err'); }
+  return text;
+}
+function midiImport(text){
+  try{
+    const d = JSON.parse(text);
+    const ov = d && (d.overrides || d.bindings || d.map);
+    if(!ov || typeof ov !== 'object') throw new Error('no map');
+    const n = Object.keys(ov).length;
+    Object.keys(ov).forEach(k=>{
+      if(!MIDI_ROLE[k]) return;
+      const b = ov[k];
+      if(!b || !b.ch || !b.num) return;
+      MIDIS.overrides[k] = {ch:b.ch, type:b.type === 'cc' ? 'cc' : 'note', num:b.num, kind:b.kind || (b.type === 'cc' ? 'abs' : 'button'), lsb:b.lsb};
+      MIDIS.learned[k] = true;
+    });
+    if(typeof d.soft === 'boolean') MIDIS.soft = d.soft;
+    if(typeof d.led === 'boolean') MIDIS.led = d.led;
+    midiRebuild(); midiSave(); midiRenderMap(); midiLeds(true);
+    toast('MIDIマップを読み込みました（' + n + '項目）','ok');
+    return true;
+  }catch(e){ toast('JSONを読み込めませんでした','err'); return false; }
+}
+
+/* ---------- バインディング再構築 ---------- */
+function midiRebuild(){
+  const base = midiBuildPreset(MIDIS.modelId);
+  const merged = Object.assign({}, base, MIDIS.overrides || {});
+  MIDIS.bindings = midiWithFourCh(merged);
+  const idx = new Map();
+  Object.keys(MIDIS.bindings).forEach((role)=>{
+    const b = MIDIS.bindings[role];
+    if(!b) return;
+    const realRole = b.altOf || role;
+    const key = b.type === 'note' ? (b.ch + ':note:' + b.num) : (b.ch + ':cc:' + b.num);
+    if(!idx.has(key)) idx.set(key, []);
+    idx.get(key).push({role:realRole, key:role, part:b.type === 'note' ? 'note' : 'msb', b});
+    if(b.type === 'cc' && b.lsb){
+      const k2 = b.ch + ':cc:' + b.lsb;
+      if(!idx.has(k2)) idx.set(k2, []);
+      idx.get(k2).push({role:realRole, key:role, part:'lsb', b});
+    }
+  });
+  MIDIS.index = idx;
+  // ソフトテイクオーバーは新しい割当に対して待機状態から
+  Object.keys(MIDI_ROLE).forEach(r=>{ if(MIDIS.pickup[r] === undefined) MIDIS.pickup[r] = true; });
+  midiRenderMap();
+}
+
+/* ---------- メッセージ受信 ---------- */
+function midiKeyOf(ch, num){ return ch + ':' + num; }
+function midiApplyAbs(entry, value){
+  const role = MIDI_ROLE[entry.role];
+  if(!role) return;
+  let norm = ddjClamp(value, 0, 1);
+  const cur = typeof role.cur === 'function' ? role.cur() : null;
+  if(MIDIS.soft && cur !== null){
+    // 画面側（マウス）で値が動いたら、もう一度ピックアップ待ちに戻す（ラジオ本番の爆音防止）
+    const last = MIDIS.lastVal ? MIDIS.lastVal[entry.role] : undefined;
+    if(last !== undefined && Math.abs(cur - last) > 0.02) MIDIS.pickup[entry.role] = true;
+    if(MIDIS.pickup[entry.role] !== false){
+      if(Math.abs(norm - cur) > 0.035){
+        MIDIS.pickup[entry.role] = true;
+        const st = $('midiPickup');
+        if(st) st.textContent = 'ピックアップ待ち：' + role.label + '（実機を画面の位置まで動かすと追従します）';
+        return;
+      }
+      MIDIS.pickup[entry.role] = false;
+    }
+  }
+  role.apply(norm, entry.b);
+  if(!MIDIS.lastVal) MIDIS.lastVal = {};
+  MIDIS.lastVal[entry.role] = (typeof role.cur === 'function') ? role.cur() : norm;
+  const st = $('midiPickup');
+  if(st && MIDIS.pickup[entry.role] === false) st.textContent = '';
+}
+function midiOnMessage(ev){
+  const data = ev && ev.data ? ev.data : ev;
+  if(!data || !data.length) return;
+  const st = data[0] & 0xFF;
+  if(st >= 0xF0) return;
+  const type = st & 0xF0, ch = (st & 0x0F) + 1;
+  const d1 = data[1] & 0x7F, d2 = (data.length > 2 ? data[2] : 0) & 0x7F;
+  midiRawPush(ch, type, d1, d2);
+
+  // 学習中は最優先で捕まえる（学習中は他の操作を走らせない）
+  if(MIDIS.learnRole){ midiCapture(MIDIS.learnRole, ch, type, d1, d2); return; }
+  if(MIDIS.wizard){
+    const role = MIDIS.wizard.roles[MIDIS.wizard.step];
+    if(role) midiCapture(role, ch, type, d1, d2);
+    return;
+  }
+
+  const typeKey = (type === 0x90 || type === 0x80) ? 'note:' : 'cc:';
+  const hits = MIDIS.index.get(ch + ':' + typeKey + d1) || [];
+  if(type === 0x90 || type === 0x80){
+    const on = type === 0x80 ? false : (d2 > 0);
+    hits.forEach((h)=>{
+      if(h.part !== 'note') return;
+      const role = MIDI_ROLE[h.role];
+      if(!role) return;
+      if(on) role.apply(1, h.b);
+      else if(role.release) role.release(h.b);
+    });
+    return;
+  }
+  if(type === 0xB0){
+    hits.forEach((h)=>{
+      if(h.part === 'lsb'){
+        const cur = MIDIS.cc.get(ch + ':' + h.b.num) || {msb:0, lsb:0};
+        cur.lsb = d2;
+        MIDIS.cc.set(ch + ':' + h.b.num, cur);
+        // LSBのみ先に来た場合はMSB待ち（0扱いで飛ばさない）
+        if(cur.seenMsb) midiApplyAbs(h, (cur.msb * 128 + d2) / 16383);
+        return;
+      }
+      const role = MIDI_ROLE[h.role];
+      if(!role) return;
+      if(h.b.kind === 'rel'){
+        let delta = d2 - 64;
+        if(d2 === 0) delta = -64;
+        role.apply(delta, h.b);
+        return;
+      }
+      const cur = MIDIS.cc.get(ch + ':' + h.b.num) || {msb:0, lsb:0};
+      cur.msb = d2; cur.seenMsb = true;
+      MIDIS.cc.set(ch + ':' + h.b.num, cur);
+      const raw = h.b.lsb ? (d2 * 128 + (cur.lsb || 0)) / 16383 : d2 / 127;
+      midiApplyAbs(h, raw);
+    });
+  }
+}
+
+/* ---------- LED送信 ---------- */
+function midiSend(bytes){
+  if(!MIDIS.outDev){ return false; }
+  try{
+    MIDIS.outDev.send(bytes);
+    MIDIS.sent.push(Array.prototype.slice.call(bytes));
+    if(MIDIS.sent.length > 600) MIDIS.sent.shift();
+    return true;
+  }catch(e){ return false; }
+}
+function midiLeds(force){
+  if(!MIDIS.connected) return false;
+  if(!MIDIS.led && !force) return false;
+  const send = (st, d1, d2)=>{ if(MIDIS.led || force) midiSend([st & 0xFF, d1 & 0x7F, d2 & 0x7F]); };
+  const padBase = MIDIS.fam === 'serato' ? [8,9] : [8,10];
+  for(const i of [0,1]){
+    const d = deckAt(i);
+    const st = 0x90 | i;
+    send(st, 0x0B, (d && d.item && !d.el.paused) ? 0x7F : 0x00);
+    send(st, 0x0C, (d && d.item && Math.abs((Number(d.el.currentTime)||0) - (Number(d.cuePoint)||0)) < 0.12) ? 0x7F : 0x00);
+    send(st, 0x54, (d && d.pfl) ? 0x7F : 0x00);
+    send(st, 0x58, (d && d.synced) ? 0x7F : 0x00);
+    send(st, 0x17, (d && d.vinyl !== false) ? 0x7F : 0x00);
+    const pst = 0x90 | (padBase[i] - 1);
+    for(let k=0;k<8;k++){
+      const set = d && d.hot ? d.hot[MIDI_HOTKEYS[k]] : null;
+      send(pst, k, set != null ? 0x7F : 0x00);
+    }
+    const modes = MIDIS.fam === 'serato'
+      ? {hot:0x1B, fx:0x1E, jmp:0x69, smp:0x22}
+      : {hot:0x1B, fx:0x1E, jmp:0x20, smp:0x34};
+    Object.keys(modes).forEach((m)=>send(st, modes[m], (S.padMode && S.padMode[i] === m) ? 0x7F : 0x00));
+  }
+  send(0x96, 0x01, S.smartFader ? 0x7F : 0x00);
+  send(0x96, 0x00, S.smartCfx ? 0x7F : 0x00);
+  send(0x94, 0x47, (S.beatFx && S.beatFx.on) ? 0x7F : 0x00);
+  send(0x9F, 0, (S.decks && S.decks[0].item) ? 0x7F : 0x00);
+  send(0x9F, 1, (S.decks && S.decks[1].item) ? 0x7F : 0x00);
+  return true;
+}
+function midiLedSoon(){
+  if(!MIDIS.connected) return;
+  MIDIS.ledDirty = true;
+  if(MIDIS.ledTimer) return;
+  MIDIS.ledTimer = setTimeout(()=>{
+    MIDIS.ledTimer = null;
+    if(MIDIS.ledDirty){ MIDIS.ledDirty = false; midiLeds(false); }
+  }, 60);
+}
+
+/* ---------- 接続 / 切断 ---------- */
+function midiSetState(text, kind){
+  MIDIS.state = text;
+  const b = $('midiState');
+  if(b){ b.textContent = text; b.classList.toggle('on', kind === 'on'); b.classList.toggle('warn', kind === 'warn'); }
+}
+function midiPorts(){
+  const ins = [], outs = [];
+  try{
+    if(MIDIS.access && MIDIS.access.inputs){ MIDIS.access.inputs.forEach((p)=>{ if(p && p.state !== 'disconnected') ins.push(p); }); }
+    if(MIDIS.access && MIDIS.access.outputs){ MIDIS.access.outputs.forEach((p)=>{ if(p && p.state !== 'disconnected') outs.push(p); }); }
+  }catch(e){}
+  MIDIS.inputs = ins; MIDIS.outputs = outs;
+  return {ins, outs};
+}
+function midiScan(){
+  const {ins, outs} = midiPorts();
+  const sel = $('midiInput');
+  if(sel){
+    const cur = sel.value;
+    sel.innerHTML = '';
+    const o0 = document.createElement('option'); o0.value = ''; o0.textContent = ins.length ? '（選択してください）' : '（機器なし）';
+    sel.appendChild(o0);
+    ins.forEach((p)=>{ const o = document.createElement('option'); o.value = p.id; o.textContent = p.name || p.id; sel.appendChild(o); });
+    if(cur && ins.some(p=>p.id === cur)) sel.value = cur;
+    else if(ins.length === 1) sel.value = ins[0].id;
+  }
+  const so = $('midiOutput');
+  if(so){
+    const cur = so.value;
+    so.innerHTML = '';
+    const o0 = document.createElement('option'); o0.value = ''; o0.textContent = outs.length ? '（入力と同じ機器を自動選択）' : '（機器なし）';
+    so.appendChild(o0);
+    outs.forEach((p)=>{ const o = document.createElement('option'); o.value = p.id; o.textContent = p.name || p.id; so.appendChild(o); });
+    if(cur && outs.some(p=>p.id === cur)) so.value = cur;
+  }
+  return {ins, outs};
+}
+function midiAutoSelect(){
+  const {ins, outs} = midiPorts();
+  if(!ins.length){ midiSetState('未接続', 'warn'); return false; }
+  let pick = ins.find(p=>/DDJ|PIONEER|ALPHATHETA|FLX|REKORDBOX/i.test(p.name || ''));
+  if(!pick) pick = ins[0];
+  let out = outs.find(p=>p.id === pick.id) || outs.find(p=>/DDJ|PIONEER|ALPHATHETA/i.test(p.name || '')) || outs[0] || null;
+  return midiBind(pick, out);
+}
+function midiBind(input, output){
+  if(!input) return false;
+  MIDIS.inDev = input;
+  MIDIS.outDev = output || null;
+  MIDIS.devName = input.name || input.id || '';
+  const model = midiFindModel(MIDIS.devName);
+  MIDIS.modelId = model.id;
+  MIDIS.overrides = {};
+  MIDIS.learned = {};
+  MIDIS.pickup = {};
+  midiLoad();
+  midiRebuild();
+  try{
+    input.onmidimessage = midiOnMessage;
+    input.onstatechange = midiStateChange;
+  }catch(e){}
+  MIDIS.connected = true;
+  midiSetState('接続中：' + MIDIS.devName, 'on');
+  const hint = $('midiHint');
+  if(hint){
+    hint.textContent = '接続中：' + MIDIS.devName + '（' + model.name + ' プリセット）';
+  }
+  const ps = $('midiPresetSel');
+  if(ps) ps.value = model.id;
+  const is = $('midiInput');
+  if(is) is.value = input.id;
+  const os = $('midiOutput');
+  if(os) os.value = output ? output.id : '';
+  midiLeds(true);
+  midiRenderMap();
+  midiRenderDevice();
+  return true;
+}
+function midiUnbind(){
+  try{ if(MIDIS.inDev) MIDIS.inDev.onmidimessage = null; }catch(e){}
+  MIDIS.inDev = null; MIDIS.outDev = null;
+  MIDIS.connected = false;
+  midiSetState('未接続', 'warn');
+}
+function midiStateChange(ev){
+  const port = ev && ev.port;
+  midiScan();
+  midiRenderDevice();
+  if(MIDIS.connected){
+    const still = MIDIS.inDev && MIDIS.inDev.state !== 'disconnected';
+    if(!still){
+      midiSetState('切断（再接続を待っています）', 'warn');
+      MIDIS.connected = false;
+      toast('🎹 MIDI機器が抜けました。再接続すると自動で復帰します','warn');
+      midiRenderDevice();
+      return;
+    }
+  }
+  if(!MIDIS.connected){
+    const {ins} = midiPorts();
+    if(ins.length){
+      const target = port && port.type === 'input' ? ins.find(p=>p.id === port.id) : null;
+      const pick = target || ins.find(p=>/DDJ|PIONEER|ALPHATHETA/i.test(p.name || '')) || ins[0];
+      if(pick){
+        const outs = MIDIS.outputs;
+        const out = outs.find(p=>p.id === pick.id) || outs[0] || null;
+        midiBind(pick, out);
+        toast('🎹 MIDI機器に再接続しました：' + (pick.name || pick.id) + '（LED/状態を同期）','ok');
+      }
+    }
+  } else if(port && port.type === 'input' && port.state === 'connected'){
+    // 別の機器が挿さった場合も自動で追随（名前がPioneer系のとき）
+    if(port.id !== (MIDIS.inDev && MIDIS.inDev.id) && /DDJ|PIONEER|ALPHATHETA/i.test(port.name || '')){
+      const outs = MIDIS.outputs;
+      midiBind(port, outs.find(p=>p.id === port.id) || outs[0] || null);
+    }
+  }
+}
+function midiEnable(){
+  if(!navigator.requestMIDIAccess){
+    midiSetState('Web MIDI 非対応', 'warn');
+    const hint = $('midiHint');
+    if(hint) hint.textContent = 'このブラウザは Web MIDI API 非対応です。PCの Chrome / Edge（https または localhost）でお使いください。スマホ・Safari・Firefox では MIDI 同期は使えません（DJ操作は画面で全部できます）。';
+    midiRenderDevice();
+    return Promise.resolve(false);
+  }
+  return navigator.requestMIDIAccess({sysex:false}).then((access)=>{
+    MIDIS.access = access;
+    try{ access.onstatechange = midiStateChange; }catch(e){}
+    midiScan();
+    midiRenderDevice();
+    if(!midiAutoSelect()) midiSetState('機器を待っています', 'warn');
+    return true;
+  }).catch((e)=>{
+    midiSetState('MIDI権限が拒否されました', 'warn');
+    const hint = $('midiHint');
+    if(hint) hint.textContent = 'MIDIの使用がブロックされました（' + (e && e.name ? e.name : 'error') + '）。ブラウザのサイト設定でMIDIを許可してください。';
+    return false;
+  });
+}
+function midiRenderDevice(){
+  const box = $('midiDevice');
+  if(!box) return;
+  const mn = (MIDI_MODELS.find(m=>m.id === MIDIS.modelId) || {}).name || '';
+  const dev = MIDIS.devName || 'MIDI';
+  box.textContent = MIDIS.connected
+    ? ('🎛️ ' + dev + (mn && mn !== dev ? '（' + mn + '）' : '') + '｜' + (MIDIS.led ? 'LED ON' : 'LED OFF') + (MIDIS.soft ? '｜テイクオーバー' : ''))
+    : (MIDIS.supported ? 'MIDI機器を接続してください' : 'Web MIDI 非対応のブラウザです');
+}
+function midiRenderMap(){
+  const ul = $('midiMap');
+  if(!ul) return;
+  ul.innerHTML = '';
+  const learned = Object.keys(MIDIS.learned).filter(k=>MIDIS.learned[k]);
+  const preset = Object.keys(MIDIS.bindings).length;
+  const head = document.createElement('li');
+  head.textContent = 'プリセット ' + preset + '項目 / 学習 ' + learned.length + '項目';
+  ul.appendChild(head);
+  learned.slice(0, 40).forEach((k)=>{
+    const b = MIDIS.bindings[k] || MIDIS.overrides[k];
+    const li = document.createElement('li');
+    li.className = 'learned';
+    li.textContent = (MIDI_ROLE[k] ? MIDI_ROLE[k].label : k) + ' → ch' + b.ch + ' ' + (b.type === 'note' ? 'N' : 'CC') + '0x' + (b.num || 0).toString(16).toUpperCase();
+    ul.appendChild(li);
+  });
+}
+
+/* ---------- UI組み立て ---------- */
+function ddjUiBoot(){
+  // Smart Fader / Smart CFX
+  if($('smartFaderBtn')) $('smartFaderBtn').addEventListener('click', ()=>setSmartFader(!S.smartFader));
+  if($('smartCfxBtn')) $('smartCfxBtn').addEventListener('click', ()=>setSmartCfx(!S.smartCfx));
+
+  // BEAT FX
+  if($('fxSel')) $('fxSel').addEventListener('change', (e)=>setBeatFx({fx:e.target.value}, true));
+  if($('fxTarget')) $('fxTarget').addEventListener('change', (e)=>setBeatFx({target:e.target.value}, true));
+  if($('fxOnBtn')) $('fxOnBtn').addEventListener('click', ()=>setBeatFx({on:!S.beatFx.on}));
+  document.querySelectorAll('[data-fxbeat]').forEach((b)=>{
+    b.addEventListener('click', ()=>setBeatFx({beat:Number(b.dataset.fxbeat)}, true));
+  });
+  if($('fxDepth')){
+    const n = $('fxDepth');
+    n.value = String(Math.round(S.beatFx.depth * 100));
+    setRangeFill(n);
+    n.addEventListener('input', ()=>{
+      S.beatFx.depth = ddjClamp(Number(n.value)/100, 0, 1);
+      if($('fxDepthVal')) $('fxDepthVal').textContent = n.value;
+      setRangeFill(n);
+      beatFxApply();
+    });
+    if($('fxDepthVal')) $('fxDepthVal').textContent = n.value;
+  }
+  updateBeatFxUi();
+
+  // BROWSE
+  if($('browsePrev')) $('browsePrev').addEventListener('click', ()=>browseMove(-1));
+  if($('browseNext')) $('browseNext').addEventListener('click', ()=>browseMove(1));
+  if($('browseLoadA')) $('browseLoadA').addEventListener('click', ()=>browseLoad(0));
+  if($('browseLoadB')) $('browseLoadB').addEventListener('click', ()=>browseLoad(1));
+  if($('browseSrc')) $('browseSrc').addEventListener('change', ()=>{ S.browse.idx = 0; browseRender(); });
+  browseRender();
+
+  // パッド（イベント委譲：押している間のPAD FXに対応）
+  ['padsA','padsB'].forEach((id)=>{
+    const box = $(id);
+    if(!box) return;
+    box.addEventListener('pointerdown', (ev)=>{
+      const b = ev.target.closest ? ev.target.closest('.perfpad') : null;
+      if(!b) return;
+      ev.preventDefault();
+      b.classList.add('hold');
+      perfPadPress(Number(b.dataset.paddeck), Number(b.dataset.padidx));
+    });
+    ['pointerup','pointercancel','pointerleave'].forEach((e)=>{
+      box.addEventListener(e, (ev)=>{
+        const b = ev.target.closest ? ev.target.closest('.perfpad') : null;
+        if(!b) return;
+        b.classList.remove('hold');
+        perfPadRelease(Number(b.dataset.paddeck), Number(b.dataset.padidx));
+      });
+    });
+  });
+  document.querySelectorAll('[data-padmode]').forEach((b)=>{
+    b.addEventListener('click', ()=>setPadMode(Number(b.dataset.deck), b.dataset.padmode));
+  });
+
+  // JOG / VINYL / SYNC / 4BEAT
+  [0,1].forEach((i)=>{
+    const d = deckAt(i);
+    if(d && d.vinyl === undefined) d.vinyl = true;
+    const u = DECK_UI[i];
+    if(u && u.vinyl) u.vinyl.addEventListener('click', ()=>{ const x = deckAt(i); if(x) setVinyl(x, x.vinyl === false); });
+    if(u && u.sync) u.sync.addEventListener('click', ()=>{ const x = deckAt(i); if(x) deckSync(x); });
+    if(u && u.beatloop) u.beatloop.addEventListener('click', ()=>{
+      const x = deckAt(i); if(!x) return;
+      if(x.loop && x.loop.active) loopExit(x);
+      else quickLoop(x, (60/(ddjBpmOf(x)||120))*4);
+    });
+    if(u && u.loophalf) u.loophalf.addEventListener('click', ()=>{ const x = deckAt(i); if(x) loopScale(x, 0.5); });
+    if(u && u.loopdouble) u.loopdouble.addEventListener('click', ()=>{ const x = deckAt(i); if(x) loopScale(x, 2); });
+    if(u && u.jog) bindJogEl(u.jog, i);
+    if(u && u.hots){
+      Object.keys(u.hots).forEach((k)=>{
+        if(u.hots[k] && /[E-H]/.test(k)){
+          let hold = null, lp = false;
+          u.hots[k].addEventListener('pointerdown', ()=>{
+            lp = false;
+            hold = setTimeout(()=>{ hold = null; lp = true; const x = deckAt(i); if(x) hotCueAt(x, k, 'clear'); }, 700);
+          });
+          ['pointerup','pointerleave','pointercancel'].forEach((ev)=>u.hots[k].addEventListener(ev, ()=>{ if(hold){ clearTimeout(hold); hold = null; } }));
+          u.hots[k].addEventListener('click', ()=>{ if(lp){ lp = false; return; } const x = deckAt(i); if(x) hotCueAt(x, k); });
+        }
+      });
+    }
+  });
+
+  // MIDIパネル
+  if($('midiEnableBtn')) $('midiEnableBtn').addEventListener('click', ()=>midiEnable());
+  if($('midiPresetSel')){
+    const sel = $('midiPresetSel');
+    sel.innerHTML = '';
+    MIDI_MODELS.forEach((m)=>{
+      const o = document.createElement('option');
+      o.value = m.id; o.textContent = m.name;
+      sel.appendChild(o);
+    });
+    sel.value = MIDIS.modelId;
+    sel.addEventListener('change', ()=>{
+      MIDIS.modelId = sel.value;
+      const m = MIDI_MODELS.find(x=>x.id === sel.value);
+      MIDIS.fam = m ? m.fam : 'rb'; MIDIS.gen = m ? m.gen : '';
+      MIDIS.overrides = {};
+      MIDIS.learned = {};
+      MIDIS.pickup = {};
+      midiLoadForModel();
+      midiRebuild();
+      midiLeds(true);
+      midiRenderDevice();
+      toast('MIDIプリセット：' + (m ? m.name : sel.value), '');
+    });
+  }
+  if($('midiInput')) $('midiInput').addEventListener('change', ()=>{
+    const id = $('midiInput').value;
+    const {ins, outs} = midiPorts();
+    const p = ins.find(x=>x.id === id);
+    if(p){
+      const o = outs.find(x=>x.id === id) || outs[0] || null;
+      midiBind(p, o);
+      toast('MIDI入力：' + (p.name || p.id), 'ok');
+    }
+  });
+  if($('midiOutput')) $('midiOutput').addEventListener('change', ()=>{
+    const id = $('midiOutput').value;
+    const {outs} = midiPorts();
+    MIDIS.outDev = outs.find(x=>x.id === id) || null;
+    midiLeds(true);
+  });
+  if($('midiLedChk')) $('midiLedChk').addEventListener('change', (e)=>{ MIDIS.led = e.target.checked; midiSave(); midiRenderDevice(); if(MIDIS.led) midiLeds(true); });
+  if($('midiTakeChk')) $('midiTakeChk').addEventListener('change', (e)=>{ MIDIS.soft = e.target.checked; midiSave(); midiRenderDevice(); });
+  if($('midi4chChk')) $('midi4chChk').addEventListener('change', (e)=>{ MIDIS.fourCh = e.target.checked; midiRebuild(); midiSave(); });
+
+  if($('midiLearnSel')){
+    const sel = $('midiLearnSel');
+    const groups = {};
+    MIDI_ROLE_ORDER.forEach((r)=>{
+      const g = r.group === 'master' ? 'ミキサー / 全体' : (r.group === 'fx' ? 'BEAT FX' : (/^pad/.test(r.group) ? 'パフォーマンスパッド' : 'DECK ' + r.group.slice(4)));
+      if(!groups[g]) groups[g] = [];
+      groups[g].push(r);
+    });
+    Object.keys(groups).forEach((g)=>{
+      const og = document.createElement('optgroup'); og.label = g;
+      groups[g].forEach((r)=>{ const o = document.createElement('option'); o.value = r.id; o.textContent = r.label; og.appendChild(o); });
+      sel.appendChild(og);
+    });
+  }
+  if($('midiLearnBtn')) $('midiLearnBtn').addEventListener('click', ()=>midiLearnStart($('midiLearnSel') ? $('midiLearnSel').value : ''));
+  if($('midiLearnCancel')) $('midiLearnCancel').addEventListener('click', midiLearnCancel);
+  if($('midiWizBtn')) $('midiWizBtn').addEventListener('click', midiWizardStart);
+  if($('midiWizNext')) $('midiWizNext').addEventListener('click', midiWizardNext);
+  if($('midiWizPrev')) $('midiWizPrev').addEventListener('click', midiWizardPrev);
+  if($('midiWizDone')) $('midiWizDone').addEventListener('click', midiWizardFinish);
+  if($('midiWizCancel')) $('midiWizCancel').addEventListener('click', midiWizardCancel);
+  if($('midiResetBtn')) $('midiResetBtn').addEventListener('click', ()=>{
+    MIDIS.overrides = {}; MIDIS.learned = {}; MIDIS.pickup = {};
+    midiRebuild(); midiSave(); midiLeds(true);
+    toast('MIDIマップを初期化しました（機種プリセットに戻す）','ok');
+  });
+  if($('midiExportBtn')) $('midiExportBtn').addEventListener('click', midiExport);
+  if($('midiImportFile')) $('midiImportFile').addEventListener('change', (e)=>{
+    const f = e.target.files && e.target.files[0];
+    if(!f) return;
+    const rd = new FileReader();
+    rd.onload = ()=>midiImport(String(rd.result || ''));
+    rd.readAsText(f);
+    e.target.value = '';
+  });
+  if($('midiHint') && !MIDIS.supported){
+    $('midiHint').textContent = 'このブラウザは Web MIDI API 非対応です。PCの Chrome / Edge（https または localhost）でお使いください。スマホ・Safari・Firefox では MIDI 同期は使えません（DJ操作は画面で全部できます）。';
+  }
+  MIDIS.modelId = MIDIS.modelId || 'pioneer-generic';
+  midiLoad();
+  midiRebuild();
+  midiRenderDevice();
+  midiRenderMap();
+  if(MIDIS.supported) midiEnable();
+  else midiSetState('Web MIDI 非対応', 'warn');
+  renderPerfPads();
+  [0,1].forEach((i)=>{ const d = deckAt(i); if(d) setVinyl(d, d.vinyl !== false, true); });
+}
+function midiLoadForModel(){
+  try{
+    const all = JSON.parse(localStorage.getItem(MIDI_KEY) || '{}') || {};
+    const key = MIDIS.modelId + '|' + (MIDIS.devName || '');
+    const d = all.dev ? all.dev[key] : null;
+    if(d && d.overrides){
+      Object.keys(d.overrides).forEach(k=>{ MIDIS.overrides[k] = d.overrides[k]; });
+      Object.keys(d.learned || {}).forEach(k=>{ MIDIS.learned[k] = true; });
+    }
+  }catch(e){}
+}
+function bindJogEl(node, i){
+  let dragging = false, lastAngle = 0, acc = 0;
+  const center = ()=>{
+    const r = node.getBoundingClientRect();
+    return {x: r.left + r.width/2, y: r.top + r.height/2, r: Math.max(8, r.width/2)};
+  };
+  const angleOf = (ev, c)=> Math.atan2(ev.clientY - c.y, ev.clientX - c.x);
+  node.addEventListener('pointerdown', (ev)=>{
+    ev.preventDefault();
+    dragging = true; acc = 0;
+    const c = center();
+    lastAngle = angleOf(ev, c);
+    try{ node.setPointerCapture(ev.pointerId); }catch(e){}
+    node.classList.add('hold');
+  });
+  node.addEventListener('pointermove', (ev)=>{
+    if(!dragging) return;
+    const c = center();
+    const a = angleOf(ev, c);
+    let d = a - lastAngle;
+    while(d > Math.PI) d -= Math.PI*2;
+    while(d < -Math.PI) d += Math.PI*2;
+    lastAngle = a;
+    acc += d;
+    const ticks = acc / (Math.PI/10);
+    if(Math.abs(ticks) >= 0.5){
+      const t = Math.round(ticks);
+      acc -= t * (Math.PI/10);
+      jogTurn(i, t);
+    }
+  });
+  const end = ()=> { dragging = false; node.classList.remove('hold'); };
+  ['pointerup','pointercancel','lostpointercapture'].forEach((e)=>node.addEventListener(e, end));
+  node.addEventListener('wheel', (ev)=>{
+    ev.preventDefault();
+    jogTurn(i, ev.deltaY > 0 ? 1 : -1);
+  }, {passive:false});
+}
+
+/* ---------- テスト用 ---------- */
+window.__ddjDebug = {
+  midi:{
+    state(){
+      return {
+        supported: MIDIS.supported, connected: MIDIS.connected, device: MIDIS.devName,
+        model: MIDIS.modelId, fam: MIDIS.fam, presetCount: Object.keys(MIDIS.bindings).length,
+        soft: MIDIS.soft, led: MIDIS.led, fourCh: MIDIS.fourCh,
+        stateText: MIDIS.state, last: MIDIS.lastMsg,
+        learned: Object.keys(MIDIS.learned), overrides: MIDIS.overrides,
+        pickup: Object.keys(MIDIS.pickup).filter(k=>MIDIS.pickup[k]),
+        wizard: MIDIS.wizard ? {step:MIDIS.wizard.step, total:MIDIS.wizard.roles.length} : null,
+        learnRole: MIDIS.learnRole
+      };
+    },
+    enable(){ return midiEnable(); },
+    preset(id){ const sel = $('midiPresetSel'); if(sel){ sel.value = id; sel.dispatchEvent(new Event('change')); } return MIDIS.modelId; },
+    bind(name){ const fake = {id:'mock-' + name, name, state:'connected', onmidimessage:null}; return midiBind(fake, {id:'out-' + name, name, send:(b)=>{ MIDIS.sent.push(Array.prototype.slice.call(b)); }}); },
+    send(bytes){ midiOnMessage({data:bytes}); return MIDIS.lastMsg; },
+    out(){ return MIDIS.sent.slice(-60); },
+    clearOut(){ MIDIS.sent.length = 0; },
+    ledSync(){ return midiLeds(true); },
+    roles(){ return Object.keys(MIDIS.bindings).map((k)=>({id:k, b:MIDIS.bindings[k], label:(MIDI_ROLE[k]||{}).label || k})); },
+    learned(role){ return MIDIS.overrides[role] || null; },
+    learn(role){ return midiLearnStart(role); },
+    learnCancel(){ midiLearnCancel(); },
+    wizardStart(){ return midiWizardStart(); },
+    wizardNext(){ midiWizardNext(); return MIDIS.wizard ? MIDIS.wizard.step : -1; },
+    wizardFinish(){ return midiWizardFinish(); },
+    setSoft(v){ MIDIS.soft = !!v; if($('midiTakeChk')) $('midiTakeChk').checked = !!v; return MIDIS.soft; },
+    setLed(v){ MIDIS.led = !!v; if($('midiLedChk')) $('midiLedChk').checked = !!v; return MIDIS.led; },
+    setFourCh(v){ MIDIS.fourCh = !!v; if($('midi4chChk')) $('midi4chChk').checked = !!v; midiRebuild(); return MIDIS.fourCh; },
+    export(){ return midiExport(); },
+    import(text){ return midiImport(text); },
+    reset(){ MIDIS.overrides = {}; MIDIS.learned = {}; midiRebuild(); return true; }
+  },
+  smart:{ fader(on){ setSmartFader(on === undefined ? !S.smartFader : !!on, true); return this.state(); },
+          cfx(on){ setSmartCfx(on === undefined ? !S.smartCfx : !!on, true); return this.state(); },
+          state(){
+            const ds = (S.decks || []).map(d=>({lowDb: Math.round((d.smartLowDb||0)*10)/10, lowNode: d.smartLow ? Math.round(d.smartLow.gain.value*10)/10 : null, rate: d.ratePct, synced: !!d.synced}));
+            return {on: !!S.smartFader, cfx: !!S.smartCfx, decks: ds};
+          },
+          apply(){ smartFaderApply(); return this.state(); } },
+  fx:{ set(o){ setBeatFx(o || {}, true); return this.state(); },
+       state(){ return {on: S.beatFx.on, fx: S.beatFx.fx, target: S.beatFx.target, beat: S.beatFx.beat, depth: S.beatFx.depth}; },
+       chain(i){ const d = i === 'M' ? null : deckAt(i); const ch = i === 'M' ? S.masterFx : (d && d.fx);
+                 if(!ch) return null;
+                 return {name: ch.name, dry: Math.round(ch.dry.gain.value*1000)/1000, echo: Math.round(ch.eOut.gain.value*1000)/1000,
+                         reverb: Math.round(ch.rOut.gain.value*1000)/1000, flanger: Math.round(ch.fOut.gain.value*1000)/1000,
+                         phaser: Math.round(ch.pOut.gain.value*1000)/1000, filter: Math.round(ch.flt.gain.value*1000)/1000,
+                         lpf: Math.round(ch.lpf.frequency.value), hpf: Math.round(ch.hpf.frequency.value), gate: Math.round(ch.tDep.gain.value*1000)/1000}; } },
+  pads(n){ const i = n || 0; return {mode: S.padMode[i], count: (i ? $('padsB') : $('padsA')) ? (i ? $('padsB') : $('padsA')).childElementCount : 0}; },
+  padMode(i, m){ setPadMode(i, m, true); return S.padMode[i]; },
+  pad(i, k, down){ if(down === false) perfPadRelease(i, k); else perfPadPress(i, k); return true; },
+  jump(i, beats){ const d = deckAt(i); if(d) beatJump(d, beats); return true; },
+  jog(i, ticks){ return jogTurn(i, ticks); },
+  vinyl(i, on){ const d = deckAt(i); if(!d) return false; setVinyl(d, on === undefined ? d.vinyl === false : !!on, true); return d.vinyl; },
+  sync(i){ const d = deckAt(i); return d ? deckSync(d) : false; },
+  loopScale(i, f){ const d = deckAt(i); if(!d) return false; loopScale(d, f); return true; },
+  browse(i, src){ if(src && $('browseSrc')){ $('browseSrc').value = src; S.browse.idx = 0; } if(i) browseMove(i); browseRender(); const it = browseItems()[S.browse.idx]; return {idx:S.browse.idx, title: it ? it.title : null, src: browseSource()}; },
+  load(deckIdx){ return browseLoad(deckIdx); },
+  hotList(i){ const d = deckAt(i); return d ? Object.assign({}, d.hot) : null; },
+  bpm(i, v){ const d = deckAt(i); if(!d) return false; d.bpm.val = Number(v)||0; d.bpmEst = d.bpmEst || 0; renderDeck(d); return d.bpm.val; },
+  bypass(i, on){
+    const d = deckAt(i || 0); if(!d) return false;
+    try{
+      if(on){ d.flt.disconnect(d.fx.input); d.flt.connect(d.gain); d.flt.connect(d.cueTap); }
+      else { try{ d.flt.disconnect(d.gain); d.flt.disconnect(d.cueTap); }catch(e){} d.flt.connect(d.fx.input); }
+    }catch(e){ return false; }
+    return true;
+  },
+  graph(i, ms){
+    const d = deckAt(i || 0);
+    if(!d || !S.ctx) return Promise.resolve(null);
+    const peaks = {};
+    const nodes = {flt:d.flt, fxOut:d.fx.out, gain:d.gain, fader:d.fader, xfade:d.xfadeGain, an:d.an, bgm:S.bgmGain, master:S.masterGain, mixed:S.dbgMixed};
+    const jobs = Object.keys(nodes).map((k)=>{
+      const a = S.ctx.createAnalyser(); a.fftSize = 1024;
+      try{ nodes[k].connect(a); }catch(e){}
+      return peakOf(a, ms || 260).then((v)=>{ peaks[k] = Math.round(v*1000)/1000; });
+    });
+    return Promise.all(jobs).then(()=>({
+      peaks,
+      gains:{bgmGain:S.bgmGain.gain.value, master:S.masterGain.gain.value, deckGain:d.gain.gain.value, fader:d.fader.gain.value, xfade:d.xfadeGain.gain.value, trim:d.trim.gain.value, dry:d.fx.dry.gain.value, fxOut:d.fx.out.gain.value, trem:d.fx.trem.gain.value, masterDry:S.masterFx.dry.gain.value}
+    }));
+  },
+  samplerHits(){ return MIDIS.samplerHits || 0; }
+};
 
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
 else init();
