@@ -393,16 +393,14 @@
 /* =====================================================================
    ACCESS COUNTER
    ・数値の保存先: Google Apps Script（Google のサーバー上。同じサイトの一部なので確実に届く）
-   ・数え方は「1日1人」: 同じブラウザは当日もう数えない（F5連打・再読み込みでは絶対に増えない）
-     初回（当日はじめて）だけ mode=hit で +1、それ以外は mode=get で現在値の取得のみ
+   ・数え方は「1日1人」: 同じ端末は当日もう数えない（F5連打・再読み込みでは増えない）
+     判定はサーバー側（指紋＋日付）。Googleサイトの埋め込みは毎回オリジンが変わり
+     ローカル保存が残らないため、保存領域だけに頼らない
    ・通信は1回だけ。失敗しても hit を再送しないので、二重カウントは起きない
-   ・保存領域（localStorage / sessionStorage）が使えない環境では数えずに取得のみ（安全側）
    ===================================================================== */
 (function () {
   var ENDPOINT = "https://script.google.com/macros/s/AKfycbz8b-xPxPN_A2U70q9HvClWPNiMEcelD5kC5A6THXOKsgUqt4YXyzdcLMx3vcIKyX1A/exec";
-  var K_VID = "iia_vid";
   var K_DAY = "iia_day";
-  var K_SESS = "iia_sess";
   var K_CACHE = "iia_cnt";
   var MIN_DIGITS = 6;
 
@@ -533,25 +531,34 @@
     return "v" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
   }
 
-  /* 数えるかどうかを決める。決めた時点で「今日は数えた」を書き込むので、
-     通信が失敗して再試行しても二重には数えない。 */
+  /* 訪問者の指紋（Googleサイトの埋め込みは毎回オリジンが変わり保存領域が残らないため、
+     サーバー側で「指紋＋日付」で1日1回だけ数える） */
+  function fingerprint() {
+    var parts = [
+      navigator.userAgent || "",
+      screen.width + "x" + screen.height + "x" + screen.colorDepth,
+      (new Date()).getTimezoneOffset(),
+      navigator.language || "",
+      navigator.hardwareConcurrency || 0,
+      navigator.maxTouchPoints || 0
+    ];
+    var raw = parts.join("|");
+    var h1 = 0, h2 = 0;
+    for (var i = 0; i < raw.length; i++) {
+      var c = raw.charCodeAt(i);
+      h1 = (h1 * 31 + c) | 0;
+      h2 = (h2 * 131 + c) | 0;
+    }
+    return (h1 >>> 0).toString(36) + (h2 >>> 0).toString(36);
+  }
+
+  /* 数えるかどうか: 保存領域に「今日はもう見た」があれば取得のみ。
+     無ければ hit を送り、サーバーが同じ指紋の当日2回目以降を数えない。 */
   function plan() {
     var today = todayJST();
-    var vid = getS(LS, K_VID) || getS(SS, K_VID);
-    if (!vid) {
-      vid = makeVid();
-      setS(LS, K_VID, vid);
-      setS(SS, K_VID, vid);
-    }
-    var counted = false;
-    if (LS && vid) {
-      if (getS(LS, K_DAY) !== today) {
-        setS(LS, K_DAY, today);
-        counted = true;
-      }
-    }
-    setS(SS, K_SESS, "1");
-    return { mode: counted ? "hit" : "get", vid: vid, counted: counted };
+    var vid = fingerprint();
+    var seenToday = getS(LS, K_DAY) === today;
+    return { mode: seenToday ? "get" : "hit", vid: vid };
   }
 
   var lastValue = null;
@@ -626,7 +633,8 @@
 
     fetchCount(p.mode, p.vid, 9000, function (data) {
       if (data) {
-        landed(data.value, p.counted);
+        if (data.hit) setS(LS, K_DAY, todayJST());
+        landed(data.value, !!data.hit);
         return;
       }
       /* 失敗時は「取得のみ」を1回だけ。hit は絶対に再送しない */
