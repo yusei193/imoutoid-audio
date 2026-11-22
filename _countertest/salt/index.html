@@ -558,8 +558,8 @@
   function plan() {
     var today = todayJST();
     var vid = fingerprint();
-    var seenToday = getS(LS, K_DAY) === today;
-    return { mode: seenToday ? "get" : "hit", vid: vid };
+    /* 検証用: 保存領域の早道を使わず、毎回 hit を送る（サーバー判定だけを試す） */
+    return { mode: "hit", vid: vid };
   }
 
   var lastValue = null;
