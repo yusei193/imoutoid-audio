@@ -448,6 +448,23 @@
   @media (prefers-reduced-motion: reduce) {
     * { animation: none !important; transition: none !important; }
   }
+
+  /* ===== 埋め込み表示（Googleサイトの枠内など）===== */
+  html.embedded .wrap { padding: 8px 8px 18px; }
+  html.embedded .lead { display: none; }
+  html.embedded h1.logo { font-size: clamp(15px, 4.4vw, 24px); }
+  html.embedded .logo-sub { margin-top: 6px; font-size: 11px; }
+  html.embedded header.board-head { padding: 10px 10px 8px; }
+  html.embedded .kicker { display: none; }
+  html.embedded .statusbar { margin-top: 8px; }
+  html.embedded .panel { margin-top: 10px; }
+  html.embedded #postPanel { scroll-margin-top: 8px; }
+  .jump-form { display: none; }
+  html.embedded .jump-form { display: inline-block; }
+  @media (max-width: 560px) {
+    html.embedded .wrap { padding: 6px 6px 16px; }
+    html.embedded .panel-head { padding: 7px 8px; }
+  }
 </style>
 </head>
 <body>
@@ -467,7 +484,7 @@
     </div>
   </header>
 
-  <section class="panel" aria-labelledby="formTitle">
+  <section class="panel" id="postPanel" aria-labelledby="formTitle">
     <div class="panel-head">
       <h2 id="formTitle">POST</h2>
       <span class="meta">書き込みは即時反映されます</span>
@@ -511,10 +528,13 @@
     </form>
   </section>
 
-  <section class="panel" aria-labelledby="listTitle">
+  <section class="panel" id="listPanel" aria-labelledby="listTitle">
     <div class="panel-head">
       <h2 id="listTitle">LOG</h2>
-      <button type="button" class="ghost" id="reloadBtn">⟳ 最新を読み込む</button>
+      <span class="meta">
+        <button type="button" class="ghost jump-form" id="jumpFormBtn">✎ 書き込む</button>
+        <button type="button" class="ghost" id="reloadBtn">⟳ 最新を読み込む</button>
+      </span>
     </div>
     <div id="listArea">
       <div class="loading"><span class="spinner"></span>読み込み中...</div>
@@ -536,6 +556,18 @@
   var API_URL = 'https://script.google.com/macros/s/AKfycbxC6mYuKC2dDqZGSN7S26BDhxgpskaZYjmBH8JX7R8ZGCqkAJCZDNkNxbos9BwBPcay/exec';
   var PER_PAGE = 20;
   var MAX_BODY = 1000;
+
+  /* 埋め込み（iframe）判定: Googleサイトの枠内では読み物優先の並びにする */
+  var inEmbed = false;
+  try { inEmbed = window.self !== window.top; } catch (e) { inEmbed = true; }
+  if (inEmbed) {
+    document.documentElement.classList.add('embedded');
+    try {
+      var postPanel = document.getElementById('postPanel');
+      var listPanel = postPanel.parentNode.insertBefore(document.getElementById('listPanel'), postPanel);
+      listPanel.parentNode.insertBefore(postPanel, listPanel.nextSibling);
+    } catch (e) { /* 並び替えに失敗しても表示は続ける */ }
+  }
 
   var state = {
     page: 1,
@@ -1004,6 +1036,16 @@
 
   el.body.addEventListener('input', updateCount);
   el.reload.addEventListener('click', function () { load(1, false); });
+  var jumpBtn = document.getElementById('jumpFormBtn');
+  if (jumpBtn) {
+    jumpBtn.addEventListener('click', function () {
+      var panel = document.getElementById('postPanel');
+      if (panel) {
+        try { panel.scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (e) { panel.scrollIntoView(true); }
+        try { el.body.focus({ preventScroll: true }); } catch (e) {}
+      }
+    });
+  }
 
   el.listArea.addEventListener('click', function (ev) {
     var t = ev.target;
