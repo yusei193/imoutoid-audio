@@ -788,7 +788,24 @@ select:disabled{opacity:.5}
 .fx-depth output{font-family:var(--mono);font-size:9px;color:var(--dim);flex:0 0 30px;text-align:right}
 .browse-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:5px;min-width:0}
 .browse-now{flex:1 1 120px;min-width:0;font-size:11px;color:var(--txt);border:1px solid var(--line);border-radius:7px;padding:3px 7px;background:rgba(0,0,0,.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.browse-src{width:auto;min-width:0;padding:3px 20px 3px 6px;font-size:10px;border-radius:7px;background-color:rgba(0,0,0,.45)}
+.browse-src{width:auto;min-width:0;max-width:100%;padding:3px 20px 3px 6px;font-size:10px;border-radius:7px;background-color:rgba(0,0,0,.45)}
+/* --- 📁 PC音源ライブラリ（フォルダ／複数ファイル／ドラッグ＆ドロップ） --- */
+.browse-search{flex:1 1 128px;min-width:0;width:auto;appearance:none;-webkit-appearance:none;
+  background:rgba(0,0,0,.45);border:1px solid var(--line);border-radius:7px;padding:3px 8px;
+  color:var(--txt);font-size:10.5px;outline:none;transition:border-color .15s,box-shadow .15s}
+.browse-search::-webkit-search-cancel-button,.browse-search::-webkit-search-decoration{-webkit-appearance:none;appearance:none;display:none}
+.browse-search::placeholder{color:var(--dim2)}
+.browse-search:focus{border-color:rgba(242,180,100,.65);box-shadow:0 0 0 3px rgba(242,180,100,.10)}
+.pcload{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:5px;min-width:0}
+.pcload .dk-mini{font-size:8.5px;padding:3px 6px}
+.pcload .dk-mini[hidden]{display:none}
+.pc-count{font-family:var(--mono);font-size:9px;color:var(--dim2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:100%}
+.pcdrop{margin-top:5px;border:1px dashed rgba(242,180,100,.38);border-radius:8px;padding:6px 8px;
+  font-size:9.5px;line-height:1.5;color:var(--dim2);text-align:center;background:rgba(242,180,100,.05);
+  transition:background .15s,border-color .15s,color .15s;min-width:0;overflow:hidden;word-break:break-word;cursor:pointer}
+.pcdrop b{color:#ffe6bd;font-weight:600}
+@media (hover:hover){.pcdrop:hover{border-color:rgba(242,180,100,.6);background:rgba(242,180,100,.1)}}
+.pcdrop.hot{border-color:var(--amber);border-style:solid;background:rgba(242,180,100,.18);color:#ffe6bd}
 #playlist li.sel{border-color:rgba(242,180,100,.65);background:rgba(242,180,100,.12);color:#ffe6bd}
 .smartbtns{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
 .smartbtns .dk-mini{font-size:8px;padding:2px 6px}
@@ -1252,12 +1269,26 @@ select:disabled{opacity:.5}
             <span class="browse-now" id="browseNow">—</span>
             <button class="dk-mini" id="browseLoadA" type="button">LOAD A</button>
             <button class="dk-mini" id="browseLoadB" type="button">LOAD B</button>
-            <select id="browseSrc" class="browse-src" aria-label="選曲リスト">
-              <option value="auto">自動（プレイリスト優先）</option>
-              <option value="playlist">プレイリスト</option>
-              <option value="archive">アーカイブ146曲</option>
-            </select>
           </div>
+          <div class="browse-row">
+            <select id="browseSrc" class="browse-src" aria-label="選曲リスト">
+              <option value="auto">自動（おすすめ）</option>
+              <option value="all">すべて</option>
+              <option value="pc">PC音源</option>
+              <option value="archive">アーカイブ146曲</option>
+              <option value="playlist">プレイリスト</option>
+            </select>
+            <input id="browseSearch" class="browse-search" type="search" autocomplete="off" spellcheck="false" placeholder="🔍 曲名で絞り込み" aria-label="曲名で絞り込み">
+          </div>
+          <div class="pcload">
+            <button class="dk-mini" id="pcFolderBtn" type="button" title="PCの音楽フォルダをサブフォルダごと一気に読み込む">📁 PCフォルダを読み込む</button>
+            <button class="dk-mini" id="pcFilesBtn" type="button" title="音声ファイルをまとめて追加">📄 複数ファイル追加</button>
+            <button class="dk-mini" id="pcReopenBtn" type="button" hidden title="前回のフォルダを再読み込み">🔄 前回のフォルダを再読込</button>
+            <span class="pc-count" id="pcCount" aria-live="polite"></span>
+          </div>
+          <div class="pcdrop" id="pcDrop" role="button" tabindex="0" title="クリックでもフォルダを選べます">PCの音源<b>ファイル／フォルダをドラッグ＆ドロップ</b>（.mp3 .wav .flac .m4a .aac .ogg .opus .webm）</div>
+          <input type="file" id="pcDirInput" webkitdirectory directory multiple hidden>
+          <input type="file" id="pcFileInput" accept="audio/*,.mp3,.wav,.flac,.m4a,.aac,.ogg,.opus,.webm" multiple hidden>
         </div>
         <p class="hint" style="margin:6px 0 0">各デッキは独立して再生できます。🎧 はヘッドホンCUE（PFL）：チャンネルフェーダーを下げても、この端末のモニター出力だけで音を確認できます（リスナーには送りません）。波形はクリック／ドラッグでシーク。LOOP は IN→OUT か 2s/4s/8s、EXIT で解除。CUE は長押しで現在位置にCUE点を更新します。</p>
       </div>
@@ -2848,7 +2879,7 @@ function updateNowUi(){
   const item = d && d.item;
   const playing = !!(d && item && !d.el.paused);
   if(item){
-    const k = item.kind === 'cue' ? 'キューシート' : 'BGMデッキ';
+    const k = item.kind === 'cue' ? 'キューシート' : (item.kind === 'pc' ? 'PC音源（ローカル）' : 'BGMデッキ');
     el.bgmNow.textContent = item.title;
     el.bgmSub.textContent = k + (playing ? ' / 再生中' : ' / 停止中');
   } else if(S.playlist[S.index]){
@@ -3022,8 +3053,7 @@ function startItem(item, opts){
     renderCues();
   } else {
     S.cue.playingId = null;
-    S.index = item.index;
-    renderPlaylist();
+    if(typeof item.index === 'number'){ S.index = item.index; renderPlaylist(); }   // PC音源（ローカル）は playlist の index を持たない
   }
   notifyNow();
   updateNowUi();
@@ -3155,6 +3185,7 @@ function onDeckEnded(d){
     }
     updateNowUi();
   }
+  if(item.kind === 'pc'){ updateNowUi(); }   // PC音源は自動連続せず、停止して頭に戻る（アーカイブと同じ振る舞い）
 }
 
 function onDuck(on){
@@ -3857,7 +3888,7 @@ function renderDeck(d){
   } else {
     u.title.textContent = d.item.title || '（無題）';
     u.title.title = d.item.title || '';
-    u.kind.textContent = d.item.kind === 'cue' ? 'CUE' : (d.item.kind === 'playlist' ? 'BGM' : 'AUDIO');
+    u.kind.textContent = d.item.kind === 'cue' ? 'CUE' : (d.item.kind === 'playlist' ? 'BGM' : (d.item.kind === 'pc' ? 'PC' : 'AUDIO'));
   }
   if(u.playBtn){
     u.playBtn.textContent = on ? '❚❚' : '▶';
@@ -4057,7 +4088,7 @@ function renderSetlist(){
       const t = document.createElement('span'); t.className = 't'; t.textContent = setHm(x.t);
       const n = document.createElement('span'); n.className = 'n'; n.textContent = x.title;
       const k = document.createElement('span'); k.className = 'k';
-      k.textContent = (x.kind === 'cue') ? 'CUE' : (x.kind === 'tab') ? 'TAB' : (x.kind === 'live') ? 'LIVE' : 'BGM';
+      k.textContent = (x.kind === 'cue') ? 'CUE' : (x.kind === 'tab') ? 'TAB' : (x.kind === 'live') ? 'LIVE' : (x.kind === 'pc') ? 'PC' : 'BGM';
       li.appendChild(t); li.appendChild(n); li.appendChild(k);
       el.setList.appendChild(li);
     });
@@ -6691,36 +6722,366 @@ function jogTurn(i, ticks){
   return true;
 }
 
-/* ---------- BROWSE（選曲） ---------- */
+/* ---------- 📁 PC音源ライブラリ（フォルダ丸ごと／複数ファイル／ドラッグ＆ドロップ） ----------
+   ねらい：PC内の音楽フォルダを丸ごと読み込み、imoutoidアーカイブ146曲以外の曲も
+          BROWSE / LOAD（DDJの選曲ノブ・LOAD A/B）からそのまま選曲できるようにする。
+   方式  ：File はその場で blob: URL にして <audio> と decodeAudioData に渡す。HTTPを挟まないので、
+          波形描画・3バンドEQ・HOT CUE・LOOP・PITCH・BEAT FX・Smart Fader・録音・セットリストは既存経路のまま動く。
+   保存  ：showDirectoryPicker の FileSystemDirectoryHandle を IndexedDB に保存し、
+          「🔄 前回のフォルダを再読込」でブラウザの再許可1クリックから再走査できる（非対応環境は webkitdirectory で代替）。 */
+const PC_AUDIO_EXT = /\.(mp3|wav|flac|m4a|aac|ogg|opus|webm|aif|aiff|wma)$/i;
+const PC_MAX_FILES = 5000;
+const PC_MAX_DEPTH = 12;
+const PC_IDB_NAME = 'netradio-pc-lib-v1';
+const PC_IDB_STORE = 'handles';
+const PC_IDB_KEY = 'lastDir';
+const PC_DIRNAME_KEY = 'netradio.pcDirName.v1';
+const PC = {tracks:[], keys:new Set(), busy:false, dirName:'', handle:null, capped:false};
+
+function pcAudioFile(f){
+  if(!f) return false;
+  return /^audio\//i.test(String(f.type || '')) || PC_AUDIO_EXT.test(String(f.name || ''));
+}
+function pcSkipName(n){
+  const s = String(n || '');
+  return !s || s.charAt(0) === '.' || s === 'Thumbs.db' || s === 'desktop.ini' || s === '@eaDir';
+}
+function pcTitleOf(n){ return String(n || '').replace(/\.[^.]+$/, ''); }
+function pcFileKey(f, path){ return [String(path || f.name || ''), Number(f.size) || 0, Number(f.lastModified) || 0].join('|'); }
+function pcCapped(){
+  if(PC.tracks.length < PC_MAX_FILES) return false;
+  if(!PC.capped){ PC.capped = true; toast('PC音源は ' + PC_MAX_FILES + '曲までです（上限に達しました）','warn'); }
+  return true;
+}
+function pcAddOne(f, path){
+  if(!pcAudioFile(f) || pcSkipName(f.name)) return false;
+  const p = String(path || f.webkitRelativePath || f.name || '');
+  const k = pcFileKey(f, p);
+  if(PC.keys.has(k)) return false;
+  if(pcCapped()) return false;
+  PC.tracks.push({title:pcTitleOf(f.name), name:String(f.name || ''), path:p, url:URL.createObjectURL(f),
+                  size:Number(f.size) || 0, file:f});
+  PC.keys.add(k);
+  return true;
+}
+function pcAddList(fileList, base){
+  let n = 0;
+  Array.prototype.forEach.call(fileList || [], (f)=>{
+    if(!f) return;
+    const rel = f.webkitRelativePath ? String(f.webkitRelativePath) : String(f.name || '');
+    const path = base ? (String(base).replace(/\/+$/, '') + '/' + rel) : rel;
+    if(pcAddOne(f, path)) n++;
+  });
+  return n;
+}
+function pcSortTracks(){
+  PC.tracks.sort((a, b)=>String(a.path || a.title).localeCompare(String(b.path || b.title), 'ja', {numeric:true, sensitivity:'base'}));
+}
+function pcProgress(txt){ const c = $('pcCount'); if(c) c.textContent = String(txt || ''); }
+function pcSaveDirName(){ try{ if(PC.dirName) localStorage.setItem(PC_DIRNAME_KEY, PC.dirName); }catch(e){} }
+function pcUi(){
+  const c = $('pcCount');
+  if(c){
+    c.textContent = PC.tracks.length ? ('📁 ' + (PC.dirName || 'PC音源') + ' ' + PC.tracks.length + '曲') : '';
+    c.title = PC.tracks.length ? ('PC音源ライブラリ：' + PC.tracks.length + '曲' +
+              (PC.tracks.length >= PC_MAX_FILES ? '（上限）' : '') + '\nBROWSEのフィルタと曲名検索で選曲できます') : '';
+  }
+  const b = $('pcReopenBtn');
+  if(b){
+    b.hidden = !(PC.handle || PC.dirName);
+    b.title = PC.dirName ? ('前回のフォルダ「' + PC.dirName + '」を再読込（ブラウザの確認1クリック）') : '前回のフォルダを再読込';
+  }
+}
+function pcAfterChange(added, verb){
+  pcSortTracks();
+  pcUi();
+  S.browse.idx = 0;
+  browseRender();
+  if(added) toast(added + '曲を' + (verb || '読み込みました') + '（PC音源 計' + PC.tracks.length + '曲）','ok');
+  else toast('新しい音源はありませんでした（PC音源 計' + PC.tracks.length + '曲）','warn');
+}
+/* --- IndexedDB：フォルダハンドルの保存 --- */
+function pcDbOpen(){
+  return new Promise((res, rej)=>{
+    let req = null;
+    try{ req = indexedDB.open(PC_IDB_NAME, 1); }catch(e){ return rej(e); }
+    req.onupgradeneeded = ()=>{ try{ if(!req.result.objectStoreNames.contains(PC_IDB_STORE)) req.result.createObjectStore(PC_IDB_STORE); }catch(e){} };
+    req.onsuccess = ()=>res(req.result);
+    req.onerror = ()=>rej(req.error || new Error('indexedDB'));
+  });
+}
+function pcHandleSave(h){
+  return pcDbOpen().then((db)=>new Promise((res, rej)=>{
+    const tx = db.transaction(PC_IDB_STORE, 'readwrite');
+    tx.objectStore(PC_IDB_STORE).put(h, PC_IDB_KEY);
+    tx.oncomplete = ()=>{ try{ db.close(); }catch(e){} res(true); };
+    tx.onerror = ()=>{ try{ db.close(); }catch(e){} rej(tx.error || new Error('put')); };
+  })).catch(()=>false);
+}
+function pcHandleLoad(){
+  return pcDbOpen().then((db)=>new Promise((res, rej)=>{
+    const r = db.transaction(PC_IDB_STORE, 'readonly').objectStore(PC_IDB_STORE).get(PC_IDB_KEY);
+    r.onsuccess = ()=>{ try{ db.close(); }catch(e){} res(r.result || null); };
+    r.onerror = ()=>{ try{ db.close(); }catch(e){} rej(r.error || new Error('get')); };
+  })).catch(()=>null);
+}
+async function pcHandleAllowed(h){
+  if(!h) return false;
+  if(typeof h.queryPermission !== 'function') return true;   // 権限APIが無い環境ではそのまま試す
+  try{
+    if((await h.queryPermission({mode:'read'})) === 'granted') return true;
+    if(typeof h.requestPermission !== 'function') return false;
+    return (await h.requestPermission({mode:'read'})) === 'granted';
+  }catch(e){ return false; }
+}
+/* --- File System Access API：フォルダを再帰走査 --- */
+async function pcScanDirHandle(dir, base, depth, ctx){
+  if(!dir || depth > PC_MAX_DEPTH || ctx.stop) return;
+  if(typeof dir.values !== 'function') return;
+  const list = [];
+  try{ for await (const e of dir.values()) list.push(e); }catch(e){ return; }
+  list.sort((a, b)=>String((a && a.name) || '').localeCompare(String((b && b.name) || ''), 'ja', {numeric:true, sensitivity:'base'}));
+  for(const e of list){
+    if(ctx.stop) return;
+    if(!e || pcSkipName(e.name)) continue;
+    const p = base ? (base + '/' + e.name) : String(e.name);
+    if(e.kind === 'directory' || e.isDirectory){ await pcScanDirHandle(e, p, depth + 1, ctx); continue; }
+    if(!(e.kind === 'file' || e.isFile)) continue;
+    if(pcCapped()){ ctx.stop = true; return; }
+    ctx.seen++;
+    let f = null;
+    try{ f = await e.getFile(); }catch(err){ f = null; }
+    if(f && pcAddOne(f, p)) ctx.added++;
+    if((ctx.seen % 32) === 0) pcProgress('読み込み中… ' + ctx.added + '曲 / ' + ctx.seen + '件走査');
+  }
+}
+async function pcLoadFromHandle(h){
+  if(PC.busy){ toast('いま読み込み中です','warn'); return 0; }
+  PC.busy = true;
+  pcProgress('読み込み中… フォルダを走査しています');
+  const ctx = {added:0, seen:0, stop:false};
+  try{
+    await pcScanDirHandle(h, '', 0, ctx);
+    PC.handle = h;
+    if(h && h.name) PC.dirName = String(h.name);
+    pcSaveDirName();
+    await pcHandleSave(h);
+  }catch(e){
+    toast('フォルダを読み込めませんでした：' + (e && e.message ? e.message : '不明なエラー'),'err');
+  }finally{
+    PC.busy = false;
+  }
+  pcAfterChange(ctx.added, '読み込みました');
+  return ctx.added;
+}
+async function pcPickFolder(){
+  if(PC.busy){ toast('いま読み込み中です','warn'); return; }
+  let h = null;
+  if(typeof window.showDirectoryPicker === 'function'){
+    try{
+      h = await window.showDirectoryPicker({id:'netradio-pc-music', mode:'read', startIn:'music'});
+    }catch(e){
+      if(e && e.name === 'AbortError') return;      // ユーザーがキャンセル
+      h = null;                                      // 非対応・許可なし → webkitdirectory へフォールバック
+    }
+  }
+  if(h && typeof h.values === 'function'){ await pcLoadFromHandle(h); return; }
+  const inp = $('pcDirInput');
+  if(inp){ try{ inp.value = ''; }catch(e){} inp.click(); return; }
+  toast('このブラウザはフォルダ選択に対応していません。「📄 複数ファイル追加」かドラッグ＆ドロップを使ってください','warn');
+}
+async function pcReopenFolder(){
+  if(PC.busy){ toast('いま読み込み中です','warn'); return; }
+  let h = PC.handle;
+  if(!h) h = await pcHandleLoad();
+  if(!h){ await pcPickFolder(); return; }               // 保存が無ければ通常のフォルダ選択
+  if(!(await pcHandleAllowed(h))){
+    toast('前回のフォルダへのアクセスが許可されませんでした。フォルダを選び直してください','warn');
+    await pcPickFolder();
+    return;
+  }
+  await pcLoadFromHandle(h);
+}
+/* --- ドラッグ＆ドロップ（フォルダも可：webkitGetAsEntry で再帰） --- */
+function pcReadDirEntries(reader){
+  return new Promise((res)=>{
+    const out = [];
+    const step = ()=>{
+      try{
+        reader.readEntries((batch)=>{
+          if(!batch || !batch.length) return res(out);
+          for(let i=0;i<batch.length;i++) out.push(batch[i]);
+          step();
+        }, ()=>res(out));
+      }catch(e){ res(out); }
+    };
+    step();
+  });
+}
+async function pcScanEntry(entry, base, depth, ctx){
+  if(!entry || ctx.stop || depth > PC_MAX_DEPTH) return;
+  if(pcSkipName(entry.name)) return;
+  const p = base ? (base + '/' + entry.name) : String(entry.name);
+  if(entry.isDirectory){
+    const list = await pcReadDirEntries(entry.createReader());
+    list.sort((a, b)=>String((a && a.name) || '').localeCompare(String((b && b.name) || ''), 'ja', {numeric:true, sensitivity:'base'}));
+    for(const ch of list) await pcScanEntry(ch, p, depth + 1, ctx);
+    return;
+  }
+  if(!entry.isFile) return;
+  if(pcCapped()){ ctx.stop = true; return; }
+  const f = await new Promise((res)=>{ try{ entry.file((x)=>res(x), ()=>res(null)); }catch(e){ res(null); } });
+  ctx.seen++;
+  if(f && pcAddOne(f, p)) ctx.added++;
+}
+async function pcDropFiles(dt){
+  if(PC.busy){ toast('いま読み込み中です','warn'); return; }
+  PC.busy = true;
+  pcProgress('読み込み中… ドロップした音源を読み込んでいます');
+  const ctx = {added:0, seen:0, stop:false};
+  try{
+    const entries = [];
+    if(dt && dt.items){
+      for(let i=0;i<dt.items.length;i++){
+        const it = dt.items[i];
+        if(!it || it.kind !== 'file' || typeof it.webkitGetAsEntry !== 'function') continue;
+        let en = null;
+        try{ en = it.webkitGetAsEntry(); }catch(e){ en = null; }
+        if(en) entries.push(en);
+      }
+    }
+    if(entries.length){
+      for(const en of entries) await pcScanEntry(en, '', 0, ctx);
+    } else {
+      ctx.added = pcAddList((dt && dt.files) ? dt.files : [], '');
+      ctx.seen = ctx.added;
+    }
+  }catch(e){
+    toast('ドロップしたファイルを読めませんでした：' + (e && e.message ? e.message : '不明'),'err');
+  }finally{
+    PC.busy = false;
+  }
+  pcAfterChange(ctx.added, '追加しました');
+}
+function pcInit(){
+  const area = $('pcDrop');
+  if(area){
+    const stopEv = (ev)=>{ ev.preventDefault(); ev.stopPropagation(); };
+    area.addEventListener('dragenter', (ev)=>{ stopEv(ev); area.classList.add('hot'); });
+    area.addEventListener('dragover', (ev)=>{ stopEv(ev); if(ev.dataTransfer) try{ ev.dataTransfer.dropEffect = 'copy'; }catch(e){} area.classList.add('hot'); });
+    area.addEventListener('dragleave', (ev)=>{ stopEv(ev); if(ev.target === area) area.classList.remove('hot'); });
+    area.addEventListener('drop', (ev)=>{ stopEv(ev); area.classList.remove('hot'); pcDropFiles(ev.dataTransfer); });
+    area.addEventListener('click', ()=>pcPickFolder());
+    area.addEventListener('keydown', (ev)=>{ if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); pcPickFolder(); } });
+  }
+  // 画面の外に落としたときにブラウザが音源ファイルへ遷移するのを防ぐ（領域内の処理は上の drop が止める）
+  const blockNav = (ev)=>{ if(ev.dataTransfer && String(ev.dataTransfer.types || '').indexOf('Files') >= 0) ev.preventDefault(); };
+  window.addEventListener('dragover', blockNav);
+  window.addEventListener('drop', blockNav);
+  if($('pcFolderBtn')) $('pcFolderBtn').addEventListener('click', ()=>pcPickFolder());
+  if($('pcFilesBtn')) $('pcFilesBtn').addEventListener('click', ()=>{ const i = $('pcFileInput'); if(i){ try{ i.value = ''; }catch(e){} i.click(); } });
+  if($('pcReopenBtn')) $('pcReopenBtn').addEventListener('click', ()=>pcReopenFolder());
+  if($('pcFileInput')) $('pcFileInput').addEventListener('change', (ev)=>{
+    const n = pcAddList(ev.target.files, '');
+    pcAfterChange(n, '追加しました');
+    try{ ev.target.value = ''; }catch(e){}
+  });
+  if($('pcDirInput')) $('pcDirInput').addEventListener('change', (ev)=>{
+    const files = ev.target.files;
+    if(!files || !files.length) return;
+    const rel = String(files[0].webkitRelativePath || '');
+    if(rel) PC.dirName = rel.split('/')[0];
+    const n = pcAddList(files, '');
+    PC.handle = null;
+    pcSaveDirName();
+    pcAfterChange(n, '読み込みました');
+    try{ ev.target.value = ''; }catch(e){}
+  });
+  if($('browseSearch')) $('browseSearch').addEventListener('input', ()=>{ S.browse.idx = 0; browseRender(); });
+  try{ PC.dirName = String(localStorage.getItem(PC_DIRNAME_KEY) || ''); }catch(e){}
+  pcUi();
+  // 前回のハンドルが残っていれば 🔄 を出す（実際の読み込みはユーザーの1クリックから）
+  pcHandleLoad().then((h)=>{ if(h){ PC.handle = h; if(!PC.dirName && h.name) PC.dirName = String(h.name); pcUi(); } });
+}
+
+/* ---------- BROWSE（選曲：PC音源・アーカイブ・プレイリスト・横断検索） ---------- */
+const BROWSE_SRC_LABEL = {all:'すべて', pc:'PC音源', archive:'アーカイブ', playlist:'プレイリスト'};
 function browseSource(){
   const sel = $('browseSrc');
-  const v = sel ? sel.value : 'auto';
-  if(v === 'archive') return 'archive';
-  if(v === 'playlist') return 'playlist';
-  return (S.playlist && S.playlist.length) ? 'playlist' : 'archive';
+  const v = sel ? String(sel.value || '') : 'auto';
+  if(v === 'all' || v === 'pc' || v === 'archive' || v === 'playlist') return v;
+  if(S.playlist && S.playlist.length) return 'playlist';
+  if(PC.tracks.length) return 'pc';
+  return 'archive';
+}
+function browseQuery(){
+  const inp = $('browseSearch');
+  if(!inp) return '';
+  return String(inp.value || '').trim().toLowerCase();
+}
+function browseHit(title, sub, q){
+  if(!q) return true;
+  const s = (String(title || '') + ' ' + String(sub || '')).toLowerCase();
+  return q.split(/\s+/).filter((t)=>!!t).every((t)=>s.indexOf(t) >= 0);
 }
 function browseItems(){
   const src = browseSource();
-  if(src === 'playlist'){
-    return S.playlist.map((it, i)=>({title: it.name || ('BGM ' + (i+1)), kind:'playlist', index:i}));
-  }
-  return ARCHIVE.map((a, i)=>({title: a.t, kind:'archive', index:i}));
+  const q = browseQuery();
+  const out = [];
+  const pushPc = (tag)=>{
+    for(let i=0;i<PC.tracks.length;i++){
+      const t = PC.tracks[i];
+      if(!browseHit(t.title, t.path, q)) continue;
+      out.push({title:t.title, sub:t.path, kind:'pc', index:i, tag:tag || ''});
+    }
+  };
+  const pushArchive = (tag)=>{
+    for(let i=0;i<ARCHIVE.length;i++){
+      const a = ARCHIVE[i];
+      if(!browseHit(a.t, '', q)) continue;
+      out.push({title:a.t, kind:'archive', index:i, tag:tag || ''});
+    }
+  };
+  const pushPlaylist = (tag)=>{
+    if(!S.playlist) return;
+    for(let i=0;i<S.playlist.length;i++){
+      const nm = S.playlist[i].name || ('BGM ' + (i + 1));
+      if(!browseHit(nm, '', q)) continue;
+      out.push({title:nm, kind:'playlist', index:i, tag:tag || ''});
+    }
+  };
+  if(src === 'pc') pushPc('');
+  else if(src === 'archive') pushArchive('');
+  else if(src === 'playlist') pushPlaylist('');
+  else { pushPc('PC'); pushArchive('ARC'); pushPlaylist('PL'); }
+  return out;
 }
 function browseRender(){
   const list = browseItems();
+  const src = browseSource();
   if(S.browse.idx >= list.length) S.browse.idx = 0;
   if(S.browse.idx < 0) S.browse.idx = Math.max(0, list.length - 1);
   const it = list[S.browse.idx];
+  const q = browseQuery();
   const now = $('browseNow');
-  if(now) now.textContent = it ? ((S.browse.idx + 1) + ' / ' + list.length + '  ' + it.title) : '曲がありません';
+  if(now) now.textContent = it
+    ? ((S.browse.idx + 1) + ' / ' + list.length + '  ' + (it.tag ? '[' + it.tag + '] ' : '') + it.title)
+    : (q ? ('「' + q + '」に一致する曲がありません') : '曲がありません');
   const cnt = $('browseCount');
-  if(cnt) cnt.textContent = (browseSource() === 'archive' ? 'アーカイブ' : 'プレイリスト') + ' ' + list.length + '曲';
-  if(browseSource() === 'playlist' && el.playlist){
-    Array.prototype.forEach.call(el.playlist.children, (li, i)=>{
-      li.classList.toggle('sel', i === S.browse.idx);
-    });
-    const sel = el.playlist.children[S.browse.idx];
-    if(sel && sel.scrollIntoView) try{ sel.scrollIntoView({block:'nearest'}); }catch(e){}
+  if(cnt){
+    let t = (BROWSE_SRC_LABEL[src] || '') + ' ' + list.length + '曲';
+    if(q) t += '（検索中）';
+    if(src !== 'pc' && PC.tracks.length) t += ' ・ PC ' + PC.tracks.length;
+    cnt.textContent = t;
+  }
+  if(el.playlist){
+    const cur = list[S.browse.idx];
+    const curPl = (cur && cur.kind === 'playlist') ? cur.index : -1;
+    Array.prototype.forEach.call(el.playlist.children, (li, i)=>{ li.classList.toggle('sel', i === curPl); });
+    if(curPl >= 0){
+      const sel = el.playlist.children[curPl];
+      if(sel && sel.scrollIntoView) try{ sel.scrollIntoView({block:'nearest'}); }catch(e){}
+    }
   }
 }
 function browseMove(delta){
@@ -6732,13 +7093,17 @@ function browseMove(delta){
 function browseLoad(deckIdx){
   const list = browseItems();
   const it = list[S.browse.idx];
-  if(!it){ toast('選曲できる曲がありません','warn'); return false; }
+  if(!it){ toast(browseQuery() ? '検索に一致する曲がありません' : '選曲できる曲がありません','warn'); return false; }
   if(!S.ctx){ toast('先に「配信開始」を押してください','warn'); return false; }
   const d = deckAt(deckIdx);
   if(!d) return false;
   let ok = false;
   if(it.kind === 'playlist'){
     ok = loadPlaylistToDeck(it.index, deckIdx, true);
+  } else if(it.kind === 'pc'){
+    const t = PC.tracks[it.index];
+    if(!t){ toast('PC音源が見つかりません（読み込み直してください）','err'); return false; }
+    ok = loadItemToDeck(d, {kind:'pc', cueId:'pc-' + Date.now() + '-' + it.index, url:t.url, title:t.title, path:t.path}, true);
   } else {
     const a = ARCHIVE[it.index];
     ok = loadItemToDeck(d, {kind:'cue', cueId:'br-' + Date.now(), url:a.u, title:a.t}, true);
@@ -7717,6 +8082,7 @@ function ddjUiBoot(){
   if($('browseLoadA')) $('browseLoadA').addEventListener('click', ()=>browseLoad(0));
   if($('browseLoadB')) $('browseLoadB').addEventListener('click', ()=>browseLoad(1));
   if($('browseSrc')) $('browseSrc').addEventListener('change', ()=>{ S.browse.idx = 0; browseRender(); });
+  pcInit();
   browseRender();
 
   // パッド（イベント委譲：押している間のPAD FXに対応）
@@ -8322,6 +8688,26 @@ window.__nrDebug = {
         return n;
       }catch(e){ return -1; }
     }
+  },
+  /* 📁 PC音源ライブラリ（テスト用） */
+  pc:{
+    count(){ return PC.tracks.length; },
+    list(){ return PC.tracks.map((t)=>({title:t.title, path:t.path, size:t.size, blob:/^blob:/i.test(String(t.url))})); },
+    dirName(){ return PC.dirName; },
+    handleLoaded(){ return !!PC.handle; },
+    handleStored(){ return pcHandleLoad().then((h)=>!!h); },
+    storeHandle(h){ PC.handle = h || null; if(h && h.name) PC.dirName = String(h.name); pcSaveDirName(); return pcHandleSave(h); },
+    scanHandle(h){ return pcLoadFromHandle(h || PC.handle); },
+    reopen(){ return pcReopenFolder(); },
+    pick(){ return pcPickFolder(); },
+    addFiles(files){ const n = pcAddList(files, ''); pcAfterChange(n, '追加しました'); return n; },
+    dropFiles(files){ const dt = new DataTransfer(); Array.prototype.forEach.call(files || [], (f)=>{ try{ dt.items.add(f); }catch(e){} }); return pcDropFiles(dt); },
+    browseList(){ return browseItems().map((x)=>({title:x.title, kind:x.kind, index:x.index, tag:x.tag || ''})); },
+    source(){ return browseSource(); },
+    query(){ return browseQuery(); },
+    search(v){ const i = $('browseSearch'); if(i) i.value = String(v == null ? '' : v); S.browse.idx = 0; browseRender(); return browseQuery(); },
+    now(){ return $('browseNow') ? $('browseNow').textContent : ''; },
+    clear(){ PC.tracks.length = 0; PC.keys.clear(); PC.capped = false; pcUi(); browseRender(); return true; }
   },
   cue:{
     add:(type,data)=>cueAdd(type,data),
