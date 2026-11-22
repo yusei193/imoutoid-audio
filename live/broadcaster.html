@@ -3333,12 +3333,21 @@ function playDeck(d){
     setAdd(d.item.title, d.item.kind);
     d.lastLogged = d.item;
   }
-  // クロスフェーダーが反対側に寄っていると無音になるので、このデッキ側へ寄せる
+  // クロスフェーダーが反対側に寄っていると無音になる。
+  //  ・他に鳴っているデッキが無い → このデッキ側へ寄せる（出すものを壊さない）
+  //  ・他が鳴っている（オンエア中）→ 勝手に動かさない（勝手にオンエアさせない）。案内だけ出す
   const g = xfadeGains();
   const mine = d.index === 0 ? g.a : g.b;
-  if(mine < 0.02 && !S.xfTimer){
-    xfadeTo(d.index === 0 ? 0 : 100, 0.45);
-    toast('クロスフェーダーを DECK ' + deckName(d.index) + ' 側へ移動しました','');
+  if(mine < 0.02 && !S.xfTimer && !S.xfading){
+    const other = S.decks[1 - d.index];
+    const otherLive = !!(other && other.item && !other.el.paused);
+    if(!otherLive){
+      xfadeTo(d.index === 0 ? 0 : 100, 0.4);
+      toast('クロスフェーダーを DECK ' + deckName(d.index) + ' 側へ移動しました','');
+    } else {
+      toast('⚠ クロスフェーダーは DECK ' + deckName(1 - d.index) + ' 側です。DECK ' + deckName(d.index) + ' を出すにはフェーダーを ' +
+            (d.index === 0 ? '左' : '右') + ' へ（🎧 ヘッドホンCUEで先に確認できます）','warn');
+    }
   }
   d.drawDirty = true;
   renderDeck(d);
