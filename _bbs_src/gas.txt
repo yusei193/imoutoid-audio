@@ -1,0 +1,256 @@
+/**
+ * imoutoid BBS — backend (Google Apps Script)
+ *
+ * スプレッドシート「imoutoid-bbs-data」/ シート「BBS」に投稿を保存する。
+ * 列: A id / B timestamp / C name / D trip / E tag / F title / G body
+ *     H status / I reply_to / J uid
+ *
+ * 公開: ウェブアプリ（実行: 自分 / アクセス: 全員）
+ *  - GET  ?action=list&page=1            -> JSON（callback 付きなら JSONP）
+ *  - POST text/plain の JSON {action:"post", ...}
+ *
+ * 管理: シートの H 列を visible -> hidden に変える（または行削除）だけで非表示。
+ */
+var SHEET_NAME = 'BBS';
+var PAGE_SIZE_DEFAULT = 20;
+var PAGE_SIZE_MAX = 50;
+var LIMITS = { name: 24, title: 60, body: 1000, tag: 24 };
+var TAGS = ['楽曲の感想', '思い出', '未発見音源・情報', '質問', '雑談', 'サイトへのメッセージ'];
+var DEFAULT_NAME = '名無しのリスナー';
+var RATE_SECONDS = 20;
+var RATE_HOURLY_MAX = 12;
+var SITE_TITLE = 'imoutoid BBS';
+var SITE_DESC = 'imoutoid と、その音楽について語る場所。';
+
+function doGet(e) {
+  var p = (e && e.parameter) || {};
+  var out;
+  try {
+    var action = p.action || 'list';
+    if (action === 'list') {
+      out = listPosts(p);
+    } else {
+      out = { ok: false, error: 'unknown_action' };
+    }
+  } catch (err) {
+    out = { ok: false, error: 'server_error', message: String(err) };
+  }
+  return respond(out, p.callback);
+}
+
+function doPost(e) {
+  var out;
+  try {
+    var raw = (e && e.postData && e.postData.contents) || '{}';
+    var data = JSON.parse(raw);
+    if (data.action === 'post') {
+      out = createPost(data);
+    } else if (data.action === 'list') {
+      out = listPosts(data);
+    } else {
+      out = { ok: false, error: 'unknown_action' };
+    }
+  } catch (err) {
+    out = { ok: false, error: 'bad_request', message: String(err) };
+  }
+  return respond(out, null);
+}
+
+function respond(obj, callback) {
+  var body = JSON.stringify(obj);
+  if (callback && /^[A-Za-z_$][A-Za-z0-9_$.]{0,60}$/.test(callback)) {
+    return ContentService.createTextOutput(callback + '(' + body + ');')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return ContentService.createTextOutput(body).setMimeType(ContentService.MimeType.JSON);
+}
+
+function getSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(SHEET_NAME);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_NAME);
+    sh.appendRow(['id', 'timestamp', 'name', 'trip', 'tag', 'title', 'body', 'status', 'reply_to', 'uid']);
+  }
+  return sh;
+}
+
+function readAll_() {
+  var sh = getSheet_();
+  var last = sh.getLastRow();
+  if (last < 2) return [];
+  var values = sh.getRange(2, 1, last - 1, 10).getValues();
+  var rows = [];
+  for (var i = 0; i < values.length; i++) {
+    var r = values[i];
+    var id = parseInt(r[0], 10);
+    if (!id) continue;
+    rows.push({
+      id: id,
+      timestamp: fmtTs_(r[1]),
+      name: String(r[2] || ''),
+      trip: String(r[3] || ''),
+      tag: String(r[4] || ''),
+      title: String(r[5] || ''),
+      body: String(r[6] || ''),
+      status: String(r[7] || 'visible').toLowerCase(),
+      reply_to: parseInt(r[8], 10) || 0,
+      uid: String(r[9] || '')
+    });
+  }
+  return rows;
+}
+
+function fmtTs_(v) {
+  if (v instanceof Date) {
+    return Utilities.formatDate(v, 'Asia/Tokyo', 'yyyy-MM-dd HH:mm:ss');
+  }
+  return String(v || '');
+}
+
+function parseTs_(s) {
+  var m = String(s).match(/^(\d{4})[-\/](\d{2})[-\/](\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
+  if (!m) return 0;
+  return Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4] - 9, +m[5], +(m[6] || 0));
+}
+
+function publicPost_(row) {
+  return {
+    id: row.id,
+    ts: row.timestamp,
+    name: row.name,
+    trip: row.trip,
+    tag: row.tag,
+    title: row.title,
+    body: row.body,
+    reply_to: row.reply_to
+  };
+}
+
+function listPosts(params) {
+  var page = parseInt(params.page, 10);
+  if (!page || page < 1) page = 1;
+  var per = parseInt(params.per, 10);
+  if (!per || per < 1) per = PAGE_SIZE_DEFAULT;
+  if (per > PAGE_SIZE_MAX) per = PAGE_SIZE_MAX;
+
+  var rows = readAll_();
+  var visible = [];
+  for (var i = 0; i < rows.length; i++) {
+    if (rows[i].status === 'visible') visible.push(rows[i]);
+  }
+  visible.sort(function (a, b) { return b.id - a.id; });
+
+  var total = visible.length;
+  var pages = Math.max(1, Math.ceil(total / per));
+  if (page > pages) page = pages;
+  var start = (page - 1) * per;
+  var slice = visible.slice(start, start + per);
+  var posts = [];
+  for (var j = 0; j < slice.length; j++) posts.push(publicPost_(slice[j]));
+
+  var newest = total ? visible[0].id : 0;
+  return {
+    ok: true,
+    title: SITE_TITLE,
+    desc: SITE_DESC,
+    tags: TAGS,
+    default_name: DEFAULT_NAME,
+    page: page,
+    pages: pages,
+    per: per,
+    total: total,
+    newest_id: newest,
+    posts: posts,
+    server_time: Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd HH:mm:ss')
+  };
+}
+
+function cleanText_(s, max) {
+  s = String(s == null ? '' : s);
+  s = s.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F\u2028\u2029]/g, '');
+  s = s.replace(/<\/?[A-Za-z][^>]*>/g, '');
+  s = s.replace(/\r\n?/g, '\n');
+  s = s.trim();
+  if (s.length > max) s = s.slice(0, max);
+  return s;
+}
+
+function cleanLine_(s, max) {
+  var t = cleanText_(s, max * 4).replace(/\s+/g, ' ').trim();
+  if (t.length > max) t = t.slice(0, max);
+  return t;
+}
+
+function makeTrip_(key) {
+  var digest = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    'imoutoid-bbs:' + key,
+    Utilities.Charset.UTF_8
+  );
+  var alnum = Utilities.base64Encode(digest).replace(/[^A-Za-z0-9]/g, '');
+  return '◆' + alnum.slice(0, 10);
+}
+
+function createPost(data) {
+  // いたずら防止用のダミー欄（画面に出ない欄が埋まっていたら黙って捨てる）
+  if (data.hp) return { ok: true, id: 0 };
+
+  var name = cleanLine_(data.name, LIMITS.name) || DEFAULT_NAME;
+  var title = cleanLine_(data.title, LIMITS.title);
+  var body = cleanText_(data.body, LIMITS.body).replace(/\n{4,}/g, '\n\n\n');
+  var tag = cleanLine_(data.tag, LIMITS.tag);
+  if (TAGS.indexOf(tag) < 0) tag = '雑談';
+  var replyTo = parseInt(data.reply_to, 10) || 0;
+  var tripKey = cleanLine_(data.trip_key, 40);
+  var uid = String(data.uid || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 40);
+
+  if (!body) {
+    return { ok: false, error: 'empty_body', message: '本文が空です。' };
+  }
+  if (!uid) uid = 'anon-' + makeTrip_(String(data.ua || '')).slice(1, 9);
+
+  var trip = tripKey ? makeTrip_(tripKey) : '';
+
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(20000)) {
+    return { ok: false, error: 'busy', message: '混み合っています。少し待ってからもう一度お試しください。' };
+  }
+  try {
+    var rows = readAll_();
+    var lastTs = 0;
+    var recent = 0;
+    var nowMs = Date.now();
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].uid !== uid) continue;
+      var t = parseTs_(rows[i].timestamp);
+      if (t > lastTs) lastTs = t;
+      if (nowMs - t < 3600 * 1000) recent++;
+    }
+    if (lastTs && nowMs - lastTs < RATE_SECONDS * 1000) {
+      return { ok: false, error: 'too_fast', message: '投稿間隔が短すぎます。' + RATE_SECONDS + '秒ほど待ってから書き込んでください。' };
+    }
+    if (recent >= RATE_HOURLY_MAX) {
+      return { ok: false, error: 'too_many', message: '1時間あたりの投稿数が上限に達しました。しばらく待ってからお試しください。' };
+    }
+
+    var maxId = 0;
+    for (var k = 0; k < rows.length; k++) {
+      if (rows[k].id > maxId) maxId = rows[k].id;
+    }
+    var newId = maxId + 1;
+    var ts = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd HH:mm:ss');
+    getSheet_().appendRow([newId, ts, name, trip, tag, title, body, 'visible', replyTo || '', uid]);
+
+    return {
+      ok: true,
+      id: newId,
+      post: {
+        id: newId, ts: ts, name: name, trip: trip, tag: tag,
+        title: title, body: body, reply_to: replyTo || 0
+      }
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
