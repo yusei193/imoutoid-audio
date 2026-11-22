@@ -6283,7 +6283,7 @@ const MIDIS = {
   learnRole:'', wizard:null, learned:{},
   raw:[], sent:[], cc:new Map(), pickup:{},
   ledTimer:null, ledLast:0, state:'未接続', lastMsg:'',
-  auto:false, perm:'unknown', autoError:'', gestureArmed:false, watchTimer:null
+  auto:false, perm:'unknown', autoError:'', gestureArmed:false, watchTimer:null, reqPromise:null
 };
 
 /* ---------- 小さな道具 ---------- */
@@ -7583,7 +7583,8 @@ function midiEnable(opts){
     return Promise.resolve(false);
   }
   if(MIDIS.access) return Promise.resolve(midiRescan());
-  return navigator.requestMIDIAccess({sysex:false}).then((access)=>{
+  if(MIDIS.reqPromise) return MIDIS.reqPromise;  // 連打やジェスチャー再試行とボタンが重なっても要求は1本化
+  const req = navigator.requestMIDIAccess({sysex:false}).then((access)=>{
     MIDIS.access = access;
     MIDIS.autoError = '';
     try{ access.onstatechange = midiStateChange; }catch(e){}
@@ -7607,6 +7608,10 @@ function midiEnable(opts){
     midiBtnLabel();
     return false;
   });
+  MIDIS.reqPromise = req;
+  const clear = ()=>{ if(MIDIS.reqPromise === req) MIDIS.reqPromise = null; };
+  req.then(clear, clear);
+  return req;
 }
 function midiAutoStart(){
   if(!MIDIS.supported){
