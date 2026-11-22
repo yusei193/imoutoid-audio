@@ -234,6 +234,10 @@ output{font-family:var(--mono);font-size:11px;color:var(--amber);min-width:38px;
 .xfade-row span{flex:0 0 auto}
 .xfade-row input{flex:1 1 90px;min-width:70px}
 .xfade-row output{color:var(--mint);min-width:38px}
+.playlist li .ld{border:1px solid var(--line2);background:rgba(255,255,255,.04);color:var(--dim);border-radius:5px;font-family:var(--mono);font-size:8.5px;padding:1px 5px;cursor:pointer;line-height:1.5;flex:0 0 auto}
+.playlist li .ld:hover{color:#ffe6bd;border-color:rgba(242,180,100,.6);background:rgba(242,180,100,.12)}
+.picker-list li .pick-ld{font-family:var(--mono);font-size:9px;font-weight:400;color:var(--dim);border:1px solid var(--line2);border-radius:5px;padding:1px 6px;flex:0 0 auto;cursor:pointer}
+.picker-list li .pick-ld:hover{color:#ffe6bd;border-color:rgba(242,180,100,.6);background:rgba(242,180,100,.12)}
 .playlist{list-style:none;margin:11px 0 0;padding:0;max-height:196px;overflow:auto;border-radius:11px;border:1px solid var(--line);background:rgba(0,0,0,.2)}
 .playlist li{display:flex;align-items:center;gap:9px;padding:8px 11px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;min-width:0}
 .playlist li:last-child{border-bottom:0}
@@ -590,6 +594,105 @@ select:disabled{opacity:.5}
   .p-letters{grid-column:span 6}
   .p-people{grid-column:span 6}
 }
+
+/* ============ 🎛️ 2デッキDJミキサー（rekordbox風） ============ */
+.djm{margin-top:12px;border:1px solid var(--line);border-radius:13px;padding:9px 10px 11px;background:rgba(0,0,0,.28);min-width:0}
+.djm-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;min-width:0}
+.djm-head .lbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--dim)}
+.djm-head .grow{flex:1 1 0;min-width:0}
+.djm-sel{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;color:var(--dim2);white-space:nowrap}
+.djm-sel select{width:auto;min-width:0;padding:4px 22px 4px 7px;font-size:10px;border-radius:7px;background-color:rgba(0,0,0,.45)}
+.djm-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,204px) minmax(0,1fr);gap:8px;align-items:start;min-width:0}
+
+/* --- デッキ --- */
+.deck{min-width:0;border:1px solid var(--line2);border-radius:12px;padding:7px 8px 8px;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012))}
+.deck.playing{border-color:rgba(242,180,100,.5);background:linear-gradient(180deg,rgba(242,180,100,.09),rgba(255,255,255,.012))}
+#deckB{border-color:rgba(147,185,255,.3)}
+#deckB.playing{border-color:rgba(147,185,255,.6);background:linear-gradient(180deg,rgba(147,185,255,.10),rgba(255,255,255,.012))}
+.dk-head{display:flex;align-items:center;gap:6px;min-width:0}
+.dk-head .grow{flex:1 1 0;min-width:0}
+.dk-name{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--amber);flex:0 0 auto}
+#deckB .dk-name{color:var(--blue)}
+.dk-kind{font-family:var(--mono);font-size:7.5px;letter-spacing:.06em;color:var(--dim2);border:1px solid var(--line);border-radius:999px;padding:1px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:64px;flex:0 1 auto}
+.dk-pfl{border:1px solid var(--line2);background:rgba(255,255,255,.045);color:var(--dim);border-radius:8px;padding:2px 6px;font-size:12px;line-height:1.15;cursor:pointer;flex:0 0 auto}
+.dk-pfl.sm{font-size:10px;padding:1px 5px;border-radius:6px}
+.dk-pfl.on{background:rgba(121,224,194,.22);border-color:var(--mint);color:#d8fff3;box-shadow:0 0 9px rgba(121,224,194,.4)}
+.dk-title{font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:4px 0 4px;min-height:16px;min-width:0}
+.dk-wavewrap{position:relative;border:1px solid var(--line);border-radius:8px;background:rgba(0,0,0,.5);overflow:hidden;touch-action:none;cursor:crosshair}
+.dk-wave{display:block;width:100%;height:64px}
+.dk-prog{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.07);pointer-events:none}
+.dk-prog i{display:block;height:100%;width:0;background:var(--amber)}
+#deckB .dk-prog i{background:var(--blue)}
+.dk-times{display:flex;align-items:center;font-family:var(--mono);font-size:9px;color:var(--dim2);margin-top:3px}
+.dk-times .grow{flex:1}
+.dk-main{display:flex;align-items:center;gap:7px;margin-top:5px;min-width:0}
+.dk-btn{cursor:pointer;font-family:var(--mono);font-weight:700;letter-spacing:.06em;flex:0 0 auto}
+.dk-cue{border-radius:9px;background:rgba(255,255,255,.05);border:1px solid var(--line2);color:var(--txt);padding:9px 10px;font-size:10px}
+.dk-cue.on{background:rgba(242,180,100,.88);border-color:#f7c67f;color:#231803}
+.dk-play{width:38px;height:38px;border-radius:50%;padding:0;display:grid;place-items:center;font-size:14px;background:linear-gradient(180deg,rgba(242,180,100,.24),rgba(242,180,100,.08));border:1px solid rgba(242,180,100,.5);color:#ffe6bd}
+#deckB .dk-play{background:linear-gradient(180deg,rgba(147,185,255,.24),rgba(147,185,255,.08));border-color:rgba(147,185,255,.5);color:#dce8ff}
+.deck.playing .dk-play{box-shadow:0 0 14px rgba(242,180,100,.28)}
+#deckB.playing .dk-play{box-shadow:0 0 14px rgba(147,185,255,.3)}
+.dk-bpm{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;line-height:1.05;min-width:0}
+.dk-bpm b{font-family:var(--mono);font-size:13px;color:var(--txt);letter-spacing:.02em;white-space:nowrap}
+.dk-bpm small{font-family:var(--mono);font-size:7px;letter-spacing:.14em;color:var(--dim2)}
+.dk-row{display:flex;align-items:center;gap:4px;margin-top:4px;min-width:0;flex-wrap:nowrap}
+.dk-row .lbl{font-family:var(--mono);font-size:7.5px;letter-spacing:.08em;color:var(--dim2);flex:0 0 24px}
+.dk-row input[type=range]{flex:1 1 40px;min-width:0;height:4px;margin:3px 0}
+.dk-row input[type=range]::-webkit-slider-thumb{width:12px;height:12px;border-width:1.5px;box-shadow:none}
+.dk-row output{font-size:8.5px;min-width:0;flex:0 0 32px;text-align:right;font-family:var(--mono)}
+.dk-mini{border:1px solid var(--line2);background:rgba(255,255,255,.045);color:var(--dim);border-radius:6px;padding:3px 5px;font-size:8.5px;line-height:1.25;cursor:pointer;font-family:var(--mono);white-space:nowrap;flex:0 0 auto;min-width:20px}
+.dk-mini:hover{background:rgba(255,255,255,.09);color:var(--txt)}
+.dk-mini.hold{background:rgba(121,224,194,.24);border-color:var(--mint);color:#d8fff3}
+.dk-hot{flex:0 0 auto;min-width:22px;padding:3px 5px;border-radius:6px;border:1px solid var(--line2);background:rgba(255,255,255,.045);color:var(--dim);font-family:var(--mono);font-size:8.5px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dk-hot.set{background:rgba(242,180,100,.18);border-color:rgba(242,180,100,.55);color:#ffe6bd}
+#deckB .dk-hot.set{background:rgba(147,185,255,.18);border-color:rgba(147,185,255,.55);color:#dce8ff}
+.dk-x{color:var(--dim2)}
+.dk-row.on .dk-mini[data-act=loopin],.dk-row.on .dk-mini[data-act=loopout]{border-color:var(--mint);color:#d8fff3;background:rgba(121,224,194,.16)}
+.dk-row.on .dk-mini[data-loop]{border-color:rgba(121,224,194,.55);color:#d8fff3}
+
+/* --- ミキサー --- */
+.mixer{min-width:0;border:1px solid var(--line2);border-radius:12px;padding:7px 7px 8px;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(0,0,0,.28));display:flex;flex-direction:column;gap:6px}
+.mx-chans{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:5px;min-width:0}
+.mx-ch{min-width:0;border:1px solid var(--line);border-radius:9px;padding:4px 5px 5px;background:rgba(255,255,255,.022);border-top:2px solid rgba(242,180,100,.5)}
+.mx-ch[data-deck="1"]{border-top-color:rgba(147,185,255,.55)}
+.mx-chtop{display:flex;align-items:center;gap:3px;margin-bottom:3px}
+.mx-chtop .grow{flex:1 1 0;min-width:0}
+.mx-r{font-size:7.5px;padding:1px 4px;min-width:0;border-radius:5px}
+.mx-cha{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--amber)}
+.mx-ch[data-deck="1"] .mx-cha{color:var(--blue)}
+.mx-chtop .dk-pfl{margin-left:auto}
+.mx-ctl{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"l o" "s s";column-gap:3px;margin-bottom:1px;min-width:0}
+.mx-ctl label{grid-area:l;font-family:var(--mono);font-size:7px;letter-spacing:.06em;color:var(--dim2);white-space:nowrap}
+.mx-ctl output{grid-area:o;font-family:var(--mono);font-size:7px;color:var(--dim);text-align:right;min-width:0;white-space:nowrap}
+.mx-ctl input{grid-area:s;width:100%;min-width:0;height:4px;margin:1px 0 2px}
+.mx-ctl input[type=range]::-webkit-slider-thumb{width:11px;height:11px;border-width:1.5px;box-shadow:none}
+.mx-faderbox{display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:4px;min-width:0}
+.mx-faderrot{position:relative;width:100%;height:92px;display:flex;align-items:center;justify-content:center;overflow:visible}
+.mx-faderrot input[type=range].mx-fader{position:absolute;left:50%;top:50%;width:92px;min-width:0;height:6px;margin:0;transform:translate(-50%,-50%) rotate(-90deg)}
+.mx-faderrot input[type=range].mx-fader::-webkit-slider-thumb{width:20px;height:11px;border-radius:3px;border-width:1.5px}
+.mx-faderlbl{font-family:var(--mono);font-size:7px;letter-spacing:.06em;color:var(--dim2);white-space:nowrap}
+.mx-xf{border-top:1px solid var(--line);padding-top:6px;min-width:0}
+.mx-xflbl{display:flex;align-items:center;justify-content:space-between;font-family:var(--mono);font-size:7px;letter-spacing:.08em;color:var(--dim2);gap:4px}
+#xfader{width:100%;min-width:0;height:6px;margin:4px 0 3px}
+#xfader::-webkit-slider-thumb{width:16px;height:16px;border-radius:3px;border-width:2px}
+.mx-xfbtns{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
+.mx-xfbtns .dk-mini{font-size:8px;padding:2px 5px}
+.mx-xfbtns .on{border-color:var(--mint);color:#d8fff3}
+
+@media (max-width:1000px){
+  .djm-grid{grid-template-columns:minmax(0,1fr)}
+  .mx-chans{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .mx-faderrot{height:72px}
+  .mx-faderrot input[type=range].mx-fader{width:72px}
+}
+@media (max-width:420px){
+  .djm{padding:8px 7px 9px}
+  .djm-sel{font-size:8px}
+  .dk-row .lbl{flex:0 0 20px;font-size:7px}
+  .dk-row output{flex:0 0 28px;font-size:8px}
+  .dk-mini{font-size:8px;padding:3px 4px;min-width:18px}
+}
 </style>
 </head>
 <body>
@@ -833,37 +936,150 @@ select:disabled{opacity:.5}
         <input id="xfade" type="range" min="0" max="8" step="0.5" value="3.5" aria-label="クロスフェード秒数">
         <output id="xfadeVal">3.5s</output>
       </div>
-      <!-- 🎛️ DJデッキ強化（3バンドEQ / HOT CUE / PITCH / BPM） -->
-      <div class="djx">
-        <div class="djx-head">
-          <span class="lbl">🎛️ 3バンドEQ</span>
+      <!-- 🎛️ 2デッキ DJミキサー（rekordbox風） -->
+      <div class="djm" id="djm">
+        <div class="djm-head">
+          <span class="lbl">🎛️ 2 DECK DJ MIXER</span>
           <span class="grow"></span>
-          <span class="djx-deck" id="eqDeck">DECK A</span>
-          <button class="btn small" id="eqReset" type="button">RESET</button>
+          <label class="djm-sel" title="音源を追加・選択したときのロード先">LOAD先
+            <select id="loadTarget">
+              <option value="auto">AUTO（交互）</option>
+              <option value="0">DECK A</option>
+              <option value="1">DECK B</option>
+            </select>
+          </label>
+          <label class="djm-sel" title="クロスフェーダーのカーブ">XFADE
+            <select id="xfCurve">
+              <option value="eq">等パワー</option>
+              <option value="lin">バランス</option>
+            </select>
+          </label>
         </div>
-        <div class="eq-row"><span>LOW</span><input id="eqLow" type="range" min="-12" max="12" step="1" value="0" aria-label="LOW EQ"><output id="eqLowVal">0dB</output></div>
-        <div class="eq-row"><span>MID</span><input id="eqMid" type="range" min="-12" max="12" step="1" value="0" aria-label="MID EQ"><output id="eqMidVal">0dB</output></div>
-        <div class="eq-row"><span>HIGH</span><input id="eqHigh" type="range" min="-12" max="12" step="1" value="0" aria-label="HIGH EQ"><output id="eqHighVal">0dB</output></div>
-        <div class="hotcue">
-          <span class="lbl">HOT CUE</span>
-          <button class="btn small hc" id="hcA" type="button" data-cue="A" title="未設定なら現在位置を記憶 / 設定済みならジャンプ（右クリック・長押しで消去）">A</button>
-          <button class="btn small hc" id="hcB" type="button" data-cue="B" title="未設定なら現在位置を記憶 / 設定済みならジャンプ（右クリック・長押しで消去）">B</button>
-          <button class="btn small hc" id="hcC" type="button" data-cue="C" title="未設定なら現在位置を記憶 / 設定済みならジャンプ（右クリック・長押しで消去）">C</button>
-          <button class="btn small hc-x" id="hcClear" type="button" title="HOT CUE をすべて消去">× クリア</button>
+        <div class="djm-grid">
+          <!-- DECK A -->
+          <section class="deck" id="deckA" data-deck="0">
+            <div class="dk-head">
+              <span class="dk-name">DECK A</span>
+              <span class="dk-kind" data-el="kind">—</span>
+              <span class="grow"></span>
+              <button class="dk-pfl" data-act="pfl" type="button" title="ヘッドホンCUE（PFL）：リスナーには送らず、モニター出力だけで聴く">🎧</button>
+            </div>
+            <div class="dk-title" data-el="title">音源なし</div>
+            <div class="dk-wavewrap">
+              <canvas class="dk-wave" data-el="wave" height="64" aria-label="波形（クリック・ドラッグでシーク）"></canvas>
+              <div class="dk-prog" data-el="prog"><i></i></div>
+            </div>
+            <div class="dk-times"><span data-el="cur">0:00</span><span class="grow"></span><span data-el="dur">0:00</span></div>
+            <div class="dk-main">
+              <button class="dk-btn dk-cue" data-act="cue" type="button" title="CUE：停止中/再生中に押すとCUE点へ戻って待機（長押し・右クリックで現在位置にCUE点を更新）">CUE</button>
+              <button class="dk-btn dk-play" data-act="play" type="button" aria-label="再生">▶</button>
+              <div class="dk-bpm"><b data-el="bpm">--</b><small>BPM</small></div>
+            </div>
+            <div class="dk-row">
+              <span class="lbl">PITCH</span>
+              <button class="dk-mini" data-act="bend" data-dir="-1" type="button" title="PITCH BEND −（押している間だけ −3%）">−</button>
+              <input type="range" data-el="pitch" min="-10" max="10" step="0.5" value="0" aria-label="ピッチ（DECK A）">
+              <output data-el="pitchval">0.0%</output>
+              <button class="dk-mini" data-act="bend" data-dir="1" type="button" title="PITCH BEND ＋（押している間だけ +3%）">＋</button>
+              <button class="dk-mini" data-act="tap" type="button" title="BPM TAP">TAP</button>
+            </div>
+            <div class="dk-row dk-hots">
+              <span class="lbl">HOT</span>
+              <button class="dk-hot" data-hot="A" type="button">A</button>
+              <button class="dk-hot" data-hot="B" type="button">B</button>
+              <button class="dk-hot" data-hot="C" type="button">C</button>
+              <button class="dk-hot" data-hot="D" type="button">D</button>
+              <button class="dk-mini dk-x" data-act="hotclear" type="button" title="HOT CUE 全消去">×</button>
+            </div>
+            <div class="dk-row dk-loops">
+              <span class="lbl">LOOP</span>
+              <button class="dk-mini" data-act="loopin" type="button" title="ループIN（現在位置）">IN</button>
+              <button class="dk-mini" data-act="loopout" type="button" title="ループOUT（現在位置）">OUT</button>
+              <button class="dk-mini" data-loop="2" type="button">2s</button>
+              <button class="dk-mini" data-loop="4" type="button">4s</button>
+              <button class="dk-mini" data-loop="8" type="button">8s</button>
+              <button class="dk-mini dk-x" data-act="loopexit" type="button" title="ループ解除">EXIT</button>
+            </div>
+          </section>
+          <!-- MIXER -->
+          <section class="mixer" id="mixer">
+            <div class="mx-chans">
+              <div class="mx-ch" data-deck="0">
+                <div class="mx-chtop"><span class="mx-cha">A</span><span class="grow"></span><button class="dk-mini mx-r" data-act="eqreset" type="button" title="EQ（LOW/MID/HIGH）を0dBに戻す">R</button><button class="dk-pfl sm" data-act="pfl" type="button" title="ヘッドホンCUE（PFL）">🎧</button></div>
+                <div class="mx-ctl"><label>TRIM</label><input type="range" data-el="trim" min="-12" max="12" step="1" value="0" aria-label="TRIM A"><output data-el="trimval">0dB</output></div>
+                <div class="mx-ctl"><label>LOW</label><input type="range" data-el="eqlow" min="-12" max="12" step="1" value="0" aria-label="LOW EQ A"><output data-el="eqlowval">0dB</output></div>
+                <div class="mx-ctl"><label>MID</label><input type="range" data-el="eqmid" min="-12" max="12" step="1" value="0" aria-label="MID EQ A"><output data-el="eqmidval">0dB</output></div>
+                <div class="mx-ctl"><label>HIGH</label><input type="range" data-el="eqhigh" min="-12" max="12" step="1" value="0" aria-label="HIGH EQ A"><output data-el="eqhighval">0dB</output></div>
+                <div class="mx-ctl"><label>FILT</label><input type="range" data-el="filter" min="-100" max="100" step="1" value="0" aria-label="チャンネルFILTER A"><output data-el="filterval">0</output></div>
+                <div class="mx-faderbox"><div class="mx-faderrot"><input class="mx-fader" type="range" data-el="fader" min="0" max="100" step="1" value="100" aria-label="チャンネルフェーダー A"></div><span class="mx-faderlbl">CH A</span></div>
+              </div>
+              <div class="mx-ch" data-deck="1">
+                <div class="mx-chtop"><span class="mx-cha">B</span><span class="grow"></span><button class="dk-mini mx-r" data-act="eqreset" type="button" title="EQ（LOW/MID/HIGH）を0dBに戻す">R</button><button class="dk-pfl sm" data-act="pfl" type="button" title="ヘッドホンCUE（PFL）">🎧</button></div>
+                <div class="mx-ctl"><label>TRIM</label><input type="range" data-el="trim" min="-12" max="12" step="1" value="0" aria-label="TRIM B"><output data-el="trimval">0dB</output></div>
+                <div class="mx-ctl"><label>LOW</label><input type="range" data-el="eqlow" min="-12" max="12" step="1" value="0" aria-label="LOW EQ B"><output data-el="eqlowval">0dB</output></div>
+                <div class="mx-ctl"><label>MID</label><input type="range" data-el="eqmid" min="-12" max="12" step="1" value="0" aria-label="MID EQ B"><output data-el="eqmidval">0dB</output></div>
+                <div class="mx-ctl"><label>HIGH</label><input type="range" data-el="eqhigh" min="-12" max="12" step="1" value="0" aria-label="HIGH EQ B"><output data-el="eqhighval">0dB</output></div>
+                <div class="mx-ctl"><label>FILT</label><input type="range" data-el="filter" min="-100" max="100" step="1" value="0" aria-label="チャンネルFILTER B"><output data-el="filterval">0</output></div>
+                <div class="mx-faderbox"><div class="mx-faderrot"><input class="mx-fader" type="range" data-el="fader" min="0" max="100" step="1" value="100" aria-label="チャンネルフェーダー B"></div><span class="mx-faderlbl">CH B</span></div>
+              </div>
+            </div>
+            <div class="mx-xf">
+              <div class="mx-xflbl"><span>A</span><span>CROSS FADER</span><span>B</span></div>
+              <input id="xfader" type="range" min="0" max="100" step="1" value="50" aria-label="クロスフェーダー（左A・右B）">
+              <div class="mx-xfbtns">
+                <button class="dk-mini" id="xfA" type="button">◀ A</button>
+                <button class="dk-mini" id="xfCenter" type="button">中央</button>
+                <button class="dk-mini" id="xfB" type="button">B ▶</button>
+              </div>
+            </div>
+          </section>
+          <!-- DECK B -->
+          <section class="deck" id="deckB" data-deck="1">
+            <div class="dk-head">
+              <span class="dk-name">DECK B</span>
+              <span class="dk-kind" data-el="kind">—</span>
+              <span class="grow"></span>
+              <button class="dk-pfl" data-act="pfl" type="button" title="ヘッドホンCUE（PFL）：リスナーには送らず、モニター出力だけで聴く">🎧</button>
+            </div>
+            <div class="dk-title" data-el="title">音源なし</div>
+            <div class="dk-wavewrap">
+              <canvas class="dk-wave" data-el="wave" height="64" aria-label="波形（クリック・ドラッグでシーク）"></canvas>
+              <div class="dk-prog" data-el="prog"><i></i></div>
+            </div>
+            <div class="dk-times"><span data-el="cur">0:00</span><span class="grow"></span><span data-el="dur">0:00</span></div>
+            <div class="dk-main">
+              <button class="dk-btn dk-cue" data-act="cue" type="button" title="CUE：停止中/再生中に押すとCUE点へ戻って待機（長押し・右クリックで現在位置にCUE点を更新）">CUE</button>
+              <button class="dk-btn dk-play" data-act="play" type="button" aria-label="再生">▶</button>
+              <div class="dk-bpm"><b data-el="bpm">--</b><small>BPM</small></div>
+            </div>
+            <div class="dk-row">
+              <span class="lbl">PITCH</span>
+              <button class="dk-mini" data-act="bend" data-dir="-1" type="button" title="PITCH BEND −（押している間だけ −3%）">−</button>
+              <input type="range" data-el="pitch" min="-10" max="10" step="0.5" value="0" aria-label="ピッチ（DECK B）">
+              <output data-el="pitchval">0.0%</output>
+              <button class="dk-mini" data-act="bend" data-dir="1" type="button" title="PITCH BEND ＋（押している間だけ +3%）">＋</button>
+              <button class="dk-mini" data-act="tap" type="button" title="BPM TAP">TAP</button>
+            </div>
+            <div class="dk-row dk-hots">
+              <span class="lbl">HOT</span>
+              <button class="dk-hot" data-hot="A" type="button">A</button>
+              <button class="dk-hot" data-hot="B" type="button">B</button>
+              <button class="dk-hot" data-hot="C" type="button">C</button>
+              <button class="dk-hot" data-hot="D" type="button">D</button>
+              <button class="dk-mini dk-x" data-act="hotclear" type="button" title="HOT CUE 全消去">×</button>
+            </div>
+            <div class="dk-row dk-loops">
+              <span class="lbl">LOOP</span>
+              <button class="dk-mini" data-act="loopin" type="button" title="ループIN（現在位置）">IN</button>
+              <button class="dk-mini" data-act="loopout" type="button" title="ループOUT（現在位置）">OUT</button>
+              <button class="dk-mini" data-loop="2" type="button">2s</button>
+              <button class="dk-mini" data-loop="4" type="button">4s</button>
+              <button class="dk-mini" data-loop="8" type="button">8s</button>
+              <button class="dk-mini dk-x" data-act="loopexit" type="button" title="ループ解除">EXIT</button>
+            </div>
+          </section>
         </div>
-        <div class="pitchrow">
-          <span class="lbl">PITCH</span>
-          <input id="pitch" type="range" min="-10" max="10" step="0.5" value="0" aria-label="ピッチ（再生速度）">
-          <output id="pitchVal">0.0%</output>
-          <button class="btn small" id="pitchReset" type="button">RESET</button>
-        </div>
-        <div class="pitchrow">
-          <span class="lbl">BPM</span>
-          <button class="btn small" id="bpmTap" type="button">TAP</button>
-          <span class="bpm-val" id="bpmVal">--<small>BPM</small></span>
-          <button class="btn small hc-x" id="bpmReset" type="button" title="BPM計測をリセット">×</button>
-        </div>
-        <p class="hint" style="margin:0">EQ は再生中のデッキ（A/B）に掛かります。HOT CUE は未設定で押すと現在位置を記憶、設定済みで押すとその位置へジャンプ。BPM TAP は曲に合わせて何回か押すと平均から BPM を出します。</p>
+        <p class="hint" style="margin:6px 0 0">各デッキは独立して再生できます。🎧 はヘッドホンCUE（PFL）：チャンネルフェーダーを下げても、この端末のモニター出力だけで音を確認できます（リスナーには送りません）。波形はクリック／ドラッグでシーク。LOOP は IN→OUT か 2s/4s/8s、EXIT で解除。CUE は長押しで現在位置にCUE点を更新します。</p>
       </div>
     </div>
     <div class="tabcap">
@@ -1074,6 +1290,8 @@ select:disabled{opacity:.5}
 <audio id="bgmAudioB" preload="auto"></audio>
 <!-- 🎧 入力モニター専用の出力（setSinkId で出力デバイスを選ぶため <audio> を経由） -->
 <audio id="djMonAudio" autoplay playsinline hidden></audio>
+<!-- 🎧 ヘッドホンCUE（PFL）専用の出力。リスナー送信ミックスには入らない -->
+<audio id="cueMonAudio" autoplay playsinline hidden></audio>
 <div id="keyHelp" hidden>
   <button class="x" id="keyHelpClose" type="button" aria-label="閉じる">✕</button>
   <b>KEYBOARD SHORTCUTS</b>
@@ -1152,6 +1370,8 @@ const S = {
   inputMode:'talk', inGain:1, inGainNode:null, inMeterSplit:null, inAnL:null, inAnR:null, inClipUntil:0, micSettings:null,
   djMonOn:false, djMonVol:0.7, djMonGain:null, djMonDest:null, monDeviceId:'', savedVoice:null,
   decks:null, active:0, xfade:3.5, xfading:false, playlist:[], index:-1, bgmVol:0.65, ducked:false,
+  xfader:50, xfCurve:'eq', xfTimer:null, loadTarget:'auto', cueMix:null, cueMonDest:null, cueAn:null,
+  waveCache:new Map(), waveSeq:0, uiTimer:null, loopTimer:null, xfAutoHold:0,
   peer:null, conns:new Map(), mediaCalls:new Map(), listeners:new Set(),
   live:false, starting:false, startedAt:0, timerId:null,
   noiseBuf:null, lastInfoSent:0,
@@ -1206,6 +1426,8 @@ const el = {
   inVu:$('inVu'), inPeak:$('inPeak'), clipLamp:$('clipLamp'), inGain:$('inGain'), inGainVal:$('inGainVal'),
   djMonBtn:$('djMonBtn'), djMonVol:$('djMonVol'), djMonVolVal:$('djMonVolVal'), monDevice:$('monDevice'),
   djMonAudio:$('djMonAudio'), djMonHint:$('djMonHint'), micPanel:document.querySelector('.p-mic'),
+  cueMonAudio:$('cueMonAudio'), loadTarget:$('loadTarget'), xfCurve:$('xfCurve'), xfader:$('xfader'),
+  xfA:$('xfA'), xfB:$('xfB'), xfCenter:$('xfCenter'),
   bgmFiles:$('bgmFiles'), bgmElA:$('bgmAudioA'), bgmElB:$('bgmAudioB'), bgmNow:$('bgmNow'), bgmSub:$('bgmSub'), bgmSeek:$('bgmSeek'), bgmCur:$('bgmCur'), bgmDur:$('bgmDur'),
   bgmPlay:$('bgmPlay'), bgmPrev:$('bgmPrev'), bgmNext:$('bgmNext'), bgmVol:$('bgmVol'), bgmVolVal:$('bgmVolVal'),
   xfade:$('xfade'), xfadeVal:$('xfadeVal'),
@@ -1834,25 +2056,54 @@ async function ensureAudio(){
     S.keepAlive = {osc, gain:kg};
   }catch(e){ S.keepAlive = null; }
 
-  // BGM は2デッキ（A/B）。クロスフェード用に各デッキが自分の Gain を持つ。
-  S.decks = [el.bgmElA, el.bgmElB].map((a)=>{
+  // 🎧 ヘッドホンCUE（PFL）：リスナー送信ミックス（bus/streamDest）には入れず、この端末のモニター出力だけに送る
+  S.cueMix     = ctx.createGain();  S.cueMix.gain.value = 0.9;
+  S.cueMonDest = ctx.createMediaStreamDestination({numberOfChannels:2});
+  S.cueAn      = ctx.createAnalyser(); S.cueAn.fftSize = 1024;
+  S.cueMix.connect(S.cueMonDest);
+  S.cueMix.connect(S.cueAn);
+  try{ if(el.cueMonAudio) el.cueMonAudio.srcObject = S.cueMonDest.stream; }catch(e){}
+
+  // BGM は2デッキ（A/B）。それぞれ独立したチャンネルストリップを持つ。
+  //   src → TRIM → 3バンドEQ → チャンネルFILTER ─┬→ 再生/フェード gain → CHフェーダー → クロスフェーダー → bgmGain → bus
+  //                                                  └→ ヘッドホンCUE tap（プリフェーダー）→ cueMix → モニターのみ
+  S.decks = [el.bgmElA, el.bgmElB].map((a, i)=>{
     const src = ctx.createMediaElementSource(a);
+    const trim = ctx.createGain(); trim.gain.value = 1;
     // 🎛️ 3バンドEQ（デッキごと）：LOW lowshelf 250Hz / MID peaking 1kHz / HIGH highshelf 4kHz
     const eqLow = ctx.createBiquadFilter();  eqLow.type = 'lowshelf';  eqLow.frequency.value = 250;
     const eqMid = ctx.createBiquadFilter();  eqMid.type = 'peaking';   eqMid.frequency.value = 1000; eqMid.Q.value = 1;
     const eqHigh = ctx.createBiquadFilter(); eqHigh.type = 'highshelf'; eqHigh.frequency.value = 4000;
     [eqLow, eqMid, eqHigh].forEach(f=>{ f.gain.value = 0; });
-    const gain = ctx.createGain(); gain.gain.value = 0;
-    src.connect(eqLow); eqLow.connect(eqMid); eqMid.connect(eqHigh); eqHigh.connect(gain); gain.connect(S.bgmGain);
-    return {el:a, src, gain, item:null,
+    // 🎛️ チャンネルFILTER（1本のノブ：左=LPF / 右=HPF、0でバイパス）
+    const flt = ctx.createBiquadFilter(); flt.type = 'lowpass'; flt.frequency.value = 22000; flt.Q.value = 0.7;
+    const gain = ctx.createGain(); gain.gain.value = 0;      // 再生/自動フェード用（既存互換）
+    const fader = ctx.createGain(); fader.gain.value = 1;    // チャンネルフェーダー
+    const xf = ctx.createGain(); xf.gain.value = 0.707;      // クロスフェーダー
+    const cue = ctx.createGain(); cue.gain.value = 0;        // PFL tap（プリフェーダー）
+    const an = ctx.createAnalyser(); an.fftSize = 1024;       // クロスフェーダー後のレベル計測用
+    src.connect(trim);
+    trim.connect(eqLow); eqLow.connect(eqMid); eqMid.connect(eqHigh); eqHigh.connect(flt);
+    flt.connect(cue); cue.connect(S.cueMix);
+    flt.connect(gain); gain.connect(fader); fader.connect(xf); xf.connect(an); an.connect(S.bgmGain);
+    return {el:a, src, trim, gain, fader, xfadeGain:xf, cueTap:cue, an, flt,
+            index:i, ui:DECK_UI[i],
             eq:{low:eqLow, mid:eqMid, high:eqHigh}, eqVal:{low:0, mid:0, high:0},
-            hot:{A:null, B:null, C:null}, rate:0};
+            trimVal:0, faderVal:1, filterVal:0,
+            hot:{A:null, B:null, C:null, D:null}, pfl:false,
+            ratePct:0, bend:0,
+            bpm:{taps:[], val:0}, bpmEst:0,
+            cuePoint:0, holdCue:false,
+            loop:{in:null, out:null, active:false},
+            item:null, wave:null, waveState:'', waveSeq:0, drawAt:0, drawPos:-1};
   });
   S.active = 0;
+  applyCrossfader(0, true);
 
   applyBgmGain(0);
   applyDjFilter(S.filterVal, true);
   updateVuLoop();
+  startDeckTimers();
 }
 
 /* ---- マイク ---- */
@@ -2291,8 +2542,17 @@ function renderPlaylist(){
         renderPlaylist();
       }
     });
+    // 🎛️ DECK A / DECK B へ直接ロード
+    const ldA = document.createElement('button');
+    ldA.className='ld'; ldA.type='button'; ldA.textContent='A'; ldA.title='DECK A にロードして再生';
+    ldA.setAttribute('aria-label','DECK A にロード');
+    ldA.addEventListener('click',(ev)=>{ ev.stopPropagation(); loadPlaylistToDeck(i, 0, true); });
+    const ldB = document.createElement('button');
+    ldB.className='ld'; ldB.type='button'; ldB.textContent='B'; ldB.title='DECK B にロードして再生';
+    ldB.setAttribute('aria-label','DECK B にロード');
+    ldB.addEventListener('click',(ev)=>{ ev.stopPropagation(); loadPlaylistToDeck(i, 1, true); });
     li.addEventListener('click', ()=>selectTrack(i, true));
-    li.appendChild(n); li.appendChild(nm); li.appendChild(del);
+    li.appendChild(n); li.appendChild(nm); li.appendChild(ldA); li.appendChild(ldB); li.appendChild(del);
     el.playlist.appendChild(li);
   });
 }
@@ -2378,12 +2638,21 @@ function applyDeckCrossOrigin(d, url){
 }
 function setDeckItem(d, item){
   d.item = item;
-  d.hot = {A:null, B:null, C:null};        // 🆕 新しい曲では HOT CUE をクリア
-  applyDeckRate(d, S.rate || 0);            // PITCH 設定は維持
+  d.hot = {A:null, B:null, C:null, D:null};        // 新しい曲では HOT CUE をクリア
+  d.cuePoint = 0;                                  // CUE点は頭出し（0秒）
+  d.loop = {in:null, out:null, active:false};
+  if(d.loopTimer){ clearTimeout(d.loopTimer); d.loopTimer = null; }
+  d.bpm = {taps:[], val:0};
+  d.bpmEst = 0;
+  d.wave = null; d.waveState = ''; d.drawPos = -1; d.drawDirty = true; d.decodedDur = 0;
+  d.lastLogged = null;                             // セットリスト重複記録の防止用
+  applyDeckRate(d);                                // PITCH 設定は維持
   applyDeckCrossOrigin(d, item && item.url);
   d.el.src = item.url;
   try{ d.el.load(); }catch(e){}
   try{ d.el.currentTime = 0; }catch(e){}
+  loadDeckWave(d);                                 // 波形（decodeAudioData）
+  renderDeck(d);
 }
 function fadeInDeck(d, sec){
   const t = S.ctx.currentTime;
@@ -2418,6 +2687,10 @@ function hardStopDeck(d){
     } else { d.gain.gain.value = 0; }
   }catch(e){}
   d.item = null;
+  if(d.loopTimer){ clearTimeout(d.loopTimer); d.loopTimer = null; }
+  d.loop = {in:null, out:null, active:false};
+  d.wave = null; d.waveState = ''; d.drawPos = -1; d.drawDirty = true;
+  renderDeck(d);
 }
 
 function startItem(item, opts){
@@ -2469,6 +2742,14 @@ function startItem(item, opts){
     }
     S.active = S.decks.indexOf(target);
     applyEq(target, true);
+    // A/B 交互の自動ロード時は、クロスフェーダーも目標デッキ側へ自動で動かす（聞こえない事故を防ぐ）
+    if(curPlaying && cur !== target && fadeIn > 0.05){
+      xfadeTo(target === S.decks[0] ? 0 : 100, fadeIn);
+    } else if(!S.xfTimer){
+      const g = xfadeGains();
+      const mine = target === S.decks[0] ? g.a : g.b;
+      if(mine < 0.02) xfadeTo(target === S.decks[0] ? 0 : 100, 0.4);
+    }
     setAdd(item.title, item.kind);          // 📝 セットリストへ自動記録
     if(fadeIn > 0.05){
       S.xfading = true;
@@ -2507,7 +2788,9 @@ function selectTrack(i, autoplay){
   S.index = i;
   renderPlaylist();
   if(autoplay && S.ctx){
-    startItem(item);
+    const tgt = targetDeckIndex();
+    if(tgt === null) startItem(item);            // AUTO：再生中なら反対側のデッキへ
+    else loadPlaylistToDeck(i, tgt, true);       // LOAD先を固定
   } else {
     S.nowTitle = item.title;
     updateNowUi();
@@ -2573,7 +2856,9 @@ function prevTrack(){
 }
 
 function onDeckTime(d){
-  if(!S.decks || d !== deckCur()) return;
+  if(!S.decks || !d) return;
+  renderDeck(d);
+  if(d !== deckCur()) return;
   const a = d.el;
   if(a.duration){
     el.bgmDur.textContent = fmtTime(a.duration);
@@ -2592,7 +2877,12 @@ function onDeckTime(d){
 }
 function onDeckEnded(d){
   if(!S.decks) return;
-  if(d !== deckCur()){ hardStopDeck(d); return; }   // 非アクティブデッキの終了は即停止のみ
+  if(d !== deckCur()){                      // 非アクティブ側の終了：停止して頭に戻す（曲は保持）
+    try{ d.el.pause(); d.el.currentTime = 0; }catch(e){}
+    try{ if(S.ctx) d.gain.gain.setValueAtTime(0, S.ctx.currentTime); else d.gain.gain.value = 0; }catch(e){}
+    d.drawDirty = true; renderDeck(d);
+    return;
+  }
   S.xfading = false;
   if(S.xfadeTimer){ clearTimeout(S.xfadeTimer); S.xfadeTimer = null; }
   const item = d.item;
@@ -2635,7 +2925,127 @@ function sendRaw(payload){
   return n;
 }
 
-/* ---- 3バンドEQ（デッキごと：LOW 250Hz / MID 1kHz / HIGH 4kHz、±12dB） ---- */
+/* =========================================================
+   🎛️ 2デッキ DJミキサー（rekordbox 風）
+   - Deck A / Deck B 独立再生 ＋ 横クロスフェーダー（等パワー / バランス）
+   - チャンネルごとの TRIM / 3バンドEQ / FILTER / フェーダー
+   - 波形（decodeAudioData）＋クリック／ドラッグシーク
+   - PLAY / CUE / ヘッドホンCUE(PFL) / HOT CUE A-D / PITCH+BEND / BPM / LOOP
+   ========================================================= */
+
+/* ---- デッキUI・ミキサーUI の要素キャッシュ ---- */
+const DECK_UI = [0,1].map((i)=>{
+  const root = $(i === 0 ? 'deckA' : 'deckB');
+  const q  = (k)=> root ? root.querySelector('[data-el="' + k + '"]') : null;
+  const qa = (sel)=> root ? Array.prototype.slice.call(root.querySelectorAll(sel)) : [];
+  return {
+    root,
+    kind:q('kind'), title:q('title'), canvas:q('wave'), prog:q('prog'),
+    progFill: root ? root.querySelector('[data-el="prog"] i') : null,
+    cur:q('cur'), dur:q('dur'), bpm:q('bpm'),
+    playBtn:qa('[data-act="play"]')[0], cue:qa('[data-act="cue"]')[0],
+    pitch:q('pitch'), pitchval:q('pitchval'),
+    pfl:qa('[data-act="pfl"]'),
+    bends:qa('[data-act="bend"]'),
+    tap:qa('[data-act="tap"]')[0],
+    hots:{A:root?root.querySelector('[data-hot="A"]'):null, B:root?root.querySelector('[data-hot="B"]'):null,
+          C:root?root.querySelector('[data-hot="C"]'):null, D:root?root.querySelector('[data-hot="D"]'):null},
+    loopRow: root ? root.querySelector('.dk-loops') : null,
+    loopBtns: qa('[data-loop]'),
+    loopIn:qa('[data-act="loopin"]')[0], loopOut:qa('[data-act="loopout"]')[0], loopExit:qa('[data-act="loopexit"]')[0],
+    hotClear:qa('[data-act="hotclear"]')[0]
+  };
+});
+const MIX_UI = [0,1].map((i)=>{
+  const root = document.querySelector('#mixer .mx-ch[data-deck="' + i + '"]');
+  const q = (k)=> root ? root.querySelector('[data-el="' + k + '"]') : null;
+  return {
+    root,
+    trim:q('trim'), trimVal:q('trimval'),
+    eqLow:q('eqlow'), eqLowVal:q('eqlowval'),
+    eqMid:q('eqmid'), eqMidVal:q('eqmidval'),
+    eqHigh:q('eqhigh'), eqHighVal:q('eqhighval'),
+    filter:q('filter'), filterVal:q('filterval'),
+    fader:q('fader'),
+    eqReset: root ? root.querySelector('[data-act="eqreset"]') : null,
+    pfl: root ? Array.prototype.slice.call(root.querySelectorAll('[data-act="pfl"]')) : []
+  };
+});
+const WAVE_CACHE_MAX = 14;
+
+function deckAt(i){ return (S.decks && S.decks[i]) ? S.decks[i] : null; }
+function deckName(i){ return i === 0 ? 'A' : 'B'; }
+function deckDuration(d){
+  if(!d) return 0;
+  if(!d.el) return Number(d.decodedDur) || 0;
+  const a = Number(d.el.duration);
+  if(isFinite(a) && a > 0) return a;
+  return Number(d.decodedDur) || 0;
+}
+function dbLabel(v){
+  const n = Math.round(Number(v) || 0);
+  return (n > 0 ? '+' : '') + n + 'dB';
+}
+
+/* ---- クロスフェーダー ---- */
+function xfadeGains(){
+  const p = Math.max(0, Math.min(1, (Number(S.xfader) || 0) / 100));
+  if(S.xfCurve === 'lin') return {a:1 - p, b:p};
+  return {a:Math.cos(p*Math.PI/2), b:Math.cos((1-p)*Math.PI/2)};
+}
+function applyCrossfader(ramp, immediate){
+  const g = xfadeGains();
+  if(!S.decks) return g;
+  S.decks.forEach((d, i)=>{
+    const v = i === 0 ? g.a : g.b;
+    try{
+      const gn = d.xfadeGain.gain;
+      if(!S.ctx || immediate){ gn.cancelScheduledValues(0); gn.value = v; }
+      else gn.setTargetAtTime(v, S.ctx.currentTime, Math.max(0.008, (ramp === undefined ? 0.05 : Math.max(0.02, ramp)) / 3));
+    }catch(e){ try{ d.xfadeGain.gain.value = v; }catch(e2){} }
+  });
+  return g;
+}
+function setXfaderUi(){
+  if(!el.xfader) return;
+  el.xfader.value = String(Math.round(Math.max(0, Math.min(100, Number(S.xfader) || 0))));
+  setRangeFill(el.xfader);
+  const g = xfadeGains();
+  if(el.xfA) el.xfA.classList.toggle('on', g.a > 0.999);
+  if(el.xfB) el.xfB.classList.toggle('on', g.b > 0.999);
+  if(el.xfCenter) el.xfCenter.classList.toggle('on', Math.abs(g.a - g.b) < 0.002);
+}
+function setXfader(v){
+  if(S.xfTimer){ clearInterval(S.xfTimer); S.xfTimer = null; }
+  S.xfader = Math.max(0, Math.min(100, Number(v) || 0));
+  setXfaderUi();
+  applyCrossfader(0.04);
+}
+function xfadeTo(pos, sec, then){
+  if(S.xfTimer){ clearInterval(S.xfTimer); S.xfTimer = null; }
+  const start = Math.max(0, Math.min(100, Number(S.xfader) || 0));
+  const target = Math.max(0, Math.min(100, Number(pos) || 0));
+  const dur = Math.max(0, Number(sec) || 0) * 1000;
+  if(dur < 60){
+    S.xfader = target; setXfaderUi(); applyCrossfader(0.03);
+    if(then) then();
+    return;
+  }
+  const t0 = (window.performance && performance.now) ? performance.now() : Date.now();
+  S.xfTimer = setInterval(()=>{
+    const now = (window.performance && performance.now) ? performance.now() : Date.now();
+    const k = Math.min(1, (now - t0) / dur);
+    S.xfader = start + (target - start) * k;
+    setXfaderUi();
+    applyCrossfader(0.06);
+    if(k >= 1){
+      clearInterval(S.xfTimer); S.xfTimer = null;
+      if(then) then();
+    }
+  }, 40);
+}
+
+/* ---- チャンネル（TRIM / EQ / FILTER / FADER） ---- */
 function applyEq(d, immediate){
   if(!d || !d.eq) return;
   ['low','mid','high'].forEach((k)=>{
@@ -2643,111 +3053,606 @@ function applyEq(d, immediate){
     if(!node) return;
     const v = Number((d.eqVal && d.eqVal[k]) || 0);
     try{
-      if(!S.ctx || immediate){ node.gain.value = v; }
+      if(!S.ctx || immediate) node.gain.value = v;
       else node.gain.setTargetAtTime(v, S.ctx.currentTime, 0.03);
     }catch(e){ node.gain.value = v; }
   });
 }
-function setEq(k, v){
-  const d = deckCur();
+function applyTrim(d, immediate){
+  if(!d || !d.trim) return;
+  const g = Math.pow(10, (Number(d.trimVal) || 0) / 20);
+  try{
+    if(!S.ctx || immediate) d.trim.gain.value = g;
+    else d.trim.gain.setTargetAtTime(g, S.ctx.currentTime, 0.03);
+  }catch(e){ try{ d.trim.gain.value = g; }catch(e2){} }
+}
+function applyFader(d, immediate){
+  if(!d || !d.fader) return;
+  const p = Math.max(0, Math.min(1, Number(d.faderVal)));
+  const g = Math.pow(p, 1.5);
+  try{
+    if(!S.ctx || immediate) d.fader.gain.value = g;
+    else d.fader.gain.setTargetAtTime(g, S.ctx.currentTime, 0.02);
+  }catch(e){ try{ d.fader.gain.value = g; }catch(e2){} }
+}
+function applyDeckFilter(d, immediate){
+  if(!d || !d.flt) return;
+  const f = d.flt;
+  const v = Math.max(-100, Math.min(100, Number(d.filterVal) || 0));
+  let type = 'lowpass', freq = 22000, q = 0.7;
+  if(v < -0.5){ type = 'lowpass'; freq = 22000 * Math.pow(180/22000, (-v)/100); q = 1.1; }
+  else if(v > 0.5){ type = 'highpass'; freq = 20 * Math.pow(10000/20, v/100); q = 1.1; }
+  try{
+    f.type = type;
+    f.Q.value = q;
+    if(!S.ctx || immediate) f.frequency.value = freq;
+    else f.frequency.setTargetAtTime(freq, S.ctx.currentTime, 0.02);
+  }catch(e){ try{ f.type = type; f.frequency.value = freq; }catch(e2){} }
+}
+function setDeckEq(d, k, v){
   if(!d || !d.eqVal) return;
   const n = Math.max(-12, Math.min(12, Number(v) || 0));
   d.eqVal[k] = n;
   applyEq(d, false);
-  syncDeckUi();
+  syncMixerUi();
 }
-function eqReset(){
-  const d = deckCur();
-  if(!d || !d.eqVal) return;
+function setDeckTrim(d, db){
+  if(!d) return;
+  d.trimVal = Math.max(-12, Math.min(12, Number(db) || 0));
+  applyTrim(d, false);
+  syncMixerUi();
+}
+function setDeckFader(d, pct){
+  if(!d) return;
+  d.faderVal = Math.max(0, Math.min(1, (Number(pct) || 0) / 100));
+  applyFader(d, false);
+  syncMixerUi();
+}
+function setDeckFilter(d, v){
+  if(!d) return;
+  d.filterVal = Math.max(-100, Math.min(100, Number(v) || 0));
+  applyDeckFilter(d, false);
+  syncMixerUi();
+}
+function eqResetDeck(d){
+  if(!d) return;
   d.eqVal = {low:0, mid:0, high:0};
   applyEq(d, false);
-  syncDeckUi();
-  toast('EQ を 0dB（フラット）に戻しました','');
+  syncMixerUi();
+}
+function eqResetAll(){
+  if(S.decks) S.decks.forEach(d=>eqResetDeck(d));
+  toast('EQ を両デッキとも 0dB（フラット）に戻しました','');
 }
 
-/* ---- PITCH（再生速度 0.90〜1.10） ---- */
-function applyDeckRate(d, pct){
+/* ---- ピッチ / BEND ---- */
+function applyDeckRate(d){
   if(!d || !d.el) return;
-  const p = Math.max(-10, Math.min(10, Number(pct) || 0));
-  try{ d.el.playbackRate = 1 + p/100; }catch(e){}
+  const base = 1 + (Number(d.ratePct) || 0) / 100;
+  const bend = d.bend ? (1 + (d.bend * 3) / 100) : 1;
+  try{ d.el.playbackRate = Math.max(0.25, Math.min(4, base * bend)); }catch(e){}
 }
-function setPitch(pct){
-  S.rate = Math.max(-10, Math.min(10, Number(pct) || 0));
-  if(S.decks) S.decks.forEach(d=>applyDeckRate(d, S.rate));
-  syncDeckUi();
+function setDeckPitch(d, pct){
+  if(!d) return;
+  d.ratePct = Math.max(-10, Math.min(10, Number(pct) || 0));
+  applyDeckRate(d);
+  if(d.loop && d.loop.active) scheduleLoopWrap(d);
+  if(d === deckCur()) S.rate = d.ratePct;
+  renderDeck(d);
 }
-function pitchReset(){ setPitch(0); toast('ピッチを 0%（原速）に戻しました',''); }
+function bendDeck(d, dir, on){
+  if(!d) return;
+  d.bend = on ? (dir < 0 ? -1 : 1) : 0;
+  applyDeckRate(d);
+  if(d.loop && d.loop.active) scheduleLoopWrap(d);
+  const u = d.ui;
+  if(u && u.bends) u.bends.forEach(b=>{ if(Number(b.dataset.dir) === (dir < 0 ? -1 : 1)) b.classList.toggle('hold', !!on); });
+}
 
-/* ---- BPM TAP（直近8回の間隔平均） ---- */
-function bpmTap(){
+/* ---- BPM（TAP ＋ 簡易推定） ---- */
+function bpmTapDeck(d){
+  if(!d) return 0;
   const now = (window.performance && performance.now) ? performance.now() : Date.now();
-  const a = S.bpm.taps;
-  if(a.length && (now - a[a.length-1]) > 2500) a.length = 0;   // 間が空いたら計り直し
+  const a = d.bpm.taps;
+  if(a.length && (now - a[a.length-1]) > 2500) a.length = 0;
   a.push(now);
   while(a.length > 8) a.shift();
   if(a.length >= 2){
     let sum = 0;
     for(let i=1;i<a.length;i++) sum += (a[i] - a[i-1]);
-    const avg = sum / (a.length - 1);
-    S.bpm.val = Math.round(60000 / avg);
+    d.bpm.val = Math.round(60000 / (sum / (a.length - 1)));
   }
-  renderBpm();
-  return S.bpm.val;
+  if(d === deckCur()){ S.bpm.val = d.bpm.val; S.bpm.taps = d.bpm.taps.slice(); }
+  renderDeck(d);
+  return d.bpm.val;
 }
-function renderBpm(){
-  if(!el.bpmVal) return;
-  el.bpmVal.textContent = '';
-  el.bpmVal.appendChild(document.createTextNode(S.bpm.val ? String(S.bpm.val) : '--'));
-  const s = document.createElement('small'); s.textContent = 'BPM';
-  el.bpmVal.appendChild(s);
+function bpmResetDeck(d){
+  if(!d) return;
+  d.bpm.taps.length = 0; d.bpm.val = 0;
+  renderDeck(d);
+  toast('BPM計測をリセットしました（DECK ' + deckName(d.index) + '）','');
 }
-function bpmReset(){ S.bpm.taps.length = 0; S.bpm.val = 0; renderBpm(); toast('BPM計測をリセットしました',''); }
 
-/* ---- HOT CUE（A/B/C） ---- */
-function hotCue(k, mode){
-  const d = deckCur();
-  if(!d || !d.item){ toast('先にBGMを再生してください','warn'); return; }
+/* ---- CUE / HOT CUE ---- */
+function setCuePoint(d){
+  if(!d || !d.item){ toast('先に音源をロードしてください','warn'); return; }
+  d.cuePoint = Number(d.el.currentTime) || 0;
+  renderDeck(d);
+  toast('DECK ' + deckName(d.index) + ' のCUE点を ' + fmtTime(d.cuePoint) + ' に設定','ok');
+}
+function cuePressDeck(d){
+  if(!d || !d.item){ toast('先に音源をロードしてください','warn'); return; }
+  const cur = Number(d.el.currentTime) || 0;
+  const cp = Math.max(0, Number(d.cuePoint) || 0);
+  if(!d.el.paused){
+    try{ d.el.currentTime = Math.min(cp, Math.max(0, deckDuration(d) - 0.02)); }catch(e){}
+    pauseDeck(d, true);
+    toast('CUE（' + fmtTime(cp) + '）へ戻って待機','');
+    return;
+  }
+  if(Math.abs(cur - cp) > 0.2){
+    try{ d.el.currentTime = cp; }catch(e){}
+    renderDeck(d);
+    return;
+  }
+  playDeck(d);   // CUE点に居るときは頭出し再生
+}
+function hotCueAt(d, k, mode){
+  if(!d || !d.item){ toast('先に音源をロードしてください','warn'); return; }
   if(mode === 'clear'){
     d.hot[k] = null;
-    syncDeckUi();
-    toast('HOT CUE ' + k + ' を消去しました','');
+    renderDeck(d);
+    toast('HOT CUE ' + k + ' を消去しました（DECK ' + deckName(d.index) + '）','');
     return;
   }
   if(d.hot[k] == null){
     d.hot[k] = Number(d.el.currentTime) || 0;
-    toast('HOT CUE ' + k + ' を ' + fmtTime(d.hot[k]) + ' に記憶しました','ok');
+    toast('HOT CUE ' + k + ' を ' + fmtTime(d.hot[k]) + ' に記憶（DECK ' + deckName(d.index) + '）','ok');
   } else {
-    try{ d.el.currentTime = Math.min(d.hot[k], (d.el.duration || d.hot[k])); }catch(e){}
+    try{ d.el.currentTime = Math.min(d.hot[k], Math.max(0, deckDuration(d) - 0.02)); }catch(e){}
+    d.drawDirty = true;
     toast('HOT CUE ' + k + '（' + fmtTime(d.hot[k]) + '）へジャンプ','');
   }
-  syncDeckUi();
+  renderDeck(d);
+}
+function hotCueClearDeck(d){
+  if(!d) return;
+  d.hot = {A:null, B:null, C:null, D:null};
+  renderDeck(d);
+  toast('HOT CUE をすべて消去しました（DECK ' + deckName(d.index) + '）','');
 }
 
-/* デッキUI（EQ / HOT CUE / PITCH）を現在のアクティブデッキに合わせる */
-function syncDeckUi(){
-  const d = (S.decks && deckCur()) ? deckCur() : null;
-  const eq = (d && d.eqVal) ? d.eqVal : {low:0, mid:0, high:0};
-  [['low', el.eqLow, el.eqLowVal], ['mid', el.eqMid, el.eqMidVal], ['high', el.eqHigh, el.eqHighVal]].forEach((r)=>{
-    const inp = r[1], out = r[2];
-    if(!inp) return;
-    const v = Math.round(Number(eq[r[0]] || 0));
-    inp.value = String(v);
-    if(out) out.textContent = (v > 0 ? '+' : '') + v + 'dB';
-    setRangeFill(inp);
-  });
-  if(el.eqDeck) el.eqDeck.textContent = d ? ('DECK ' + (S.active === 0 ? 'A' : 'B')) : 'DECK —';
-  ['A','B','C'].forEach((k)=>{
-    const b = el['hc' + k];
-    if(!b) return;
-    const v = (d && d.hot) ? d.hot[k] : null;
-    b.classList.toggle('set', v != null);
-    b.textContent = (v == null) ? k : (k + ' ' + fmtTime(v));
-    b.title = (v == null) ? ('HOT CUE ' + k + '：押すと現在位置を記憶') : ('HOT CUE ' + k + '（' + fmtTime(v) + '）：押すとジャンプ / 右クリック・長押しで消去');
-  });
-  if(el.pitch) el.pitch.value = String(Number(S.rate) || 0);
-  if(el.pitchVal) el.pitchVal.textContent = ((S.rate > 0) ? '+' : '') + (Number(S.rate) || 0).toFixed(1) + '%';
-  if(el.pitch) setRangeFill(el.pitch);
+/* ---- LOOP ---- */
+function setLoopIn(d){
+  if(!d || !d.item){ toast('先に音源をロードしてください','warn'); return; }
+  d.loop.in = Number(d.el.currentTime) || 0;
+  if(d.loop.out != null && d.loop.out <= d.loop.in + 0.2) d.loop.out = null;
+  d.loop.active = d.loop.out != null && (d.loop.out - d.loop.in) >= 0.15;
+  renderDeck(d);
+  toast('ループIN ' + fmtTime(d.loop.in) + (d.loop.active ? '（' + fmtTime(d.loop.out) + ' まで）' : ''), '');
 }
+function setLoopOut(d){
+  if(!d || !d.item){ toast('先に音源をロードしてください','warn'); return; }
+  if(d.loop.in == null){ toast('先に IN を押してください','warn'); return; }
+  const t = Number(d.el.currentTime) || 0;
+  if(t <= d.loop.in + 0.15){ toast('OUT は IN より後にしてください','warn'); return; }
+  d.loop.out = t;
+  d.loop.active = true;
+  scheduleLoopWrap(d);
+  renderDeck(d);
+  toast('ループ ' + fmtTime(d.loop.in) + ' 〜 ' + fmtTime(d.loop.out) + '（' + ((d.loop.out - d.loop.in).toFixed(1)) + '秒）','ok');
+}
+function quickLoop(d, sec){
+  if(!d || !d.item){ toast('先に音源をロードしてください','warn'); return; }
+  const t = Number(d.el.currentTime) || 0;
+  const dur = deckDuration(d);
+  const len = Math.max(0.2, Number(sec) || 4);
+  d.loop.in = t;
+  d.loop.out = dur ? Math.min(dur - 0.02, t + len) : t + len;
+  d.loop.active = true;
+  scheduleLoopWrap(d);
+  renderDeck(d);
+  toast(len + '秒ループ（' + fmtTime(d.loop.in) + ' 〜 ' + fmtTime(d.loop.out) + '）','ok');
+}
+function loopExit(d){
+  if(!d) return;
+  d.loop.active = false; d.loop.in = null; d.loop.out = null;
+  if(d.loopTimer){ clearTimeout(d.loopTimer); d.loopTimer = null; }
+  renderDeck(d);
+  toast('ループ解除（DECK ' + deckName(d.index) + '）','');
+}
+function loopGuardTick(){
+  if(!S.decks) return;
+  for(const d of S.decks){
+    const L = d.loop;
+    if(!L || !L.active || L.in == null || L.out == null) continue;
+    if(d.el.paused || !d.item) continue;
+    const t = Number(d.el.currentTime) || 0;
+    if(t >= L.out - 0.008){
+      try{ d.el.currentTime = L.in; d.drawDirty = true; }catch(e){}
+    }
+  }
+}
+/* ループの折り返しをタイマーでも予約して、取りこぼし（ポーリング遅れ）を小さくする */
+function scheduleLoopWrap(d){
+  if(d.loopTimer){ clearTimeout(d.loopTimer); d.loopTimer = null; }
+  const L = d.loop;
+  if(!L || !L.active || L.in == null || L.out == null) return;
+  if(d.el.paused || !d.item) return;
+  const t = Number(d.el.currentTime) || 0;
+  const rate = Number(d.el.playbackRate) || 1;
+  const remain = (L.out - t) / Math.max(0.25, rate);
+  if(remain < 0){ try{ d.el.currentTime = L.in; }catch(e){} scheduleLoopWrap(d); return; }
+  d.loopTimer = setTimeout(()=>{
+    d.loopTimer = null;
+    const LL = d.loop;
+    if(!LL || !LL.active || d.el.paused || !d.item) return;
+    if((Number(d.el.currentTime) || 0) >= LL.out - 0.02){
+      try{ d.el.currentTime = LL.in; d.drawDirty = true; }catch(e){}
+    }
+    scheduleLoopWrap(d);
+  }, Math.max(20, remain * 1000 - 12));
+}
+
+/* ---- ヘッドホンCUE（PFL） ---- */
+function setPfl(d, on){
+  if(!d) return;
+  d.pfl = !!on;
+  if(d.pfl && !S.ctx){ d.pfl = false; toast('先に「配信開始」を押してください','warn'); }
+  try{
+    if(S.ctx) d.cueTap.gain.setTargetAtTime(d.pfl ? 1 : 0, S.ctx.currentTime, 0.02);
+    else d.cueTap.gain.value = d.pfl ? 1 : 0;
+  }catch(e){}
+  if(d.pfl){
+    try{ const p = el.cueMonAudio && el.cueMonAudio.play(); if(p && p.catch) p.catch(()=>{}); }catch(e){}
+  }
+  renderDeck(d);
+  toast(d.pfl
+    ? ('🎧 DECK ' + deckName(d.index) + ' をヘッドホンCUE（PFL）。リスナーには送らず、モニター出力だけで鳴ります')
+    : ('DECK ' + deckName(d.index) + ' のヘッドホンCUEをOFF'), '');
+}
+function togglePfl(d){ if(d) setPfl(d, !d.pfl); }
+
+/* ---- 再生 / 停止（デッキ独立） ---- */
+function playDeck(d){
+  if(!S.ctx){ toast('先に「配信開始」を押してください','warn'); return false; }
+  if(!d || !d.item){ toast('このデッキに音源がありません（音源を追加して A / B にロード）','warn'); return false; }
+  const t = S.ctx.currentTime;
+  try{
+    d.gain.gain.cancelScheduledValues(t);
+    d.gain.gain.setValueAtTime(Math.max(0.0001, d.gain.gain.value), t);
+    d.gain.gain.setTargetAtTime(1, t, 0.02);
+  }catch(e){}
+  try{
+    const p = d.el.play();
+    if(p && p.catch) p.catch(()=>{ toast('この音源を再生できません','err'); });
+  }catch(e){}
+  S.active = d.index;
+  // 📝 セットリスト自動記録（新しい曲を頭から再生したときだけ1回）
+  if(d.item && d.lastLogged !== d.item && (Number(d.el.currentTime) || 0) < 1.2){
+    setAdd(d.item.title, d.item.kind);
+    d.lastLogged = d.item;
+  }
+  // クロスフェーダーが反対側に寄っていると無音になるので、このデッキ側へ寄せる
+  const g = xfadeGains();
+  const mine = d.index === 0 ? g.a : g.b;
+  if(mine < 0.02 && !S.xfTimer){
+    xfadeTo(d.index === 0 ? 0 : 100, 0.45);
+    toast('クロスフェーダーを DECK ' + deckName(d.index) + ' 側へ移動しました','');
+  }
+  d.drawDirty = true;
+  renderDeck(d);
+  updateNowUi();
+  notifyNow();
+  if(d.loop && d.loop.active) scheduleLoopWrap(d);
+  return true;
+}
+function pauseDeck(d, quiet){
+  if(!d) return;
+  if(d.loopTimer){ clearTimeout(d.loopTimer); d.loopTimer = null; }
+  try{ d.el.pause(); }catch(e){}
+  try{
+    if(S.ctx){
+      d.gain.gain.cancelScheduledValues(S.ctx.currentTime);
+      d.gain.gain.setTargetAtTime(0, S.ctx.currentTime, 0.015);
+    } else d.gain.gain.value = 0;
+  }catch(e){}
+  d.drawDirty = true;
+  renderDeck(d);
+  updateNowUi();
+  if(!quiet) notifyNow();
+}
+function toggleDeck(d){
+  if(!d) return;
+  if(d.item && !d.el.paused) pauseDeck(d); else playDeck(d);
+}
+
+/* ---- ロード ---- */
+function targetDeckIndex(){
+  if(S.loadTarget === '0') return 0;
+  if(S.loadTarget === '1') return 1;
+  return null;
+}
+function loadItemToDeck(d, item, play, playlistIndex){
+  if(!S.ctx){ toast('先に「配信開始」を押してください','warn'); return false; }
+  if(!d || !item) return false;
+  S.active = d.index;
+  try{ d.el.pause(); }catch(e){}
+  try{
+    d.gain.gain.cancelScheduledValues(S.ctx.currentTime);
+    d.gain.gain.setValueAtTime(0, S.ctx.currentTime);
+  }catch(e){}
+  setDeckItem(d, item);
+  if(item.kind === 'playlist' && typeof playlistIndex === 'number'){
+    S.index = playlistIndex;
+    renderPlaylist();
+  }
+  if(play) playDeck(d);
+  else { renderDeck(d); updateNowUi(); notifyNow(); }
+  return true;
+}
+function loadPlaylistToDeck(i, deckIdx, play){
+  const item = bgmItemFromPlaylist(i);
+  if(!item) return false;
+  return loadItemToDeck(deckAt(deckIdx), item, play, i);
+}
+function loadUrlToDeck(url, title, deckIdx, play){
+  const idx = S.playlist.length;
+  S.playlist.push({name:title || urlTitleFor({url}), url, remote:true});
+  renderPlaylist();
+  return loadPlaylistToDeck(idx, deckIdx, play);
+}
+
+/* ---- 波形 ---- */
+function computeWavePeaks(buf){
+  const cols = 900;
+  const len = buf.length;
+  const nch = Math.min(2, buf.numberOfChannels);
+  const chans = [];
+  for(let c=0;c<nch;c++) chans.push(buf.getChannelData(c));
+  const peaks = new Float32Array(cols);
+  const step = len / cols;
+  for(let x=0;x<cols;x++){
+    const a = Math.floor(x*step);
+    const b = Math.max(a+1, Math.min(len, Math.floor((x+1)*step)));
+    let p = 0;
+    for(let c=0;c<nch;c++){
+      const arr = chans[c];
+      for(let i=a;i<b;i+=2){ const v = arr[i] < 0 ? -arr[i] : arr[i]; if(v > p) p = v; }
+    }
+    peaks[x] = p;
+  }
+  let mx = 0;
+  for(let i=0;i<cols;i++) if(peaks[i] > mx) mx = peaks[i];
+  if(mx > 0.0001){ const k = 1 / mx; for(let i=0;i<cols;i++) peaks[i] *= k; }
+  return peaks;
+}
+/* 簡易BPM推定：50msごとの音量エンベロープの立ち上がりを自己相関で見る（目安表示） */
+function estimateBpmFromBuffer(buf){
+  try{
+    const sr = buf.sampleRate;
+    const hop = Math.max(1, Math.round(sr * 0.05));
+    const src0 = buf.getChannelData(0);
+    const n = Math.floor(src0.length / hop);
+    if(n < 200) return 0;
+    const env = new Float32Array(n);
+    for(let i=0;i<n;i++){
+      const st = i*hop, en = Math.min(src0.length, st + hop);
+      let s = 0, cnt = 0;
+      for(let j=st;j<en;j+=4){ const v = src0[j]; s += v*v; cnt++; }
+      env[i] = Math.sqrt(s / (cnt || 1));
+    }
+    const flux = new Float32Array(n);
+    for(let i=1;i<n;i++){ const dv = env[i] - env[i-1]; flux[i] = dv > 0 ? dv : 0; }
+    const minLag = Math.max(3, Math.round((60/180)/0.05));
+    const maxLag = Math.min(n-2, Math.round((60/60)/0.05));
+    let best = 0, bestScore = 0;
+    for(let lag=minLag; lag<=maxLag; lag++){
+      let s = 0, cnt = 0;
+      for(let i=lag;i<n;i+=2){ s += flux[i]*flux[i-lag]; cnt++; }
+      const score = cnt ? s/cnt : 0;
+      if(score > bestScore){ bestScore = score; best = lag; }
+    }
+    if(!best) return 0;
+    const bpm = Math.round(60 / (best * 0.05));
+    return (bpm >= 55 && bpm <= 200) ? bpm : 0;
+  }catch(e){ return 0; }
+}
+async function loadDeckWave(d){
+  const url = d.item && d.item.url;
+  const seq = ++d.waveSeq;
+  if(!url){ d.wave = null; d.waveState = 'none'; drawWave(d); renderDeck(d); return; }
+  const hit = S.waveCache.get(url);
+  if(hit){
+    d.wave = hit.peaks; d.bpmEst = hit.bpm || 0; d.decodedDur = hit.dur || 0;
+    d.waveState = 'ok'; d.drawDirty = true; drawWave(d); renderDeck(d);
+    return;
+  }
+  d.wave = null; d.waveState = 'loading'; d.drawDirty = true; drawWave(d); renderDeck(d);
+  if(!S.ctx) { d.waveState = 'none'; return; }
+  try{
+    const res = await fetch(url, {mode:'cors', credentials:'omit', cache:'force-cache'});
+    if(!res.ok) throw new Error('http ' + res.status);
+    const ab = await res.arrayBuffer();
+    const buf = await S.ctx.decodeAudioData(ab);
+    const peaks = computeWavePeaks(buf);
+    const bpm = estimateBpmFromBuffer(buf);
+    S.waveCache.set(url, {peaks, bpm, dur:buf.duration});
+    while(S.waveCache.size > WAVE_CACHE_MAX) S.waveCache.delete(S.waveCache.keys().next().value);
+    if(seq !== d.waveSeq || !d.item || d.item.url !== url) return;   // 別の曲に切り替わった
+    d.wave = peaks; d.bpmEst = bpm; d.decodedDur = buf.duration || 0; d.waveState = 'ok';
+  }catch(e){
+    if(seq !== d.waveSeq) return;
+    d.wave = null; d.waveState = 'fallback';
+  }
+  d.drawDirty = true;
+  drawWave(d); renderDeck(d);
+}
+function sizeDeckCanvas(d){
+  const cv = d && d.ui ? d.ui.canvas : null;
+  if(!cv) return null;
+  const w = Math.max(1, Math.round(cv.clientWidth || 0));
+  const h = Math.max(1, Math.round(cv.clientHeight || 64));
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  if(cv.width !== Math.round(w*dpr) || cv.height !== Math.round(h*dpr)){
+    cv.width = Math.round(w*dpr); cv.height = Math.round(h*dpr);
+  }
+  return {cv, w, h, dpr};
+}
+function drawWave(d){
+  const c = sizeDeckCanvas(d);
+  if(!c) return;
+  const g = c.cv.getContext('2d');
+  if(!g) return;
+  g.setTransform(c.dpr, 0, 0, c.dpr, 0, 0);
+  const w = c.w, h = c.h, mid = h/2;
+  g.clearRect(0, 0, w, h);
+  const dur = deckDuration(d);
+  const cur = (d && d.el) ? (Number(d.el.currentTime) || 0) : 0;
+  const pos = dur > 0 ? Math.max(0, Math.min(1, cur/dur)) : 0;
+  const accent = d.index === 0 ? '#f2b464' : '#93b9ff';
+  const accentSoft = d.index === 0 ? 'rgba(242,180,100,.15)' : 'rgba(147,185,255,.15)';
+  if(d.wave && d.wave.length){
+    const n = d.wave.length;
+    const cols = Math.max(30, Math.floor(w / 2));
+    for(let x=0;x<cols;x++){
+      const i0 = Math.floor(x*n/cols);
+      const i1 = Math.max(i0+1, Math.floor((x+1)*n/cols));
+      let p = 0;
+      for(let i=i0;i<i1;i++) if(d.wave[i] > p) p = d.wave[i];
+      const amp = Math.max(0.7, p * (mid - 2));
+      const frac = (x + 0.5) / cols;
+      g.fillStyle = frac <= pos ? accent : 'rgba(255,255,255,.19)';
+      g.fillRect(x*2, mid - amp, 1.4, amp*2);
+    }
+    if(d.loop && d.loop.active && d.loop.in != null && d.loop.out != null && dur > 0){
+      const x1 = w * Math.max(0, Math.min(1, d.loop.in/dur));
+      const x2 = w * Math.max(0, Math.min(1, d.loop.out/dur));
+      g.fillStyle = accentSoft;
+      g.fillRect(x1, 0, Math.max(1.5, x2 - x1), h);
+      g.fillStyle = 'rgba(121,224,194,.9)';
+      g.fillRect(x1, 0, 1, h);
+      g.fillRect(Math.max(0, x2-1), 0, 1, h);
+    }
+    if(dur > 0 && (Number(d.cuePoint) || 0) > 0){
+      g.fillStyle = 'rgba(242,180,100,.95)';
+      g.fillRect(w * (d.cuePoint/dur), 0, 1, h);
+    }
+  } else {
+    g.strokeStyle = 'rgba(255,255,255,.13)';
+    g.lineWidth = 1;
+    g.beginPath(); g.moveTo(0, mid); g.lineTo(w, mid); g.stroke();
+    g.font = '9px Menlo, Consolas, monospace';
+    g.fillStyle = 'rgba(255,255,255,.30)';
+    const msg = !d.item ? '音源をロードすると波形が出ます'
+      : (d.waveState === 'loading' ? '波形を読み込み中…'
+      : (d.waveState === 'fallback' ? '波形デコード不可（位置バーでシーク）' : '—'));
+    g.fillText(msg, 7, 13);
+  }
+  if(dur > 0){
+    g.fillStyle = 'rgba(255,255,255,.92)';
+    g.fillRect(Math.max(0, Math.min(w-1.5, pos*w - 0.75)), 0, 1.5, h);
+  }
+}
+function deckUiTick(){
+  if(!S.decks) return;
+  for(const d of S.decks){
+    const dur = deckDuration(d);
+    const cur = Number(d.el.currentTime) || 0;
+    const pos = dur > 0 ? Math.max(0, Math.min(1, cur/dur)) : 0;
+    if(d.drawDirty || Math.abs(pos - d.drawPos) > 0.0009){
+      d.drawPos = pos; d.drawDirty = false;
+      drawWave(d);
+    }
+    const u = d.ui;
+    if(u){
+      if(u.cur) u.cur.textContent = fmtTime(cur);
+      if(u.dur) u.dur.textContent = fmtTime(dur);
+      if(u.progFill) u.progFill.style.width = (pos*100).toFixed(2) + '%';
+    }
+  }
+}
+function startDeckTimers(){
+  if(!S.uiTimer) S.uiTimer = setInterval(deckUiTick, 60);
+  if(!S.loopTimer) S.loopTimer = setInterval(loopGuardTick, 25);
+}
+
+/* ---- 描画（デッキ・ミキサー） ---- */
+function renderDeck(d){
+  if(!d) return;
+  const u = d.ui;
+  d.drawDirty = true;
+  if(!u || !u.root) return;
+  const on = !!(d.item && !d.el.paused);
+  u.root.classList.toggle('playing', on);
+  if(!d.item){
+    u.title.textContent = '音源なし';
+    u.title.title = '';
+    u.kind.textContent = '—';
+  } else {
+    u.title.textContent = d.item.title || '（無題）';
+    u.title.title = d.item.title || '';
+    u.kind.textContent = d.item.kind === 'cue' ? 'CUE' : (d.item.kind === 'playlist' ? 'BGM' : 'AUDIO');
+  }
+  if(u.playBtn){
+    u.playBtn.textContent = on ? '❚❚' : '▶';
+    u.playBtn.setAttribute('aria-label', on ? '一時停止' : '再生');
+  }
+  const dur = deckDuration(d);
+  const cur = Number(d.el.currentTime) || 0;
+  if(u.cur) u.cur.textContent = fmtTime(cur);
+  if(u.dur) u.dur.textContent = fmtTime(dur);
+  if(u.progFill) u.progFill.style.width = (dur > 0 ? Math.min(100, cur/dur*100) : 0).toFixed(2) + '%';
+  if(u.cue) u.cue.classList.toggle('on', !!d.item && Math.abs(cur - (Number(d.cuePoint) || 0)) < 0.08);
+  (u.pfl || []).forEach(b=>b.classList.toggle('on', !!d.pfl));
+  if(u.pitch){ u.pitch.value = String(Number(d.ratePct) || 0); setRangeFill(u.pitch); }
+  if(u.pitchval) u.pitchval.textContent = ((d.ratePct > 0) ? '+' : '') + (Number(d.ratePct) || 0).toFixed(1) + '%';
+  ['A','B','C','D'].forEach((k)=>{
+    const b = u.hots ? u.hots[k] : null;
+    if(!b) return;
+    const v = d.hot ? d.hot[k] : null;
+    b.classList.toggle('set', v != null);
+    b.textContent = k;
+    b.title = (v == null) ? ('HOT CUE ' + k + '：押すと現在位置を記憶（長押し・右クリックで消去）')
+                          : ('HOT CUE ' + k + '（' + fmtTime(v) + '）：押すとジャンプ（長押し・右クリックで消去）');
+  });
+  const L = d.loop || {};
+  if(u.loopRow) u.loopRow.classList.toggle('on', !!L.active);
+  if(u.loopBtns) u.loopBtns.forEach(b=>{
+    const sec = Number(b.dataset.loop);
+    b.classList.toggle('active', !!L.active && L.in != null && L.out != null && Math.abs((L.out - L.in) - sec) < 0.25);
+  });
+  if(u.bpm){
+    const txt = (d.bpm && d.bpm.val) ? String(d.bpm.val) : (d.bpmEst ? '≈' + d.bpmEst : '--');
+    if(u.bpm.textContent !== txt) u.bpm.textContent = txt;
+    u.bpm.title = (d.bpm && d.bpm.val) ? 'BPM TAP の値' : (d.bpmEst ? '波形からの簡易推定（目安）' : 'BPM TAP で計測できます');
+  }
+}
+function syncMixerUi(){
+  if(!S.decks) return;
+  S.decks.forEach((d, i)=>{
+    const m = MIX_UI[i];
+    if(!m || !m.root) return;
+    if(m.trim){ m.trim.value = String(Math.round(Number(d.trimVal) || 0)); setRangeFill(m.trim); }
+    if(m.trimVal) m.trimVal.textContent = dbLabel(d.trimVal);
+    ['low','mid','high'].forEach((k)=>{
+      const key = 'eq' + k.charAt(0).toUpperCase() + k.slice(1);
+      const inp = m[key], out = m[key + 'Val'];
+      if(inp){ inp.value = String(Math.round(Number(d.eqVal[k]) || 0)); setRangeFill(inp); }
+      if(out) out.textContent = dbLabel(d.eqVal[k]);
+    });
+    if(m.filter){ m.filter.value = String(Math.round(Number(d.filterVal) || 0)); setRangeFill(m.filter); }
+    if(m.filterVal) m.filterVal.textContent = String(Math.round(Number(d.filterVal) || 0));
+    if(m.fader){ m.fader.value = String(Math.round((Number(d.faderVal) || 0) * 100)); setRangeFill(m.fader); }
+    (m.pfl || []).forEach(b=>b.classList.toggle('on', !!d.pfl));
+  });
+  setXfaderUi();
+}
+function syncDeckUi(){
+  if(S.decks) S.decks.forEach(d=>renderDeck(d));
+  syncMixerUi();
+}
+
 
 /* ---- 🔊 おたより・チャットの読み上げ（この端末のスピーカーだけ／リスナーには送らない） ---- */
 function setReadAloud(on){
@@ -3526,9 +4431,14 @@ function applyMonitorVolume(){
 }
 async function applySink(){
   const a = el.djMonAudio;
-  if(!a || typeof a.setSinkId !== 'function') return;
-  try{ await a.setSinkId(S.monDeviceId || ''); }
-  catch(e){ toast('この出力デバイスに切り替えられませんでした','warn'); }
+  const b = el.cueMonAudio;
+  let failed = false;
+  for(const elm of [a, b]){
+    if(!elm || typeof elm.setSinkId !== 'function') continue;
+    try{ await elm.setSinkId(S.monDeviceId || ''); }
+    catch(e){ failed = true; }
+  }
+  if(failed) toast('この出力デバイスに切り替えられませんでした','warn');
 }
 
 /* ---- 入力メーター（L/R・CLIP） ---- */
@@ -3609,6 +4519,24 @@ function peakDb(an){
   let p = 0;
   for(let i=0;i<vu.buf.length;i++){ const a = Math.abs(vu.buf[i]); if(a > p) p = a; }
   return p > 0 ? 20*Math.log10(p) : -Infinity;
+}
+/* アナライザーの一定時間ピーク（0〜1）。テスト・レベル確認用 */
+function peakOf(an, ms){
+  return new Promise((resolve)=>{
+    try{
+      if(!an || !S.ctx) return resolve(null);
+      const buf = new Float32Array(an.fftSize);
+      const end = performance.now() + (ms || 400);
+      let mx = 0;
+      const tick = ()=>{
+        an.getFloatTimeDomainData(buf);
+        for(let i=0;i<buf.length;i++){ const v = Math.abs(buf[i]); if(v > mx) mx = v; }
+        if(performance.now() < end) requestAnimationFrame(tick);
+        else resolve(Math.round(mx*1000)/1000);
+      };
+      requestAnimationFrame(tick);
+    }catch(e){ resolve(null); }
+  });
 }
 const DB_MIN = -54;
 function drawVu(){
@@ -4459,6 +5387,17 @@ function renderArchiveList(q){
     const sp = document.createElement('span'); sp.textContent = t.t;
     const sm = document.createElement('small'); sm.textContent = t.c.toUpperCase();
     li.appendChild(sp); li.appendChild(sm);
+    const ldA = document.createElement('b'); ldA.className = 'pick-ld'; ldA.textContent = 'A'; ldA.title = 'DECK A にロード';
+    const ldB = document.createElement('b'); ldB.className = 'pick-ld'; ldB.textContent = 'B'; ldB.title = 'DECK B にロード';
+    [ldA, ldB].forEach((b, k)=>{
+      b.addEventListener('click', (ev)=>{
+        ev.stopPropagation();
+        const item = {kind:'cue', cueId:'arc-' + Date.now(), url:t.u, title:t.t};
+        el.cuePicker.hidden = true;
+        loadItemToDeck(deckAt(k), item, true);
+      });
+    });
+    li.appendChild(ldA); li.appendChild(ldB);
     li.addEventListener('click', ()=>{
       cueAdd('archive', {title:t.t, src:t.u, srcLabel:'アーカイブ'});
       el.cuePicker.hidden = true;
@@ -4809,40 +5748,136 @@ function bind(){
     }
   });
 
-  /* 🎛️ 3バンドEQ */
-  [['low', el.eqLow], ['mid', el.eqMid], ['high', el.eqHigh]].forEach((r)=>{
-    if(!r[1]) return;
-    setRangeFill(r[1]);
-    r[1].addEventListener('input', ()=>setEq(r[0], Number(r[1].value)));
-  });
-  if(el.eqReset) el.eqReset.addEventListener('click', eqReset);
-
-  /* HOT CUE（A/B/C）: クリック=設定/ジャンプ、右クリック・長押し=消去 */
-  ['A','B','C'].forEach((k)=>{
-    const b = el['hc' + k];
-    if(!b) return;
-    b.addEventListener('click', ()=>hotCue(k));
-    b.addEventListener('contextmenu', (e)=>{ e.preventDefault(); hotCue(k, 'clear'); });
-    let holdTimer = null;
-    b.addEventListener('pointerdown', ()=>{ holdTimer = setTimeout(()=>{ holdTimer = null; hotCue(k, 'clear'); }, 750); });
-    ['pointerup','pointerleave','pointercancel'].forEach((ev)=>b.addEventListener(ev, ()=>{ if(holdTimer){ clearTimeout(holdTimer); holdTimer = null; } }));
-  });
-  if(el.hcClear) el.hcClear.addEventListener('click', ()=>{
-    const d = deckCur();
-    if(!d) return;
-    d.hot = {A:null, B:null, C:null};
-    syncDeckUi();
-    toast('HOT CUE をすべて消去しました','');
-  });
-
-  /* PITCH / BPM */
-  if(el.pitch){
-    setRangeFill(el.pitch);
-    el.pitch.addEventListener('input', ()=>setPitch(Number(el.pitch.value)));
+  /* 🎛️ 2デッキ DJミキサー（クロスフェーダー / チャンネル / デッキ操作） */
+  if(el.loadTarget){
+    el.loadTarget.value = S.loadTarget;
+    el.loadTarget.addEventListener('change', ()=>{ S.loadTarget = el.loadTarget.value; });
   }
-  if(el.pitchReset) el.pitchReset.addEventListener('click', pitchReset);
-  if(el.bpmTap) el.bpmTap.addEventListener('click', bpmTap);
-  if(el.bpmReset) el.bpmReset.addEventListener('click', bpmReset);
+  if(el.xfCurve){
+    el.xfCurve.value = S.xfCurve;
+    el.xfCurve.addEventListener('change', ()=>{
+      S.xfCurve = (el.xfCurve.value === 'lin') ? 'lin' : 'eq';
+      applyCrossfader(0.05);
+      setXfaderUi();
+      toast('クロスフェーダー：' + (S.xfCurve === 'lin' ? 'バランスカーブ' : '等パワーカーブ'), '');
+    });
+  }
+  if(el.xfader){
+    setRangeFill(el.xfader);
+    el.xfader.addEventListener('input', ()=>setXfader(Number(el.xfader.value)));
+    el.xfader.addEventListener('dblclick', ()=>setXfader(50));
+  }
+  if(el.xfA) el.xfA.addEventListener('click', ()=>xfadeTo(0, 0.2));
+  if(el.xfB) el.xfB.addEventListener('click', ()=>xfadeTo(100, 0.2));
+  if(el.xfCenter) el.xfCenter.addEventListener('click', ()=>xfadeTo(50, 0.2));
+
+  /* デッキごとの操作 */
+  DECK_UI.forEach((u, i)=>{
+    const get = ()=>deckAt(i);
+    if(u.playBtn) u.playBtn.addEventListener('click', ()=>{ const d = get(); if(d) toggleDeck(d); });
+
+    /* CUE：クリック＝頭出し / 再生中はCUE点へ戻って待機、長押し・右クリック＝CUE点更新 */
+    if(u.cue){
+      let hold = null, longPressed = false;
+      u.cue.addEventListener('pointerdown', ()=>{
+        longPressed = false;
+        hold = setTimeout(()=>{ hold = null; longPressed = true; const d = get(); if(d) setCuePoint(d); }, 650);
+      });
+      ['pointerup','pointerleave','pointercancel'].forEach((ev)=>u.cue.addEventListener(ev, ()=>{ if(hold){ clearTimeout(hold); hold = null; } }));
+      u.cue.addEventListener('contextmenu', (e)=>{ e.preventDefault(); const d = get(); if(d) setCuePoint(d); });
+      u.cue.addEventListener('click', ()=>{
+        if(longPressed){ longPressed = false; return; }
+        const d = get(); if(d) cuePressDeck(d);
+      });
+    }
+
+    /* HOT CUE A-D：クリック＝記憶/ジャンプ、長押し・右クリック＝消去 */
+    ['A','B','C','D'].forEach((k)=>{
+      const b = u.hots ? u.hots[k] : null;
+      if(!b) return;
+      let hold = null, longPressed = false;
+      b.addEventListener('pointerdown', ()=>{
+        longPressed = false;
+        hold = setTimeout(()=>{ hold = null; longPressed = true; const d = get(); if(d) hotCueAt(d, k, 'clear'); }, 700);
+      });
+      ['pointerup','pointerleave','pointercancel'].forEach((ev)=>b.addEventListener(ev, ()=>{ if(hold){ clearTimeout(hold); hold = null; } }));
+      b.addEventListener('contextmenu', (e)=>{ e.preventDefault(); const d = get(); if(d) hotCueAt(d, k, 'clear'); });
+      b.addEventListener('click', ()=>{
+        if(longPressed){ longPressed = false; return; }
+        const d = get(); if(d) hotCueAt(d, k);
+      });
+    });
+    if(u.hotClear) u.hotClear.addEventListener('click', ()=>{ const d = get(); if(d) hotCueClearDeck(d); });
+
+    /* PITCH（±10%）/ PITCH BEND（押している間 ±3%）/ BPM TAP */
+    if(u.pitch){
+      setRangeFill(u.pitch);
+      u.pitch.addEventListener('input', ()=>{ const d = get(); if(d) setDeckPitch(d, Number(u.pitch.value)); });
+      u.pitch.addEventListener('dblclick', ()=>{ const d = get(); if(d){ setDeckPitch(d, 0); toast('ピッチを 0%（原速）に戻しました（DECK ' + deckName(i) + '）',''); } });
+    }
+    (u.bends || []).forEach((b)=>{
+      const dir = Number(b.dataset.dir) < 0 ? -1 : 1;
+      const on = (ev)=>{ ev.preventDefault(); const d = get(); if(d) bendDeck(d, dir, true); };
+      const off = ()=>{ const d = get(); if(d) bendDeck(d, dir, false); };
+      b.addEventListener('pointerdown', on);
+      ['pointerup','pointerleave','pointercancel'].forEach((ev)=>b.addEventListener(ev, off));
+      b.addEventListener('keydown', (e)=>{ if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); on(e); } });
+      b.addEventListener('keyup', off);
+    });
+    if(u.tap) u.tap.addEventListener('click', ()=>{ const d = get(); if(d) bpmTapDeck(d); });
+
+    /* LOOP */
+    if(u.loopIn) u.loopIn.addEventListener('click', ()=>{ const d = get(); if(d) setLoopIn(d); });
+    if(u.loopOut) u.loopOut.addEventListener('click', ()=>{ const d = get(); if(d) setLoopOut(d); });
+    if(u.loopExit) u.loopExit.addEventListener('click', ()=>{ const d = get(); if(d) loopExit(d); });
+    (u.loopBtns || []).forEach((b)=>b.addEventListener('click', ()=>{ const d = get(); if(d) quickLoop(d, Number(b.dataset.loop)); }));
+
+    /* ヘッドホンCUE（PFL） */
+    (u.pfl || []).forEach((b)=>b.addEventListener('click', ()=>{ const d = get(); if(d) togglePfl(d); }));
+
+    /* 波形：クリック／ドラッグでシーク */
+    const cv = u.canvas;
+    if(cv){
+      const seekAt = (ev)=>{
+        const d = get();
+        const dur = deckDuration(d);
+        if(!d || !dur) return;
+        const r = cv.getBoundingClientRect();
+        const x = Math.max(0, Math.min(r.width, ev.clientX - r.left));
+        const t = Math.max(0, Math.min(dur - 0.02, dur * (x / Math.max(1, r.width))));
+        try{ d.el.currentTime = t; }catch(e){}
+        d.drawDirty = true;
+        d.drawPos = -1;
+        renderDeck(d);
+      };
+      cv.addEventListener('pointerdown', (ev)=>{
+        ev.preventDefault();
+        const d = get(); if(!d) return;
+        d.scrubbing = true;
+        try{ cv.setPointerCapture(ev.pointerId); }catch(e){}
+        seekAt(ev);
+      });
+      cv.addEventListener('pointermove', (ev)=>{ const d = get(); if(d && d.scrubbing) seekAt(ev); });
+      const end = ()=>{ const d = get(); if(d) d.scrubbing = false; };
+      ['pointerup','pointercancel','lostpointercapture'].forEach((ev)=>cv.addEventListener(ev, end));
+    }
+  });
+
+  /* ミキサー（TRIM / 3バンドEQ / FILTER / チャンネルフェーダー） */
+  MIX_UI.forEach((m, i)=>{
+    const get = ()=>deckAt(i);
+    if(m.trim){ setRangeFill(m.trim); m.trim.addEventListener('input', ()=>{ const d = get(); if(d) setDeckTrim(d, Number(m.trim.value)); }); }
+    [['low', m.eqLow], ['mid', m.eqMid], ['high', m.eqHigh]].forEach((r)=>{
+      if(!r[1]) return;
+      setRangeFill(r[1]);
+      r[1].addEventListener('input', ()=>{ const d = get(); if(d) setDeckEq(d, r[0], Number(r[1].value)); });
+      r[1].addEventListener('dblclick', ()=>{ const d = get(); if(d){ d.eqVal[r[0]] = 0; applyEq(d, false); syncMixerUi(); } });
+    });
+    if(m.filter){ setRangeFill(m.filter); m.filter.addEventListener('input', ()=>{ const d = get(); if(d) setDeckFilter(d, Number(m.filter.value)); }); }
+    if(m.fader){ setRangeFill(m.fader); m.fader.addEventListener('input', ()=>{ const d = get(); if(d) setDeckFader(d, Number(m.fader.value)); }); }
+    if(m.eqReset) m.eqReset.addEventListener('click', ()=>{ const d = get(); if(d){ eqResetDeck(d); toast('EQ を 0dB（フラット）に戻しました（DECK ' + deckName(i) + '）',''); } });
+    (m.pfl || []).forEach((b)=>b.addEventListener('click', ()=>{ const d = get(); if(d) togglePfl(d); }));
+  });
 
   /* 🔊 読み上げ / 📺 テロップ */
   if(el.readBtn) el.readBtn.addEventListener('click', ()=>setReadAloud(!S.readAloud));
@@ -4928,8 +5963,9 @@ function init(){
   peopleSummary();
   updateRecUi();
   // 🆕 第2弾の初期化
-  renderBpm();
   syncDeckUi();
+  setXfaderUi();
+  [0,1].forEach(i=>drawWave({ui:DECK_UI[i], index:i, el:null, item:null, wave:null, waveState:'none'}));
   renderSetlist();
   if(el.readBtn) el.readBtn.textContent = '🔊 読み上げ OFF';
   if(el.telopPrev){ el.telopPrev.hidden = true; el.telopPrev.textContent = ''; }
@@ -5168,7 +6204,91 @@ window.__nrDebug = {
   },
   setlistText(){ return setlistText(); },
   read(on){ setReadAloud(!!on); return S.readAloud; },
-  bpmTap(){ return bpmTap(); },
+  bpmTap(){ const d = deckCur(); return d ? bpmTapDeck(d) : 0; },
+  /* 🎛️ 2デッキDJミキサー（テスト用） */
+  dj:{
+    decks(){
+      return (S.decks || []).map((d)=>{
+        const cv = d.ui && d.ui.canvas;
+        return {
+          index:d.index, name:deckName(d.index),
+          title:d.item ? d.item.title : null, kind:d.item ? d.item.kind : null,
+          playing:!(d.el.paused), time:Math.round((Number(d.el.currentTime)||0)*100)/100,
+          dur:Math.round(deckDuration(d)*100)/100,
+          gain:Math.round(d.gain.gain.value*1000)/1000,
+          fader:Math.round(d.fader.gain.value*1000)/1000,
+          xfade:Math.round(d.xfadeGain.gain.value*1000)/1000,
+          trim:Math.round(d.trim.gain.value*1000)/1000,
+          pfl:!!d.pfl, cueTap:Math.round(d.cueTap.gain.value*1000)/1000,
+          cuePoint:Math.round((Number(d.cuePoint)||0)*100)/100,
+          hot:Object.assign({}, d.hot),
+          loop:{in:d.loop.in, out:d.loop.out, active:!!d.loop.active},
+          pitch:d.ratePct, bend:d.bend, playbackRate:Math.round(d.el.playbackRate*1000)/1000,
+          bpm:d.bpm.val, bpmEst:d.bpmEst,
+          eq:Object.assign({}, d.eqVal),
+          eqNodes:{low:Math.round(d.eq.low.gain.value*10)/10, mid:Math.round(d.eq.mid.gain.value*10)/10, high:Math.round(d.eq.high.gain.value*10)/10},
+          filter:d.filterVal, filterNode:Math.round(d.flt.frequency.value),
+          wave:{state:d.waveState, cols:d.wave ? d.wave.length : 0,
+                canvas:cv ? {w:cv.width, h:cv.height} : null}
+        };
+      });
+    },
+    xfader(){ return {pos:Math.round((Number(S.xfader)||0)*10)/10, curve:S.xfCurve, gains:xfadeGains(), animating:!!S.xfTimer}; },
+    setXfade(v){ setXfader(v); return this.xfader(); },
+    curve(c){ S.xfCurve = (c === 'lin') ? 'lin' : 'eq'; applyCrossfader(0.05); setXfaderUi(); return this.xfader(); },
+    loadArchive(i, deckIdx, play){
+      const a = ARCHIVE[i];
+      if(!a) return false;
+      const d = deckAt(deckIdx === undefined ? 0 : deckIdx);
+      return loadItemToDeck(d, {kind:'cue', cueId:'dbg-' + Date.now(), url:a.u, title:a.t}, play !== false);
+    },
+    loadPlaylist(i, deckIdx, play){
+      const d = deckAt(deckIdx === undefined ? 0 : deckIdx);
+      const item = bgmItemFromPlaylist(i);
+      if(!d || !item) return false;
+      return loadItemToDeck(d, item, play !== false, i);
+    },
+    loadUrl(url, deckIdx, play, title){
+      const d = deckAt(deckIdx === undefined ? 0 : deckIdx);
+      return loadItemToDeck(d, {kind:'playlist', index:-1, url, title:title || url}, play !== false);
+    },
+    play(i){ const d = deckAt(i); return d ? playDeck(d) : false; },
+    pause(i){ const d = deckAt(i); if(d){ pauseDeck(d); return true; } return false; },
+    toggle(i){ const d = deckAt(i); if(d){ toggleDeck(d); return true; } return false; },
+    seek(i, t){ const d = deckAt(i); if(!d) return false; try{ d.el.currentTime = Number(t)||0; d.drawDirty = true; renderDeck(d); return true; }catch(e){ return false; } },
+    cue(i){ const d = deckAt(i); if(!d) return false; cuePressDeck(d); return true; },
+    cueSet(i){ const d = deckAt(i); if(!d) return false; setCuePoint(d); return true; },
+    hot(i, k, mode){ const d = deckAt(i); if(!d) return false; hotCueAt(d, k, mode); return true; },
+    loop(i, act, sec){ const d = deckAt(i); if(!d) return false;
+      if(act === 'in') setLoopIn(d);
+      else if(act === 'out') setLoopOut(d);
+      else if(act === 'exit') loopExit(d);
+      else quickLoop(d, sec || Number(act) || 4);
+      return true; },
+    pfl(i, on){ const d = deckAt(i); if(!d) return false; setPfl(d, on === undefined ? !d.pfl : !!on); return true; },
+    bend(i, dir, on){ const d = deckAt(i); if(!d) return false; bendDeck(d, dir, on !== false); return true; },
+    pitch(i, pct){ const d = deckAt(i); if(!d) return false; setDeckPitch(d, pct); return true; },
+    eq(i, k, v){ const d = deckAt(i); if(!d) return false; setDeckEq(d, k, v); return true; },
+    eqReset(i){ const d = deckAt(i); if(!d) return false; eqResetDeck(d); return true; },
+    bpmReset(i){ const d = deckAt(i); if(!d) return false; bpmResetDeck(d); return true; },
+    trim(i, db){ const d = deckAt(i); if(!d) return false; setDeckTrim(d, db); return true; },
+    fader(i, pct){ const d = deckAt(i); if(!d) return false; setDeckFader(d, pct); return true; },
+    filter(i, v){ const d = deckAt(i); if(!d) return false; setDeckFilter(d, v); return true; },
+    meter(i, ms){ const d = deckAt(i); return d && d.an ? peakOf(d.an, ms) : Promise.resolve(null); },
+    cueMeter(ms){ return S.cueAn ? peakOf(S.cueAn, ms) : Promise.resolve(null); },
+    wavePixels(i){
+      const d = deckAt(i);
+      const cv = d && d.ui ? d.ui.canvas : null;
+      if(!cv) return 0;
+      try{
+        const g = cv.getContext('2d');
+        const img = g.getImageData(0, 0, cv.width, cv.height).data;
+        let n = 0;
+        for(let p=3;p<img.length;p+=4){ if(img[p] > 8) n++; }
+        return n;
+      }catch(e){ return -1; }
+    }
+  },
   cue:{
     add:(type,data)=>cueAdd(type,data),
     move:(i,d)=>cueMove(i,d),
