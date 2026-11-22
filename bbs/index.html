@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>imoutoid BBS - informal archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050508;
+    --panel: #0a0a12;
+    --panel2: #0d0d17;
+    --line: #23233a;
+    --cyan: #00ffff;
+    --magenta: #ff2bd6;
+    --silver: #cfcfdc;
+    --dim: #7a7a92;
+    --ok: #6bff9e;
+    --err: #ff5c7a;
+  }
+  * { box-sizing: border-box; }
+  html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #000;
+    -webkit-text-size-adjust: 100%;
+  }
+  /* Googleサイトの埋め込み（scrolling="no"）でも枠内を縦スクロールできるよう body をスクロール領域にする */
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, rgba(0,255,255,0.07), transparent 60%),
+      radial-gradient(900px 500px at 90% 110%, rgba(255,43,214,0.06), transparent 60%),
+      var(--bg);
+    color: var(--silver);
+    font-family: 'DotGothic16', 'MS PGothic', 'Hiragino Kaku Gothic ProN', monospace;
+    font-size: 14px;
+    line-height: 1.75;
+    letter-spacing: 0.02em;
+  }
+  /* 走査線 */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.028) 0px,
+      rgba(255,255,255,0.028) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode: screen;
+  }
+  a { color: var(--cyan); text-decoration: none; border-bottom: 1px solid rgba(0,255,255,0.35); }
+  a:hover { color: #b8ffff; border-bottom-color: #b8ffff; }
+
+  .wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 18px 12px 34px;
+  }
+
+  /* ---------- header ---------- */
+  header.board-head {
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(0,255,255,0.05), rgba(0,0,0,0.2) 60%);
+    padding: 14px 14px 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  header.board-head::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), var(--magenta), transparent);
+    opacity: 0.75;
+  }
+  .kicker {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    color: var(--dim);
+    margin-bottom: 10px;
+  }
+  .kicker b { color: var(--magenta); font-weight: 400; }
+  h1.logo {
+    margin: 0;
+    font-family: 'Press Start 2P', monospace;
+    font-weight: 400;
+    font-size: clamp(18px, 5.4vw, 34px);
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(0,255,255,0.55), 0 0 26px rgba(0,255,255,0.22);
+  }
+  h1.logo span { color: var(--magenta); text-shadow: 0 0 12px rgba(255,43,214,0.6); }
+  .logo-sub {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--cyan);
+    letter-spacing: 0.12em;
+    opacity: 0.9;
+  }
+  .lead {
+    margin: 10px 0 0;
+    font-size: 13px;
+    color: #b9b9cc;
+    border-left: 2px solid rgba(255,43,214,0.6);
+    padding-left: 10px;
+    line-height: 1.7;
+  }
+  .statusbar {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 14px;
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 0.08em;
+  }
+  .statusbar .dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    margin-right: 6px;
+    background: var(--ok);
+    box-shadow: 0 0 8px var(--ok);
+    animation: blinkDot 2.4s steps(1, end) infinite;
+    vertical-align: middle;
+  }
+  @keyframes blinkDot { 0%,70% { opacity: 1; } 71%,100% { opacity: 0.25; } }
+  .statusbar .val { color: var(--silver); }
+  .statusbar .live { color: var(--cyan); }
+
+  /* ---------- panel ---------- */
+  .panel {
+    margin-top: 16px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    position: relative;
+  }
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(90deg, rgba(0,255,255,0.07), transparent 70%);
+  }
+  .panel-head h2 {
+    margin: 0;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    color: var(--cyan);
+  }
+  .panel-head .meta { font-size: 11px; color: var(--dim); }
+
+  /* ---------- form ---------- */
+  form#postForm { padding: 12px; }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .field { display: flex; flex-direction: column; min-width: 0; }
+  .field.full { grid-column: 1 / -1; }
+  label.lbl {
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+  label.lbl em { font-style: normal; color: var(--magenta); }
+  input[type="text"], select, textarea {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    background: #07070d;
+    border: 1px solid var(--line);
+    color: var(--silver);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 8px 9px;
+    border-radius: 0;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input[type="text"]::placeholder, textarea::placeholder { color: #4c4c63; }
+  input[type="text"]:focus, select:focus, textarea:focus {
+    border-color: var(--cyan);
+    box-shadow: 0 0 0 1px rgba(0,255,255,0.35), 0 0 14px rgba(0,255,255,0.12) inset;
+  }
+  select {
+    background-image: linear-gradient(45deg, transparent 50%, var(--cyan) 50%), linear-gradient(135deg, var(--cyan) 50%, transparent 50%);
+    background-position: calc(100% - 15px) 17px, calc(100% - 10px) 17px;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    padding-right: 26px;
+  }
+  textarea { resize: vertical; min-height: 108px; line-height: 1.7; }
+  .hint { font-size: 11px; color: #5f5f77; margin-top: 4px; }
+  .row-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .count { font-size: 11px; color: var(--dim); }
+  .count.over { color: var(--err); }
+  button.btn {
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    color: #001b1b;
+    background: var(--cyan);
+    border: 0;
+    padding: 9px 22px;
+    cursor: pointer;
+    box-shadow: 0 0 14px rgba(0,255,255,0.35);
+    transition: transform 0.08s ease, box-shadow 0.2s ease;
+    white-space: nowrap;
+  }
+  button.btn:hover { box-shadow: 0 0 22px rgba(0,255,255,0.6); }
+  button.btn:active { transform: translateY(1px); }
+  button.btn:disabled { background: #2b3a3a; color: #6d7c7c; box-shadow: none; cursor: default; }
+  button.ghost {
+    background: transparent;
+    color: var(--cyan);
+    border: 1px solid var(--line);
+    box-shadow: none;
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+  button.ghost:hover { border-color: var(--cyan); }
+  .honeypot { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  /* ---------- list ---------- */
+  .postlist { list-style: none; margin: 0; padding: 0; }
+  .post {
+    border-bottom: 1px dashed var(--line);
+    padding: 14px 12px 12px;
+    position: relative;
+  }
+  .post:last-child { border-bottom: 0; }
+  .post.new-post { animation: flashIn 1.6s ease-out 1; }
+  @keyframes flashIn {
+    0% { background: rgba(0,255,255,0.14); }
+    100% { background: transparent; }
+  }
+  .post-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+    font-size: 12px;
+    color: var(--dim);
+  }
+  .post-no {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: var(--magenta);
+    letter-spacing: 0.06em;
+    text-shadow: 0 0 8px rgba(255,43,214,0.45);
+    white-space: nowrap;
+  }
+  .post-name { color: var(--silver); font-size: 13px; max-width: 100%; overflow-wrap: anywhere; }
+  .post-trip { color: #8f8fa8; font-size: 11px; }
+  .tag {
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: var(--cyan);
+    border: 1px solid rgba(0,255,255,0.35);
+    padding: 1px 6px;
+    white-space: nowrap;
+    background: rgba(0,255,255,0.05);
+  }
+  .post-date { margin-left: auto; font-size: 11px; color: #5c5c73; white-space: nowrap; }
+  .post-title {
+    margin: 8px 0 4px;
+    font-size: 15px;
+    color: #fff;
+    font-weight: 400;
+    overflow-wrap: anywhere;
+    text-shadow: 0 0 8px rgba(255,255,255,0.14);
+  }
+  .post-title:empty { display: none; }
+  .post-body {
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: #d7d7e4;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  .post-body .quote-link {
+    color: var(--cyan);
+    border-bottom: 1px dotted rgba(0,255,255,0.5);
+    cursor: pointer;
+  }
+  .post-body .quote-link:hover { color: #fff; border-bottom-color: #fff; }
+  .post-foot {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 11px;
+    color: #55556b;
+  }
+  .post-foot button {
+    background: none;
+    border: 0;
+    color: #6f6f8a;
+    font-family: inherit;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    padding: 2px 0;
+  }
+  .post-foot button:hover { color: var(--magenta); }
+  .post.reply::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 12px; bottom: 12px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--magenta), transparent);
+    opacity: 0.55;
+  }
+  .reply-to {
+    display: inline-block;
+    font-size: 10px;
+    color: var(--magenta);
+    border: 1px solid rgba(255,43,214,0.35);
+    padding: 0 5px;
+    margin-right: 6px;
+  }
+
+  /* ---------- pager / states ---------- */
+  .pager {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-top: 1px solid var(--line);
+    font-size: 11px;
+    flex-wrap: wrap;
+  }
+  .pager button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--silver);
+    font-family: inherit;
+    font-size: 11px;
+    padding: 4px 10px;
+    cursor: pointer;
+  }
+  .pager button:hover:not(:disabled) { border-color: var(--cyan); color: var(--cyan); }
+  .pager button:disabled { opacity: 0.3; cursor: default; }
+  .pager .pnum { color: var(--dim); letter-spacing: 0.1em; }
+  .loading, .empty, .errorbox {
+    padding: 22px 14px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--dim);
+  }
+  .errorbox { color: var(--err); }
+  .errorbox .sub { display: block; margin-top: 6px; color: var(--dim); font-size: 11px; }
+  .spinner {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border: 1px solid var(--dim);
+    border-top-color: var(--cyan);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---------- footer / toast ---------- */
+  .board-foot {
+    margin-top: 14px;
+    font-size: 10px;
+    color: #4f4f66;
+    text-align: center;
+    letter-spacing: 0.08em;
+    line-height: 1.9;
+  }
+  #toast {
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%) translateY(20px);
+    max-width: calc(100vw - 32px);
+    padding: 9px 16px;
+    font-size: 12px;
+    background: #08111a;
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+    box-shadow: 0 0 18px rgba(0,255,255,0.25);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 50;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast.err { border-color: var(--err); color: var(--err); box-shadow: 0 0 18px rgba(255,92,122,0.25); }
+
+  @media (max-width: 560px) {
+    body { font-size: 13px; }
+    .wrap { padding: 12px 8px 28px; }
+    header.board-head { padding: 12px 10px 10px; }
+    h1.logo { font-size: clamp(16px, 6.2vw, 24px); }
+    .grid { grid-template-columns: 1fr; gap: 8px; }
+    form#postForm { padding: 10px; }
+    .post { padding: 12px 10px 10px; }
+    .post-date { margin-left: 0; width: 100%; }
+    .post-title { font-size: 14px; }
+    .post-body { font-size: 13px; }
+    .row-bottom { justify-content: stretch; }
+    .row-bottom button.btn { flex: 1 1 100%; }
+    .statusbar { font-size: 10px; gap: 4px 10px; }
+    .kicker { font-size: 7px; letter-spacing: 0.08em; }
+  }
+  @media (max-width: 340px) {
+    h1.logo { font-size: 15px; }
+    .panel-head h2 { font-size: 9px; }
+    .post-no { font-size: 9px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="board-head">
+    <div class="kicker">IMOUTOID <b>//</b> INFORMAL ARCHIVE <b>//</b> MESSAGE BOARD</div>
+    <h1 class="logo">IMOUTOID <span>BBS</span></h1>
+    <div class="logo-sub">─ 楽曲の感想・思い出・未発見音源の情報交換 ─</div>
+    <p class="lead">
+      imoutoid と、その音楽について語る場所。<br>
+      音源の感想、当時の思い出、未発見音源やライブの情報、アーカイブへのメッセージなど、imoutoid に関することなら何でもどうぞ。ログインは要りません。
+    </p>
+    <div class="statusbar">
+      <span><span class="dot"></span>TOTAL <span class="val" id="statTotal">--</span> POSTS</span>
+      <span>LAST <span class="val" id="statLast">--</span></span>
+      <span class="live" id="statState">CONNECTING...</span>
+    </div>
+  </header>
+
+  <section class="panel" aria-labelledby="formTitle">
+    <div class="panel-head">
+      <h2 id="formTitle">POST</h2>
+      <span class="meta">書き込みは即時反映されます</span>
+    </div>
+    <form id="postForm" autocomplete="off" novalidate>
+      <div class="grid">
+        <div class="field">
+          <label class="lbl" for="fName">名前</label>
+          <input type="text" id="fName" name="name" maxlength="40" placeholder="名無しのリスナー">
+          <div class="hint">空欄なら「名無しのリスナー」。名前の後ろに #キー でトリップ。</div>
+        </div>
+        <div class="field">
+          <label class="lbl" for="fTag">タグ</label>
+          <select id="fTag" name="tag">
+            <option value="楽曲の感想">🎵 楽曲の感想</option>
+            <option value="思い出">💭 思い出</option>
+            <option value="未発見音源・情報">🔍 未発見音源・情報</option>
+            <option value="質問">❓ 質問</option>
+            <option value="雑談">💬 雑談</option>
+            <option value="サイトへのメッセージ">📮 サイトへのメッセージ</option>
+          </select>
+          <div class="hint">話題に近いものを選んでください。</div>
+        </div>
+        <div class="field full">
+          <label class="lbl" for="fTitle">件名 <em>（任意）</em></label>
+          <input type="text" id="fTitle" name="title" maxlength="60" placeholder="例：ADEPRESSIVE CANNOT GOTO THECEREMONY について">
+        </div>
+        <div class="field full">
+          <label class="lbl" for="fBody">本文 <em>（必須）</em></label>
+          <textarea id="fBody" name="body" maxlength="1000" placeholder="楽曲の感想、imoutoid の思い出、探している音源の情報など、自由に書いてください。&#10;&#10;>>1 のようにレス番号を書くと返信先として引用できます。"></textarea>
+          <div class="row-bottom">
+            <span class="count" id="bodyCount">0 / 1000</span>
+            <button type="submit" class="btn" id="submitBtn">書き込む</button>
+          </div>
+        </div>
+      </div>
+      <div class="honeypot" aria-hidden="true">
+        <label for="fHp">website</label>
+        <input type="text" id="fHp" name="hp" tabindex="-1">
+      </div>
+    </form>
+  </section>
+
+  <section class="panel" aria-labelledby="listTitle">
+    <div class="panel-head">
+      <h2 id="listTitle">LOG</h2>
+      <button type="button" class="ghost" id="reloadBtn">⟳ 最新を読み込む</button>
+    </div>
+    <div id="listArea">
+      <div class="loading"><span class="spinner"></span>読み込み中...</div>
+    </div>
+  </section>
+
+  <div class="board-foot">
+    imoutoid BBS / imoutoid informal archive<br>
+    TEXT ONLY ・ NO LOGIN ・ LOG STORED ON GOOGLE SHEETS
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ===== 設定 ===== */
+  var API_URL = 'https://script.google.com/macros/s/AKfycbxC6mYuKC2dDqZGSN7S26BDhxgpskaZYjmBH8JX7R8ZGCqkAJCZDNkNxbos9BwBPcay/exec';
+  var PER_PAGE = 20;
+  var MAX_BODY = 1000;
+
+  var state = {
+    page: 1,
+    pages: 1,
+    total: 0,
+    newestId: 0,
+    posts: [],
+    replyTo: 0,
+    sending: false,
+    uid: '',
+    lastSeen: 0
+  };
+
+  var el = {
+    listArea: document.getElementById('listArea'),
+    form: document.getElementById('postForm'),
+    name: document.getElementById('fName'),
+    tag: document.getElementById('fTag'),
+    title: document.getElementById('fTitle'),
+    body: document.getElementById('fBody'),
+    hp: document.getElementById('fHp'),
+    count: document.getElementById('bodyCount'),
+    submit: document.getElementById('submitBtn'),
+    reload: document.getElementById('reloadBtn'),
+    statTotal: document.getElementById('statTotal'),
+    statLast: document.getElementById('statLast'),
+    statState: document.getElementById('statState'),
+    toast: document.getElementById('toast')
+  };
+
+  /* ===== 小さなヘルパ ===== */
+  function store(key, value) {
+    try {
+      if (value === undefined) return window.localStorage.getItem(key);
+      window.localStorage.setItem(key, value);
+    } catch (e) { /* ストレージ不可（サンドボックスiframe等）でも動く */ }
+    return null;
+  }
+  function memStore(key, value) {
+    if (!window.__bbsMem) window.__bbsMem = {};
+    if (value === undefined) return window.__bbsMem[key] || null;
+    window.__bbsMem[key] = value;
+    return null;
+  }
+  function getItem(key) {
+    var v = store(key);
+    return v === null ? memStore(key) : v;
+  }
+  function setItem(key, value) {
+    try { window.localStorage.setItem(key, value); } catch (e) { memStore(key, value); }
+  }
+
+  function makeUid() {
+    var chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    var out = '';
+    for (var i = 0; i < 20; i++) out += chars.charAt(Math.floor(Math.random() * chars.length));
+    return out;
+  }
+  try {
+    state.uid = getItem('imoutoid_bbs_uid') || '';
+    if (!state.uid) { state.uid = makeUid(); setItem('imoutoid_bbs_uid', state.uid); }
+    var ls = getItem('imoutoid_bbs_lastseen');
+    state.lastSeen = ls ? parseInt(ls, 10) || 0 : 0;
+  } catch (e) { state.uid = makeUid(); }
+
+  function toast(msg, isErr) {
+    el.toast.textContent = msg;
+    el.toast.className = isErr ? 'show err' : 'show';
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { el.toast.className = ''; }, 3200);
+  }
+
+  function pad2(n) { return n < 10 ? '0' + n : String(n); }
+
+  function parseTs(ts) {
+    var m = String(ts).match(/^(\d{4})[-\/](\d{2})[-\/](\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
+    if (!m) return null;
+    return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0));
+  }
+  function fmtDate(ts) {
+    var d = parseTs(ts);
+    if (!d) return String(ts || '');
+    return d.getFullYear() + '/' + pad2(d.getMonth() + 1) + '/' + pad2(d.getDate()) +
+      ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+  }
+  function relTime(ts) {
+    var d = parseTs(ts);
+    if (!d) return '';
+    var diff = Date.now() - d.getTime();
+    if (diff < 0) diff = 0;
+    var min = Math.floor(diff / 60000);
+    if (min < 1) return 'たった今';
+    if (min < 60) return min + '分前';
+    var hr = Math.floor(min / 60);
+    if (hr < 24) return hr + '時間前';
+    var day = Math.floor(hr / 24);
+    if (day < 30) return day + '日前';
+    return '';
+  }
+
+  /* ===== 通信 ===== */
+  function jsonpFetch(url) {
+    return new Promise(function (resolve, reject) {
+      var cb = 'imoutoidBbsCb' + Math.floor(Math.random() * 1e9);
+      var script = document.createElement('script');
+      var timer = setTimeout(function () { cleanup(); reject(new Error('timeout')); }, 15000);
+      function cleanup() {
+        clearTimeout(timer);
+        try { delete window[cb]; } catch (e) { window[cb] = undefined; }
+        if (script.parentNode) script.parentNode.removeChild(script);
+      }
+      window[cb] = function (data) { cleanup(); resolve(data); };
+      script.onerror = function () { cleanup(); reject(new Error('jsonp')); };
+      script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + cb;
+      document.body.appendChild(script);
+    });
+  }
+
+  function fetchJson(url, options) {
+    return fetch(url, options).then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    });
+  }
+
+  function apiList(page) {
+    var url = API_URL + '?action=list&page=' + page + '&per=' + PER_PAGE + '&_=' + Date.now();
+    return fetchJson(url, { method: 'GET', cache: 'no-store' })
+      .catch(function () { return jsonpFetch(url); });
+  }
+
+  function apiPost(payload) {
+    var body = JSON.stringify(payload);
+    return fetchJson(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: body,
+      redirect: 'follow',
+      cache: 'no-store'
+    }).catch(function (err) {
+      // 応答が読めない環境向け: no-cors で送って、結果は最新一覧で確認する
+      return fetch(API_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: body
+      }).then(function () {
+        return new Promise(function (resolve) {
+          setTimeout(function () { resolve({ ok: true, uncertain: true }); }, 1600);
+        });
+      }).catch(function () { throw err; });
+    });
+  }
+
+  /* ===== 描画（すべて textContent。innerHTML にユーザー入力は入れない） ===== */
+  var URL_RE = /(https?:\/\/[^\s<>"']+)/g;
+  var QUOTE_RE = /(>>\d{1,6})/g;
+
+  function appendLinkedText(parent, text) {
+    var parts = String(text).split(URL_RE);
+    for (var i = 0; i < parts.length; i++) {
+      var part = parts[i];
+      if (!part) continue;
+      if (i % 2 === 1) {
+        var a = document.createElement('a');
+        a.href = part;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer nofollow';
+        a.textContent = part;
+        parent.appendChild(a);
+      } else {
+        appendQuoteText(parent, part);
+      }
+    }
+  }
+
+  function appendQuoteText(parent, text) {
+    var parts = String(text).split(QUOTE_RE);
+    for (var i = 0; i < parts.length; i++) {
+      var part = parts[i];
+      if (!part) continue;
+      if (i % 2 === 1) {
+        var span = document.createElement('span');
+        span.className = 'quote-link';
+        span.textContent = part;
+        span.setAttribute('data-ref', part.slice(2));
+        parent.appendChild(span);
+      } else {
+        parent.appendChild(document.createTextNode(part));
+      }
+    }
+  }
+
+  function renderBody(container, text) {
+    var lines = String(text).split('\n');
+    for (var i = 0; i < lines.length; i++) {
+      if (i > 0) container.appendChild(document.createElement('br'));
+      appendLinkedText(container, lines[i]);
+    }
+  }
+
+  function makePostEl(post) {
+    var li = document.createElement('li');
+    li.className = 'post' + (post.reply_to ? ' reply' : '');
+    li.setAttribute('data-id', String(post.id));
+
+    var head = document.createElement('div');
+    head.className = 'post-head';
+
+    var no = document.createElement('span');
+    no.className = 'post-no';
+    no.textContent = 'No.' + post.id;
+    head.appendChild(no);
+
+    var name = document.createElement('span');
+    name.className = 'post-name';
+    name.textContent = (post.name || '名無しのリスナー') + ' さん';
+    head.appendChild(name);
+
+    if (post.trip) {
+      var trip = document.createElement('span');
+      trip.className = 'post-trip';
+      trip.textContent = post.trip;
+      head.appendChild(trip);
+    }
+
+    if (post.tag) {
+      var tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = post.tag;
+      head.appendChild(tag);
+    }
+
+    var date = document.createElement('span');
+    date.className = 'post-date';
+    date.textContent = fmtDate(post.ts) + (relTime(post.ts) ? ' (' + relTime(post.ts) + ')' : '');
+    date.title = String(post.ts || '');
+    head.appendChild(date);
+
+    li.appendChild(head);
+
+    if (post.title) {
+      var h3 = document.createElement('div');
+      h3.className = 'post-title';
+      h3.textContent = post.title;
+      li.appendChild(h3);
+    }
+
+    var bodyEl = document.createElement('div');
+    bodyEl.className = 'post-body';
+    if (post.reply_to) {
+      var rt = document.createElement('span');
+      rt.className = 'reply-to';
+      rt.textContent = '>>' + post.reply_to;
+      bodyEl.appendChild(rt);
+    }
+    renderBody(bodyEl, post.body || '');
+    li.appendChild(bodyEl);
+
+    var foot = document.createElement('div');
+    foot.className = 'post-foot';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'quote-btn';
+    btn.setAttribute('data-id', String(post.id));
+    btn.textContent = '↩ この投稿に返信';
+    foot.appendChild(btn);
+    li.appendChild(foot);
+
+    return li;
+  }
+
+  function updateStats(lastPost) {
+    el.statTotal.textContent = state.total > 0 ? String(state.total) : '0';
+    el.statLast.textContent = lastPost ? fmtDate(lastPost.ts) : '--';
+    el.statState.textContent = 'ONLINE';
+  }
+
+  function renderList(data, scrollTop) {
+    state.page = data.page;
+    state.pages = data.pages;
+    state.total = data.total;
+    state.newestId = data.newest_id || 0;
+    state.posts = data.posts || [];
+
+    el.listArea.textContent = '';
+
+    if (!state.posts.length) {
+      var empty = document.createElement('div');
+      empty.className = 'empty';
+      empty.textContent = 'まだ投稿がありません。最初の書き込みをどうぞ。';
+      el.listArea.appendChild(empty);
+      updateStats(null);
+      return;
+    }
+
+    var ul = document.createElement('ul');
+    ul.className = 'postlist';
+    for (var i = 0; i < state.posts.length; i++) {
+      var p = state.posts[i];
+      var node = makePostEl(p);
+      if (p.id > state.lastSeen) node.classList.add('new-post');
+      ul.appendChild(node);
+    }
+    el.listArea.appendChild(ul);
+
+    var pager = document.createElement('div');
+    pager.className = 'pager';
+
+    var prev = document.createElement('button');
+    prev.type = 'button';
+    prev.textContent = '« 新しい方';
+    prev.disabled = state.page <= 1;
+    prev.setAttribute('data-page', String(state.page - 1));
+    pager.appendChild(prev);
+
+    var pnum = document.createElement('span');
+    pnum.className = 'pnum';
+    pnum.textContent = state.page + ' / ' + state.pages + '  (全 ' + state.total + ' 件)';
+    pager.appendChild(pnum);
+
+    var next = document.createElement('button');
+    next.type = 'button';
+    next.textContent = '古い方 »';
+    next.disabled = state.page >= state.pages;
+    next.setAttribute('data-page', String(state.page + 1));
+    pager.appendChild(next);
+
+    el.listArea.appendChild(pager);
+
+    if (state.newestId > state.lastSeen) {
+      state.lastSeen = state.newestId;
+      setItem('imoutoid_bbs_lastseen', String(state.newestId));
+    }
+    updateStats(state.posts[0]);
+
+    if (scrollTop) {
+      try { el.listArea.scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (e) { /* noop */ }
+    }
+  }
+
+  function showListLoading() {
+    el.listArea.textContent = '';
+    var box = document.createElement('div');
+    box.className = 'loading';
+    var sp = document.createElement('span');
+    sp.className = 'spinner';
+    box.appendChild(sp);
+    box.appendChild(document.createTextNode('読み込み中...'));
+    el.listArea.appendChild(box);
+  }
+
+  function showListError() {
+    el.listArea.textContent = '';
+    var box = document.createElement('div');
+    box.className = 'errorbox';
+    box.textContent = '読み込みに失敗しました。';
+    var sub = document.createElement('span');
+    sub.className = 'sub';
+    sub.textContent = '通信環境を確認して「⟳ 最新を読み込む」を押してください。';
+    box.appendChild(sub);
+    el.listArea.appendChild(box);
+    el.statState.textContent = 'OFFLINE';
+  }
+
+  function load(page, scrollTop) {
+    state.page = page || 1;
+    el.reload.disabled = true;
+    return apiList(state.page).then(function (data) {
+      if (!data || data.ok !== true) throw new Error('bad response');
+      renderList(data, scrollTop);
+    }).catch(function () {
+      if (!state.posts.length) showListError();
+      else toast('最新の読み込みに失敗しました', true);
+    }).then(function () {
+      el.reload.disabled = false;
+    });
+  }
+
+  /* ===== 投稿 ===== */
+  function updateCount() {
+    var len = el.body.value.length;
+    el.count.textContent = len + ' / ' + MAX_BODY;
+    el.count.className = len > MAX_BODY ? 'count over' : 'count';
+  }
+
+  function splitName(raw) {
+    var s = String(raw || '');
+    var idx = s.indexOf('#');
+    if (idx >= 0) {
+      return { name: s.slice(0, idx).trim(), trip: s.slice(idx + 1).trim() };
+    }
+    return { name: s.trim(), trip: '' };
+  }
+
+  function setReply(id) {
+    state.replyTo = id;
+    var prefix = '>>' + id + '\n';
+    var v = el.body.value;
+    if (v.indexOf(prefix) !== 0) {
+      el.body.value = prefix + v;
+      updateCount();
+    }
+    try { el.body.focus({ preventScroll: true }); } catch (e) { el.body.focus(); }
+    try { el.body.setSelectionRange(el.body.value.length, el.body.value.length); } catch (e) {}
+    toast('No.' + id + ' への返信として引用しました');
+  }
+
+  el.form.addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    if (state.sending) return;
+
+    var bodyText = el.body.value.trim();
+    if (!bodyText) {
+      toast('本文を書いてください', true);
+      el.body.focus();
+      return;
+    }
+    if (bodyText.length > MAX_BODY) {
+      toast('本文は' + MAX_BODY + '文字までです', true);
+      return;
+    }
+
+    var parts = splitName(el.name.value);
+    var payload = {
+      action: 'post',
+      name: parts.name,
+      trip_key: parts.trip,
+      tag: el.tag.value,
+      title: el.title.value.trim(),
+      body: bodyText,
+      reply_to: state.replyTo || 0,
+      uid: state.uid,
+      hp: el.hp.value ? 'x' : '',
+      ua: navigator.userAgent
+    };
+
+    state.sending = true;
+    el.submit.disabled = true;
+    el.submit.textContent = '送信中...';
+
+    apiPost(payload).then(function (res) {
+      if (res && res.ok === false) {
+        toast(res.message || '投稿できませんでした', true);
+        return;
+      }
+      el.body.value = '';
+      el.title.value = '';
+      state.replyTo = 0;
+      updateCount();
+      toast(res && res.id ? 'No.' + res.id + ' に書き込みました' : '書き込みました');
+
+      if (res && res.id) {
+        // 手元に即反映（サーバーの一覧で上書き確認）
+        state.lastSeen = Math.max(0, res.id - 1);
+      }
+      return load(1, false);
+    }).catch(function () {
+      toast('投稿できませんでした。時間をおいて再度お試しください', true);
+    }).then(function () {
+      state.sending = false;
+      el.submit.disabled = false;
+      el.submit.textContent = '書き込む';
+    });
+  });
+
+  el.body.addEventListener('input', updateCount);
+  el.reload.addEventListener('click', function () { load(1, false); });
+
+  el.listArea.addEventListener('click', function (ev) {
+    var t = ev.target;
+    if (!t) return;
+    if (t.classList && t.classList.contains('quote-link')) {
+      var ref = t.getAttribute('data-ref');
+      if (ref) setReply(ref);
+      return;
+    }
+    if (t.classList && t.classList.contains('quote-btn')) {
+      var id = t.getAttribute('data-id');
+      if (id) setReply(id);
+      return;
+    }
+    if (t.tagName === 'BUTTON' && t.getAttribute('data-page')) {
+      var p = parseInt(t.getAttribute('data-page'), 10);
+      if (p >= 1 && p <= state.pages) load(p, true);
+    }
+  });
+
+  /* ===== 起動 ===== */
+  showListLoading();
+  load(1, false);
+  updateCount();
+})();
+</script>
+</body>
+</html>
