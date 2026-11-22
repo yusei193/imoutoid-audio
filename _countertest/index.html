@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=New+Tegomin&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html {
+    height: 100%;
+    overflow: hidden;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+  /* Google サイトの埋め込み（scrolling="no"）でも枠内を縦スクロールできるよう body をスクロール領域にする */
+  body {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .wrap {
+    padding: 18px 12px 16px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .title-block {
+    max-width: 780px;
+    margin: 0 auto;
+  }
+  .t-row1 { text-align: left; padding-left: 2%; }
+  .t-row2 { text-align: left; padding-left: 16%; margin-top: 12px; }
+  .t-row3 { text-align: left; padding-left: 44%; margin-top: 12px; }
+
+  .px {
+    display: inline-block;
+    background: #000000;
+    font-family: 'Press Start 2P', monospace;
+    font-style: italic;
+    font-size: clamp(20px, 4.8vw, 48px);
+    line-height: 1.25;
+    padding: 4px 10px;
+    letter-spacing: 0.04em;
+    min-height: 1.25em;
+  }
+  .px:empty { display: none; }
+  .px.magenta { color: #ff00ff; font-weight: 400; text-shadow: 0 0 10px rgba(255, 0, 255, 0.45); }
+  .px.silver  { color: #cccccc; font-weight: 700; text-shadow: 0 0 8px rgba(204, 204, 204, 0.35); }
+  .px.cyan    { color: #00ffff; font-weight: 400; text-shadow: 0 0 10px rgba(0, 255, 255, 0.45); }
+
+  @keyframes glitch {
+    0%, 94%, 100% { transform: translate(0, 0); opacity: 1; }
+    95% { transform: translate(-2px, 1px); opacity: 0.85; }
+    97% { transform: translate(2px, -1px); opacity: 0.95; }
+  }
+  .glitch-on {
+    animation: glitch 5.5s infinite;
+  }
+
+  .body-block {
+    margin-top: 20px;
+    text-align: center;
+    font-family: 'New Tegomin', serif;
+    color: #ffffff;
+  }
+  .b-line {
+    margin-top: 10px;
+    line-height: 1.7;
+  }
+  .bg-black {
+    display: inline;
+    background: #000000;
+    padding: 2px 6px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+  .sz-s { font-size: clamp(13px, 2vw, 17px); }
+  .sz-m { font-size: clamp(14px, 2.3vw, 20px); }
+  .sz-l { font-size: clamp(16px, 2.7vw, 24px); font-weight: 700; }
+  .it { font-style: italic; }
+
+  .kochira {
+    display: inline-block;
+    background: #000000;
+    color: #ffff00;
+    font-size: clamp(24px, 4.2vw, 40px);
+    font-style: italic;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    padding: 0 8px;
+    margin-left: 4px;
+    vertical-align: baseline;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.45s ease, transform 0.45s ease, text-shadow 0.25s ease;
+  }
+  .kochira.show {
+    opacity: 1;
+    transform: translateY(0);
+    text-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
+  }
+  .kochira:hover {
+    text-shadow: 0 0 18px rgba(255, 255, 0, 0.95);
+  }
+  .fade-line {
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .fade-line.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ==== ACCESS COUNTER（小ぶりな7セグLED） ==== */
+  .cnt {
+    width: 200px;
+    max-width: 76%;
+    margin: 14px auto 0;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .cnt.show { opacity: 1; transform: translateY(0); }
+
+  .cnt-frame {
+    position: relative;
+    padding: 5px 6px 4px;
+    border: 1px solid rgba(0, 255, 255, 0.26);
+    background:
+      radial-gradient(120% 80% at 50% 0%, rgba(0, 255, 255, 0.07), rgba(0, 0, 0, 0) 62%),
+      linear-gradient(180deg, rgba(3, 11, 13, 0.94) 0%, rgba(0, 0, 0, 0.96) 100%);
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.6),
+      0 0 14px rgba(0, 255, 255, 0.10),
+      inset 0 0 16px rgba(0, 255, 255, 0.05);
+  }
+  /* 四隅のネオンかすがい */
+  .cnt-frame::before,
+  .cnt-frame::after {
+    content: "";
+    position: absolute;
+    width: 5px; height: 5px;
+    border: 1px solid rgba(255, 0, 255, 0.65);
+    pointer-events: none;
+  }
+  .cnt-frame::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+  .cnt-frame::after  { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+
+  .cnt-head {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 5.5px;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    color: #6fd2d8;
+  }
+  .cnt-led {
+    width: 3px; height: 3px;
+    background: #00ffff;
+    box-shadow: 0 0 4px rgba(0, 255, 255, 0.9);
+    animation: ledPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes ledPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+  .cnt-head .sp { flex: 1 1 auto; }
+  .cnt-live { color: #ff5cf2; white-space: nowrap; }
+
+  .cnt-screen {
+    position: relative;
+    margin-top: 4px;
+    overflow: hidden;
+  }
+  .cnt-seg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .cnt-seg .cell {
+    fill: rgba(2, 7, 8, 0.92);
+    stroke: rgba(0, 255, 255, 0.10);
+    stroke-width: 1;
+  }
+  .cnt-seg .sg { fill: #0b2529; transition: fill 0.10s linear; }
+  .cnt-seg .sg.on { fill: #00ffff; }
+  .cnt-seg .dg { filter: drop-shadow(0 0 2px rgba(0, 255, 255, 0.55)); }
+  .cnt-seg.off .sg.on { fill: #6f8a8c; }
+
+  /* 走査線とガラス反射 */
+  .cnt-screen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0) 40%),
+      repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0) 0 1px, rgba(0, 0, 0, 0.28) 1px 2px);
+  }
+  .cnt-scan {
+    position: absolute;
+    left: 0; right: 0; top: -20%;
+    height: 26%;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(0, 255, 255, 0) 0%, rgba(0, 255, 255, 0.10) 55%, rgba(0, 255, 255, 0) 100%);
+    animation: scanSweep 8s linear infinite;
+  }
+  @keyframes scanSweep {
+    0%   { transform: translateY(-40%); opacity: 0; }
+    12%  { opacity: 1; }
+    88%  { opacity: 1; }
+    100% { transform: translateY(420%); opacity: 0; }
+  }
+  .cnt-bump {
+    position: absolute;
+    right: 2px;
+    top: 30%;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    color: #ff00ff;
+    text-shadow: 0 0 6px rgba(255, 0, 255, 0.9);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .cnt-bump.go { animation: bumpUp 1.5s ease-out 1; }
+  @keyframes bumpUp {
+    0%   { opacity: 0; transform: translateY(4px); }
+    18%  { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-12px); }
+  }
+
+  .cnt-foot {
+    margin-top: 4px;
+    text-align: center;
+    font-family: 'New Tegomin', serif;
+    font-size: 7.5px;
+    line-height: 1.15;
+    letter-spacing: 0.02em;
+    color: #9ccfd3;
+    white-space: nowrap;
+  }
+  .cnt-foot b {
+    font-family: 'Press Start 2P', monospace;
+    font-weight: 400;
+    font-size: 6.5px;
+    letter-spacing: 0.06em;
+    color: #ff00ff;
+    text-shadow: 0 0 6px rgba(255, 0, 255, 0.65);
+  }
+
+  /* キリ番のお祝い */
+  .cnt.kiri .cnt-frame {
+    border-color: rgba(255, 0, 255, 0.6);
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.6),
+      0 0 18px rgba(255, 0, 255, 0.26),
+      inset 0 0 18px rgba(255, 0, 255, 0.10);
+  }
+  .cnt.kiri .cnt-live { animation: kiriBlink 0.7s steps(2) infinite; }
+  @keyframes kiriBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cnt-scan, .cnt-led, .glitch-on, .cnt.kiri .cnt-live { animation: none !important; }
+    .fade-line, .kochira, .cnt { transition: none; }
+  }
+
+  /* ==== スマホ縦画面（〜560px）: 段差と余白を詰めて幅・高さとも見切れないようにする ==== */
+  @media (max-width: 560px) {
+    .wrap { padding: 10px 8px 14px; }
+    .t-row1 { padding-left: 0; }
+    .t-row2 { padding-left: 6%; margin-top: 6px; }
+    .t-row3 { padding-left: 12%; margin-top: 6px; }
+    .px {
+      font-size: clamp(13px, 4.5vw, 22px);
+      padding: 3px 6px;
+      letter-spacing: 0.01em;
+      max-width: 100%;
+    }
+    .body-block { margin-top: 14px; }
+    .b-line { margin-top: 5px; line-height: 1.5; }
+    .sz-s { font-size: clamp(11px, 3.2vw, 14px); }
+    .sz-m { font-size: clamp(11.5px, 3.4vw, 15px); }
+    .sz-l { font-size: clamp(12.5px, 3.7vw, 16px); }
+    .kochira { font-size: clamp(16px, 4.8vw, 22px); padding: 0 5px; margin-left: 2px; }
+
+    .cnt { width: 180px; max-width: 64%; margin-top: 10px; }
+    .cnt-foot { font-size: 7px; }
+    .cnt-foot b { font-size: 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="title-block">
+    <div class="t-row1"><span class="px magenta" id="w1"></span></div>
+    <div class="t-row2"><span class="px silver" id="w2"></span></div>
+    <div class="t-row3"><span class="px cyan" id="w3"></span></div>
+  </div>
+
+  <div class="body-block">
+    <div class="b-line fade-line" id="l1">
+      <span class="bg-black it sz-m">imoutoidの音楽との思い出を投稿できる思い出板には</span>
+      <a class="kochira" id="btnKochira" href="https://www.imoutoid.net/%E6%83%B3%E3%81%84%E5%87%BA%E6%9D%BF" target="_blank" rel="noopener noreferrer">こちら</a>
+    </div>
+    <div class="b-line fade-line" id="l2">
+      <span class="bg-black sz-l">当サイト</span><span class="bg-black sz-m">はimoutoidの</span><span class="bg-black sz-l">見つかっていない音源</span><span class="bg-black sz-m">を</span>
+    </div>
+    <div class="b-line fade-line" id="l3">
+      <span class="bg-black sz-l">探して共有したり既存の音源</span><span class="bg-black sz-m">を</span>
+    </div>
+    <div class="b-line fade-line" id="l4">
+      <span class="bg-black sz-l">アーカイブするためのサイト</span><span class="bg-black sz-m">です…</span>
+    </div>
+  </div>
+
+  <!-- ===== ACCESS COUNTER（小さめ） ===== -->
+  <div class="cnt" id="cnt">
+    <div class="cnt-frame">
+      <div class="cnt-head">
+        <span class="cnt-led"></span>
+        <span>ACCESS COUNTER</span>
+        <span class="sp"></span>
+        <span class="cnt-live" id="cntMode">LIVE</span>
+      </div>
+      <div class="cnt-screen">
+        <svg class="cnt-seg" id="cntSvg" viewBox="-8 -4 414 108" preserveAspectRatio="xMidYMid meet" role="img" aria-label="アクセスカウンター 読み込み中"></svg>
+        <span class="cnt-scan"></span>
+        <span class="cnt-bump" id="cntBump">+1</span>
+      </div>
+      <div class="cnt-foot">あなたは <b id="cntNum">------</b> 人目の訪問者です</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&*";
+
+  function decodeType(el, target, speed, done) {
+    var fixed = 0;
+    var tick = 0;
+    var timer = setInterval(function () {
+      var out = target.slice(0, fixed);
+      if (fixed < target.length) {
+        out += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      el.textContent = out;
+      tick++;
+      if (tick % 2 === 0) {
+        fixed++;
+        if (fixed > target.length) {
+          el.textContent = target;
+          clearInterval(timer);
+          if (done) done();
+        }
+      }
+    }, speed);
+  }
+
+  var w1 = document.getElementById("w1");
+  var w2 = document.getElementById("w2");
+  var w3 = document.getElementById("w3");
+  var counterPanel = document.getElementById("cnt");
+
+  decodeType(w1, "imoutoid", 42, function () {
+    decodeType(w2, "informal", 42, function () {
+      decodeType(w3, "archive", 42, function () {
+        w1.classList.add("glitch-on");
+        w3.classList.add("glitch-on");
+        setTimeout(function () {
+          document.getElementById("l1").classList.add("show");
+          setTimeout(function () {
+            document.getElementById("btnKochira").classList.add("show");
+          }, 260);
+        }, 180);
+        setTimeout(function () { document.getElementById("l2").classList.add("show"); }, 480);
+        setTimeout(function () { document.getElementById("l3").classList.add("show"); }, 740);
+        setTimeout(function () { document.getElementById("l4").classList.add("show"); }, 1000);
+        setTimeout(function () { counterPanel.classList.add("show"); }, 1150);
+      });
+    });
+  });
+})();
+</script>
+
+<script>
+/* =====================================================================
+   ACCESS COUNTER
+   ・数値の保存先: Google Apps Script（Google のサーバー上。同じサイトの一部なので確実に届く）
+   ・数え方は「1日1人」: 同じブラウザは当日もう数えない（F5連打・再読み込みでは絶対に増えない）
+     初回（当日はじめて）だけ mode=hit で +1、それ以外は mode=get で現在値の取得のみ
+   ・通信は1回だけ。失敗しても hit を再送しないので、二重カウントは起きない
+   ・保存領域（localStorage / sessionStorage）が使えない環境では数えずに取得のみ（安全側）
+   ===================================================================== */
+(function () {
+  var ENDPOINT = "https://script.google.com/macros/s/AKfycbz8b-xPxPN_A2U70q9HvClWPNiMEcelD5kC5A6THXOKsgUqt4YXyzdcLMx3vcIKyX1A/exec";
+  var K_VID = "iia_vid";
+  var K_DAY = "iia_day";
+  var K_SESS = "iia_sess";
+  var K_CACHE = "iia_cnt";
+  var MIN_DIGITS = 6;
+
+  var svg = document.getElementById("cntSvg");
+  var numEl = document.getElementById("cntNum");
+  var panel = document.getElementById("cnt");
+  var modeEl = document.getElementById("cntMode");
+  var bumpEl = document.getElementById("cntBump");
+
+  /* 7セグの各セグ（60x100 の桁の中） */
+  var SEG = {
+    a: "9,2 44,2 51,9 44,16 9,16 2,9",
+    b: "51,18 58,25 58,36 51,43 44,36 44,25",
+    c: "51,57 58,64 58,75 51,82 44,75 44,64",
+    d: "9,84 44,84 51,91 44,98 9,98 2,91",
+    e: "2,57 9,64 9,75 2,82 -5,75 -5,64",
+    f: "2,18 9,25 9,36 2,43 -5,36 -5,25",
+    g: "9,43 44,43 51,50 44,57 9,57 2,50"
+  };
+  var GLYPH = {
+    "0": "abcdef", "1": "bc", "2": "abged", "3": "abgcd", "4": "fgbc",
+    "5": "afgcd", "6": "afgecd", "7": "abc", "8": "abcdefg", "9": "abcdfg"
+  };
+  var STEP = 66;
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var digits = [];
+
+  function build(count) {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    digits = [];
+    var inkW = (count - 1) * STEP + 58 - (-5);
+    svg.setAttribute("viewBox", "-8 -4 " + (inkW + 12) + " 108");
+    for (var i = 0; i < count; i++) {
+      var g = document.createElementNS(SVGNS, "g");
+      g.setAttribute("class", "dg");
+      g.setAttribute("transform", "translate(" + (i * STEP) + ",0)");
+      var cell = document.createElementNS(SVGNS, "rect");
+      cell.setAttribute("class", "cell");
+      cell.setAttribute("x", "-6");
+      cell.setAttribute("y", "0");
+      cell.setAttribute("width", "66");
+      cell.setAttribute("height", "100");
+      cell.setAttribute("rx", "3");
+      g.appendChild(cell);
+      var polys = {};
+      for (var s in SEG) {
+        var p = document.createElementNS(SVGNS, "polygon");
+        p.setAttribute("class", "sg");
+        p.setAttribute("points", SEG[s]);
+        g.appendChild(p);
+        polys[s] = p;
+      }
+      svg.appendChild(g);
+      digits.push(polys);
+    }
+  }
+
+  function pad(v) {
+    var s = String(v);
+    while (s.length < MIN_DIGITS) s = "0" + s;
+    return s;
+  }
+
+  function paint(str) {
+    if (str.length > digits.length) build(str.length);
+    for (var i = 0; i < digits.length; i++) {
+      var ch = str.charAt(i) || "";
+      var lit = GLYPH[ch] || "";
+      for (var s in SEG) {
+        digits[i][s].classList.toggle("on", lit.indexOf(s) !== -1);
+      }
+    }
+  }
+
+  function roll(from, to) {
+    var steps = Math.min(22, Math.max(8, to - from));
+    var i = 0;
+    svg.classList.remove("off");
+    (function tick() {
+      if (i >= steps) { paint(pad(to)); return; }
+      var v = from + Math.round((to - from) * (i / steps));
+      paint(pad(v));
+      i++;
+      setTimeout(tick, 28 + i * 3);
+    })();
+  }
+
+  function celebrate() {
+    panel.classList.add("kiri");
+    modeEl.textContent = "KIRIBAN!";
+    setTimeout(function () {
+      panel.classList.remove("kiri");
+      modeEl.textContent = "LIVE";
+    }, 6500);
+  }
+
+  /* ---- 保存領域（使えなければ null。使えない環境では数えない） ---- */
+  function tryStore(name) {
+    try {
+      var s = window[name];
+      if (!s) return null;
+      var k = "__iia_probe";
+      s.setItem(k, "1");
+      if (s.getItem(k) !== "1") return null;
+      s.removeItem(k);
+      return s;
+    } catch (e) {
+      return null;
+    }
+  }
+  var LS = tryStore("localStorage");
+  var SS = tryStore("sessionStorage");
+
+  function getS(store, key) {
+    try { return store ? store.getItem(key) : null; } catch (e) { return null; }
+  }
+  function setS(store, key, val) {
+    try { if (store) store.setItem(key, val); } catch (e) {}
+  }
+
+  /* 日本時間の「今日」 */
+  function todayJST() {
+    var d = new Date(Date.now() + 9 * 3600 * 1000);
+    return d.getUTCFullYear() + "-" + ("0" + (d.getUTCMonth() + 1)).slice(-2) + "-" + ("0" + d.getUTCDate()).slice(-2);
+  }
+
+  function makeVid() {
+    return "v" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  /* 数えるかどうかを決める。決めた時点で「今日は数えた」を書き込むので、
+     通信が失敗して再試行しても二重には数えない。 */
+  function plan() {
+    var today = todayJST();
+    var vid = getS(LS, K_VID) || getS(SS, K_VID);
+    if (!vid) {
+      vid = makeVid();
+      setS(LS, K_VID, vid);
+      setS(SS, K_VID, vid);
+    }
+    var counted = false;
+    if (LS && vid) {
+      if (getS(LS, K_DAY) !== today) {
+        setS(LS, K_DAY, today);
+        counted = true;
+      }
+    }
+    setS(SS, K_SESS, "1");
+    return { mode: counted ? "hit" : "get", vid: vid, counted: counted };
+  }
+
+  var lastValue = null;
+  var prevValue = null;
+
+  function landed(value, isNewVisit) {
+    prevValue = lastValue;
+    lastValue = value;
+    numEl.textContent = pad(value);
+    svg.setAttribute("aria-label", "アクセスカウンター " + value + " 人目");
+    svg.setAttribute("data-value", String(value));
+    setS(LS, K_CACHE, String(value));
+    if (isNewVisit) {
+      roll(Math.max(0, value - 17), value);
+      bumpEl.classList.remove("go");
+      void bumpEl.offsetWidth;
+      bumpEl.classList.add("go");
+    } else {
+      paint(pad(value));
+    }
+    if (value > 0 && value % 100 === 0) celebrate();
+  }
+
+  /* 取得もできなかった時: 前に見た値を出す（OFF 表示で止めない） */
+  function showCache() {
+    var cached = getS(LS, K_CACHE);
+    if (cached && /^[0-9]+$/.test(cached)) {
+      numEl.textContent = pad(cached);
+      paint(pad(cached));
+      svg.setAttribute("data-value", cached);
+      modeEl.textContent = "CACHE";
+      svg.setAttribute("aria-label", "アクセスカウンター 前回 " + cached + " 人目");
+    } else {
+      paint("------");
+      modeEl.textContent = "SYNC";
+      svg.setAttribute("aria-label", "アクセスカウンター 取得中");
+    }
+  }
+
+  function fetchCount(mode, vid, timeoutMs, cb) {
+    var done = false;
+    var url = ENDPOINT + "?mode=" + mode + "&vid=" + encodeURIComponent(vid || "") + "&_=" + Date.now();
+    var ctrl = null;
+    var timer = null;
+    try {
+      ctrl = new AbortController();
+      timer = setTimeout(function () { try { ctrl.abort(); } catch (e) {} }, timeoutMs);
+    } catch (e) {}
+    function end(data) {
+      if (done) return;
+      done = true;
+      if (timer) clearTimeout(timer);
+      cb(data);
+    }
+    if (typeof fetch !== "function") { end(null); return; }
+    fetch(url, { cache: "no-store", signal: ctrl ? ctrl.signal : undefined })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        if (!data || typeof data.value !== "number") throw new Error("bad payload");
+        end(data);
+      })
+      .catch(function () { end(null); });
+  }
+
+  function start() {
+    build(MIN_DIGITS);
+    paint("------");
+    var p = plan();
+
+    fetchCount(p.mode, p.vid, 9000, function (data) {
+      if (data) {
+        landed(data.value, p.counted);
+        return;
+      }
+      /* 失敗時は「取得のみ」を1回だけ。hit は絶対に再送しない */
+      fetchCount("get", p.vid, 7000, function (again) {
+        if (again) landed(again.value, false);
+        else showCache();
+      });
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start);
+  } else {
+    start();
+  }
+})();
+</script>
+</body>
+</html>
