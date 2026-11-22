@@ -1308,7 +1308,7 @@ select:disabled{opacity:.5}
     </div>
     <div class="midi-wrap">
       <div class="midi-bar">
-        <button class="btn small primary" id="midiEnableBtn" type="button">🔌 MIDIを有効化</button>
+        <button class="btn small primary" id="midiEnableBtn" type="button">🔌 MIDIを有効化 / 再スキャン</button>
         <label class="midi-sel">入力<select id="midiInput"><option value="">（未接続）</option></select></label>
         <label class="midi-sel">出力<select id="midiOutput"><option value="">（自動）</option></select></label>
         <label class="midi-sel">機種<select id="midiPresetSel"></select></label>
@@ -1320,7 +1320,7 @@ select:disabled{opacity:.5}
         <label class="midi-chk"><input type="checkbox" id="midi4chChk">4ch機のCH3/CH4もA/Bに</label>
         <span class="midi-hint" id="midiDevice" style="margin-left:auto"></span>
       </div>
-      <p class="midi-hint" id="midiHint">DDJ-FLX4 / DDJ-400 / DDJ-FLX6 / DDJ-FLX10 / DDJ-1000 / DDJ-800 / DDJ-SB3 / DDJ-REV1 などを名前から自動判定して接続します。PCの Chrome / Edge 専用（https または localhost）。</p>
+      <p class="midi-hint" id="midiHint">ページを開くと自動でMIDI機器を探して接続します（ボタン不要）。DDJ-FLX4 / DDJ-400 / DDJ-FLX6 / DDJ-FLX10 / DDJ-1000 / DDJ-800 / DDJ-SB3 / DDJ-REV1 などを名前から自動判定します。PCの Chrome / Edge 専用（https または localhost）。</p>
       <div class="midi-grid">
         <div class="midi-box">
           <div class="midi-box-h"><span>🎓 MIDI Learn / 一括セットアップ</span><span class="grow"></span><span class="midi-hint" id="midiWizCount"></span></div>
@@ -6282,7 +6282,8 @@ const MIDIS = {
   soft:true, led:true, fourCh:false,
   learnRole:'', wizard:null, learned:{},
   raw:[], sent:[], cc:new Map(), pickup:{},
-  ledTimer:null, ledLast:0, state:'未接続', lastMsg:''
+  ledTimer:null, ledLast:0, state:'未接続', lastMsg:'',
+  auto:false, perm:'unknown', autoError:'', gestureArmed:false, watchTimer:null
 };
 
 /* ---------- 小さな道具 ---------- */
@@ -7357,6 +7358,21 @@ function midiSetState(text, kind){
   MIDIS.state = text;
   const b = $('midiState');
   if(b){ b.textContent = text; b.classList.toggle('on', kind === 'on'); b.classList.toggle('warn', kind === 'warn'); }
+  midiBtnLabel();
+}
+function midiHintSet(text){
+  const hint = $('midiHint');
+  if(hint) hint.textContent = text;
+}
+function midiBtnLabel(){
+  const b = $('midiEnableBtn');
+  if(!b) return;
+  let t;
+  if(MIDIS.connected) t = '✓ 自動接続済み / 再スキャン';
+  else if(MIDIS.gestureArmed) t = '🔌 タップでMIDI接続';
+  else t = '🔌 MIDIを有効化 / 再スキャン';
+  if(b.textContent !== t) b.textContent = t;
+  b.title = MIDIS.connected ? '自動で接続済みです。押すと機器を探し直して再接続します' : 'MIDI機器を探して接続します（ページを開いた時点で自動でも試行します）';
 }
 function midiPorts(){
   const ins = [], outs = [];
@@ -7444,8 +7460,8 @@ function midiStateChange(ev){
   if(MIDIS.connected){
     const still = MIDIS.inDev && MIDIS.inDev.state !== 'disconnected';
     if(!still){
-      midiSetState('切断（再接続を待っています）', 'warn');
       MIDIS.connected = false;
+      midiSetState('切断（再接続を待っています）', 'warn');
       toast('🎹 MIDI機器が抜けました。再接続すると自動で復帰します','warn');
       midiRenderDevice();
       return;
@@ -7471,26 +7487,156 @@ function midiStateChange(ev){
     }
   }
 }
-function midiEnable(){
+/* ---------- 自動認識・自動有効化 ----------
+   ページを開いた時点で requestMIDIAccess を試し、機器があればボタンを押さずに
+   接続・機種プリセット適用・LED全同期まで済ませる。
+   - permissions.query({name:'midi'}) で許可状態を先に確認
+   - ブラウザにブロックされた場合だけ、最初のクリック/タップで一度だけ自動再試行
+   - onstatechange + 予備のポーリングで、後からUSBを挿しても自動接続
+   ------------------------------------------ */
+function midiPermissionState(){
+  MIDIS.perm = 'unknown';
+  try{
+    if(navigator.permissions && navigator.permissions.query){
+      return Promise.resolve(navigator.permissions.query({name:'midi'})).then((st)=>{
+        MIDIS.perm = (st && st.state) || 'unknown';
+        try{
+          st.onchange = ()=>{
+            MIDIS.perm = (st && st.state) || MIDIS.perm;
+            if(MIDIS.perm === 'granted' && !MIDIS.connected && MIDIS.access){
+              midiScan();
+              if(midiAutoSelect()) toast('🎹 MIDIの使用が許可されました。自動接続しました','ok');
+            }
+            midiBtnLabel();
+          };
+        }catch(e){}
+        return MIDIS.perm;
+      }).catch(()=>{ MIDIS.perm = 'unknown'; return 'unknown'; });
+    }
+  }catch(e){}
+  return Promise.resolve('unknown');
+}
+function midiArmGestureRetry(){
+  if(MIDIS.gestureArmed || MIDIS.perm === 'denied') return;
+  MIDIS.gestureArmed = true;
+  midiSetState('画面をタップすると自動で再接続します', 'warn');
+  midiHintSet('ブラウザの自動接続ポリシーで一度ブロックされました。画面のどこかを一度クリック／タップするとMIDIを再試行して自動接続します（「MIDIを有効化」ボタンでも同じです）。');
+  midiBtnLabel();
+  const evs = ['pointerdown','touchstart','keydown','click'];
+  const handler = ()=>{
+    if(!MIDIS.gestureArmed) return;
+    MIDIS.gestureArmed = false;
+    evs.forEach((t)=>{ try{ document.removeEventListener(t, handler, true); }catch(e){} });
+    MIDIS.gestureHandler = null;
+    midiBtnLabel();
+    midiEnable({auto:true, gesture:true});
+  };
+  MIDIS.gestureHandler = handler;
+  evs.forEach((t)=>{ try{ document.addEventListener(t, handler, true); }catch(e){} });
+}
+function midiWatchdog(){
+  if(MIDIS.watchTimer) return;
+  // 一部ドライバ/ブラウザで onstatechange が来ない場合の予備（4秒ごと）
+  MIDIS.watchTimer = setInterval(()=>{
+    if(!MIDIS.access) return;
+    const {ins} = midiPorts();
+    if(MIDIS.connected){
+      const cur = MIDIS.inDev;
+      const alive = !!(cur && cur.state !== 'disconnected' && ins.some(p=>p.id === cur.id));
+      if(alive) return;
+      MIDIS.connected = false;
+      midiSetState('切断（再接続を待っています）', 'warn');
+      midiRenderDevice();
+    }
+    if(!ins.length) return;
+    midiScan();
+    if(midiAutoSelect()) toast('🎹 MIDI機器を自動認識しました：' + MIDIS.devName + '（LED同期）','ok');
+  }, 4000);
+}
+function midiRescan(){
+  if(!MIDIS.access) return midiEnable({});
+  try{ MIDIS.access.onstatechange = midiStateChange; }catch(e){}
+  midiScan();
+  const {ins, outs} = midiPorts();
+  const cur = MIDIS.inDev ? ins.find(p=>p.id === MIDIS.inDev.id) : null;
+  if(cur){
+    try{ cur.onmidimessage = midiOnMessage; cur.onstatechange = midiStateChange; }catch(e){}
+    MIDIS.inDev = cur;
+    MIDIS.outDev = (MIDIS.outDev && outs.find(p=>p.id === MIDIS.outDev.id)) || outs.find(p=>p.id === cur.id) || outs[0] || null;
+    MIDIS.connected = true;
+    midiSetState('接続中：' + MIDIS.devName, 'on');
+    midiRenderDevice(); midiRenderMap(); midiLeds(true);
+    return true;
+  }
+  if(midiAutoSelect()) return true;
+  if(MIDIS.connected) midiUnbind();
+  midiSetState('機器を待っています', 'warn');
+  midiHintSet('MIDI機器が見つかりません。USBでDJ機器を接続すると自動で認識・接続してLEDを同期します（再読み込みは不要）。');
+  return false;
+}
+function midiEnable(opts){
+  opts = opts || {};
   if(!navigator.requestMIDIAccess){
     midiSetState('Web MIDI 非対応', 'warn');
-    const hint = $('midiHint');
-    if(hint) hint.textContent = 'このブラウザは Web MIDI API 非対応です。PCの Chrome / Edge（https または localhost）でお使いください。スマホ・Safari・Firefox では MIDI 同期は使えません（DJ操作は画面で全部できます）。';
+    midiHintSet('このブラウザは Web MIDI API 非対応です。PCの Chrome / Edge（https または localhost）でお使いください。スマホ・Safari・Firefox では MIDI 同期は使えません（DJ操作は画面で全部できます）。');
     midiRenderDevice();
     return Promise.resolve(false);
   }
+  if(MIDIS.access) return Promise.resolve(midiRescan());
   return navigator.requestMIDIAccess({sysex:false}).then((access)=>{
     MIDIS.access = access;
+    MIDIS.autoError = '';
     try{ access.onstatechange = midiStateChange; }catch(e){}
     midiScan();
     midiRenderDevice();
-    if(!midiAutoSelect()) midiSetState('機器を待っています', 'warn');
-    return true;
+    midiWatchdog();
+    const ok = midiAutoSelect();
+    if(!ok){
+      midiSetState('機器を待っています', 'warn');
+      midiHintSet('MIDIの準備ができました。USBでDJ機器を接続すると自動で認識・接続してLEDを同期します（再読み込みは不要）。');
+    } else if(opts.auto || opts.gesture){
+      toast('🎹 MIDI機器に自動接続しました：' + MIDIS.devName + '（LED同期）','ok');
+    }
+    midiBtnLabel();
+    return !!ok;
   }).catch((e)=>{
+    const name = (e && e.name) ? e.name : 'Error';
+    MIDIS.autoError = name;
     midiSetState('MIDI権限が拒否されました', 'warn');
-    const hint = $('midiHint');
-    if(hint) hint.textContent = 'MIDIの使用がブロックされました（' + (e && e.name ? e.name : 'error') + '）。ブラウザのサイト設定でMIDIを許可してください。';
+    midiHintSet('MIDIの使用がブロックされました（' + name + '）。ブラウザのサイト設定でMIDIを許可してください。');
+    midiBtnLabel();
     return false;
+  });
+}
+function midiAutoStart(){
+  if(!MIDIS.supported){
+    midiSetState('Web MIDI 非対応', 'warn');
+    midiHintSet('このブラウザは Web MIDI API 非対応です。PCの Chrome / Edge（https または localhost）でお使いください。スマホ・Safari・Firefox では MIDI 同期は使えません（DJ操作は画面で全部できます）。');
+    midiBtnLabel();
+    return Promise.resolve(false);
+  }
+  MIDIS.auto = true;
+  MIDIS.autoError = '';
+  midiSetState('MIDI機器を自動検出中…', 'warn');
+  midiHintSet('ページを開いただけで自動でMIDI機器（Pioneer DDJなど）を探して接続します。ボタンを押す必要はありません。');
+  return midiPermissionState().then((perm)=>{
+    if(perm === 'denied'){
+      MIDIS.autoError = 'NotAllowedError';
+      midiSetState('MIDI権限がブロックされています', 'warn');
+      midiHintSet('このサイトのMIDI使用がブラウザでブロックされています。アドレスバー左のアイコン →「MIDIデバイス」→「許可」に変更すると自動接続します（変更後は「再スキャン」を押してください）。');
+      midiBtnLabel();
+      return false;
+    }
+    return midiEnable({auto:true}).then((ok)=>{
+      if(ok || MIDIS.connected) return true;
+      if(MIDIS.autoError) midiArmGestureRetry();
+      else {
+        midiSetState('自動待機中（USBでつなぐと自動接続）', 'warn');
+        midiHintSet('MIDI機器が見つかりません。USBでDJ機器を接続すると自動で認識・接続してLEDを同期します（再読み込みは不要）。');
+      }
+      midiBtnLabel();
+      return false;
+    });
   });
 }
 const MIDI_VERIFIED = ['ddj-flx4','ddj-400','ddj-sb3','ddj-sb2','ddj-sb'];
@@ -7623,7 +7769,9 @@ function ddjUiBoot(){
   });
 
   // MIDIパネル
-  if($('midiEnableBtn')) $('midiEnableBtn').addEventListener('click', ()=>midiEnable());
+  if($('midiEnableBtn')) $('midiEnableBtn').addEventListener('click', ()=>midiEnable({manual:true}).then((ok)=>{
+    if(ok && MIDIS.connected) toast('✓ MIDI機器を再スキャンしました：' + MIDIS.devName,'ok');
+  }));
   if($('midiPresetSel')){
     const sel = $('midiPresetSel');
     sel.innerHTML = '';
@@ -7710,7 +7858,7 @@ function ddjUiBoot(){
   midiRebuild();
   midiRenderDevice();
   midiRenderMap();
-  if(MIDIS.supported) midiEnable();
+  if(MIDIS.supported) midiAutoStart();
   else midiSetState('Web MIDI 非対応', 'warn');
   renderPerfPads();
   [0,1].forEach((i)=>{ const d = deckAt(i); if(d) setVinyl(d, d.vinyl !== false, true); });
@@ -7774,13 +7922,18 @@ window.__ddjDebug = {
         model: MIDIS.modelId, fam: MIDIS.fam, presetCount: Object.keys(MIDIS.bindings).length,
         soft: MIDIS.soft, led: MIDIS.led, fourCh: MIDIS.fourCh,
         stateText: MIDIS.state, last: MIDIS.lastMsg,
+        auto: !!MIDIS.auto, perm: MIDIS.perm, autoError: MIDIS.autoError, gestureArmed: !!MIDIS.gestureArmed,
+        btnLabel: ($('midiEnableBtn') ? $('midiEnableBtn').textContent : ''),
+        hint: ($('midiHint') ? $('midiHint').textContent : ''),
         learned: Object.keys(MIDIS.learned), overrides: MIDIS.overrides,
         pickup: Object.keys(MIDIS.pickup).filter(k=>MIDIS.pickup[k]),
         wizard: MIDIS.wizard ? {step:MIDIS.wizard.step, total:MIDIS.wizard.roles.length} : null,
         learnRole: MIDIS.learnRole
       };
     },
-    enable(){ return midiEnable(); },
+    enable(opts){ return midiEnable(opts || {}); },
+    autoStart(){ return midiAutoStart(); },
+    rescan(){ return MIDIS.access ? midiRescan() : midiEnable({}); },
     preset(id){ const sel = $('midiPresetSel'); if(sel){ sel.value = id; sel.dispatchEvent(new Event('change')); } return MIDIS.modelId; },
     bind(name){ const fake = {id:'mock-' + name, name, state:'connected', onmidimessage:null}; return midiBind(fake, {id:'out-' + name, name, send:(b)=>{ MIDIS.sent.push(Array.prototype.slice.call(b)); }}); },
     send(bytes){ midiOnMessage({data:bytes}); return MIDIS.lastMsg; },
