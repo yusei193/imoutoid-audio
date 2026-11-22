@@ -2565,26 +2565,30 @@ function rrPath(g, x, y, w, h, r){
   g.closePath();
 }
 function drawReel(g, cx, cy, r, ang, bass, treble){
-  // ハブ
-  g.strokeStyle = 'rgba(240,235,220,.5)'; g.lineWidth = Math.max(1, r*0.10);
+  // 巻かれたテープ
+  g.strokeStyle = 'rgba(126,96,62,.92)';
+  g.lineWidth = Math.max(2, r*0.30 + bass*r*0.16);
+  g.beginPath(); g.arc(cx, cy, r*0.80, 0, Math.PI*2); g.stroke();
+  // 外周リング（高音で光る）
+  g.strokeStyle = 'rgba(242,180,100,' + (0.30 + treble*0.55).toFixed(3) + ')';
+  g.lineWidth = Math.max(1, r*0.09);
   g.beginPath(); g.arc(cx, cy, r, 0, Math.PI*2); g.stroke();
-  g.fillStyle = 'rgba(20,18,16,.85)';
-  g.beginPath(); g.arc(cx, cy, Math.max(1.5, r*0.26), 0, Math.PI*2); g.fill();
-  // スポーク（回転）
-  const n = 6;
-  for(let i=0;i<n;i++){
-    const a = ang + (Math.PI*2/n)*i;
-    g.strokeStyle = 'rgba(242,180,100,' + (0.35 + treble*0.5).toFixed(3) + ')';
-    g.lineWidth = Math.max(1, r*0.12);
+  // ハブ（白い樹脂）と中心穴
+  g.fillStyle = 'rgba(238,232,218,.94)';
+  g.beginPath(); g.arc(cx, cy, r*0.48, 0, Math.PI*2); g.fill();
+  g.fillStyle = 'rgba(38,32,26,.92)';
+  g.beginPath(); g.arc(cx, cy, r*0.20, 0, Math.PI*2); g.fill();
+  // 6本の歯（回転する）
+  const teeth = 6;
+  g.strokeStyle = 'rgba(52,44,36,.9)';
+  for(let i=0;i<teeth;i++){
+    const a = ang + (Math.PI*2/teeth)*i;
+    g.lineWidth = Math.max(2, r*0.20);
     g.beginPath();
-    g.moveTo(cx + Math.cos(a)*r*0.30, cy + Math.sin(a)*r*0.30);
-    g.lineTo(cx + Math.cos(a)*r*0.92, cy + Math.sin(a)*r*0.92);
+    g.moveTo(cx + Math.cos(a)*r*0.27, cy + Math.sin(a)*r*0.27);
+    g.lineTo(cx + Math.cos(a)*r*0.45, cy + Math.sin(a)*r*0.45);
     g.stroke();
   }
-  // 巻かれたテープ（低音で膨らむ）
-  g.strokeStyle = 'rgba(120,90,60,.75)';
-  g.lineWidth = Math.max(2, r*0.26 + bass*r*0.16);
-  g.beginPath(); g.arc(cx, cy, r*0.78, 0, Math.PI*2); g.stroke();
 }
 function drawCassette(g, w, h){
   const an = vjAnalyser();
@@ -2599,9 +2603,9 @@ function drawCassette(g, w, h){
   bgGrad.addColorStop(1, 'rgba(10,9,12,.98)');
   g.fillStyle = bgGrad; g.fillRect(0, 0, w, h);
 
-  const cw = Math.min(w * 0.84, 640);
-  const chh = Math.min(h * 0.80, cw * 0.60);
-  const cx = (w - cw) / 2, cy = (h - chh) / 2 + 2;
+  const cw = Math.min(w * 0.86, 720);
+  const chh = Math.min(h * 0.84, cw * 0.46);
+  const cx = (w - cw) / 2, cy = (h - chh) / 2 + 1;
 
   // 本体
   g.fillStyle = '#24201b';
@@ -2610,7 +2614,7 @@ function drawCassette(g, w, h){
   rrPath(g, cx + .5, cy + .5, cw - 1, chh - 1, 9); g.stroke();
 
   // ラベル（紙）
-  const lx = cx + cw * 0.05, ly = cy + chh * 0.09, lw = cw * 0.90, lh = chh * 0.44;
+  const lx = cx + cw * 0.05, ly = cy + chh * 0.07, lw = cw * 0.90, lh = chh * 0.36;
   g.fillStyle = '#ece2cc'; rrPath(g, lx, ly, lw, lh, 4); g.fill();
   g.fillStyle = '#c05a34'; g.fillRect(lx, ly, lw, Math.max(3, lh * 0.15));
   const nm = String((S.live ? ((S.info && S.info.now) || 'LIVE') : ((S.ai.track && S.ai.track.t) || 'NO TAPE'))).slice(0, 64);
@@ -2625,9 +2629,9 @@ function drawCassette(g, w, h){
   g.fillText('IMOUTOID ARCHIVE  //  SIDE A  //  ' + (playing ? 'PLAY ▶' : 'STOP ■'), lx + 5, ly + lh * 0.83);
 
   // リール窓
-  const wy = ly + lh + chh * 0.055;
-  const wh = Math.max(16, (cy + chh) - wy - chh * 0.07);
-  const wx = cx + cw * 0.12, ww = cw * 0.76;
+  const wy = ly + lh + chh * 0.05;
+  const wh = Math.max(14, (cy + chh - chh * 0.16) - wy);
+  const wx = cx + cw * 0.06, ww = cw * 0.88;
   g.fillStyle = '#14110f';
   rrPath(g, wx, wy, ww, wh, 7); g.fill();
   g.strokeStyle = 'rgba(255,255,255,.10)';
@@ -2641,27 +2645,34 @@ function drawCassette(g, w, h){
   drawReel(g, wx + ww * 0.76, ry, r, -VJ.reel * 1.08, bass, treble);
 
   // テープの帯
-  g.strokeStyle = 'rgba(196,166,116,.45)'; g.lineWidth = Math.max(1, r * 0.13);
-  g.beginPath(); g.moveTo(wx + ww * 0.24, ry + r + 3); g.lineTo(wx + ww * 0.76, ry + r + 3); g.stroke();
-  // ヘッド
-  g.fillStyle = 'rgba(147,185,255,.32)';
-  g.fillRect(wx + ww * 0.46, ry + r * 0.30, Math.max(3, ww * 0.08), r * 0.9);
+  g.strokeStyle = 'rgba(196,166,116,.55)'; g.lineWidth = Math.max(1, r * 0.12);
+  g.beginPath(); g.moveTo(wx + ww * 0.24, ry + r + 2); g.lineTo(wx + ww * 0.76, ry + r + 2); g.stroke();
+  // ヘッド（センターの小さい台座）
+  g.fillStyle = 'rgba(147,185,255,.30)';
+  g.fillRect(wx + ww * 0.47, ry + r * 0.35, Math.max(3, ww * 0.05), r * 0.85);
+  g.fillStyle = 'rgba(230,240,255,.55)';
+  g.fillRect(wx + ww * 0.485, ry + r * 0.35, Math.max(1, ww * 0.012), r * 0.85);
 
-  // レベルメーター（右）
-  const mw = Math.max(4, cw * 0.022);
-  const mx = cx + cw - mw - cw * 0.035;
+  // レベルメーター（窓の右端）
+  const mw = Math.max(4, cw * 0.020);
+  const mh = Math.max(8, wh * 0.76);
+  const mx = wx + ww - mw - Math.max(4, cw * 0.012);
+  const my0 = wy + (wh - mh) / 2;
   [[bass, '#f2b464'], [mid, '#93b9ff']].forEach((row, i)=>{
-    const my = wy + 2 + i * (wh * 0.52);
-    const mh = wh * 0.44;
-    g.fillStyle = 'rgba(255,255,255,.07)'; g.fillRect(mx, my, mw, mh);
+    const bx = mx - i * (mw + 2);
+    g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(bx, my0, mw, mh);
     const n = Math.max(0, Math.min(1, row[0])) * mh;
-    g.fillStyle = row[1]; g.fillRect(mx, my + mh - n, mw, n);
+    g.fillStyle = row[1]; g.fillRect(bx, my0 + mh - n, mw, n);
   });
-  // 電源ランプ
+  // 電源ランプ＋表記（下部の帯）
+  const fy = cy + chh - chh * 0.08;
   g.fillStyle = (Math.floor(t / 30) % 2 === 0) ? '#ff5a5a' : '#4a2020';
-  g.beginPath(); g.arc(cx + cw * 0.045, cy + chh * 0.955, Math.max(1.6, cw * 0.008), 0, Math.PI * 2); g.fill();
+  g.beginPath(); g.arc(cx + cw * 0.045, fy, Math.max(1.6, cw * 0.007), 0, Math.PI * 2); g.fill();
   g.fillStyle = 'rgba(255,255,255,.22)'; g.font = '7px monospace'; g.textBaseline = 'middle'; g.textAlign = 'left';
-  g.fillText('STEREO  /  CrO2  /  48k', cx + cw * 0.07, cy + chh * 0.955);
+  g.fillText('STEREO  /  CrO2  /  48k', cx + cw * 0.065, fy);
+  g.textAlign = 'right';
+  g.fillText(playing ? '▶ PLAY' : '■ STOP', cx + cw * 0.96, fy);
+  g.textAlign = 'left';
   wave.peak = Math.max(bass, mid, treble);
 }
 
