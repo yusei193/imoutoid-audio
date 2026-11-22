@@ -1312,6 +1312,7 @@ select:disabled{opacity:.5}
         <label class="midi-sel">入力<select id="midiInput"><option value="">（未接続）</option></select></label>
         <label class="midi-sel">出力<select id="midiOutput"><option value="">（自動）</option></select></label>
         <label class="midi-sel">機種<select id="midiPresetSel"></select></label>
+        <span class="midi-hint" id="midiPresetNote"></span>
       </div>
       <div class="midi-bar">
         <label class="midi-chk"><input type="checkbox" id="midiLedChk" checked>LED同期</label>
@@ -7492,9 +7493,22 @@ function midiEnable(){
     return false;
   });
 }
+const MIDI_VERIFIED = ['ddj-flx4','ddj-400','ddj-sb3','ddj-sb2','ddj-sb'];
+function midiPresetNote(){
+  const box = $('midiPresetNote');
+  if(!box) return;
+  const m = MIDI_MODELS.find(x=>x.id === MIDIS.modelId) || {};
+  if(m.fam === 'none'){ box.textContent = 'どのMIDI機器でも「MIDI Learn」と「🪄一括同期」で作れます'; return; }
+  if(MIDI_VERIFIED.indexOf(m.id) >= 0){
+    box.textContent = '✓ 公式MIDI一覧／実績マップで検証済み（そのまま使えます）';
+    return;
+  }
+  box.textContent = 'Pioneer標準コア（全DDJ共通）で動作。機種固有の差異は 🪄一括同期 で微調整できます';
+}
 function midiRenderDevice(){
   const box = $('midiDevice');
   if(!box) return;
+  midiPresetNote();
   const mn = (MIDI_MODELS.find(m=>m.id === MIDIS.modelId) || {}).name || '';
   const dev = MIDIS.devName || 'MIDI';
   box.textContent = MIDIS.connected
