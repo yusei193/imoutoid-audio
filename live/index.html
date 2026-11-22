@@ -232,9 +232,69 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;bac
 .srcline{margin:8px 0 0;font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:#6b6860;line-height:1.7;word-break:break-word;white-space:pre-line}
 .srcline.warn{color:#c39a63}
 .foot{margin-top:20px;text-align:center;font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:#4e4b45;line-height:2}
+
+/* ============ 🆕 テロップ / ジャケット / リスナーツール ============ */
+.telop{position:fixed;left:0;right:0;top:0;z-index:80;overflow:hidden;padding:7px 0;
+  background:linear-gradient(180deg,rgba(26,18,6,.98),rgba(11,9,6,.96));
+  border-bottom:1px solid rgba(242,180,100,.5);box-shadow:0 6px 22px rgba(0,0,0,.55)}
+.telop[hidden]{display:none}
+.telop-inner{display:flex;align-items:center;gap:8px;padding:0 10px}
+.telop-tag{flex:0 0 auto;font-size:12px;color:var(--amber);filter:drop-shadow(0 0 6px rgba(242,180,100,.7))}
+.telop-clip{flex:1 1 auto;min-width:0;overflow:hidden;position:relative}
+.telop-text{display:inline-block;white-space:nowrap;padding-left:100%;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:#ffe6bd;text-shadow:0 0 10px rgba(242,180,100,.85),0 0 22px rgba(242,180,100,.45);animation:telop-scroll var(--dur,16s) linear infinite}
+@keyframes telop-scroll{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+@media (prefers-reduced-motion:reduce){.telop-text{animation-duration:var(--dur,16s)}}
+body.telop-on .wrap{padding-top:38px}
+
+.jacket-wrap{display:flex;justify-content:center;margin:14px 0 0}
+.jacket-wrap[hidden]{display:none !important}
+.jacket-wrap img{width:118px;height:118px;object-fit:cover;border-radius:10px;border:1px solid var(--line2);box-shadow:0 10px 26px rgba(0,0,0,.55),0 0 0 4px rgba(255,255,255,.025)}
+.jacket-wrap img.broken{display:none}
+
+.tools{margin-top:16px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(0,0,0,.26));box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.tools-head{display:flex;align-items:center;gap:9px;padding:9px 13px;border-bottom:1px solid rgba(255,255,255,.05);font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--dim2)}
+.tools-head .lab{color:var(--amber)}
+.tools-body{padding:11px 12px 13px;display:flex;flex-direction:column;gap:13px}
+.tool-sec{display:flex;flex-direction:column;gap:7px;min-width:0}
+.tool-lab{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--dim2)}
+.tool-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.fxbtns{display:flex;gap:6px;flex-wrap:wrap}
+.fxbtn{border:1px solid var(--line2);background:rgba(255,255,255,.04);color:var(--dim);border-radius:9px;padding:7px 10px;font-size:10.5px;cursor:pointer;white-space:nowrap;font-family:var(--mono);letter-spacing:.03em;transition:all .15s}
+.fxbtn:hover{background:rgba(255,255,255,.08);color:var(--txt)}
+.fxbtn.on{border-color:rgba(242,180,100,.6);background:rgba(242,180,100,.16);color:#ffe6bd;box-shadow:inset 0 0 0 1px rgba(242,180,100,.2)}
+.fxbtn.mini{padding:5px 8px;font-size:9.5px;border-radius:7px}
+.tool-row select{width:auto;min-width:0;background:rgba(0,0,0,.42);border:1px solid var(--line2);color:var(--txt);border-radius:9px;padding:7px 9px;font-size:11px}
+.sleep-lab{font-family:var(--mono);font-size:11px;color:var(--amber);min-width:88px;letter-spacing:.04em}
+.favlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px;max-height:190px;overflow-y:auto;overscroll-behavior:contain}
+.favlist[hidden]{display:none}
+.favlist li{display:flex;align-items:center;gap:7px;font-size:11.5px;border-bottom:1px solid rgba(255,255,255,.05);padding:4px 2px;min-width:0}
+.favlist li .n{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--txt)}
+.favlist li .at{font-family:var(--mono);font-size:8.5px;color:var(--dim2);flex:0 0 auto}
+.favlist li button{border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--dim);border-radius:6px;font-size:9.5px;padding:2px 6px;cursor:pointer;flex:0 0 auto}
+.favlist li button:hover{color:#ffe6bd;border-color:rgba(242,180,100,.45)}
+.favlist li.empty{color:var(--dim2);font-size:10.5px;justify-content:center;border:0}
+
+.track-info{margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:9px 11px;background:rgba(0,0,0,.24);display:flex;flex-direction:column;gap:3px}
+.ti-head{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;color:var(--dim2);flex-wrap:wrap}
+.ti-series{margin-left:auto;padding:2px 7px;border-radius:999px;border:1px solid var(--line2);color:var(--dim);white-space:nowrap}
+.ti-title{font-family:var(--serif);font-size:13px;line-height:1.4;color:#f0e8d8;word-break:break-word}
+.ti-meta{font-size:10px;color:var(--dim2);font-family:var(--mono);word-break:break-word;line-height:1.6}
+.ti-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.ti-links a{color:#ffdca8;font-size:10.5px;text-decoration:none;border-bottom:1px dotted rgba(242,180,100,.55)}
+.ti-links a:hover{color:#fff0d6}
+.moods{display:flex;gap:5px;flex-wrap:wrap}
+@media (max-width:420px){.fxbtn{padding:6px 8px;font-size:10px}.jacket-wrap img{width:96px;height:96px}}
+#nrToast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:95;max-width:88vw;background:rgba(12,12,16,.96);border:1px solid var(--line2);border-radius:10px;padding:8px 14px;font-size:11.5px;color:var(--txt);box-shadow:0 10px 26px rgba(0,0,0,.65);opacity:0;transition:opacity .25s;pointer-events:none;text-align:center;line-height:1.5}
+#nrToast.on{opacity:1}
 </style>
 </head>
 <body>
+<div class="telop" id="telopBar" hidden aria-live="polite">
+  <div class="telop-inner">
+    <span class="telop-tag">📺</span>
+    <span class="telop-clip"><span class="telop-text" id="telopText"></span></span>
+  </div>
+</div>
 <div class="wrap">
 
   <div class="strip">
@@ -251,6 +311,8 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;bac
       <span class="mode" id="modeText">ただいま放送準備中</span>
     </div>
   </div>
+
+  <div class="jacket-wrap" id="jacketWrap" hidden><img id="jacketImg" alt="配信中のジャケット画像"></div>
 
   <div class="program">
     <div class="now-label" id="nowLabel">NOW ON AIR</div>
@@ -278,7 +340,34 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;bac
       <span class="btn chip-static" id="introInfo" title="曲紹介は音楽に重ねて喋ります">🎙 曲紹介：音楽に重ねる</span>
       <button class="btn" id="aiNextBtn" type="button">⏭ 次の曲</button>
     </div>
+    <div class="moods" id="moods">
+      <button class="fxbtn mini on" type="button" data-mood="auto" title="時間帯（朝・昼・夜）で自動選曲">🕒 自動（時間帯）</button>
+      <button class="fxbtn mini" type="button" data-mood="morning">🌅 朝</button>
+      <button class="fxbtn mini" type="button" data-mood="day">☀️ 昼</button>
+      <button class="fxbtn mini" type="button" data-mood="night">🌙 夜チル</button>
+    </div>
+    <div class="ai-toggles" style="margin-top:8px">
+      <button class="btn" id="chimeBtn" type="button" title="毎正時に時報を鳴らす">🕰️ 時報 ON</button>
+      <button class="btn" id="chimeTest" type="button" title="時報を今すぐ鳴らして確認">時報テスト</button>
+      <label class="btn" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer">🔔 自動ジングル
+        <select id="jingleEvery" aria-label="自動ジングルの間隔" style="width:auto;background:transparent;border:0;color:inherit;font-size:11px;padding:0 2px">
+          <option value="0">OFF</option>
+          <option value="3" selected>3曲ごと</option>
+          <option value="5">5曲ごと</option>
+        </select>
+      </label>
+    </div>
     <div class="dj-line" id="djLine" hidden><span class="k">🎙️ AI IMOUTO トーク中</span><span id="djText"></span></div>
+  </section>
+
+  <!-- 📖 放送中曲の解説・次曲 -->
+  <section class="track-info" id="trackInfo">
+    <div class="ti-head"><span>📖 放送中曲の解説</span><span class="ti-series" id="tiSeries">—</span></div>
+    <div class="ti-title" id="tiTitle">—</div>
+    <div class="ti-meta" id="tiMeta">再生を始めると、ここに曲の解説・アーカイブ情報・次にかかる曲が出ます。</div>
+    <div class="ti-links" id="tiLinks">
+      <a id="tiArch" href="https://www.imoutoid.net/" target="_blank" rel="noopener noreferrer" hidden>imoutoid アーカイブ ↗</a>
+    </div>
   </section>
 
   <div class="scope">
@@ -288,6 +377,8 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;bac
         <button class="vjbtn on" type="button" data-vj="wave">WAVE</button>
         <button class="vjbtn" type="button" data-vj="spectrum">SPECTRUM</button>
         <button class="vjbtn" type="button" data-vj="retro">RETRO VJ</button>
+        <button class="vjbtn" type="button" data-vj="cassette">CASSETTE</button>
+        <button class="vjbtn" type="button" data-vj="oscillo">OSCILLO</button>
       </div>
       <span id="scopeInfo">AUTO-DJ / 146 TRACKS</span>
     </div>
@@ -305,6 +396,44 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;bac
       <input id="volume" type="range" min="0" max="100" value="80" aria-label="音量">
     </div>
   </div>
+
+  <!-- 🎧 リスナーツール（音質 / スリープ / お気に入り） -->
+  <section class="tools" id="tools">
+    <div class="tools-head"><span class="lab">🎧 LISTENER TOOLS</span><span id="toolsState" style="margin-left:auto">FLAT / SLEEP OFF</span></div>
+    <div class="tools-body">
+      <div class="tool-sec">
+        <span class="tool-lab">🎚️ 音質プリセット（生放送・AIラジオの両方）</span>
+        <div class="fxbtns" id="fxPresets">
+          <button class="fxbtn on" type="button" data-fx="flat">FLAT（原音）</button>
+          <button class="fxbtn" type="button" data-fx="bass">BASS BOOST</button>
+          <button class="fxbtn" type="button" data-fx="voice">CLEAR VOICE</button>
+          <button class="fxbtn" type="button" data-fx="night">NIGHT MODE</button>
+        </div>
+      </div>
+      <div class="tool-sec">
+        <span class="tool-lab">🌙 スリープタイマー</span>
+        <div class="tool-row">
+          <select id="sleepSel" aria-label="スリープタイマー">
+            <option value="0">OFF</option>
+            <option value="15">15分</option>
+            <option value="30">30分</option>
+            <option value="60">60分</option>
+          </select>
+          <span class="sleep-lab" id="sleepLab">🌙 OFF</span>
+          <span style="font-size:10px;color:var(--dim2)">終了10秒前から音量がスッと下がります</span>
+        </div>
+      </div>
+      <div class="tool-sec">
+        <span class="tool-lab">★ お気に入り曲</span>
+        <div class="tool-row">
+          <button class="btn" id="favAdd" type="button">★ お気に入り保存</button>
+          <button class="btn" id="favToggle" type="button">📋 一覧（<span id="favCount">0</span>）</button>
+          <button class="btn" id="favCopy" type="button">コピー</button>
+        </div>
+        <ul class="favlist" id="favList" hidden></ul>
+      </div>
+    </div>
+  </section>
 
   <!-- 💬 ライブチャット -->
   <section class="chat" id="chatPanel">
@@ -442,7 +571,13 @@ const S = {
   aiLoaded:false,
   aiAnalyser:null,
   ai:{ playing:false, track:null, index:0, order:[], orderKey:'', djOn:true, speaking:false, errors:0, slot:-1,
-       decks:null, active:0, master:null, xfade:3.0, xfading:false, gen:0, xfadeTimer:null, slotKey:'' }
+       decks:null, active:0, master:null, xfade:3.0, xfading:false, gen:0, xfadeTimer:null, slotKey:'',
+       mood:'auto', jingleEvery:3, sinceJingle:0, fx:null },
+  /* 🆕 第2弾 */
+  fx:{ preset:'flat', chain:null },
+  liveFx:null,
+  sleep:{ mode:'off', endAt:0, timer:null },
+  fav:[], telop:'', jacket:''
 };
 
 const el = {
@@ -461,7 +596,15 @@ const el = {
   letterPanel:$('letterPanel'), letterState:$('letterState'), letterNote:$('letterNote'),
   letterName:$('letterName'), letterText:$('letterText'), letterSearch:$('letterSearch'),
   letterList:$('letterList'), letterPicked:$('letterPicked'), letterMsg:$('letterMsg'),
-  letterSend:$('letterSend'), letterCount:$('letterCount')
+  letterSend:$('letterSend'), letterCount:$('letterCount'),
+  /* 🆕 第2弾 */
+  telopBar:$('telopBar'), telopText:$('telopText'),
+  jacketWrap:$('jacketWrap'), jacketImg:$('jacketImg'),
+  trackInfo:$('trackInfo'), tiSeries:$('tiSeries'), tiTitle:$('tiTitle'), tiMeta:$('tiMeta'), tiLinks:$('tiLinks'), tiArch:$('tiArch'),
+  fxPresets:$('fxPresets'), toolsState:$('toolsState'),
+  sleepSel:$('sleepSel'), sleepLab:$('sleepLab'),
+  favAdd:$('favAdd'), favToggle:$('favToggle'), favCount:$('favCount'), favList:$('favList'), favCopy:$('favCopy'),
+  chimeBtn:$('chimeBtn'), chimeTest:$('chimeTest'), moods:$('moods'), jingleEvery:$('jingleEvery')
 };
 
 /* ================= 👤 人間 / 🤖 AI・Bot の自己申告 =================
@@ -541,6 +684,8 @@ const MOOD_WORDS = {
   night: ['ambient','アンビエント','chill','night','midnight','piano','ピアノ','slow','soft','lullaby','sleep','rain','雨','dawn','minimal','dub','warm','dark','mellow','echo','drone','quiet','calm','lonely','sad','reverb','deep','ballad','strings','ethnic','synth','glass','cold','regret','lost','stationery','time','lofi','lo-fi','tape','space','float','静','夜','深夜','夢','夢想','ゆめ','月','ほし','ピアノンドウズ']
 };
 function dayPart(hour){
+  // 🕒 手動ムードが選ばれていればそれを使う（自動なら時間帯）
+  if(S.ai && S.ai.mood && S.ai.mood !== 'auto' && DAYPARTS[S.ai.mood]) return DAYPARTS[S.ai.mood];
   const h = (hour === undefined) ? jstNow().h : hour;
   if(h >= 5 && h < 11) return DAYPARTS.morning;
   if(h >= 11 && h < 17) return DAYPARTS.day;
@@ -615,9 +760,14 @@ function ensureCtx(){
     try{ el.aiAudioA.crossOrigin = 'anonymous'; el.aiAudioB.crossOrigin = 'anonymous'; }catch(e){}
     S.ai.master = S.ctx.createGain();
     S.ai.master.gain.value = volGain(S.vol);   // 音量はこの1か所だけで掛ける（下の要素の volume=1 と二重にしない）
+    // 🎚️ 音質プリセット（EQ + ナイトモード用コンプ）はデッキとマスターの間に入れる
+    S.ai.fx = buildFxChain(S.ctx);
+    applyFxPreset(S.ai.fx, S.fx.preset, true);
+    S.fx.chain = S.ai.fx;
     S.aiAnalyser = S.ctx.createAnalyser();
     S.aiAnalyser.fftSize = 2048;
     S.aiAnalyser.smoothingTimeConstant = 0.75;
+    S.ai.fx.output.connect(S.ai.master);        // デッキ → EQ → マスター（音量）
     S.ai.master.connect(S.aiAnalyser);          // 実音声をここで解析（ゲイン後）
     S.aiAnalyser.connect(S.ctx.destination);    // 音は Analyser を通してそのまま出力
     S.ai.decks = [el.aiAudioA, el.aiAudioB].map((a, i)=>{
@@ -627,7 +777,7 @@ function ensureCtx(){
       const src = S.ctx.createMediaElementSource(a);
       const fade = S.ctx.createGain(); fade.gain.value = 0;
       const duck = S.ctx.createGain(); duck.gain.value = 1;
-      src.connect(fade); fade.connect(duck); duck.connect(S.ai.master);
+      src.connect(fade); fade.connect(duck); duck.connect(S.ai.fx.input);
       a.addEventListener('timeupdate', ()=>onAiTime(S.ai.decks[i]));
       a.addEventListener('ended', ()=>onAiEnded(S.ai.decks[i]));
       a.addEventListener('error', ()=>{
@@ -681,8 +831,442 @@ function volGain(p){
 function setVolume(v){
   S.vol = Math.max(0, Math.min(1, Number(v) || 0));
   const g = volGain(S.vol);
-  el.audio.volume = g;                     // 生放送（<audio> 直接）
+  if(S.liveFx){
+    el.audio.volume = 0;                   // 🎚️ 音質プリセット中は WebAudio 経由で出す
+    try{ S.liveFx.gain.gain.value = (S.live && S.playing) ? g : 0; }catch(e){}
+  } else {
+    el.audio.volume = g;                   // 生放送（<audio> 直接）
+  }
   if(S.ai.master) S.ai.master.gain.value = g;   // AIラジオ（WebAudio）
+}
+
+/* =========================================================
+   🆕 第2弾：音質プリセット / スリープ / お気に入り / 時報・ジングル / 解説・テロップ
+   ========================================================= */
+/* 画面上の小さな通知（このページにはトーストがないため） */
+let noteTimer = null;
+function note(msg){
+  let d = document.getElementById('nrToast');
+  if(!d){
+    d = document.createElement('div');
+    d.id = 'nrToast';
+    document.body.appendChild(d);
+  }
+  d.textContent = String(msg || '');
+  d.classList.add('on');
+  if(noteTimer) clearTimeout(noteTimer);
+  noteTimer = setTimeout(()=>{ try{ d.classList.remove('on'); }catch(e){} }, 2800);
+}
+
+/* ---- 🎚️ 音質プリセット（EQ + ナイトモード用コンプ） ---- */
+const FX_PRESETS = {
+  flat:  {label:'FLAT',        low:0,  mid:0, high:0, comp:null},
+  bass:  {label:'BASS BOOST',  low:9,  mid:-1, high:0, comp:null},
+  voice: {label:'CLEAR VOICE', low:-6, mid:7,  high:2, comp:null},
+  night: {label:'NIGHT MODE',  low:0,  mid:0, high:0, comp:{threshold:-34, knee:22, ratio:6, attack:0.01, release:0.35}}
+};
+function buildFxChain(ctx){
+  const low  = ctx.createBiquadFilter(); low.type = 'lowshelf';  low.frequency.value = 200;
+  const mid  = ctx.createBiquadFilter(); mid.type = 'peaking';   mid.frequency.value = 2500; mid.Q.value = 1.0;
+  const high = ctx.createBiquadFilter(); high.type = 'highshelf'; high.frequency.value = 6000;
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = 0; comp.knee.value = 0; comp.ratio.value = 1;
+  comp.attack.value = 0.01; comp.release.value = 0.25;
+  low.connect(mid); mid.connect(high); high.connect(comp);
+  return {input:low, output:comp, low, mid, high, comp};
+}
+function applyFxPreset(chain, name, immediate){
+  if(!chain) return;
+  const p = FX_PRESETS[name] || FX_PRESETS.flat;
+  const t = S.ctx ? S.ctx.currentTime : 0;
+  const set = (param, v)=>{
+    try{
+      if(!S.ctx || immediate){ param.value = v; return; }
+      param.cancelScheduledValues(t);
+      param.setValueAtTime(param.value, t);
+      param.linearRampToValueAtTime(v, t + 0.12);
+    }catch(e){ try{ param.value = v; }catch(e2){} }
+  };
+  set(chain.low.gain, p.low);
+  set(chain.mid.gain, p.mid);
+  set(chain.high.gain, p.high);
+  const c = chain.comp;
+  const cc = p.comp || {threshold:0, knee:0, ratio:1, attack:0.01, release:0.25};
+  set(c.threshold, cc.threshold);
+  set(c.knee, cc.knee);
+  set(c.ratio, cc.ratio);
+  try{ c.attack.value = cc.attack; c.release.value = cc.release; }catch(e){}
+}
+function setFxPreset(name){
+  S.fx.preset = FX_PRESETS[name] ? name : 'flat';
+  if(S.ai.fx) applyFxPreset(S.ai.fx, S.fx.preset, false);
+  syncLiveFx();
+  if(S.liveFx) applyFxPreset(S.liveFx.chain, S.fx.preset, false);
+  document.querySelectorAll('#fxPresets .fxbtn').forEach((b)=>b.classList.toggle('on', b.getAttribute('data-fx') === S.fx.preset));
+  updateToolsState();
+  note('音質：' + FX_PRESETS[S.fx.preset].label);
+  return S.fx.preset;
+}
+/* ---- 生放送にもプリセットを掛ける（clone を WebAudio に通し、<audio> 側は無音にする） ---- */
+function teardownLiveFx(){
+  if(!S.liveFx) return;
+  const f = S.liveFx;
+  S.liveFx = null;
+  try{ f.src.disconnect(); }catch(e){}
+  try{ f.chain.output.disconnect(); }catch(e){}
+  try{ f.gain.disconnect(); }catch(e){}
+  try{ if(f.clone) f.clone.getTracks().forEach((t)=>{ try{ t.stop(); }catch(e){} }); }catch(e){}
+}
+function syncLiveFx(){
+  const need = !!(S.stream && S.fx.preset !== 'flat');
+  if(!need){
+    teardownLiveFx();
+    if(el.audio) el.audio.volume = volGain(S.vol);
+    return;
+  }
+  if(S.liveFx && S.liveFx.stream === S.stream) return;
+  teardownLiveFx();
+  const ctx = ensureCtx();
+  if(!ctx) return;
+  let clone = null;
+  try{ clone = (typeof S.stream.clone === 'function') ? S.stream.clone() : null; }catch(e){ clone = null; }
+  if(!clone) return;
+  try{
+    const src = ctx.createMediaStreamSource(clone);
+    const chain = buildFxChain(ctx);
+    const gain = ctx.createGain();
+    gain.gain.value = (S.live && S.playing) ? volGain(S.vol) : 0;
+    src.connect(chain.input);
+    chain.output.connect(gain);
+    gain.connect(ctx.destination);
+    applyFxPreset(chain, S.fx.preset, true);
+    S.liveFx = {stream:S.stream, clone, src, chain, gain};
+    el.audio.volume = 0;
+  }catch(e){
+    try{ clone.getTracks().forEach((t)=>{ try{ t.stop(); }catch(e2){} }); }catch(e3){}
+    S.liveFx = null;
+  }
+}
+function syncLiveFxGain(){
+  if(!S.liveFx) return;
+  const g = (S.live && S.playing) ? volGain(S.vol) : 0;
+  try{ S.liveFx.gain.gain.value = g; }catch(e){}
+}
+
+/* ---- 🌙 スリープタイマー ---- */
+function fmtMmSs(ms){
+  const t = Math.max(0, Math.ceil(ms / 1000));
+  return pad2(Math.floor(t / 60)) + ':' + pad2(t % 60);
+}
+function updateToolsState(){
+  if(!el.toolsState) return;
+  const p = FX_PRESETS[S.fx.preset] || FX_PRESETS.flat;
+  const s = S.sleep.endAt ? ('SLEEP ' + fmtMmSs(S.sleep.endAt - Date.now())) : 'SLEEP OFF';
+  el.toolsState.textContent = p.label + ' / ' + s;
+}
+function updateSleepUi(){
+  if(el.sleepSel) el.sleepSel.value = S.sleep.endAt ? String(S.sleep.mode) : '0';
+  if(el.sleepLab){
+    el.sleepLab.textContent = S.sleep.endAt ? ('🌙 ' + fmtMmSs(S.sleep.endAt - Date.now())) : '🌙 OFF';
+  }
+  updateToolsState();
+}
+function sleepTick(){
+  if(!S.sleep.endAt) return;
+  const left = S.sleep.endAt - Date.now();
+  if(el.sleepLab) el.sleepLab.textContent = '🌙 ' + fmtMmSs(left);
+  if(left > 0 && left <= 10000){
+    const g = volGain(S.vol) * Math.max(0, left / 10000);   // 10秒かけて滑らかにフェードアウト
+    if(S.liveFx){ try{ S.liveFx.gain.gain.value = S.live ? g : 0; }catch(e){} }
+    else if(el.audio) el.audio.volume = g;
+    if(S.ai.master) S.ai.master.gain.value = g;
+  }
+  updateToolsState();
+  if(left <= 0) stopForSleep();
+}
+function setSleep(min){
+  const m = Number(min) || 0;
+  if(S.sleep.timer){ clearInterval(S.sleep.timer); S.sleep.timer = null; }
+  if(!m){
+    S.sleep = {mode:'off', endAt:0, timer:null};
+    setVolume(S.vol);
+    updateSleepUi();
+    note('スリープタイマーを OFF にしました');
+    return;
+  }
+  S.sleep = {mode:m, endAt:Date.now() + m * 60000, timer:null};
+  S.sleep.timer = setInterval(sleepTick, 500);
+  updateSleepUi();
+  note('スリープタイマー：' + m + '分');
+}
+function stopForSleep(){
+  if(S.sleep.timer){ clearInterval(S.sleep.timer); S.sleep.timer = null; }
+  S.sleep = {mode:'off', endAt:0, timer:null};
+  if(S.live && S.playing){ try{ el.audio.pause(); }catch(e){} S.playing = false; S.wantPlay = false; }
+  if(S.ai.playing) pauseAi();
+  setVolume(S.vol);
+  updatePlayUi();
+  updateSleepUi();
+  note('🌙 スリープタイマーで再生を止めました');
+}
+
+/* ---- ★ お気に入り曲 ---- */
+const FAV_KEY = 'netradio.favs.v1';
+function favLoad(){
+  try{
+    const raw = localStorage.getItem(FAV_KEY);
+    const a = raw ? JSON.parse(raw) : [];
+    S.fav = Array.isArray(a) ? a.filter(x=>x && x.t).slice(0,150).map(x=>({
+      t:String(x.t).slice(0,120), u:String(x.u || ''), c:String(x.c || ''), at:Number(x.at) || Date.now()
+    })) : [];
+  }catch(e){ S.fav = []; }
+  renderFavs();
+}
+function favSave(){ try{ localStorage.setItem(FAV_KEY, JSON.stringify(S.fav)); }catch(e){} }
+function currentFavTrack(){
+  if(S.ai.playing && S.ai.track) return S.ai.track;
+  const now = (S.info && S.info.now) || '';
+  if(now){
+    const hit = TRACKS.find(x=>x.t === now);
+    return hit || {t:now, u:'', c:''};
+  }
+  if(S.ai.track) return S.ai.track;
+  return null;
+}
+function favAdd(){
+  const tr = currentFavTrack();
+  if(!tr || !tr.t){ note('再生中の曲がありません'); return; }
+  if(S.fav.some(x=>x.t === tr.t)){ note('すでにお気に入りに入っています'); return; }
+  S.fav.unshift({t:String(tr.t).slice(0,120), u:String(tr.u || ''), c:String(tr.c || ''), at:Date.now()});
+  if(S.fav.length > 150) S.fav.length = 150;
+  favSave(); renderFavs();
+  note('★ お気に入りに保存：' + tr.t);
+}
+function favRemove(i){
+  if(i < 0 || i >= S.fav.length) return;
+  const t = S.fav[i].t;
+  S.fav.splice(i, 1);
+  favSave(); renderFavs();
+  note('お気に入りから削除：' + t);
+}
+function favPlay(i){
+  const f = S.fav[i];
+  if(!f || !f.u){ note('この曲はURLがないため再生できません'); return; }
+  const hit = TRACKS.find(x=>x.t === f.t) || {t:f.t, u:f.u, c:f.c || 's1'};
+  S.wantPlay = true;
+  aiStart(hit);
+}
+function renderFavs(){
+  if(el.favCount) el.favCount.textContent = String(S.fav.length);
+  if(!el.favList) return;
+  el.favList.textContent = '';
+  if(!S.fav.length){
+    const li = document.createElement('li');
+    li.className = 'empty';
+    li.textContent = 'まだお気に入りはありません。再生中に「★ お気に入り保存」で追加できます。';
+    el.favList.appendChild(li);
+    return;
+  }
+  S.fav.forEach((f, i)=>{
+    const li = document.createElement('li');
+    const n = document.createElement('span'); n.className = 'n'; n.textContent = f.t;
+    const at = document.createElement('span'); at.className = 'at';
+    const d = new Date(f.at);
+    at.textContent = (String(d.getMonth()+1).padStart(2,'0')) + '/' + String(d.getDate()).padStart(2,'0');
+    const play = document.createElement('button'); play.type = 'button'; play.textContent = '▶';
+    play.addEventListener('click', ()=>favPlay(i));
+    const cp = document.createElement('button'); cp.type = 'button'; cp.textContent = 'コピー';
+    cp.addEventListener('click', async ()=>{
+      const text = f.t + (f.u ? ('\n' + f.u) : '');
+      const ok = await copyTextSafe(text);
+      note(ok ? 'コピーしました' : 'コピーできませんでした');
+    });
+    const del = document.createElement('button'); del.type = 'button'; del.textContent = '✕';
+    del.addEventListener('click', ()=>favRemove(i));
+    li.appendChild(n); li.appendChild(at); li.appendChild(play); li.appendChild(cp); li.appendChild(del);
+    el.favList.appendChild(li);
+  });
+}
+async function copyTextSafe(text){
+  try{
+    if(navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(text); return true; }
+  }catch(e){}
+  try{
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    const ok = document.execCommand('copy'); ta.remove(); return ok;
+  }catch(e){ return false; }
+}
+
+/* ---- 🕰️ 時報（AI IMOUTO） ---- */
+const chime = {on:true, lastKey:''};
+function renderChimeUi(){
+  if(!el.chimeBtn) return;
+  el.chimeBtn.textContent = '🕰️ 時報 ' + (chime.on ? 'ON' : 'OFF');
+  el.chimeBtn.classList.toggle('on', chime.on);
+}
+function chimeSet(on){ chime.on = !!on; renderChimeUi(); note('時報を ' + (chime.on ? 'ON' : 'OFF') + ' にしました'); }
+function chimeTick(){
+  const p = jstNow();
+  if(p.mi !== 0 || p.s > 3) return;
+  const key = p.y + '-' + p.m + '-' + p.d + '-' + p.h;
+  if(chime.lastKey === key) return;
+  chime.lastKey = key;
+  if(!chime.on || !S.ai.playing) return;
+  playTimeSignal(p.h);
+}
+function playTimeSignal(hour){
+  const ctx = ensureCtx();
+  if(!ctx) return false;
+  try{ if(ctx.state === 'suspended') ctx.resume(); }catch(e){}
+  const h24 = (typeof hour === 'number' && isFinite(hour)) ? hour : jstNow().h;
+  const h12 = ((h24 % 12) || 12);
+  const t0 = ctx.currentTime + 0.05;
+  [[880, 0], [1108.73, 0.34], [1318.51, 0.68], [1760, 1.02]].forEach((n)=>{
+    try{
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(n[0], t0 + n[1]);
+      g.gain.setValueAtTime(0.0001, t0 + n[1]);
+      g.gain.exponentialRampToValueAtTime(0.22, t0 + n[1] + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + n[1] + 0.5);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(t0 + n[1]); o.stop(t0 + n[1] + 0.55);
+    }catch(e){}
+  });
+  if(canSpeak()){
+    try{
+      const text = "It's " + h12 + " o'clock. You're listening to AI IMOUTO Radio.";
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'en-US'; u.rate = 1.02; u.pitch = 1.3; u.volume = 1;
+      const v = pickEnVoice();
+      if(v) u.voice = v;
+      setTimeout(()=>{ try{ window.speechSynthesis.speak(u); }catch(e){} }, 1600);
+    }catch(e){}
+  }
+  el.djLine.hidden = false;
+  el.djText.textContent = "It's " + h12 + " o'clock. You're listening to AI IMOUTO Radio.";
+  setTimeout(()=>{ try{ if(!S.ai.speaking) el.djLine.hidden = true; }catch(e){} }, 6500);
+  return true;
+}
+/* ---- 🔔 合成ジングル（N曲ごと） ---- */
+function playAiJingle(){
+  const ctx = ensureCtx();
+  if(!ctx) return false;
+  const t0 = ctx.currentTime + 0.02;
+  [[659.25, 0, 0.13], [880, 0.13, 0.13], [1046.5, 0.26, 0.16], [1318.51, 0.44, 0.34]].forEach((n)=>{
+    try{
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'square';
+      o.frequency.setValueAtTime(n[0], t0 + n[1]);
+      g.gain.setValueAtTime(0.0001, t0 + n[1]);
+      g.gain.exponentialRampToValueAtTime(0.11, t0 + n[1] + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + n[1] + n[2]);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(t0 + n[1]); o.stop(t0 + n[1] + n[2] + 0.03);
+    }catch(e){}
+  });
+  return true;
+}
+function setJingleEvery(v){
+  const n = Number(v) || 0;
+  S.ai.jingleEvery = (n === 3 || n === 5) ? n : 0;
+  S.ai.sinceJingle = 0;
+  if(el.jingleEvery) el.jingleEvery.value = String(S.ai.jingleEvery);
+  try{ localStorage.setItem('netradio.aiJingleEvery', String(S.ai.jingleEvery)); }catch(e){}
+  note(S.ai.jingleEvery ? ('自動ジングル：' + S.ai.jingleEvery + '曲ごと') : '自動ジングル：OFF');
+}
+
+/* ---- 🕒 選曲ムード（自動 / 朝 / 昼 / 夜チル） ---- */
+function setMood(m){
+  S.ai.mood = (m === 'morning' || m === 'day' || m === 'night') ? m : 'auto';
+  S.ai.orderKey = '';
+  document.querySelectorAll('#moods .fxbtn').forEach((b)=>b.classList.toggle('on', (b.getAttribute('data-mood') || 'auto') === S.ai.mood));
+  updateSlotBadge();
+  renderAiTrack();
+  renderTrackInfo();
+  note('選曲ムード：' + (S.ai.mood === 'auto' ? '自動（時間帯）' : DAYPARTS[S.ai.mood].jp));
+  return S.ai.mood;
+}
+
+/* ---- 📖 放送中曲の解説・次曲 ---- */
+const ARCHIVE_PAGES = {
+  s1:{page:'https://www.imoutoid.net/%E9%9F%B3%E6%BA%901', body:'https://www.imoutoid.net/%E9%9F%B3%E6%BA%901%E3%81%AE%E6%9C%AC%E6%96%87', name:'音源1', series:'SERIES 1'},
+  s2:{page:'https://www.imoutoid.net/%E9%9F%B3%E6%BA%902', body:'https://www.imoutoid.net/%E9%9F%B3%E6%BA%902%E3%81%AE%E6%9C%AC%E6%96%87', name:'音源2', series:'SERIES 2'}
+};
+const ARCHIVE_TOP = 'https://www.imoutoid.net/';
+const ARCHIVE_RADIO = 'https://www.imoutoid.net/imoutoid-radio';
+function mkLink(href, text){
+  const a = document.createElement('a');
+  a.href = href; a.target = '_blank'; a.rel = 'noopener noreferrer';
+  a.textContent = text;
+  return a;
+}
+function renderTrackInfo(){
+  if(!el.tiTitle) return;
+  const live = !!S.live;
+  const tr = live ? null : (S.ai.track || null);
+  const nowName = live ? ((S.info && S.info.now) || '') : (tr ? tr.t : '');
+  const hit = tr || (nowName ? TRACKS.find(x=>x.t === nowName) : null);
+  const info = ARCHIVE_PAGES[(hit && hit.c === 's2') ? 's2' : 's1'];
+  el.tiTitle.textContent = nowName || '—';
+  el.tiSeries.textContent = live ? 'LIVE' : (nowName ? info.series : '—');
+  const meta = [];
+  if(live){
+    meta.push('生放送中' + ((S.info && S.info.dj) ? (' / DJ ' + S.info.dj) : ''));
+    if(S.info && S.info.note) meta.push(S.info.note);
+  } else if(hit){
+    meta.push('imoutoid アーカイブ ・ ' + info.name + '（' + info.series + '）');
+  }
+  if(!live && S.ai.playing){
+    const nx = nextScheduled();
+    if(nx) meta.push('NEXT: ' + nx.t);
+  }
+  el.tiMeta.textContent = meta.length ? meta.join(' ・ ') : '再生を始めると、ここに曲の解説・アーカイブ情報・次にかかる曲が出ます。';
+  if(!el.tiLinks) return;
+  el.tiLinks.textContent = '';
+  if(live){
+    el.tiLinks.appendChild(mkLink(ARCHIVE_RADIO, 'ラジオ音源アーカイブ ↗'));
+    el.tiLinks.appendChild(mkLink(ARCHIVE_TOP, 'imoutoid アーカイブ ↗'));
+  } else if(hit){
+    el.tiLinks.appendChild(mkLink(info.page, info.name + ' ページ（作品一覧）↗'));
+    el.tiLinks.appendChild(mkLink(info.body, info.name + 'の本文（解説）↗'));
+    el.tiLinks.appendChild(mkLink(ARCHIVE_TOP, 'imoutoid アーカイブ ↗'));
+  }
+}
+
+/* ---- 📺 テロップ / 🖼️ ジャケット（配信者から） ---- */
+function showTelop(text){
+  const t = String(text == null ? '' : text).replace(/\s+/g, ' ').trim().slice(0, 200);
+  S.telop = t;
+  if(!el.telopBar) return;
+  if(!t){
+    el.telopBar.hidden = true;
+    document.body.classList.remove('telop-on');
+    if(el.telopText) el.telopText.textContent = '';
+    return;
+  }
+  el.telopBar.hidden = false;
+  document.body.classList.add('telop-on');
+  el.telopText.textContent = t;            // XSS対策：textContent のみ
+  const dur = Math.max(9, Math.min(30, t.length * 0.42));
+  el.telopText.style.setProperty('--dur', dur.toFixed(1) + 's');
+  el.telopText.style.animation = 'none';
+  void el.telopText.offsetWidth;           // アニメーションを頭からやり直す
+  el.telopText.style.animation = '';
+}
+function setJacketView(dataUrl){
+  S.jacket = String(dataUrl || '');
+  if(!el.jacketWrap || !el.jacketImg) return;
+  if(!S.jacket || !/^(data:image\/|https?:\/\/)/i.test(S.jacket)){
+    el.jacketWrap.hidden = true;
+    el.jacketImg.removeAttribute('src');
+    return;
+  }
+  el.jacketImg.classList.remove('broken');
+  el.jacketImg.src = S.jacket;
+  el.jacketWrap.hidden = false;
 }
 
 /* ================= 表示 ================= */
@@ -756,6 +1340,7 @@ function renderLiveInfo(){
   } else el.guestBadge.hidden = true;
   if(d.now){ el.nowTag.hidden = false; el.nowTagText.textContent = '♪ ' + d.now; }
   else { el.nowTag.hidden = false; el.nowTagText.textContent = 'LIVE'; }
+  renderTrackInfo();
 }
 function updateSlotBadge(){
   const part = dayPart();
@@ -787,6 +1372,7 @@ function renderAiTrack(){
   const nx = t ? nextScheduled() : pickNow();
   el.aiNext.textContent = 'NEXT: ' + (nx ? nx.t : '—');
   if(!S.live) el.nowTagText.textContent = t ? ('♪ ' + t.t) : '▶ 再生ボタンでスタート';
+  renderTrackInfo();
 }
 function jstTimeLabel(){ const p = jstNow(); return pad2(p.h) + ':' + pad2(p.mi); }
 /* 時間帯（朝・昼・夜）が切り替わったら、次の選曲から新しい並びにする */
@@ -992,8 +1578,14 @@ function aiStart(track, opts){
     S.ai.playing = true;
     S.ai.track = track;
     S.ai.slot = currentSlot();
+    // 🔔 N曲ごとに合成ジングルを挿入
+    if(S.ai.jingleEvery > 0){
+      S.ai.sinceJingle = (S.ai.sinceJingle || 0) + 1;
+      if((S.ai.sinceJingle % S.ai.jingleEvery) === 0) playAiJingle();
+    }
     renderAiTrack();
     updateModeUi();
+    renderTrackInfo();
     if(S.ai.djOn) speakOver(track, target);
   };
   if(p && p.then) p.then(go).catch(()=>{
@@ -1220,12 +1812,16 @@ function onData(d){
   if(!d || typeof d !== 'object') return;
   if(d.type === 'info'){
     S.info = Object.assign(S.info, d);
+    if(typeof d.telop === 'string' && d.telop !== S.telop) showTelop(d.telop);
     if(S.live) renderLiveInfo();
+    else renderTrackInfo();
     return;
   }
   if(d.type === 'chat-msg'){ chatAppend(d); return; }
   if(d.type === 'react-msg'){ chatAppend(d); return; }
   if(d.type === 'chat-history'){ chatSeed(d.items); return; }
+  if(d.type === 'telop'){ showTelop(d.text); return; }
+  if(d.type === 'jacket'){ setJacketView(d.data); return; }
 }
 
 /* ================= 💬 ライブチャット（配信者ハブ中継） =================
@@ -1542,6 +2138,7 @@ function attachStream(stream){
 
   S.live = true;
   clearSilent();
+  syncLiveFx();                      // 🎚️ 音質プリセットがあれば先に組み立てる
 
   if(S.wantPlay){
     if(S.ai.playing) pauseAi();   // Deck A/B の両方を停止してから生放送へ
@@ -1567,6 +2164,7 @@ function onLiveLost(){
   S.live = false;
   S.trackCount = 0;
   S.stream = null;
+  teardownLiveFx();                  // 🎚️ 生放送用の音質チェーンを片付ける
   try{ el.audio.pause(); }catch(e){}
   try{ el.audio.srcObject = null; }catch(e){}
   stopAnalyser();
@@ -1590,6 +2188,7 @@ function playLive(){
   if(p && p.then){
     p.then(()=>{
       S.playing = true; updatePlayUi();
+      syncLiveFxGain();
       el.statusText.innerHTML = '<b>ON AIR</b> — 生放送を再生中です。タップで停止します。';
       setSrcNote('');
     }).catch(()=>{
@@ -1700,11 +2299,13 @@ function vjBands(an){
   return {bass:VJ.bass, mid:VJ.mid, treble:VJ.treble};
 }
 function setVjMode(m){
-  VJ.mode = (m === 'spectrum' || m === 'retro') ? m : 'wave';
+  VJ.mode = (m === 'spectrum' || m === 'retro' || m === 'cassette' || m === 'oscillo') ? m : 'wave';
   document.querySelectorAll('.vjbtn').forEach((b)=>{ b.classList.toggle('on', b.getAttribute('data-vj') === VJ.mode); });
   if(el.scopeInfo){
     if(VJ.mode === 'spectrum') el.scopeInfo.textContent = 'SPECTRUM ANALYSER';
     else if(VJ.mode === 'retro') el.scopeInfo.textContent = 'RETRO VJ / 8BIT';
+    else if(VJ.mode === 'cassette') el.scopeInfo.textContent = 'CASSETTE / TAPE DECK';
+    else if(VJ.mode === 'oscillo') el.scopeInfo.textContent = 'OSCILLOSCOPE';
     else el.scopeInfo.textContent = S.live ? 'P2P / WebRTC' : 'AUTO-DJ / ' + TRACKS.length + ' TRACKS';
   }
   const rb = document.querySelector('[data-vj="retro"]');
@@ -1719,6 +2320,8 @@ function drawWave(){
   VJ.frame++;
   if(VJ.mode === 'spectrum'){ drawSpectrum(g, w, h); return; }
   if(VJ.mode === 'retro'){ drawRetroVj(g, w, h); return; }
+  if(VJ.mode === 'cassette'){ drawCassette(g, w, h); return; }
+  if(VJ.mode === 'oscillo'){ drawOscillo(g, w, h); return; }
   drawWaveform(g, w, h);
 }
 function drawWaveform(g, w, h){
@@ -1946,6 +2549,195 @@ function drawRetroVj(g, w, h){
   wave.peak = Math.max(bass, mid, treble);
 }
 
+/* ---- CASSETTE（レトロカセットデッキ）---- */
+function rrPath(g, x, y, w, h, r){
+  const rad = Math.max(0, Math.min(r, Math.min(w, h) / 2));
+  g.beginPath();
+  g.moveTo(x + rad, y);
+  g.lineTo(x + w - rad, y);
+  g.quadraticCurveTo(x + w, y, x + w, y + rad);
+  g.lineTo(x + w, y + h - rad);
+  g.quadraticCurveTo(x + w, y + h, x + w - rad, y + h);
+  g.lineTo(x + rad, y + h);
+  g.quadraticCurveTo(x, y + h, x, y + h - rad);
+  g.lineTo(x, y + rad);
+  g.quadraticCurveTo(x, y, x + rad, y);
+  g.closePath();
+}
+function drawReel(g, cx, cy, r, ang, bass, treble){
+  // ハブ
+  g.strokeStyle = 'rgba(240,235,220,.5)'; g.lineWidth = Math.max(1, r*0.10);
+  g.beginPath(); g.arc(cx, cy, r, 0, Math.PI*2); g.stroke();
+  g.fillStyle = 'rgba(20,18,16,.85)';
+  g.beginPath(); g.arc(cx, cy, Math.max(1.5, r*0.26), 0, Math.PI*2); g.fill();
+  // スポーク（回転）
+  const n = 6;
+  for(let i=0;i<n;i++){
+    const a = ang + (Math.PI*2/n)*i;
+    g.strokeStyle = 'rgba(242,180,100,' + (0.35 + treble*0.5).toFixed(3) + ')';
+    g.lineWidth = Math.max(1, r*0.12);
+    g.beginPath();
+    g.moveTo(cx + Math.cos(a)*r*0.30, cy + Math.sin(a)*r*0.30);
+    g.lineTo(cx + Math.cos(a)*r*0.92, cy + Math.sin(a)*r*0.92);
+    g.stroke();
+  }
+  // 巻かれたテープ（低音で膨らむ）
+  g.strokeStyle = 'rgba(120,90,60,.75)';
+  g.lineWidth = Math.max(2, r*0.26 + bass*r*0.16);
+  g.beginPath(); g.arc(cx, cy, r*0.78, 0, Math.PI*2); g.stroke();
+}
+function drawCassette(g, w, h){
+  const an = vjAnalyser();
+  const bands = vjBands(an);
+  const bass = bands.bass, mid = bands.mid, treble = bands.treble;
+  const playing = (S.live && S.playing) || (!S.live && S.ai.playing);
+  const t = VJ.frame;
+
+  const bgGrad = g.createLinearGradient(0, 0, 0, h);
+  bgGrad.addColorStop(0, 'rgba(74,60,46,.55)');
+  bgGrad.addColorStop(0.5, 'rgba(28,24,20,.92)');
+  bgGrad.addColorStop(1, 'rgba(10,9,12,.98)');
+  g.fillStyle = bgGrad; g.fillRect(0, 0, w, h);
+
+  const cw = Math.min(w * 0.84, 640);
+  const chh = Math.min(h * 0.80, cw * 0.60);
+  const cx = (w - cw) / 2, cy = (h - chh) / 2 + 2;
+
+  // 本体
+  g.fillStyle = '#24201b';
+  rrPath(g, cx, cy, cw, chh, 9); g.fill();
+  g.strokeStyle = 'rgba(242,180,100,.30)'; g.lineWidth = 1;
+  rrPath(g, cx + .5, cy + .5, cw - 1, chh - 1, 9); g.stroke();
+
+  // ラベル（紙）
+  const lx = cx + cw * 0.05, ly = cy + chh * 0.09, lw = cw * 0.90, lh = chh * 0.44;
+  g.fillStyle = '#ece2cc'; rrPath(g, lx, ly, lw, lh, 4); g.fill();
+  g.fillStyle = '#c05a34'; g.fillRect(lx, ly, lw, Math.max(3, lh * 0.15));
+  const nm = String((S.live ? ((S.info && S.info.now) || 'LIVE') : ((S.ai.track && S.ai.track.t) || 'NO TAPE'))).slice(0, 64);
+  g.save();
+  g.beginPath(); g.rect(lx + 5, ly + lh * 0.20, lw - 10, lh * 0.52); g.clip();
+  g.fillStyle = '#2a2520'; g.textBaseline = 'middle'; g.textAlign = 'left';
+  g.font = 'bold ' + Math.max(8, Math.round(lh * 0.22)) + 'px monospace';
+  g.fillText(nm, lx + 5, ly + lh * 0.50);
+  g.restore();
+  g.fillStyle = '#6d6255'; g.textBaseline = 'middle'; g.textAlign = 'left';
+  g.font = Math.max(6, Math.round(lh * 0.13)) + 'px monospace';
+  g.fillText('IMOUTOID ARCHIVE  //  SIDE A  //  ' + (playing ? 'PLAY ▶' : 'STOP ■'), lx + 5, ly + lh * 0.83);
+
+  // リール窓
+  const wy = ly + lh + chh * 0.055;
+  const wh = Math.max(16, (cy + chh) - wy - chh * 0.07);
+  const wx = cx + cw * 0.12, ww = cw * 0.76;
+  g.fillStyle = '#14110f';
+  rrPath(g, wx, wy, ww, wh, 7); g.fill();
+  g.strokeStyle = 'rgba(255,255,255,.10)';
+  rrPath(g, wx + .5, wy + .5, ww - 1, wh - 1, 7); g.stroke();
+
+  const r = Math.min(wh * 0.40, ww * 0.15);
+  const ry = wy + wh / 2;
+  const speed = playing ? (0.03 + bass * 0.35 + mid * 0.15) : 0;
+  VJ.reel = (VJ.reel || 0) + speed;
+  drawReel(g, wx + ww * 0.24, ry, r, VJ.reel, bass, treble);
+  drawReel(g, wx + ww * 0.76, ry, r, -VJ.reel * 1.08, bass, treble);
+
+  // テープの帯
+  g.strokeStyle = 'rgba(196,166,116,.45)'; g.lineWidth = Math.max(1, r * 0.13);
+  g.beginPath(); g.moveTo(wx + ww * 0.24, ry + r + 3); g.lineTo(wx + ww * 0.76, ry + r + 3); g.stroke();
+  // ヘッド
+  g.fillStyle = 'rgba(147,185,255,.32)';
+  g.fillRect(wx + ww * 0.46, ry + r * 0.30, Math.max(3, ww * 0.08), r * 0.9);
+
+  // レベルメーター（右）
+  const mw = Math.max(4, cw * 0.022);
+  const mx = cx + cw - mw - cw * 0.035;
+  [[bass, '#f2b464'], [mid, '#93b9ff']].forEach((row, i)=>{
+    const my = wy + 2 + i * (wh * 0.52);
+    const mh = wh * 0.44;
+    g.fillStyle = 'rgba(255,255,255,.07)'; g.fillRect(mx, my, mw, mh);
+    const n = Math.max(0, Math.min(1, row[0])) * mh;
+    g.fillStyle = row[1]; g.fillRect(mx, my + mh - n, mw, n);
+  });
+  // 電源ランプ
+  g.fillStyle = (Math.floor(t / 30) % 2 === 0) ? '#ff5a5a' : '#4a2020';
+  g.beginPath(); g.arc(cx + cw * 0.045, cy + chh * 0.955, Math.max(1.6, cw * 0.008), 0, Math.PI * 2); g.fill();
+  g.fillStyle = 'rgba(255,255,255,.22)'; g.font = '7px monospace'; g.textBaseline = 'middle'; g.textAlign = 'left';
+  g.fillText('STEREO  /  CrO2  /  48k', cx + cw * 0.07, cy + chh * 0.955);
+  wave.peak = Math.max(bass, mid, treble);
+}
+
+/* ---- OSCILLO（蛍光色のリアルタイムオシロスコープ）---- */
+function drawOscillo(g, w, h){
+  g.fillStyle = '#030f0a'; g.fillRect(0, 0, w, h);
+  // グリッド
+  const gx = Math.max(18, w / 16), gy = Math.max(14, h / 8);
+  g.lineWidth = 1;
+  g.strokeStyle = 'rgba(70,255,160,.10)';
+  for(let x = 0; x <= w; x += gx){ g.beginPath(); g.moveTo(Math.round(x) + .5, 0); g.lineTo(Math.round(x) + .5, h); g.stroke(); }
+  for(let y = 0; y <= h; y += gy){ g.beginPath(); g.moveTo(0, Math.round(y) + .5); g.lineTo(w, Math.round(y) + .5); g.stroke(); }
+  const mid = h / 2;
+  g.strokeStyle = 'rgba(90,255,170,.26)';
+  g.beginPath(); g.moveTo(0, mid + .5); g.lineTo(w, mid + .5); g.stroke();
+  g.beginPath(); g.moveTo(w / 2 + .5, 0); g.lineTo(w / 2 + .5, h); g.stroke();
+  // 目盛
+  g.fillStyle = 'rgba(120,255,180,.28)'; g.font = '7px monospace'; g.textBaseline = 'top'; g.textAlign = 'left';
+  for(let i = 1; i < 8; i += 2) g.fillText((i * 5) + 'ms', (w / 8) * i + 2, mid + 3);
+
+  const an = vjAnalyser();
+  if(an){
+    const buf = new Float32Array(an.fftSize);
+    try{ an.getFloatTimeDomainData(buf); }catch(e){}
+    // 立ち上がりのゼロクロスで同期（波形が流れない）
+    let start = 0;
+    for(let i = 1; i < buf.length / 2; i++){
+      if(buf[i - 1] < 0 && buf[i] >= 0){ start = i; break; }
+    }
+    const span = Math.min(buf.length - start, Math.floor(buf.length * 0.6));
+    let peak = 0;
+    // 残光
+    g.fillStyle = 'rgba(3,15,10,.30)'; g.fillRect(0, 0, w, h);
+    g.strokeStyle = '#6bffb0';
+    g.shadowColor = 'rgba(60,255,150,.95)'; g.shadowBlur = 12;
+    g.lineWidth = 1.8;
+    g.beginPath();
+    for(let i = 0; i < w; i++){
+      const v = buf[start + Math.floor((i / w) * span)] || 0;
+      if(Math.abs(v) > peak) peak = Math.abs(v);
+      const y = mid - v * (mid - 8) * 1.15;
+      if(i) g.lineTo(i, y); else g.moveTo(i, y);
+    }
+    g.stroke();
+    g.shadowBlur = 0;
+    // グリッドを薄く引き直す
+    g.strokeStyle = 'rgba(70,255,160,.07)'; g.lineWidth = 1;
+    for(let x = 0; x <= w; x += gx){ g.beginPath(); g.moveTo(Math.round(x) + .5, 0); g.lineTo(Math.round(x) + .5, h); g.stroke(); }
+    for(let y = 0; y <= h; y += gy){ g.beginPath(); g.moveTo(0, Math.round(y) + .5); g.lineTo(w, Math.round(y) + .5); g.stroke(); }
+    // ビーム点
+    const bx = (VJ.frame * 2.2) % w;
+    const bi = Math.floor((bx / w) * span);
+    const bv = buf[start + bi] || 0;
+    g.fillStyle = 'rgba(200,255,225,.95)';
+    g.shadowColor = 'rgba(120,255,190,.9)'; g.shadowBlur = 8;
+    g.beginPath(); g.arc(bx, mid - bv * (mid - 8) * 1.15, 2, 0, Math.PI * 2); g.fill();
+    g.shadowBlur = 0;
+    wave.peak = peak;
+  } else {
+    g.strokeStyle = 'rgba(107,255,176,.55)';
+    g.lineWidth = 1.4;
+    g.beginPath();
+    for(let i = 0; i < w; i++){
+      const y = mid + Math.sin((i / w) * Math.PI * 8 + VJ.frame * 0.05) * (h * 0.06);
+      if(i) g.lineTo(i, y); else g.moveTo(i, y);
+    }
+    g.stroke();
+    wave.peak = 0.02;
+  }
+  g.fillStyle = 'rgba(140,255,190,.55)'; g.font = '8px monospace'; g.textBaseline = 'top'; g.textAlign = 'left';
+  g.fillText('CH1  ' + ((an && (S.live || S.ai.playing)) ? 'SIG' : 'NO SIG') + '  ' + (S.live ? 'LIVE' : 'AUTO-DJ'), 6, 5);
+  g.textAlign = 'right';
+  g.fillText('TRIG ▲', w - 6, 5);
+  g.textAlign = 'left';
+}
+
 /* ================= 💌 おたより・曲リクエスト =================
    送信：{type:'letter', name, text, track:{t,u}, client, t} → 配信者
    リクエストはこの画面の TRACKS（146曲）から選んだものだけ送る。 */
@@ -2079,6 +2871,31 @@ function bind(){
 
   el.playBtn.addEventListener('click', onPlayClick);
 
+  /* 🎚️ 音質プリセット */
+  document.querySelectorAll('#fxPresets .fxbtn').forEach((b)=>{
+    b.addEventListener('click', ()=>setFxPreset(b.getAttribute('data-fx')));
+  });
+  /* 🌙 スリープタイマー */
+  if(el.sleepSel) el.sleepSel.addEventListener('change', ()=>setSleep(Number(el.sleepSel.value)));
+  /* ★ お気に入り */
+  if(el.favAdd) el.favAdd.addEventListener('click', favAdd);
+  if(el.favToggle) el.favToggle.addEventListener('click', ()=>{ if(el.favList) el.favList.hidden = !el.favList.hidden; });
+  if(el.favCopy) el.favCopy.addEventListener('click', async ()=>{
+    if(!S.fav.length){ note('お気に入りはまだ空です'); return; }
+    const ok = await copyTextSafe(S.fav.map(x=>x.t).join('\n'));
+    note(ok ? 'お気に入りをコピーしました' : 'コピーできませんでした');
+  });
+  /* 🕰️ 時報 / 🔔 ジングル */
+  if(el.chimeBtn) el.chimeBtn.addEventListener('click', ()=>chimeSet(!chime.on));
+  if(el.chimeTest) el.chimeTest.addEventListener('click', ()=>{ unlockAudio(); playTimeSignal(); note('時報テストを鳴らしました'); });
+  if(el.jingleEvery) el.jingleEvery.addEventListener('change', ()=>setJingleEvery(Number(el.jingleEvery.value)));
+  /* 🕒 選曲ムード */
+  if(el.moods) el.moods.querySelectorAll('.fxbtn').forEach((b)=>{
+    b.addEventListener('click', ()=>setMood(b.getAttribute('data-mood')));
+  });
+  /* 🖼️ ジャケット画像が壊れていたら隠す */
+  if(el.jacketImg) el.jacketImg.addEventListener('error', ()=>{ if(el.jacketWrap) el.jacketWrap.hidden = true; });
+
   bindChat();
   bindLetter();
 
@@ -2119,8 +2936,8 @@ function bind(){
     el.statusText.textContent = '再接続しています…';
   });
 
-  el.audio.addEventListener('play', ()=>{ S.playing = true; updatePlayUi(); });
-  el.audio.addEventListener('pause', ()=>{ S.playing = false; updatePlayUi(); });
+  el.audio.addEventListener('play', ()=>{ S.playing = true; updatePlayUi(); syncLiveFxGain(); });
+  el.audio.addEventListener('pause', ()=>{ S.playing = false; updatePlayUi(); syncLiveFxGain(); });
 
   window.addEventListener('resize', sizeWave);
   window.addEventListener('pagehide', ()=>{
@@ -2144,6 +2961,20 @@ function init(){
   updateModeUi();
   setStatusWaiting();
   el.statusText.textContent = '放送局に接続しています…';
+
+  /* 🆕 第2弾の初期化 */
+  favLoad();
+  updateSleepUi();
+  updateToolsState();
+  renderChimeUi();
+  try{
+    const raw = localStorage.getItem('netradio.aiJingleEvery');
+    const j = (raw === null) ? 3 : Number(raw);
+    S.ai.jingleEvery = (j === 3 || j === 5) ? j : 0;
+  }catch(e){ S.ai.jingleEvery = 3; }
+  if(el.jingleEvery) el.jingleEvery.value = String(S.ai.jingleEvery);
+  renderTrackInfo();
+  setInterval(chimeTick, 1000);       // 毎正時の時報
 
   const unlock = ()=>{
     unlockAudio();
@@ -2235,6 +3066,42 @@ window.__nrDebug = {
   aiGains(){
     const d = aiDeckCur();
     return d ? {fade:Math.round(d.fade.gain.value*100)/100, duck:Math.round(d.duck.gain.value*100)/100, playing:!d.el.paused} : null;
+  },
+  /* 🆕 第2弾の検証用 */
+  fx(){
+    const c = S.ai.fx;
+    const l = S.liveFx;
+    return {
+      preset:S.fx.preset,
+      aiChain:c ? {low:Math.round(c.low.gain.value), mid:Math.round(c.mid.gain.value), high:Math.round(c.high.gain.value),
+                   threshold:Math.round(c.comp.threshold.value), ratio:Math.round(c.comp.ratio.value)} : null,
+      liveFx:!!l,
+      liveChain:l ? {low:Math.round(l.chain.low.gain.value), mid:Math.round(l.chain.mid.gain.value), high:Math.round(l.chain.high.gain.value)} : null,
+      liveGain:l ? Math.round(l.gain.gain.value*1000)/1000 : null,
+      audioVol:el.audio.volume
+    };
+  },
+  setFx(p){ return setFxPreset(p); },
+  sleep(mins){ setSleep(mins); return {mode:S.sleep.mode, endAt:S.sleep.endAt}; },
+  sleepLeft(){ return S.sleep.endAt ? (S.sleep.endAt - Date.now()) : 0; },
+  sleepState(){ return {mode:S.sleep.mode, left:S.sleep.endAt ? (S.sleep.endAt - Date.now()) : 0, label:el.sleepLab ? el.sleepLab.textContent : '', playing:S.playing, aiPlaying:S.ai.playing}; },
+  favs(){ return S.fav.map(x=>({t:x.t, u:x.u, c:x.c})); },
+  favAdd(){ favAdd(); return S.fav.length; },
+  telop(){ return {text:S.telop, hidden:el.telopBar ? el.telopBar.hidden : null, dom:el.telopText ? el.telopText.textContent : ''}; },
+  jacket(){ return {len:(S.jacket || '').length, hidden:el.jacketWrap ? el.jacketWrap.hidden : null, src:(el.jacketImg ? (el.jacketImg.getAttribute('src') || '').slice(0,30) : '')}; },
+  chimeState(){ return {on:chime.on, label:el.chimeBtn ? el.chimeBtn.textContent : ''}; },
+  chime(on){ if(on !== undefined) chimeSet(!!on); return chime.on; },
+  chimePlay(h){ return playTimeSignal(h); },
+  jingleState(){ return {every:S.ai.jingleEvery, since:S.ai.sinceJingle}; },
+  jingle(){ return playAiJingle(); },
+  mood(){ return S.ai.mood; },
+  setMood(m){ return setMood(m); },
+  trackInfo(){ return {title:el.tiTitle ? el.tiTitle.textContent : '', series:el.tiSeries ? el.tiSeries.textContent : '', meta:el.tiMeta ? el.tiMeta.textContent : '', links:el.tiLinks ? Array.prototype.map.call(el.tiLinks.querySelectorAll('a'), a=>a.getAttribute('href')) : []}; },
+  sleepFade(ms){
+    setSleep(0);
+    S.sleep = {mode:15, endAt:Date.now() + (ms || 12000), timer:null};
+    S.sleep.timer = setInterval(sleepTick, 120);
+    return true;
   },
   /* 実際に出ている音の実効値（AIラジオはマスター後、生放送はアナライザー側） */
   level(){

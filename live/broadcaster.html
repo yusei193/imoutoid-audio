@@ -518,6 +518,78 @@ select:disabled{opacity:.5}
 .chat-counts span.on{color:#f6dcb4}
 .chat-tail{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
 .chat-tail .scroller{margin-left:auto;font-size:9px;color:var(--dim2);font-family:var(--mono)}
+
+/* ============ 🆕 第2弾：折りたたみ・ショートカット・DJデッキ強化 ============ */
+.bar-tools{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.bar-tools .btn{padding:6px 9px;font-size:10.5px;border-radius:9px}
+.panel>.p-head{cursor:pointer;-webkit-user-select:none;user-select:none}
+.p-chev{flex:0 0 auto;font-size:9px;color:var(--dim2);transition:transform .18s;transform:rotate(0deg);margin-left:auto;padding-left:4px}
+.panel.collapsed .p-chev{transform:rotate(-90deg)}
+.panel.collapsed>.p-head{margin-bottom:0}
+.panel.collapsed>*:not(.p-head){display:none !important}
+.panel.collapsed{padding-bottom:12px}
+
+/* デッキ強化（EQ / HOT CUE / PITCH / BPM） */
+.djx{margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:9px 11px 10px;background:rgba(0,0,0,.25);display:flex;flex-direction:column;gap:8px}
+.djx-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.djx-head .lbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--dim)}
+.djx-head .grow{flex:1}
+.djx-deck{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;color:#ffd9a8;border:1px solid rgba(242,180,100,.4);background:rgba(242,180,100,.10);border-radius:999px;padding:2px 8px}
+.eq-row{display:flex;align-items:center;gap:8px;min-width:0}
+.eq-row>span{font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--dim2);flex:0 0 30px}
+.eq-row input[type=range]{flex:1 1 auto}
+.eq-row output{font-family:var(--mono);font-size:9.5px;color:var(--dim);flex:0 0 40px;text-align:right}
+.hotcue{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.hotcue .lbl{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--dim2);flex:0 0 auto}
+.hc{min-width:52px;font-family:var(--mono);letter-spacing:.04em}
+.hc.set{border-color:rgba(121,224,194,.55);background:rgba(121,224,194,.12);color:#d8fff3}
+.hc:active{transform:scale(.96)}
+.hc-x{font-size:10px;padding:6px 8px}
+.pitchrow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-width:0}
+.pitchrow .lbl{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--dim2);flex:0 0 auto}
+.pitchrow input[type=range]{flex:1 1 90px;min-width:70px}
+.pitchrow output{font-family:var(--mono);font-size:9.5px;color:var(--dim);flex:0 0 42px;text-align:right}
+.bpm-val{font-family:var(--mono);font-size:13px;color:var(--amber);flex:0 0 auto;min-width:46px;text-align:right;letter-spacing:.04em}
+.bpm-val small{font-size:7.5px;color:var(--dim2);letter-spacing:.1em;margin-left:2px}
+
+/* ジャケット */
+.jk{display:flex;gap:11px;align-items:flex-start;min-width:0}
+.jk-prev{width:84px;height:84px;flex:0 0 84px;border-radius:10px;border:1px solid var(--line2);background:rgba(0,0,0,.4) center/cover no-repeat;display:grid;place-items:center;font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:var(--dim2);overflow:hidden}
+.jk-body{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:7px}
+.jk-body .row{flex-wrap:wrap}
+.jk-body input[type=text]{flex:1 1 150px}
+
+/* セットリスト */
+.setlist{list-style:none;margin:0;padding:0;max-height:230px;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:3px}
+.setlist li{display:flex;gap:8px;align-items:baseline;font-size:11.5px;color:var(--txt);border-bottom:1px solid rgba(255,255,255,.045);padding:4px 2px;min-width:0}
+.setlist li .t{font-family:var(--mono);font-size:9.5px;color:var(--amber);flex:0 0 40px}
+.setlist li .n{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.setlist li .k{font-family:var(--mono);font-size:8px;color:var(--dim2);flex:0 0 auto}
+.setlist li.empty{color:var(--dim2);font-size:11px;justify-content:center}
+
+/* テロップ（配信者側プレビュー） */
+.telop-prev{margin-top:8px;border-radius:8px;padding:6px 9px;background:#12100a;border:1px solid rgba(242,180,100,.35);font-family:var(--mono);font-size:10.5px;color:#ffe6bd;min-height:0}
+.telop-prev[hidden]{display:none}
+.msg-act{flex:0 0 auto;border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:6px;color:var(--dim);font-size:9px;padding:1px 5px;cursor:pointer;line-height:1.5;margin-left:4px}
+.msg-act:hover{color:#ffe6bd;border-color:rgba(242,180,100,.5)}
+.letter .msg-act{margin-left:0}
+
+/* ショートカットヘルプ */
+#keyHelp{position:fixed;right:14px;bottom:14px;z-index:60;max-width:270px;border:1px solid var(--line2);border-radius:12px;background:rgba(10,11,16,.96);backdrop-filter:blur(10px);padding:11px 13px;box-shadow:0 10px 30px rgba(0,0,0,.6);font-size:11px;color:var(--dim);line-height:1.8}
+#keyHelp[hidden]{display:none}
+#keyHelp b{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--amber);margin-bottom:5px}
+#keyHelp kbd{font-family:var(--mono);font-size:10px;background:rgba(255,255,255,.08);border:1px solid var(--line2);border-radius:5px;padding:1px 5px;color:var(--txt);margin-right:5px}
+#keyHelp .x{position:absolute;right:8px;top:6px;border:0;background:transparent;color:var(--dim2);font-size:13px;cursor:pointer}
+@media (max-width:560px){#keyHelp{left:10px;right:10px;max-width:none}}
+.cue-jingle{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;color:var(--dim2);white-space:nowrap}
+.cue-jingle select{width:auto;min-width:0;padding:5px 24px 5px 8px;font-size:10.5px;border-radius:8px}
+.p-letters,.p-people,.p-jacket,.p-setlist{grid-column:span 12}
+@media (min-width:1180px){
+  .p-jacket{grid-column:span 4}
+  .p-setlist{grid-column:span 8}
+  .p-letters{grid-column:span 6}
+  .p-people{grid-column:span 6}
+}
 </style>
 </head>
 <body>
@@ -530,6 +602,11 @@ select:disabled{opacity:.5}
         <div class="brand-t">NET RADIO <span class="thin">/ 配信者コンソール</span></div>
         <div class="brand-s" id="brandSub">局ID: kaeru-radio-live</div>
       </div>
+    </div>
+    <div class="bar-tools">
+      <button class="btn" id="panelsOpen" type="button" title="すべてのパネルを開く">⤢ すべて開く</button>
+      <button class="btn" id="panelsClose" type="button" title="すべてのパネルを閉じる">⤡ すべて閉じる</button>
+      <button class="btn" id="keyHelpBtn" type="button" title="キーボードショートカット一覧" aria-label="キーボードショートカット一覧">⌨ キー</button>
     </div>
     <div class="bar-right">
       <div class="onair off" id="onairBadge"><i class="lamp"></i><span id="onairText">OFF AIR</span></div>
@@ -756,6 +833,38 @@ select:disabled{opacity:.5}
         <input id="xfade" type="range" min="0" max="8" step="0.5" value="3.5" aria-label="クロスフェード秒数">
         <output id="xfadeVal">3.5s</output>
       </div>
+      <!-- 🎛️ DJデッキ強化（3バンドEQ / HOT CUE / PITCH / BPM） -->
+      <div class="djx">
+        <div class="djx-head">
+          <span class="lbl">🎛️ 3バンドEQ</span>
+          <span class="grow"></span>
+          <span class="djx-deck" id="eqDeck">DECK A</span>
+          <button class="btn small" id="eqReset" type="button">RESET</button>
+        </div>
+        <div class="eq-row"><span>LOW</span><input id="eqLow" type="range" min="-12" max="12" step="1" value="0" aria-label="LOW EQ"><output id="eqLowVal">0dB</output></div>
+        <div class="eq-row"><span>MID</span><input id="eqMid" type="range" min="-12" max="12" step="1" value="0" aria-label="MID EQ"><output id="eqMidVal">0dB</output></div>
+        <div class="eq-row"><span>HIGH</span><input id="eqHigh" type="range" min="-12" max="12" step="1" value="0" aria-label="HIGH EQ"><output id="eqHighVal">0dB</output></div>
+        <div class="hotcue">
+          <span class="lbl">HOT CUE</span>
+          <button class="btn small hc" id="hcA" type="button" data-cue="A" title="未設定なら現在位置を記憶 / 設定済みならジャンプ（右クリック・長押しで消去）">A</button>
+          <button class="btn small hc" id="hcB" type="button" data-cue="B" title="未設定なら現在位置を記憶 / 設定済みならジャンプ（右クリック・長押しで消去）">B</button>
+          <button class="btn small hc" id="hcC" type="button" data-cue="C" title="未設定なら現在位置を記憶 / 設定済みならジャンプ（右クリック・長押しで消去）">C</button>
+          <button class="btn small hc-x" id="hcClear" type="button" title="HOT CUE をすべて消去">× クリア</button>
+        </div>
+        <div class="pitchrow">
+          <span class="lbl">PITCH</span>
+          <input id="pitch" type="range" min="-10" max="10" step="0.5" value="0" aria-label="ピッチ（再生速度）">
+          <output id="pitchVal">0.0%</output>
+          <button class="btn small" id="pitchReset" type="button">RESET</button>
+        </div>
+        <div class="pitchrow">
+          <span class="lbl">BPM</span>
+          <button class="btn small" id="bpmTap" type="button">TAP</button>
+          <span class="bpm-val" id="bpmVal">--<small>BPM</small></span>
+          <button class="btn small hc-x" id="bpmReset" type="button" title="BPM計測をリセット">×</button>
+        </div>
+        <p class="hint" style="margin:0">EQ は再生中のデッキ（A/B）に掛かります。HOT CUE は未設定で押すと現在位置を記憶、設定済みで押すとその位置へジャンプ。BPM TAP は曲に合わせて何回か押すと平均から BPM を出します。</p>
+      </div>
     </div>
     <div class="tabcap">
       <div class="tabcap-head">
@@ -832,6 +941,13 @@ select:disabled{opacity:.5}
     <div class="cue-bar">
       <button class="btn small" id="cueNextBtn" type="button">⏭ 次のキューへ</button>
       <label class="chk"><input type="checkbox" id="cueAutoChk"><span>自動連続進行</span></label>
+      <span class="cue-jingle">🔔 自動ジングル
+        <select id="cueJingleEvery" aria-label="自動ジングル挿入">
+          <option value="0">OFF</option>
+          <option value="3">3曲ごと</option>
+          <option value="5">5曲ごと</option>
+        </select>
+      </span>
       <span class="grow"></span>
       <button class="btn small" id="cueExportBtn" type="button">JSON書き出し</button>
       <label class="btn small" for="cueImportFile" style="cursor:pointer">読み込み</label>
@@ -870,12 +986,15 @@ select:disabled{opacity:.5}
       <h2>💬 ライブチャット（リスナー反応）</h2>
       <span class="grow"></span>
       <span class="hint" id="chatCountTop" style="margin:0">0 件</span>
+      <button class="btn small" id="readBtn" type="button" title="おたより・チャットをこの端末のスピーカーだけで読み上げます（リスナーには送りません）">🔊 読み上げ OFF</button>
+      <button class="btn small" id="telopClearBtn" type="button" title="リスナー画面のテロップを消す">📺 テロップ解除</button>
       <button class="btn small" id="chatClearBtn" type="button">クリア</button>
     </div>
     <div class="chat-log" id="chatLog" aria-live="polite">
       <div class="chat-empty" id="chatEmpty">まだメッセージはありません。生放送中はここにリスナーの反応が流れます。</div>
     </div>
     <div class="chat-counts" id="chatCounts"></div>
+    <div class="telop-prev" id="telopPrev" hidden></div>
     <div class="chat-forms">
       <div class="chat-row">
         <input id="chatInput" type="text" maxlength="200" placeholder="DJとして返信する（Enterで送信）" autocomplete="off">
@@ -911,6 +1030,42 @@ select:disabled{opacity:.5}
     <p class="hint">判定はブラウザの自動操作フラグ（navigator.webdriver）・UA（HeadlessChrome / Playwright 等）・URLパラメータ（?bot=1, ?client=ai）と、実際の操作（再生タップ・クリック）を組み合わせています。確実な証明ではなく目安です。</p>
   </section>
 
+  <!-- 🖼️ ジャケット画像 -->
+  <section class="panel p-jacket">
+    <div class="p-head">
+      <h2>🖼️ ジャケット画像</h2>
+      <span class="grow"></span>
+      <span class="hint" id="jkState" style="margin:0">未設定</span>
+    </div>
+    <div class="jk">
+      <div class="jk-prev" id="jkPrev">NO ART</div>
+      <div class="jk-body">
+        <div class="row">
+          <label class="btn small" for="jkFile" style="cursor:pointer">画像を選ぶ</label>
+          <input type="file" id="jkFile" accept="image/*" hidden>
+          <button class="btn small" id="jkClear" type="button">消去</button>
+        </div>
+        <div class="row">
+          <input id="jkUrl" type="text" placeholder="画像URL（https://…）" autocomplete="off" spellcheck="false">
+          <button class="btn small" id="jkSetUrl" type="button">URLから</button>
+        </div>
+      </div>
+    </div>
+    <p class="hint">選んだ画像は最大320×320・JPEG品質0.75に圧縮して、リスナー（新規入室含む）の画面に表示されます。</p>
+  </section>
+
+  <!-- 📝 セットリスト -->
+  <section class="panel p-setlist">
+    <div class="p-head">
+      <h2>📝 セットリスト（自動記録）</h2>
+      <span class="grow"></span>
+      <span class="hint" id="setCount" style="margin:0">0 曲</span>
+      <button class="btn small" id="setCopy" type="button">📋 コピー</button>
+      <button class="btn small" id="setClear" type="button">クリア</button>
+    </div>
+    <ol class="setlist" id="setList"><li class="empty">再生した曲がここに時刻付きで自動記録されます</li></ol>
+  </section>
+
 </main>
 
 <!-- BGMデッキ。crossOrigin は付けない（blob: のローカル音源が読めなくなるため）。
@@ -919,6 +1074,15 @@ select:disabled{opacity:.5}
 <audio id="bgmAudioB" preload="auto"></audio>
 <!-- 🎧 入力モニター専用の出力（setSinkId で出力デバイスを選ぶため <audio> を経由） -->
 <audio id="djMonAudio" autoplay playsinline hidden></audio>
+<div id="keyHelp" hidden>
+  <button class="x" id="keyHelpClose" type="button" aria-label="閉じる">✕</button>
+  <b>KEYBOARD SHORTCUTS</b>
+  <div><kbd>M</kbd>マイク ON/OFF</div>
+  <div><kbd>T</kbd>トーク（BGM下げ）切替</div>
+  <div><kbd>1</kbd>〜<kbd>6</kbd>効果音パッド</div>
+  <div><kbd>Space</kbd>BGM 再生／一時停止</div>
+  <div style="margin-top:6px;font-size:10px;color:var(--dim2)">入力欄にフォーカス中は無効</div>
+</div>
 <div id="toasts" aria-live="polite"></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -996,7 +1160,13 @@ const S = {
   rec:{mr:null, chunks:[], url:null, startedAt:0, timerId:null, mime:'', bytes:0, duration:0},
   tab:{stream:null, audioOnly:null, src:null, gain:null, vol:0.8, videoStopped:0, on:false},
   letters:[], letterSeq:0,
-  people:new Map()
+  people:new Map(),
+  /* 🆕 第2弾 */
+  bpm:{taps:[], val:0},
+  telop:'', readAloud:false, jacket:'',
+  setlist:[], setSeq:0,
+  jingleEvery:0, jingleCount:0,
+  panelsKey:'netradio.panels.v1'
 };
 
 const $ = (id)=>document.getElementById(id);
@@ -1051,7 +1221,19 @@ const el = {
   tabBtn:$('tabBtn'), tabState:$('tabState'), tabVol:$('tabVol'), tabVolVal:$('tabVolVal'),
   tabStopBtn:$('tabStopBtn'), tabHint:$('tabHint'), tabMsg:$('tabMsg'),
   letterList:$('letterList'), letterEmpty:$('letterEmpty'), letterCountTop:$('letterCountTop'), letterClearBtn:$('letterClearBtn'),
-  peopleList:$('peopleList'), peopleSplit:$('peopleSplit')
+  peopleList:$('peopleList'), peopleSplit:$('peopleSplit'),
+  /* 🆕 第2弾 */
+  eqLow:$('eqLow'), eqMid:$('eqMid'), eqHigh:$('eqHigh'),
+  eqLowVal:$('eqLowVal'), eqMidVal:$('eqMidVal'), eqHighVal:$('eqHighVal'),
+  eqReset:$('eqReset'), eqDeck:$('eqDeck'),
+  hcA:$('hcA'), hcB:$('hcB'), hcC:$('hcC'), hcClear:$('hcClear'),
+  pitch:$('pitch'), pitchVal:$('pitchVal'), pitchReset:$('pitchReset'),
+  bpmTap:$('bpmTap'), bpmVal:$('bpmVal'), bpmReset:$('bpmReset'),
+  readBtn:$('readBtn'), telopClearBtn:$('telopClearBtn'), telopPrev:$('telopPrev'),
+  jkFile:$('jkFile'), jkUrl:$('jkUrl'), jkSetUrl:$('jkSetUrl'), jkClear:$('jkClear'), jkPrev:$('jkPrev'), jkState:$('jkState'),
+  setList:$('setList'), setCopy:$('setCopy'), setClear:$('setClear'), setCount:$('setCount'),
+  cueJingleEvery:$('cueJingleEvery'),
+  panelsOpen:$('panelsOpen'), panelsClose:$('panelsClose'), keyHelp:$('keyHelp'), keyHelpBtn:$('keyHelpBtn'), keyHelpClose:$('keyHelpClose')
 };
 
 /* ================= 💬 ライブチャット（配信者が中継ハブ） =================
@@ -1106,6 +1288,15 @@ function chatRowNode(it){
   const body = document.createElement('p'); body.className = 'body';
   body.textContent = String(it.text == null ? '' : it.text).slice(0,200);
   row.appendChild(when); row.appendChild(body);
+  // 📺 テロップに出す（この発言だけをリスナー画面へ）
+  const tb = document.createElement('button');
+  tb.type = 'button'; tb.className = 'msg-act'; tb.textContent = '📺 テロップ';
+  tb.title = 'この発言をリスナー画面のテロップに出す';
+  tb.addEventListener('click', (ev)=>{
+    ev.stopPropagation();
+    sendTelop((it.name ? it.name + '：' : '') + body.textContent);
+  });
+  row.appendChild(tb);
   return row;
 }
 function chatEmptyToggle(){
@@ -1174,7 +1365,9 @@ function onChatIn(conn, d){
   const text = String((d && d.text) || '').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,'').trim().slice(0,200);
   if(!text) return;
   if(!chatRateOk(conn)) return;
-  chatAccept({ type:'chat-msg', id:chatNextId(), role:role, name:chatNameOf(conn, d, role), text:text, time:Date.now() });
+  const nm = chatNameOf(conn, d, role);
+  chatAccept({ type:'chat-msg', id:chatNextId(), role:role, name:nm, text:text, time:Date.now() });
+  speakLocal(text, nm);      // 🔊 配信者の端末だけで読み上げ（配信音声には混ぜない）
 }
 function onReactIn(conn, d){
   const emoji = String((d && d.emoji) || '');
@@ -1277,6 +1470,20 @@ function letterRowNode(it){
     }
     li.appendChild(tr);
   }
+  // 📺 テロップに出す（おたより本文＋リクエスト曲名）
+  const act = document.createElement('div'); act.className = 'l-head'; act.style.marginTop = '6px';
+  const tb = document.createElement('button'); tb.type = 'button'; tb.className = 'msg-act';
+  tb.textContent = '📺 テロップに出す';
+  tb.title = 'このおたよりをリスナー画面のテロップに出す';
+  tb.addEventListener('click', ()=>{
+    const parts = [];
+    if(it.name) parts.push(it.name + '：');
+    if(it.text) parts.push(it.text);
+    if(it.track) parts.push('🎵 ' + it.track.t);
+    sendTelop(parts.join(' '));
+  });
+  act.appendChild(tb);
+  li.appendChild(act);
   return li;
 }
 function letterRender(){
@@ -1310,6 +1517,7 @@ function letterAccept(conn, d){
   const fresh = el.letterList && el.letterList.lastElementChild;
   if(fresh) fresh.classList.add('fresh');
   toast('💌 おたよりが届きました：' + name + (track ? '（リクエスト：' + track.t + '）' : ''), '');
+  speakLocal([text, track ? ('リクエスト、' + track.t) : ''].filter(Boolean).join('。'), name);
 }
 function letterToCue(id){
   const it = S.letters.find(x=>x.id === id);
@@ -1481,7 +1689,9 @@ function infoPayload(){
     guestOn:!!S.guest.on,
     guestName:S.guest.on ? S.guest.name : '',
     voice:V.preset,
-    startedAt:S.startedAt
+    startedAt:S.startedAt,
+    telop:S.telop || '',
+    hasJacket:!!S.jacket
   };
 }
 function updateListenerUrl(){
@@ -1627,9 +1837,16 @@ async function ensureAudio(){
   // BGM は2デッキ（A/B）。クロスフェード用に各デッキが自分の Gain を持つ。
   S.decks = [el.bgmElA, el.bgmElB].map((a)=>{
     const src = ctx.createMediaElementSource(a);
+    // 🎛️ 3バンドEQ（デッキごと）：LOW lowshelf 250Hz / MID peaking 1kHz / HIGH highshelf 4kHz
+    const eqLow = ctx.createBiquadFilter();  eqLow.type = 'lowshelf';  eqLow.frequency.value = 250;
+    const eqMid = ctx.createBiquadFilter();  eqMid.type = 'peaking';   eqMid.frequency.value = 1000; eqMid.Q.value = 1;
+    const eqHigh = ctx.createBiquadFilter(); eqHigh.type = 'highshelf'; eqHigh.frequency.value = 4000;
+    [eqLow, eqMid, eqHigh].forEach(f=>{ f.gain.value = 0; });
     const gain = ctx.createGain(); gain.gain.value = 0;
-    src.connect(gain); gain.connect(S.bgmGain);
-    return {el:a, src, gain, item:null};
+    src.connect(eqLow); eqLow.connect(eqMid); eqMid.connect(eqHigh); eqHigh.connect(gain); gain.connect(S.bgmGain);
+    return {el:a, src, gain, item:null,
+            eq:{low:eqLow, mid:eqMid, high:eqHigh}, eqVal:{low:0, mid:0, high:0},
+            hot:{A:null, B:null, C:null}, rate:0};
   });
   S.active = 0;
 
@@ -2137,6 +2354,7 @@ function updateNowUi(){
   el.bgmPlay.textContent = playing ? '❚❚' : '▶';
   el.bgmPlay.setAttribute('aria-label', playing ? '一時停止' : '再生');
   if(d && d.el.duration) el.bgmDur.textContent = fmtTime(d.el.duration);
+  syncDeckUi();
 }
 function notifyNow(){
   const d = deckCur();
@@ -2160,6 +2378,8 @@ function applyDeckCrossOrigin(d, url){
 }
 function setDeckItem(d, item){
   d.item = item;
+  d.hot = {A:null, B:null, C:null};        // 🆕 新しい曲では HOT CUE をクリア
+  applyDeckRate(d, S.rate || 0);            // PITCH 設定は維持
   applyDeckCrossOrigin(d, item && item.url);
   d.el.src = item.url;
   try{ d.el.load(); }catch(e){}
@@ -2248,6 +2468,8 @@ function startItem(item, opts){
       }, myGen);
     }
     S.active = S.decks.indexOf(target);
+    applyEq(target, true);
+    setAdd(item.title, item.kind);          // 📝 セットリストへ自動記録
     if(fadeIn > 0.05){
       S.xfading = true;
       S.xfadeTimer = setTimeout(()=>{ S.xfadeTimer = null; if(myGen === S.playGen) S.xfading = false; }, fadeIn*1000 + 250);
@@ -2378,7 +2600,14 @@ function onDeckEnded(d){
   if(item.kind === 'cue'){
     S.cue.playingId = null;
     updateNowUi();
-    if(S.cue.auto) cueNext(); else renderCues();
+    if(S.cue.auto){
+      // 🔔 N曲ごとに自動ジングル（OFF / 3曲 / 5曲）
+      if(S.jingleEvery > 0 && (++S.jingleCount % S.jingleEvery) === 0){
+        playPad('op');
+        toast('🔔 自動ジングル（' + S.jingleEvery + '曲ごと）','');
+        setTimeout(()=>{ if(S.cue.auto) cueNext(); }, 1700);
+      } else cueNext();
+    } else renderCues();
     return;
   }
   if(item.kind === 'playlist'){
@@ -2394,6 +2623,280 @@ function onDuck(on){
   S.ducked = on;
   applyBgmGain(0.12);
   el.talkBtn.classList.toggle('down', on);
+}
+
+/* =========================================================
+   🆕 第2弾：DJデッキ強化（EQ / HOT CUE / PITCH / BPM）
+   テロップ・読み上げ・ジャケット・セットリスト
+   ========================================================= */
+function sendRaw(payload){
+  let n = 0;
+  S.conns.forEach((c)=>{ try{ if(c && c.open){ c.send(payload); n++; } }catch(e){} });
+  return n;
+}
+
+/* ---- 3バンドEQ（デッキごと：LOW 250Hz / MID 1kHz / HIGH 4kHz、±12dB） ---- */
+function applyEq(d, immediate){
+  if(!d || !d.eq) return;
+  ['low','mid','high'].forEach((k)=>{
+    const node = d.eq[k];
+    if(!node) return;
+    const v = Number((d.eqVal && d.eqVal[k]) || 0);
+    try{
+      if(!S.ctx || immediate){ node.gain.value = v; }
+      else node.gain.setTargetAtTime(v, S.ctx.currentTime, 0.03);
+    }catch(e){ node.gain.value = v; }
+  });
+}
+function setEq(k, v){
+  const d = deckCur();
+  if(!d || !d.eqVal) return;
+  const n = Math.max(-12, Math.min(12, Number(v) || 0));
+  d.eqVal[k] = n;
+  applyEq(d, false);
+  syncDeckUi();
+}
+function eqReset(){
+  const d = deckCur();
+  if(!d || !d.eqVal) return;
+  d.eqVal = {low:0, mid:0, high:0};
+  applyEq(d, false);
+  syncDeckUi();
+  toast('EQ を 0dB（フラット）に戻しました','');
+}
+
+/* ---- PITCH（再生速度 0.90〜1.10） ---- */
+function applyDeckRate(d, pct){
+  if(!d || !d.el) return;
+  const p = Math.max(-10, Math.min(10, Number(pct) || 0));
+  try{ d.el.playbackRate = 1 + p/100; }catch(e){}
+}
+function setPitch(pct){
+  S.rate = Math.max(-10, Math.min(10, Number(pct) || 0));
+  if(S.decks) S.decks.forEach(d=>applyDeckRate(d, S.rate));
+  syncDeckUi();
+}
+function pitchReset(){ setPitch(0); toast('ピッチを 0%（原速）に戻しました',''); }
+
+/* ---- BPM TAP（直近8回の間隔平均） ---- */
+function bpmTap(){
+  const now = (window.performance && performance.now) ? performance.now() : Date.now();
+  const a = S.bpm.taps;
+  if(a.length && (now - a[a.length-1]) > 2500) a.length = 0;   // 間が空いたら計り直し
+  a.push(now);
+  while(a.length > 8) a.shift();
+  if(a.length >= 2){
+    let sum = 0;
+    for(let i=1;i<a.length;i++) sum += (a[i] - a[i-1]);
+    const avg = sum / (a.length - 1);
+    S.bpm.val = Math.round(60000 / avg);
+  }
+  renderBpm();
+  return S.bpm.val;
+}
+function renderBpm(){
+  if(!el.bpmVal) return;
+  el.bpmVal.textContent = '';
+  el.bpmVal.appendChild(document.createTextNode(S.bpm.val ? String(S.bpm.val) : '--'));
+  const s = document.createElement('small'); s.textContent = 'BPM';
+  el.bpmVal.appendChild(s);
+}
+function bpmReset(){ S.bpm.taps.length = 0; S.bpm.val = 0; renderBpm(); toast('BPM計測をリセットしました',''); }
+
+/* ---- HOT CUE（A/B/C） ---- */
+function hotCue(k, mode){
+  const d = deckCur();
+  if(!d || !d.item){ toast('先にBGMを再生してください','warn'); return; }
+  if(mode === 'clear'){
+    d.hot[k] = null;
+    syncDeckUi();
+    toast('HOT CUE ' + k + ' を消去しました','');
+    return;
+  }
+  if(d.hot[k] == null){
+    d.hot[k] = Number(d.el.currentTime) || 0;
+    toast('HOT CUE ' + k + ' を ' + fmtTime(d.hot[k]) + ' に記憶しました','ok');
+  } else {
+    try{ d.el.currentTime = Math.min(d.hot[k], (d.el.duration || d.hot[k])); }catch(e){}
+    toast('HOT CUE ' + k + '（' + fmtTime(d.hot[k]) + '）へジャンプ','');
+  }
+  syncDeckUi();
+}
+
+/* デッキUI（EQ / HOT CUE / PITCH）を現在のアクティブデッキに合わせる */
+function syncDeckUi(){
+  const d = (S.decks && deckCur()) ? deckCur() : null;
+  const eq = (d && d.eqVal) ? d.eqVal : {low:0, mid:0, high:0};
+  [['low', el.eqLow, el.eqLowVal], ['mid', el.eqMid, el.eqMidVal], ['high', el.eqHigh, el.eqHighVal]].forEach((r)=>{
+    const inp = r[1], out = r[2];
+    if(!inp) return;
+    const v = Math.round(Number(eq[r[0]] || 0));
+    inp.value = String(v);
+    if(out) out.textContent = (v > 0 ? '+' : '') + v + 'dB';
+    setRangeFill(inp);
+  });
+  if(el.eqDeck) el.eqDeck.textContent = d ? ('DECK ' + (S.active === 0 ? 'A' : 'B')) : 'DECK —';
+  ['A','B','C'].forEach((k)=>{
+    const b = el['hc' + k];
+    if(!b) return;
+    const v = (d && d.hot) ? d.hot[k] : null;
+    b.classList.toggle('set', v != null);
+    b.textContent = (v == null) ? k : (k + ' ' + fmtTime(v));
+    b.title = (v == null) ? ('HOT CUE ' + k + '：押すと現在位置を記憶') : ('HOT CUE ' + k + '（' + fmtTime(v) + '）：押すとジャンプ / 右クリック・長押しで消去');
+  });
+  if(el.pitch) el.pitch.value = String(Number(S.rate) || 0);
+  if(el.pitchVal) el.pitchVal.textContent = ((S.rate > 0) ? '+' : '') + (Number(S.rate) || 0).toFixed(1) + '%';
+  if(el.pitch) setRangeFill(el.pitch);
+}
+
+/* ---- 🔊 おたより・チャットの読み上げ（この端末のスピーカーだけ／リスナーには送らない） ---- */
+function setReadAloud(on){
+  S.readAloud = !!on;
+  if(el.readBtn){
+    el.readBtn.textContent = '🔊 読み上げ ' + (S.readAloud ? 'ON' : 'OFF');
+    el.readBtn.classList.toggle('on', S.readAloud);
+  }
+  if(!S.readAloud){ try{ if(window.speechSynthesis) window.speechSynthesis.cancel(); }catch(e){} }
+  toast('読み上げを ' + (S.readAloud ? 'ON' : 'OFF') + ' にしました（配信音声には混ぜません）','');
+}
+function speakLocal(text, who){
+  if(!S.readAloud || !text) return false;
+  if(!(window.speechSynthesis && window.SpeechSynthesisUtterance)) return false;
+  try{
+    const body = String(who ? (who + 'さんから。') : '') + String(text).slice(0, 300);
+    const u = new SpeechSynthesisUtterance(body);
+    u.lang = 'ja-JP'; u.rate = 1.05; u.pitch = 1; u.volume = 1;
+    const vs = (window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : []) || [];
+    const ja = vs.filter(v=>/^ja/i.test(v.lang));
+    if(ja.length) u.voice = ja[0];
+    window.speechSynthesis.speak(u);
+    return true;
+  }catch(e){ return false; }
+}
+
+/* ---- 📺 テロップ（PeerJS DataConnection 経由でリスナー画面上部に流す） ---- */
+function sendTelop(text){
+  const t = String(text == null ? '' : text).replace(/\s+/g, ' ').trim().slice(0, 200);
+  S.telop = t;
+  const n = sendRaw({type:'telop', text:t, id:'tl' + Date.now(), t:Date.now()});
+  if(el.telopPrev){
+    el.telopPrev.hidden = !t;
+    el.telopPrev.textContent = t ? ('📺 ' + t) : '';
+  }
+  if(t) toast(n ? ('テロップを出しました（' + n + '人に送信）') : 'テロップをセットしました（接続中のリスナーに表示）','ok');
+  else toast('テロップを解除しました','');
+  sendInfoSoon();
+  return t;
+}
+
+/* ---- 🖼️ ジャケット画像（最大320px・JPEG 0.75 に圧縮して DataURL で配信） ---- */
+function compressJacket(img){
+  const MAX = 320;
+  const iw = img.naturalWidth || img.width || MAX;
+  const ih = img.naturalHeight || img.height || MAX;
+  const r = Math.min(MAX/iw, MAX/ih, 1);
+  const w = Math.max(1, Math.round(iw*r)), h = Math.max(1, Math.round(ih*r));
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const g = c.getContext('2d');
+  g.fillStyle = '#000'; g.fillRect(0,0,w,h);
+  g.drawImage(img, 0, 0, w, h);
+  return c.toDataURL('image/jpeg', 0.75);
+}
+function setJacket(dataUrl, label){
+  S.jacket = String(dataUrl || '');
+  if(el.jkPrev){
+    if(S.jacket){
+      el.jkPrev.style.backgroundImage = 'url("' + S.jacket.replace(/"/g,'%22') + '")';
+      el.jkPrev.textContent = '';
+    } else {
+      el.jkPrev.style.backgroundImage = '';
+      el.jkPrev.textContent = 'NO ART';
+    }
+  }
+  if(el.jkState){
+    el.jkState.textContent = S.jacket
+      ? ((label ? label + ' / ' : '') + Math.round(S.jacket.length/1024) + 'KB')
+      : '未設定';
+  }
+  sendRaw({type:'jacket', data:S.jacket});
+  sendInfoSoon();
+}
+function jacketPick(file){
+  if(!file) return;
+  if(!/^image\//.test(file.type || '')){ toast('画像ファイルを選んでください','warn'); return; }
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload = ()=>{
+    try{
+      const d = compressJacket(img);
+      setJacket(d, '画像から設定');
+      toast('ジャケット画像を設定しました（リスナーにも表示）','ok');
+    }catch(e){ toast('画像を処理できませんでした','err'); }
+    try{ URL.revokeObjectURL(url); }catch(e){}
+  };
+  img.onerror = ()=>{ toast('画像を読み込めませんでした','err'); try{ URL.revokeObjectURL(url); }catch(e){} };
+  img.src = url;
+}
+function jacketFromUrl(){
+  const raw = (el.jkUrl && el.jkUrl.value ? el.jkUrl.value : '').trim();
+  if(!/^(https?:\/\/|data:image\/)/i.test(raw)){ toast('http(s) の画像URLを入れてください','warn'); return; }
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = ()=>{
+    try{
+      const d = compressJacket(img);
+      setJacket(d, 'URLから設定');
+      toast('ジャケット画像を設定しました（リスナーにも表示）','ok');
+    }catch(e){ toast('この画像は読み込めません（CORS制限の可能性）','err'); }
+  };
+  img.onerror = ()=> toast('画像を読み込めません（CORS制限の可能性）','err');
+  img.src = raw;
+}
+function jacketClear(){
+  if(el.jkUrl) el.jkUrl.value = '';
+  setJacket('');
+  toast('ジャケット画像を消去しました','');
+}
+
+/* ---- 📝 セットリスト（再生した曲と開始時刻を自動記録） ---- */
+function setHm(ms){
+  const d = new Date(ms);
+  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+function setAdd(title, kind){
+  const t = String(title || '').trim().slice(0,120);
+  if(!t) return;
+  const last = S.setlist[S.setlist.length-1];
+  if(last && last.title === t && (Date.now() - last.t) < 1500) return;   // 連打・二重記録を防ぐ
+  S.setlist.push({t:Date.now(), title:t, kind:kind || ''});
+  if(S.setlist.length > 300) S.setlist.shift();
+  renderSetlist();
+}
+function renderSetlist(){
+  if(!el.setList) return;
+  el.setList.textContent = '';
+  if(!S.setlist.length){
+    const li = document.createElement('li');
+    li.className = 'empty';
+    li.textContent = '再生した曲がここに時刻付きで自動記録されます';
+    el.setList.appendChild(li);
+  } else {
+    S.setlist.forEach((x)=>{
+      const li = document.createElement('li');
+      const t = document.createElement('span'); t.className = 't'; t.textContent = setHm(x.t);
+      const n = document.createElement('span'); n.className = 'n'; n.textContent = x.title;
+      const k = document.createElement('span'); k.className = 'k';
+      k.textContent = (x.kind === 'cue') ? 'CUE' : (x.kind === 'tab') ? 'TAB' : (x.kind === 'live') ? 'LIVE' : 'BGM';
+      li.appendChild(t); li.appendChild(n); li.appendChild(k);
+      el.setList.appendChild(li);
+    });
+    try{ el.setList.scrollTop = el.setList.scrollHeight; }catch(e){}
+  }
+  if(el.setCount) el.setCount.textContent = S.setlist.length + ' 曲';
+}
+function setlistText(){
+  return S.setlist.map(x=>setHm(x.t) + '  ' + x.title).join('\n');
 }
 
 /* ---- ジングル（内蔵シンセ） ---- */
@@ -2789,6 +3292,7 @@ async function startTabAudio(){
   tabMsgShow('取り込み中：タブの音声をBGMとしてミックスしています' + (info.length ? '（' + info.join(' / ') + '）' : '') + '。ブラウザの「共有を停止」でも止まれます。', 'ok');
   updateTabUi();
   toast('タブ音声を取り込みました'+ (info.length ? '（' + info.join(' / ') + '）' : ''), 'ok');
+  setAdd('📺 タブ音声（PC）', 'tab');
   return true;
 }
 function stopTabAudio(quiet){
@@ -3383,7 +3887,7 @@ function handleConn(conn){
   // 接続直後はまだ DataChannel が open していないことがある。
   // open 前の send は 'not-open-yet' エラーになり、接続そのものは生きているのに
   // 一覧から外れてしまうため、送信は open を待ってから行う。
-  conn.on('open', ()=>{ try{ if(conn.open) conn.send(infoPayload()); }catch(e){} });
+  conn.on('open', ()=>{ try{ if(conn.open) conn.send(infoPayload()); }catch(e){} try{ if(conn.open && S.jacket) conn.send({type:'jacket', data:S.jacket}); }catch(e){} });
   conn.on('error', (e)=>{
     if(window.console && console.warn) console.warn('[conn]', (e && e.type) || '', (e && e.message) || '');
   });
@@ -3405,6 +3909,7 @@ function onData(conn, d){
     updateListenerCount();
     peopleRender();
     try{ conn.send(infoPayload()); }catch(e){}
+    try{ if(S.jacket) conn.send({type:'jacket', data:S.jacket}); }catch(e){}   // 🖼️ 途中参加者にもジャケット
     chatSendHistory(conn);                  // 途中参加でも流れが分かるように直近20件
     // 再接続・再要望時も毎回 call し直す（既存のメディアコールは閉じる）
     if(S.streamDest) callListener(conn.peer);
@@ -4008,6 +4513,64 @@ async function cueImport(file){
 }
 
 /* =========================================================
+   🗂 パネルの折りたたみ（状態は localStorage に保存）
+   ========================================================= */
+const PANEL_KEY = 'netradio.panels.v1';
+function panelId(p){
+  const cls = (p.className || '').split(/\s+/).filter(c=>/^p-/.test(c));
+  return cls[0] || ('panel-' + Array.prototype.indexOf.call(document.querySelectorAll('main .panel'), p));
+}
+function panelState(){
+  try{ return JSON.parse(localStorage.getItem(PANEL_KEY) || '{}') || {}; }catch(e){ return {}; }
+}
+function savePanelState(){
+  const o = {};
+  document.querySelectorAll('main .panel').forEach((p)=>{ o[panelId(p)] = p.classList.contains('collapsed'); });
+  try{ localStorage.setItem(PANEL_KEY, JSON.stringify(o)); }catch(e){}
+}
+function togglePanel(p){
+  const on = p.classList.toggle('collapsed');
+  const head = p.querySelector(':scope > .p-head');
+  if(head) head.setAttribute('aria-expanded', on ? 'false' : 'true');
+  savePanelState();
+  return on;
+}
+function setAllPanels(collapsed){
+  document.querySelectorAll('main .panel').forEach((p)=>{
+    p.classList.toggle('collapsed', !!collapsed);
+    const head = p.querySelector(':scope > .p-head');
+    if(head) head.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+  });
+  savePanelState();
+  toast(collapsed ? 'すべてのパネルを閉じました' : 'すべてのパネルを開きました','');
+}
+function initPanels(){
+  const st = panelState();
+  document.querySelectorAll('main .panel').forEach((p)=>{
+    const head = p.querySelector(':scope > .p-head');
+    if(!head) return;
+    if(!p.querySelector(':scope > .p-head > .p-chev')){
+      const ch = document.createElement('span');
+      ch.className = 'p-chev';
+      ch.setAttribute('aria-hidden', 'true');
+      ch.textContent = '▾';
+      head.appendChild(ch);
+    }
+    if(st[panelId(p)]) p.classList.add('collapsed');
+    head.addEventListener('click', (e)=>{
+      if(e.target.closest('button, a, input, select, textarea, label')) return;
+      togglePanel(p);
+    });
+    head.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); togglePanel(p); }
+    });
+    head.setAttribute('tabindex', '0');
+    head.setAttribute('role', 'button');
+    head.setAttribute('aria-expanded', p.classList.contains('collapsed') ? 'false' : 'true');
+  });
+}
+
+/* =========================================================
    UI バインド
    ========================================================= */
 function bind(){
@@ -4220,17 +4783,102 @@ function bind(){
   });
   el.monitorChk.addEventListener('change', ()=>setMonitor(el.monitorChk.checked));
 
-  // スペースキーでトーク（入力中は無効）
+  /* 🆕 キーボードショートカット（input/textarea/select フォーカス時は無効）
+     M=マイク ON/OFF / T=トーク（BGM下げ）切替 / 1〜6=SEパッド / Space=BGM 再生・一時停止 */
+  const typing = (e)=>{
+    const t = e.target;
+    return !!(t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA' || t.isContentEditable));
+  };
   document.addEventListener('keydown', (e)=>{
-    const t = e.target;
-    if(t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) return;
-    if(e.code === 'Space' && !e.repeat){ e.preventDefault(); onDuck(true); }
+    if(typing(e) || e.metaKey || e.ctrlKey || e.altKey) return;
+    if(e.code === 'Space'){
+      e.preventDefault();
+      if(!e.repeat) toggleBgm();
+      return;
+    }
+    const k = e.key || '';
+    if(k === 'm' || k === 'M'){ e.preventDefault(); if(!e.repeat) toggleMic(); return; }
+    if(k === 't' || k === 'T'){ e.preventDefault(); if(!e.repeat) onDuck(!S.ducked); return; }
+    if(k >= '1' && k <= '6'){
+      e.preventDefault();
+      if(e.repeat) return;
+      const pads = document.querySelectorAll('.pad');
+      const b = pads[Number(k) - 1];
+      if(b) playPad(b.dataset.pad);
+      return;
+    }
   });
-  document.addEventListener('keyup', (e)=>{
-    const t = e.target;
-    if(t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) return;
-    if(e.code === 'Space'){ e.preventDefault(); onDuck(false); }
+
+  /* 🎛️ 3バンドEQ */
+  [['low', el.eqLow], ['mid', el.eqMid], ['high', el.eqHigh]].forEach((r)=>{
+    if(!r[1]) return;
+    setRangeFill(r[1]);
+    r[1].addEventListener('input', ()=>setEq(r[0], Number(r[1].value)));
   });
+  if(el.eqReset) el.eqReset.addEventListener('click', eqReset);
+
+  /* HOT CUE（A/B/C）: クリック=設定/ジャンプ、右クリック・長押し=消去 */
+  ['A','B','C'].forEach((k)=>{
+    const b = el['hc' + k];
+    if(!b) return;
+    b.addEventListener('click', ()=>hotCue(k));
+    b.addEventListener('contextmenu', (e)=>{ e.preventDefault(); hotCue(k, 'clear'); });
+    let holdTimer = null;
+    b.addEventListener('pointerdown', ()=>{ holdTimer = setTimeout(()=>{ holdTimer = null; hotCue(k, 'clear'); }, 750); });
+    ['pointerup','pointerleave','pointercancel'].forEach((ev)=>b.addEventListener(ev, ()=>{ if(holdTimer){ clearTimeout(holdTimer); holdTimer = null; } }));
+  });
+  if(el.hcClear) el.hcClear.addEventListener('click', ()=>{
+    const d = deckCur();
+    if(!d) return;
+    d.hot = {A:null, B:null, C:null};
+    syncDeckUi();
+    toast('HOT CUE をすべて消去しました','');
+  });
+
+  /* PITCH / BPM */
+  if(el.pitch){
+    setRangeFill(el.pitch);
+    el.pitch.addEventListener('input', ()=>setPitch(Number(el.pitch.value)));
+  }
+  if(el.pitchReset) el.pitchReset.addEventListener('click', pitchReset);
+  if(el.bpmTap) el.bpmTap.addEventListener('click', bpmTap);
+  if(el.bpmReset) el.bpmReset.addEventListener('click', bpmReset);
+
+  /* 🔊 読み上げ / 📺 テロップ */
+  if(el.readBtn) el.readBtn.addEventListener('click', ()=>setReadAloud(!S.readAloud));
+  if(el.telopClearBtn) el.telopClearBtn.addEventListener('click', ()=>sendTelop(''));
+
+  /* 🖼️ ジャケット */
+  if(el.jkFile) el.jkFile.addEventListener('change', (e)=>{ jacketPick(e.target.files && e.target.files[0]); e.target.value = ''; });
+  if(el.jkSetUrl) el.jkSetUrl.addEventListener('click', jacketFromUrl);
+  if(el.jkClear) el.jkClear.addEventListener('click', jacketClear);
+
+  /* 📝 セットリスト */
+  if(el.setCopy) el.setCopy.addEventListener('click', async ()=>{
+    if(!S.setlist.length){ toast('セットリストはまだ空です','warn'); return; }
+    const ok = await copyText(setlistText());
+    toast(ok ? 'セットリストをコピーしました' : 'コピーできませんでした（選択してコピーしてください）', ok ? 'ok' : 'warn');
+  });
+  if(el.setClear) el.setClear.addEventListener('click', ()=>{
+    S.setlist = [];
+    renderSetlist();
+    toast('セットリストをクリアしました','');
+  });
+
+  /* 🔔 キューシート自動ジングル */
+  if(el.cueJingleEvery) el.cueJingleEvery.addEventListener('change', ()=>{
+    S.jingleEvery = Number(el.cueJingleEvery.value) || 0;
+    S.jingleCount = 0;
+    try{ localStorage.setItem('netradio.jingleEvery', String(S.jingleEvery)); }catch(e){}
+    toast(S.jingleEvery ? ('自動ジングル：' + S.jingleEvery + '曲ごと') : '自動ジングル：OFF','');
+  });
+
+  /* 🗂 パネル折りたたみ / キーボードヘルプ */
+  initPanels();
+  if(el.panelsOpen) el.panelsOpen.addEventListener('click', ()=>setAllPanels(false));
+  if(el.panelsClose) el.panelsClose.addEventListener('click', ()=>setAllPanels(true));
+  if(el.keyHelpBtn) el.keyHelpBtn.addEventListener('click', ()=>{ if(el.keyHelp) el.keyHelp.hidden = !el.keyHelp.hidden; });
+  if(el.keyHelpClose) el.keyHelpClose.addEventListener('click', ()=>{ if(el.keyHelp) el.keyHelp.hidden = true; });
 
   window.addEventListener('pagehide', ()=>{ try{ if(S.peer) S.peer.destroy(); }catch(e){} });
   window.addEventListener('beforeunload', ()=>{ try{ if(S.peer) S.peer.destroy(); }catch(e){} });
@@ -4279,6 +4927,17 @@ function init(){
   peopleRender();
   peopleSummary();
   updateRecUi();
+  // 🆕 第2弾の初期化
+  renderBpm();
+  syncDeckUi();
+  renderSetlist();
+  if(el.readBtn) el.readBtn.textContent = '🔊 読み上げ OFF';
+  if(el.telopPrev){ el.telopPrev.hidden = true; el.telopPrev.textContent = ''; }
+  try{
+    const j = Number(localStorage.getItem('netradio.jingleEvery') || 0) || 0;
+    S.jingleEvery = (j === 3 || j === 5) ? j : 0;
+    if(el.cueJingleEvery) el.cueJingleEvery.value = String(S.jingleEvery);
+  }catch(e){}
   // CDN が読めていなければ事前にローカルへ切り替え
   ensurePeerLib();
 }
@@ -4484,6 +5143,32 @@ window.__nrDebug = {
     attachGuest(dest.stream, 'sim-' + Date.now());
     return true;
   },
+  /* 🆕 第2弾の状態 */
+  fx(){
+    const d = deckCur();
+    return {
+      deck:S.active, deckName:(S.active === 0 ? 'A' : 'B'),
+      eq:d ? Object.assign({}, d.eqVal) : null,
+      eqNodes:d ? {low:Math.round(d.eq.low.gain.value), mid:Math.round(d.eq.mid.gain.value), high:Math.round(d.eq.high.gain.value)} : null,
+      rate:S.rate, playback:d ? Math.round(d.el.playbackRate*100)/100 : null,
+      hot:d ? Object.assign({}, d.hot) : null,
+      bpm:S.bpm.val, bpmTaps:S.bpm.taps.length,
+      telop:S.telop, jacketLen:(S.jacket || '').length, readAloud:S.readAloud,
+      setlist:S.setlist.slice(-8), setlistLen:S.setlist.length,
+      jingleEvery:S.jingleEvery, jingleCount:S.jingleCount,
+      panels:Array.prototype.map.call(document.querySelectorAll('main .panel'), p=>({id:panelId(p), collapsed:p.classList.contains('collapsed')})),
+      telopPrev:(el.telopPrev && !el.telopPrev.hidden) ? el.telopPrev.textContent : ''
+    };
+  },
+  telop(t){ return sendTelop(t); },
+  jacket(data){
+    if(data !== undefined) setJacket(data || '');
+    return {len:(S.jacket || '').length, head:(S.jacket || '').slice(0, 24), label:(el.jkState ? el.jkState.textContent : ''),
+            bg:(el.jkPrev ? (el.jkPrev.style.backgroundImage || '').slice(0, 30) : '')};
+  },
+  setlistText(){ return setlistText(); },
+  read(on){ setReadAloud(!!on); return S.readAloud; },
+  bpmTap(){ return bpmTap(); },
   cue:{
     add:(type,data)=>cueAdd(type,data),
     move:(i,d)=>cueMove(i,d),
