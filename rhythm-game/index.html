@@ -1175,10 +1175,11 @@
     audio.load();
     unlockAudio();
 
+    var myG = G;
     ensureAnalysis(track, function(frac, msg){
-      if (G && G.alive && S.screen === 'play') setLoading(frac, msg);
+      if (G === myG && myG.alive && S.screen === 'play') setLoading(frac, msg);
     }).then(function(an){
-      if (!G || !G.alive || S.screen !== 'play') return;
+      if (G !== myG || !myG.alive || S.screen !== 'play') return;
       var chart = buildChart(an, G.diff, track.i*131 + ORDER.indexOf(G.diff)*17 + 7);
       G.chart = chart;
       G.notes = chart.notes.map(function(c){ return { t:c.t, l:c.l, judged:false, kind:'' }; });
@@ -1196,7 +1197,7 @@
       el.cdTx.textContent = 'READY';
       if (!G.raf) loop();
     }).catch(function(err){
-      if (!G || !G.alive) return;
+      if (G !== myG || !myG.alive) return;
       showLoading('読み込みに失敗しました');
       el.loadMsg.textContent = '音源を読み込めませんでした（' + (err && err.message ? err.message : 'network') + '）';
       el.loadFill.style.width = '100%';
@@ -1259,7 +1260,7 @@
   }
 
   function onPlaying(){
-    if (!G || !A.ctx) return;
+    if (!G || !A.ctx || S.screen !== 'play') return;
     if (G.phase === 'paused') return;
     G.startMedia = audio.currentTime || 0;
     G.startCtx = A.ctx.currentTime;
