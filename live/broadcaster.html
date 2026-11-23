@@ -2249,7 +2249,12 @@ async function ensureAudio(){
     return;
   }
   const AC = window.AudioContext || window.webkitAudioContext;
-  const ctx = new AC({latencyHint:'interactive'});
+  /* 48kHz に固定：マイクもWebRTC(Opus)も48kHzなので、44.1kHzで動かすと
+     送出のたびに再サンプリングが入る。音楽を流す配信では最初から48kHzで組むほうが素直。
+     未対応環境は従来どおり既定レートへフォールバック。 */
+  let ctx = null;
+  try{ ctx = new AC({latencyHint:'interactive', sampleRate:48000}); }catch(e){ ctx = null; }
+  if(!ctx){ try{ ctx = new AC({latencyHint:'interactive'}); }catch(e){ toast('このブラウザでは音声を初期化できませんでした','err'); return; } }
   S.ctx = ctx;
 
   S.bus        = ctx.createGain();  S.bus.gain.value = 1;
@@ -4618,8 +4623,68 @@ function buildVoice(preset){
   else { mix(1,0); }
 }
 
-/* グラニュラー方式のピッチシフター（リングバッファ2粒クロスフェード） */
+/* グラニュラー方式のピッチシフター（リングバッファ2粒クロスフェード）
+   以前は ScriptProcessor（メインスレッド実行）だったため、配信画面が忙しいと
+   音声処理が追いつかず「カクカク」の原因になっていた。AudioWorklet（音声専用スレッド）に移し、
+   非対応ブラウザだけ従来の ScriptProcessor にフォールバックする。 */
+const PITCH_WORKLET_SRC = `
+class PitchShifter extends AudioWorkletProcessor {
+  constructor(opts){
+    super();
+    const ratio = (opts && opts.processorOptions && opts.processorOptions.ratio) || 1;
+    this.step = 1 - ratio;
+    this.grain = Math.max(512, Math.round(sampleRate * 0.055));
+    this.size = Math.max(this.grain * 8, Math.round(sampleRate * 1.5));
+    this.ring = new Float32Array(this.size);
+    this.write = 0;
+    this.phase = 0;
+  }
+  readAt(pos){
+    const n = this.size;
+    let p = pos % n; if(p < 0) p += n;
+    const i0 = Math.floor(p), fr = p - i0, i1 = (i0 + 1) % n;
+    return this.ring[i0] * (1 - fr) + this.ring[i1] * fr;
+  }
+  process(inputs, outputs){
+    const inp = inputs[0] && inputs[0][0];
+    const out = outputs[0] && outputs[0][0];
+    if(!out) return true;
+    const g = this.grain;
+    for(let i = 0; i < out.length; i++){
+      const v = inp ? (inp[i] || 0) : 0;
+      this.ring[this.write] = v;
+      let dB = this.phase + g / 2; if(dB >= g) dB -= g;
+      const wA = Math.sin(Math.PI * this.phase / g);
+      const wB = Math.cos(Math.PI * this.phase / g);
+      const a = this.readAt(this.write - this.phase);
+      const b = this.readAt(this.write - dB);
+      out[i] = a * wA * wA + b * wB * wB;
+      this.write++; if(this.write >= this.size) this.write = 0;
+      this.phase += this.step;
+      if(this.phase >= g) this.phase -= g; else if(this.phase < 0) this.phase += g;
+    }
+    return true;
+  }
+}
+registerProcessor('pitch-shifter', PitchShifter);
+`;
+let pitchWorkletReady = false;
+function ensurePitchWorklet(ctx){
+  if(!ctx || !ctx.audioWorklet || !ctx.audioWorklet.addModule) return Promise.resolve(false);
+  if(pitchWorkletReady) return Promise.resolve(true);
+  return ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([PITCH_WORKLET_SRC], {type:'application/javascript'})))
+    .then(()=>{ pitchWorkletReady = true; return true; })
+    .catch(()=>{ pitchWorkletReady = false; return false; });
+}
 function createPitchShifter(ctx, ratio){
+  if(pitchWorkletReady && window.AudioWorkletNode){
+    try{
+      return new AudioWorkletNode(ctx, 'pitch-shifter', {
+        numberOfInputs:1, numberOfOutputs:1, outputChannelCount:[1],
+        processorOptions:{ratio}
+      });
+    }catch(e){ /* 失敗したら下のフォールバックへ */ }
+  }
   if(!ctx.createScriptProcessor){
     const g = ctx.createGain(); return g;   // 非対応環境は素通し（無音にはしない）
   }
@@ -5171,14 +5236,19 @@ function musicSdpTransform(sdp){
       const add = [];
       if(!/(^|;)stereo=/.test(params)) add.push('stereo=1');
       if(!/(^|;)sprop-stereo=/.test(params)) add.push('sprop-stereo=1');
-      if(!/(^|;)maxaveragebitrate=/.test(params)) add.push('maxaveragebitrate=192000');
+      /* 192k指定はモバイル回線や無料TURNでは帯域を食いすぎて、送信が詰まり「カクカク」の原因になる。
+         128kbps（ステレオOpus）でもラジオとしては十分高音質で、回線の余裕が生まれる。 */
+      if(!/(^|;)maxaveragebitrate=/.test(params)) add.push('maxaveragebitrate=128000');
       if(!/(^|;)maxplaybackrate=/.test(params)) add.push('maxplaybackrate=48000');
+      /* パケットロスに強い設定：FECを積む／DTXを切る（音楽で無音区間を送らない）／20ms区切り */
       if(!/(^|;)useinbandfec=/.test(params)) add.push('useinbandfec=1');
+      if(!/(^|;)usedtx=/.test(params)) add.push('usedtx=0');
+      if(!/(^|;)ptime=/.test(params)) add.push('ptime=20');
       return 'a=fmtp:' + pt + ' ' + params + (add.length ? ';' + add.join(';') : '');
     });
     if(!found){
       const i = lines.findIndex(l=>l.indexOf('a=rtpmap:' + pt + ' opus/48000') === 0);
-      lines.splice(i + 1, 0, 'a=fmtp:' + pt + ' stereo=1;sprop-stereo=1;maxaveragebitrate=192000;maxplaybackrate=48000;useinbandfec=1');
+      lines.splice(i + 1, 0, 'a=fmtp:' + pt + ' stereo=1;sprop-stereo=1;maxaveragebitrate=128000;maxplaybackrate=48000;useinbandfec=1;usedtx=0;ptime=20');
       return lines.join('\r\n');
     }
     return out.join('\r\n');
@@ -5194,7 +5264,12 @@ function tuneMusicSender(call){
         if(!s.track || s.track.kind !== 'audio' || !s.getParameters) return;
         const p = s.getParameters();
         if(!p.encodings || !p.encodings.length) p.encodings = [{}];
-        p.encodings[0].maxBitrate = 256000;
+        p.encodings[0].maxBitrate = 160000;
+        /* DTX を切る：無音区間のパケットを止めると、受信側で再開時に音が飛んだり
+           ジッタバッファが揺れたりする。音楽を流し続けるラジオでは常時送るほうが安定。 */
+        try{ p.encodings[0].dtx = 'disabled'; }catch(e){}
+        try{ p.encodings[0].priority = 'high'; }catch(e){}
+        try{ p.encodings[0].networkPriority = 'high'; }catch(e){}
         const pr = s.setParameters(p);
         if(pr && pr.catch) pr.catch(()=>{});
       }catch(e){}
@@ -5397,6 +5472,7 @@ async function startBroadcast(){
       try{ await S.ctx.resume(); }catch(e){}
     }
 
+    try{ await ensurePitchWorklet(S.ctx); }catch(e){}
     updateListenerUrl();
     if(!S.micStream){
       const got = await acquireMic();
@@ -8427,6 +8503,44 @@ window.__nrDebug = {
       micSettings:S.micSettings, djMon:S.djMonOn, clip:el.clipLamp.classList.contains('on'),
       outDevices:el.monDevice ? el.monDevice.options.length - 1 : 0
     };
+  },
+  /* 送信側の音声統計（実際に送れているか・詰まっていないか） */
+  async rtp(){
+    const out = {live:S.live, callCount:S.mediaCalls.size};
+    try{
+      const first = Array.from(S.mediaCalls.values())[0];
+      const pc = first && first.peerConnection;
+      if(!pc) return Object.assign(out, {noPeerConnection:true});
+      const r = await pc.getStats();
+      r.forEach(x=>{
+        if(x.type === 'outbound-rtp' && (x.kind === 'audio' || x.mediaType === 'audio')){
+          out.outbound = {packetsSent:x.packetsSent||0, bytesSent:x.bytesSent||0, nackCount:x.nackCount||0,
+            qualityLimitationReason:x.qualityLimitationReason||null, retransmittedPacketsSent:x.retransmittedPacketsSent||0};
+        }
+        if(x.type === 'remote-inbound-rtp' && (x.kind === 'audio' || x.mediaType === 'audio')){
+          out.remote = {packetsLost:x.packetsLost||0, jitter:x.jitter||0, fractionLost:x.fractionLost||0, rtt:x.roundTripTime||0};
+        }
+        if(x.type === 'candidate-pair' && x.state === 'succeeded'){
+          out.pair = {availableOutgoing:x.availableOutgoingBitrate, currentRtt:x.currentRoundTripTime};
+        }
+      });
+      out.senderParams = (pc.getSenders ? pc.getSenders() : []).filter(s=>s.track && s.track.kind==='audio').map(s=>{
+        try{ const p = s.getParameters(); return {enc:(p.encodings||[]).map(e=>({maxBitrate:e.maxBitrate, dtx:e.dtx, active:e.active}))}; }catch(e){ return null; }
+      });
+      out.ctxRate = S.ctx ? S.ctx.sampleRate : null;
+      out.ctxState = S.ctx ? S.ctx.state : null;
+      try{
+        const pick = (sdp)=>{
+          const m = sdp && sdp.match(/a=rtpmap:(\d+) opus\/48000/i);
+          if(!m) return null;
+          const line = sdp.match(new RegExp('a=fmtp:' + m[1] + '[^\\r\\n]*', 'i'));
+          return line ? line[0] : null;
+        };
+        out.fmtpRemote = pick((pc.remoteDescription && pc.remoteDescription.sdp) || '');
+        out.fmtpLocal = pick((pc.localDescription && pc.localDescription.sdp) || '');
+      }catch(e){}
+    }catch(e){ out.err = String(e && e.message || e); }
+    return out;
   },
   input(){
     return {

@@ -751,7 +751,16 @@ function ensureCtx(){
   if(S.ctx) return S.ctx;
   const AC = window.AudioContext || window.webkitAudioContext;
   if(!AC) return null;
-  try{ S.ctx = new AC({latencyHint:'interactive'}); }catch(e){ S.ctx = null; return null; }
+  /* 聴く側は低遅延より「途切れない」ことを優先する。
+     latencyHint:'playback' はレンダリングのバッファが大きく、スマホで画面（VJ/波形）が
+     忙しいときでも音が欠けにくい。sampleRate:48000 は WebRTC(Opus/48kHz) との
+     余分な再サンプリングを1段減らすため。未対応環境は順に落とす。 */
+  const ctxOpts = [{latencyHint:'playback', sampleRate:48000}, {latencyHint:'playback'}, {latencyHint:'interactive'}];
+  S.ctx = null;
+  for(const opt of ctxOpts){
+    try{ S.ctx = new AC(opt); break; }catch(e){ S.ctx = null; }
+  }
+  if(!S.ctx) return null;
   // 受信専用コールでも音声m-lineを受け入れるための無音ストリーム（suspended でも生成できる）
   ensureSilentDest();
   // AIラジオ：デッキA/B（クロスフェード用）＋マスター
@@ -2004,17 +2013,43 @@ function musicSdpTransform(sdp){
       const add = [];
       if(!/(^|;)stereo=/.test(params)) add.push('stereo=1');
       if(!/(^|;)sprop-stereo=/.test(params)) add.push('sprop-stereo=1');
-      if(!/(^|;)maxaveragebitrate=/.test(params)) add.push('maxaveragebitrate=192000');
+      if(!/(^|;)maxaveragebitrate=/.test(params)) add.push('maxaveragebitrate=128000');
       if(!/(^|;)maxplaybackrate=/.test(params)) add.push('maxplaybackrate=48000');
+      /* FEC/DTX/ptime は「受け取る側の宣言」でもある。ここに書かないと相手が FEC を積んでくれず、
+         電波が少し乱れただけで音が飛ぶ。DTX は音楽では無音区間を送らない＝途切れの原因なので切る。 */
+      if(!/(^|;)useinbandfec=/.test(params)) add.push('useinbandfec=1');
+      if(!/(^|;)usedtx=/.test(params)) add.push('usedtx=0');
+      if(!/(^|;)ptime=/.test(params)) add.push('ptime=20');
       return 'a=fmtp:' + pt + ' ' + params + (add.length ? ';' + add.join(';') : '');
     });
     if(!found){
       const i = lines.findIndex(l=>l.indexOf('a=rtpmap:' + pt + ' opus/48000') === 0);
-      lines.splice(i + 1, 0, 'a=fmtp:' + pt + ' stereo=1;sprop-stereo=1;maxaveragebitrate=192000;maxplaybackrate=48000');
+      lines.splice(i + 1, 0, 'a=fmtp:' + pt + ' stereo=1;sprop-stereo=1;maxaveragebitrate=128000;maxplaybackrate=48000;useinbandfec=1;usedtx=0;ptime=20');
       return lines.join('\r\n');
     }
     return out.join('\r\n');
   }catch(e){ return sdp; }
+}
+/* ---- 受信側のジッタバッファ（音飛び対策） ----
+   WebRTC の既定は 50〜60ms しかなく、スマホ回線や TURN 経由の揺らぎで
+   パケットが遅れて届くと「音が飛ぶ／カクつく」原因になる。
+   ラジオは双方向の会話ではないので、250ms まで遅れを許して滑らかさを優先する。 */
+const PLAYOUT_TARGET = 0.25;   // 秒
+function tuneReceiver(call, delaySec){
+  try{
+    const pc = call && call.peerConnection;
+    if(!pc || !pc.getReceivers) return false;
+    const d = (delaySec === undefined) ? PLAYOUT_TARGET : delaySec;
+    const ms = Math.round(d * 1000);
+    let hit = 0;
+    pc.getReceivers().forEach(r=>{
+      if(!r.track || r.track.kind !== 'audio') return;
+      /* Chrome/Edge: playoutDelayHint（秒） / Chrome 106+・Safari: jitterBufferTarget（ミリ秒） */
+      try{ r.playoutDelayHint = d; hit++; }catch(e){}
+      try{ r.jitterBufferTarget = ms; hit++; }catch(e){}
+    });
+    return hit > 0;
+  }catch(e){ return false; }
 }
 function onCall(call){
   if(S.call && S.call !== call){ try{ S.call.close(); }catch(e){} }
@@ -2033,6 +2068,10 @@ function onCall(call){
     return;
   }
 
+  /* ジッタバッファ：受信側のトラックができた直後と、ICE 接続後に必ず掛け直す */
+  tuneReceiver(call);
+  setTimeout(()=>{ if(S.call === call) tuneReceiver(call); }, 300);
+  setTimeout(()=>{ if(S.call === call) tuneReceiver(call); }, 1500);
   call.on('stream', (stream)=>attachStream(stream));
   call.on('close', ()=>{
     if(S.call === call){ S.call = null; S.iceState = ''; S.connState = ''; }
@@ -2060,6 +2099,7 @@ function watchCall(call){
   const upd = ()=>{
     S.iceState = pc.iceConnectionState || '';
     S.connState = pc.connectionState || '';
+    if(S.iceState === 'connected' || S.iceState === 'completed') tuneReceiver(call);
     renderSrc();
     if(S.iceState === 'failed' || S.connState === 'failed') requestRestream('ice-failed');
   };
@@ -2105,7 +2145,10 @@ function diagText(){
          ' / trk:' + (S.trackCount || 0) + ' / ctx:' + (S.ctx ? S.ctx.state : 'none') + ' / turn:' + turn +
          ' / st:' + (S.room || ROOM);
 }
+let srcTick = 0;
 function renderSrc(){
+  /* 5秒ごとにジッタバッファの目標値を掛け直す（再接続・再ネゴシエーションで既定に戻るのを防ぐ） */
+  if(S.call && S.live && (++srcTick % 5 === 0)) tuneReceiver(S.call);
   let head = 'OFF AIR（待機中）';
   if(S.live) head = 'ON AIR — 生放送を受信中';
   else if(S.ai.playing) head = 'AUTO-DJ 再生中';
@@ -2223,7 +2266,7 @@ function onPlayClick(){
 }
 
 /* ================= 波形 ================= */
-const wave = {w:0,h:0,raf:0,buf:null,t:0,peak:0};
+const wave = {w:0,h:0,raf:0,buf:null,t:0,peak:0,last:0};
 function sizeWave(){
   const c = el.wave, r = c.getBoundingClientRect();
   const dpr = Math.min(window.devicePixelRatio||1, 2);
@@ -2314,6 +2357,13 @@ function setVjMode(m){
 }
 function drawWave(){
   wave.raf = requestAnimationFrame(drawWave);
+  /* 見た目は30fpsで十分。描画の負荷を半分にして、スマホ（とくにGoogleサイトの埋め込み内）で
+     音声処理にCPUを回せるようにする。音飛び対策としても効く。 */
+  const now = performance.now();
+  if(wave.last && now - wave.last < 32) return;
+  const dt = wave.last ? Math.min(0.1, (now - wave.last) / 1000) : 0.032;
+  wave.last = now;
+  wave.dt = dt;
   if(!wave.w) sizeWave();
   const g = el.wave.getContext('2d');
   const w = wave.w, h = wave.h;
@@ -2369,7 +2419,7 @@ function drawWaveform(g, w, h){
     wave.peak = peak;
   } else {
     // 待機中：静かな待機ライン
-    wave.t += 0.016;
+    wave.t += (wave.dt || 0.032);
     const amp = (mid-10)*0.06;
     g.lineWidth = 1.5;
     g.strokeStyle = 'rgba(242,180,100,.22)';
@@ -3068,6 +3118,43 @@ window.__nrDebug = {
     }catch(e){ out.err = String(e && e.message || e); }
     return out;
   },
+  /* 音飛びの実測（受信側の隠蔽サンプル・ジッタバッファ） */
+  async rtp(){
+    const out = {playing:S.playing, live:S.live};
+    try{
+      const pc = S.call && S.call.peerConnection;
+      if(!pc) return Object.assign(out, {noPeerConnection:true});
+      const r = await pc.getStats();
+      r.forEach(x=>{
+        if(x.type === 'inbound-rtp' && (x.kind === 'audio' || x.mediaType === 'audio')){
+          out.inbound = {packetsReceived:x.packetsReceived||0, packetsLost:x.packetsLost||0,
+            packetsDiscarded:x.packetsDiscarded||0, jitter:x.jitter||0, bytesReceived:x.bytesReceived||0,
+            concealedSamples:x.concealedSamples||0, silentConcealedSamples:x.silentConcealedSamples||0,
+            totalSamplesReceived:x.totalSamplesReceived||0, totalAudioEnergy:x.totalAudioEnergy||0,
+            jitterBufferDelay:x.jitterBufferDelay||0, jitterBufferEmittedCount:x.jitterBufferEmittedCount||0,
+            audioLevel:(x.audioLevel===undefined?null:x.audioLevel)};
+        }
+        if(x.type === 'candidate-pair' && x.state === 'succeeded'){
+          out.pair = {rtt:x.currentRoundTripTime, availableOutgoing:x.availableOutgoingBitrate};
+        }
+      });
+      out.receiverHints = (pc.getReceivers ? pc.getReceivers() : []).filter(rr=>rr.track && rr.track.kind==='audio').map(rr=>({
+        playoutDelayHint:(rr.playoutDelayHint===undefined?null:rr.playoutDelayHint),
+        jitterBufferTarget:(rr.jitterBufferTarget===undefined?null:rr.jitterBufferTarget)
+      }));
+      try{
+        const pick = (sdp)=>{
+          const m = sdp && sdp.match(/a=rtpmap:(\d+) opus\/48000/i);
+          if(!m) return null;
+          const line = sdp.match(new RegExp('a=fmtp:' + m[1] + '[^\\r\\n]*', 'i'));
+          return line ? line[0] : null;
+        };
+        out.fmtpRemote = pick((pc.remoteDescription && pc.remoteDescription.sdp) || '');
+        out.fmtpLocal = pick((pc.localDescription && pc.localDescription.sdp) || '');
+      }catch(e){}
+    }catch(e){ out.err = String(e && e.message || e); }
+    return out;
+  },
   nearEnd(){
     const d = aiDeckCur();
     if(!d || !d.el.duration) return false;
@@ -3079,6 +3166,23 @@ window.__nrDebug = {
     return d ? {fade:Math.round(d.fade.gain.value*100)/100, duck:Math.round(d.duck.gain.value*100)/100, playing:!d.el.paused} : null;
   },
   /* 🆕 第2弾の検証用 */
+  /* 生放送に音質プリセットを掛けているときの「実際に出ている音」の実効値（テスト用） */
+  liveFxLevel(){
+    const l = S.liveFx;
+    if(!l || !S.ctx) return null;
+    try{
+      if(!l.an){
+        l.an = S.ctx.createAnalyser(); l.an.fftSize = 2048;
+        l.chain.output.connect(l.an);
+        const z = S.ctx.createGain(); z.gain.value = 0;
+        l.an.connect(z); z.connect(S.ctx.destination); l.z = z;
+      }
+      const b = new Float32Array(l.an.fftSize);
+      l.an.getFloatTimeDomainData(b);
+      let s = 0; for(let i=0;i<b.length;i++) s += b[i]*b[i];
+      return Math.sqrt(s/b.length);
+    }catch(e){ return null; }
+  },
   fx(){
     const c = S.ai.fx;
     const l = S.liveFx;
