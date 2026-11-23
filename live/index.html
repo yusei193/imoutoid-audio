@@ -286,6 +286,52 @@ body.telop-on .wrap{padding-top:38px}
 @media (max-width:420px){.fxbtn{padding:6px 8px;font-size:10px}.jacket-wrap img{width:96px;height:96px}}
 #nrToast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:95;max-width:88vw;background:rgba(12,12,16,.96);border:1px solid var(--line2);border-radius:10px;padding:8px 14px;font-size:11.5px;color:var(--txt);box-shadow:0 10px 26px rgba(0,0,0,.65);opacity:0;transition:opacity .25s;pointer-events:none;text-align:center;line-height:1.5}
 #nrToast.on{opacity:1}
+
+/* ============ 🎵 DIRECT BGM（DJデッキ非経由） ============ */
+.direct-bgm{margin-top:16px;border:1px solid rgba(242,180,100,.26);border-radius:16px;overflow:hidden;background:linear-gradient(180deg,rgba(242,180,100,.055),rgba(0,0,0,.26));box-shadow:inset 0 1px 0 rgba(255,255,255,.05);transition:border-color .25s}
+.direct-bgm.playing{border-color:rgba(242,180,100,.55)}
+.direct-bgm.err{border-color:rgba(255,90,90,.45)}
+.dbgm-head{display:flex;align-items:center;gap:8px;padding:9px 13px;border-bottom:1px solid rgba(255,255,255,.05);font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--dim2);flex-wrap:wrap}
+.dbgm-head .lab{color:var(--amber);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dbgm-head .st{margin-left:auto;padding:3px 8px;border-radius:999px;border:1px solid var(--line);font-size:8.5px;letter-spacing:.08em;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.direct-bgm.playing .dbgm-head .st{color:#ffe6bd;border-color:rgba(242,180,100,.5);background:rgba(242,180,100,.1)}
+.direct-bgm.err .dbgm-head .st{color:#ffd2d2;border-color:rgba(255,90,90,.45);background:rgba(255,90,90,.08)}
+.dbgm-body{padding:11px 12px 13px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.dbgm-now{display:flex;align-items:baseline;gap:8px;min-width:0}
+.dbgm-now .k{font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;color:var(--dim2);flex:0 0 auto}
+.dbgm-now .n{flex:1 1 auto;min-width:0;font-family:var(--serif);font-size:13px;line-height:1.4;color:#f0e8d8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dbgm-seekrow{display:flex;align-items:center;gap:9px;min-width:0}
+.dbgm-seekrow input[type=range]{flex:1 1 auto;min-width:50px}
+.dbgm-time{font-family:var(--mono);font-size:9.5px;color:var(--dim2);white-space:nowrap;flex:0 0 auto;letter-spacing:.04em}
+.dbgm-btnrow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+.dbgm-btnrow .btn{padding:7px 10px;font-size:11px}
+.dbgm-btnrow .btn.on{border-color:rgba(242,180,100,.6);background:rgba(242,180,100,.16);color:#ffe6bd}
+.dbgm-vol{display:flex;align-items:center;gap:8px;min-width:0;flex:1 1 150px}
+.dbgm-vol span{font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;color:var(--dim2);flex:0 0 auto;white-space:nowrap}
+.dbgm-vol input[type=range]{flex:1 1 auto;min-width:50px}
+.dbgm-search{display:flex;align-items:center;gap:8px;min-width:0}
+.dbgm-search input[type=search]{flex:1 1 auto;width:100%;min-width:0;background:rgba(0,0,0,.35);border:1px solid var(--line2);border-radius:10px;padding:8px 11px;color:var(--txt);font-size:12.5px;outline:none;line-height:1.5;font-family:inherit}
+.dbgm-search input[type=search]::placeholder{color:var(--dim2)}
+.dbgm-search input[type=search]:focus{border-color:rgba(242,180,100,.6);box-shadow:0 0 0 3px rgba(242,180,100,.1)}
+.dbgm-search .cnt{font-family:var(--mono);font-size:9px;color:var(--dim2);white-space:nowrap;flex:0 0 auto}
+.dbgm-list{list-style:none;margin:0;padding:0;max-height:208px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;border-top:1px solid var(--line);border-radius:0 0 8px 8px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
+.dbgm-list::-webkit-scrollbar{width:6px}
+.dbgm-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.16);border-radius:99px}
+.dbgm-list li{padding:6px 7px;font-size:11.5px;color:var(--dim);border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;display:flex;gap:8px;align-items:center;min-width:0}
+.dbgm-list li span{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dbgm-list li small{font-family:var(--mono);font-size:8px;color:var(--dim2);flex:0 0 auto}
+.dbgm-list li:hover{background:rgba(242,180,100,.1);color:#ffe6bd}
+.dbgm-list li.cur{background:rgba(242,180,100,.14);color:#ffe6bd}
+.dbgm-list li.more{justify-content:center;color:var(--dim2);cursor:default;font-size:10px}
+.dbgm-list li.more:hover{background:transparent;color:var(--dim2)}
+.dbgm-note{margin:0;font-size:10.5px;color:var(--dim2);line-height:1.6;word-break:break-word}
+.dbgm-note.warn{color:#e3c9a2}
+.dbgm-note.err{color:#ffbdbd}
+@media (max-width:420px){
+  .dbgm-head{font-size:8.5px;letter-spacing:.1em}
+  .dbgm-btnrow .btn{padding:6px 9px;font-size:10.5px}
+  .dbgm-now .n{font-size:12.5px}
+}
 </style>
 </head>
 <body>
@@ -358,6 +404,46 @@ body.telop-on .wrap{padding-top:38px}
       </label>
     </div>
     <div class="dj-line" id="djLine" hidden><span class="k">🎙️ AI IMOUTO トーク中</span><span id="djText"></span></div>
+  </section>
+
+  <!-- 🎵 DIRECT BGM（DJデッキ非経由） -->
+  <section class="direct-bgm" id="bgmPanel">
+    <div class="dbgm-head">
+      <span class="lab">🎵 DIRECT BGM（DJデッキ非経由）</span>
+      <span class="st" id="bgmState">待機中</span>
+    </div>
+    <div class="dbgm-body">
+      <div class="dbgm-now">
+        <span class="k">NOW</span>
+        <span class="n" id="bgmNow">曲を選ぶと直接再生します</span>
+      </div>
+      <div class="dbgm-seekrow">
+        <span class="dbgm-time" id="bgmCur">0:00</span>
+        <input id="bgmSeek" type="range" min="0" max="1000" value="0" step="1" aria-label="BGMのシーク">
+        <span class="dbgm-time" id="bgmDur">0:00</span>
+      </div>
+      <div class="dbgm-btnrow">
+        <button class="btn" id="bgmPlay" type="button">▶ 再生</button>
+        <button class="btn" id="bgmPause" type="button">❚❚ 一時停止</button>
+        <button class="btn" id="bgmStop" type="button">■ 停止</button>
+        <button class="btn" id="bgmPrev" type="button">⏮ 前へ</button>
+        <button class="btn" id="bgmNext" type="button">⏭ 次へ</button>
+        <button class="btn" id="bgmLoopOne" type="button" title="同じ曲をくり返し再生">↺ 1曲リピート</button>
+        <button class="btn on" id="bgmCont" type="button" title="次の曲へ続けて再生">↻ 連続</button>
+      </div>
+      <div class="dbgm-btnrow">
+        <div class="dbgm-vol">
+          <span>VOL (BGM)</span>
+          <input id="bgmVol" type="range" min="0" max="100" value="80" aria-label="BGMの音量">
+        </div>
+      </div>
+      <div class="dbgm-search">
+        <input id="bgmSearch" type="search" placeholder="146曲から検索（例：techno / ピアノ / 夜）" autocomplete="off" spellcheck="false" aria-label="BGMの曲を検索">
+        <span class="cnt" id="bgmCount">146曲</span>
+      </div>
+      <ul class="dbgm-list" id="bgmList"></ul>
+      <p class="dbgm-note" id="bgmNote">この欄はラジオのDJデッキ・Auto-DJ・AI曲紹介・生放送を通しません。選んだ曲だけが単独で鳴ります。</p>
+    </div>
   </section>
 
   <!-- 📖 放送中曲の解説・次曲 -->
@@ -500,6 +586,7 @@ body.telop-on .wrap{padding-top:38px}
 <audio id="audio" playsinline></audio>
 <audio id="aiAudioA" preload="auto" playsinline></audio>
 <audio id="aiAudioB" preload="auto" playsinline></audio>
+<audio id="bgmAudio" preload="metadata" playsinline></audio>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
@@ -989,6 +1076,7 @@ function sleepTick(){
     if(S.liveFx){ try{ S.liveFx.gain.gain.value = S.live ? g : 0; }catch(e){} }
     else if(el.audio) el.audio.volume = g;
     if(S.ai.master) S.ai.master.gain.value = g;
+    if(BGM.playing) bgmSleepFade(left / 10000);   // 🎵 DIRECT BGM も一緒にフェードする
   }
   updateToolsState();
   if(left <= 0) stopForSleep();
@@ -999,6 +1087,7 @@ function setSleep(min){
   if(!m){
     S.sleep = {mode:'off', endAt:0, timer:null};
     setVolume(S.vol);
+    try{ bgmSetVol(BGM.vol); }catch(e){}
     updateSleepUi();
     note('スリープタイマーを OFF にしました');
     return;
@@ -1013,6 +1102,8 @@ function stopForSleep(){
   S.sleep = {mode:'off', endAt:0, timer:null};
   if(S.live && S.playing){ try{ el.audio.pause(); }catch(e){} S.playing = false; S.wantPlay = false; }
   if(S.ai.playing) pauseAi();
+  try{ if(BGM.playing) bgmPause(); }catch(e){}
+  try{ bgmSetVol(BGM.vol); }catch(e){}   // フェードで下げた BGM の音量を元に戻す
   setVolume(S.vol);
   updatePlayUi();
   updateSleepUi();
@@ -1528,6 +1619,7 @@ function aiRamp(param, to, sec){
 function aiStart(track, opts){
   opts = opts || {};
   if(!track) return false;
+  bgmPauseForRadio();                 // 🎵 DIRECT BGM が鳴っていたら止める（音の二重防止）
   if(!S.ctx || !S.ai.decks){ ensureCtx(); }
   const myGen = ++S.ai.gen;                   // この再生世代（古い非同期処理は無効）
   if(!S.ctx || !S.ai.decks){
@@ -2232,6 +2324,7 @@ function setStatusWaiting(){
 /* ================= 再生制御 ================= */
 function playLive(){
   if(!S.stream) return;
+  bgmPauseForRadio();                 // 🎵 DIRECT BGM が鳴っていたら止める（音の二重防止）
   el.audio.muted = false;
   el.audio.volume = volGain(S.vol);
   const p = el.audio.play();
@@ -2925,6 +3018,271 @@ function bindLetter(){
   letterPickUi(); letterUpdateCount(); letterSendUi();
 }
 
+/* =========================================================
+   🎵 DIRECT BGM（DJデッキ非経由）
+   - 独立した <audio id="bgmAudio"> だけで再生する。
+     S.ai.decks / WebAudio のマスター / Auto-DJ / AI曲紹介 / ジングル /
+     WebRTC 生放送のどれも通さない（S や el の音声経路には触らない）。
+   - 音量もこの要素の volume だけで完結し、メインの VOL スライダーとは独立。
+   ========================================================= */
+const BGM_NOTE = 'この欄はラジオのDJデッキ・Auto-DJ・AI曲紹介・生放送を通しません。選んだ曲だけが単独で鳴ります。';
+const BGM_ERR_NOTE = '音源を読み込めませんでした。通信状況を確認して、もう一度曲を選ぶか ▶ 再生をタップしてください。';
+const BGM = {
+  idx:-1, mode:'all', playing:false, stopped:true, loading:false, err:false,
+  vol:0.8, listMax:40, els:null
+};
+function bgmEls(){
+  if(BGM.els) return BGM.els;
+  const g = (id)=>document.getElementById(id);
+  BGM.els = {
+    panel:g('bgmPanel'), state:g('bgmState'), now:g('bgmNow'),
+    seek:g('bgmSeek'), cur:g('bgmCur'), dur:g('bgmDur'),
+    play:g('bgmPlay'), pause:g('bgmPause'), stop:g('bgmStop'),
+    prev:g('bgmPrev'), next:g('bgmNext'), loopOne:g('bgmLoopOne'), cont:g('bgmCont'),
+    vol:g('bgmVol'), search:g('bgmSearch'), list:g('bgmList'), count:g('bgmCount'), note:g('bgmNote'),
+    audio:g('bgmAudio')
+  };
+  return BGM.els;
+}
+function bgmTime(sec){
+  const s = Math.floor(Math.max(0, Number(sec) || 0));
+  return Math.floor(s/60) + ':' + pad2(s % 60);
+}
+function bgmStatus(text, kind){
+  const e = bgmEls();
+  if(e.state) e.state.textContent = text;
+  if(e.panel){
+    e.panel.classList.toggle('playing', kind === 'playing');
+    e.panel.classList.toggle('err', kind === 'err');
+  }
+}
+function bgmNoteLine(text, kind){
+  const e = bgmEls();
+  if(!e.note) return;
+  e.note.textContent = text;
+  e.note.classList.toggle('warn', kind === 'warn');
+  e.note.classList.toggle('err', kind === 'err');
+}
+function bgmSyncBar(){
+  const e = bgmEls(), a = e.audio;
+  if(!a) return;
+  const d = Number(a.duration);
+  const ok = isFinite(d) && d > 0;
+  if(e.cur) e.cur.textContent = bgmTime(a.currentTime);
+  if(e.dur) e.dur.textContent = ok ? bgmTime(d) : '0:00';
+  if(e.seek){
+    const v = ok ? Math.round(a.currentTime / d * 1000) : 0;
+    e.seek.value = String(Math.max(0, Math.min(1000, v)));
+    fillRange(e.seek);
+  }
+}
+function bgmMatches(q){
+  const key = String(q || '').trim().toLowerCase();
+  if(!key) return TRACKS;
+  return TRACKS.filter((t)=>String(t.t || '').toLowerCase().indexOf(key) >= 0);
+}
+function bgmRenderList(){
+  const e = bgmEls();
+  if(!e.list) return;
+  const q = e.search ? String(e.search.value || '') : '';
+  const items = bgmMatches(q);
+  e.list.textContent = '';
+  items.slice(0, BGM.listMax).forEach((t)=>{
+    const li = document.createElement('li');
+    if(TRACKS[BGM.idx] && TRACKS[BGM.idx].u === t.u) li.className = 'cur';
+    const sp = document.createElement('span'); sp.textContent = t.t;
+    const sm = document.createElement('small'); sm.textContent = String(t.c || '').toUpperCase();
+    li.appendChild(sp); li.appendChild(sm);
+    li.addEventListener('click', ()=>bgmStart(TRACKS.indexOf(t)));
+    e.list.appendChild(li);
+  });
+  if(!items.length){
+    const li = document.createElement('li'); li.className = 'more'; li.textContent = '該当する曲がありません';
+    e.list.appendChild(li);
+  } else if(items.length > BGM.listMax){
+    const li = document.createElement('li'); li.className = 'more';
+    li.textContent = 'ほか ' + (items.length - BGM.listMax) + ' 曲（検索で絞ってください）';
+    e.list.appendChild(li);
+  }
+  if(e.count) e.count.textContent = (q.trim() ? items.length + ' / ' : '') + TRACKS.length + '曲';
+}
+function bgmPlayAudio(){
+  const e = bgmEls();
+  if(!e.audio) return;
+  let p = null;
+  try{ p = e.audio.play(); }catch(err){ p = null; }
+  if(p && p.catch){
+    p.catch(()=>{
+      BGM.playing = false; BGM.loading = false;
+      bgmStatus('再生できません', 'err');
+      bgmNoteLine('ブラウザに再生を止められました。▶ 再生をタップし直してください。', 'warn');
+    });
+  }
+}
+/* 曲を読み込む（autoplay ならそのまま再生）。Auto-DJ との二重再生は bgmStart で防ぐ。 */
+function bgmLoad(i, autoplay){
+  const e = bgmEls();
+  const n = TRACKS.length;
+  if(!e.audio || !n) return false;
+  const idx = ((Number(i) || 0) % n + n) % n;
+  const t = TRACKS[idx];
+  if(!t) return false;
+  BGM.idx = idx; BGM.err = false; BGM.stopped = false; BGM.loading = true;
+  try{ e.audio.pause(); }catch(err){}
+  e.audio.src = t.u;
+  try{ e.audio.load(); }catch(err){}
+  if(e.now) e.now.textContent = t.t;
+  if(e.seek){ e.seek.value = '0'; fillRange(e.seek); }
+  if(e.cur) e.cur.textContent = '0:00';
+  if(e.dur) e.dur.textContent = '0:00';
+  bgmStatus('読み込み中…');
+  bgmNoteLine(BGM_NOTE, '');
+  bgmRenderList();
+  if(autoplay) bgmPlayAudio();
+  return true;
+}
+/* 再生開始の入口。Auto-DJ が鳴っていたら先に止める（Auto-DJ 自体の機能は壊さない）。 */
+function bgmStart(i){
+  const e = bgmEls();
+  if(!e.audio) return false;
+  const has = typeof i === 'number' && i >= 0;
+  const want = has ? i : (BGM.idx >= 0 ? BGM.idx : 0);
+  const changed = has ? (want !== BGM.idx || !e.audio.src) : !e.audio.src;
+  if(S.ai && S.ai.playing){
+    try{ pauseAi(); }catch(err){}
+    note('Auto-DJ を停止して DIRECT BGM を再生します');
+  }
+  if(changed){ bgmLoad(want, true); return true; }
+  bgmPlayAudio();
+  return true;
+}
+function bgmPause(){
+  const e = bgmEls();
+  if(!e.audio) return;
+  BGM.stopped = false;
+  try{ e.audio.pause(); }catch(err){}
+}
+function bgmStop(){
+  const e = bgmEls();
+  if(!e.audio) return;
+  BGM.stopped = true;
+  try{ e.audio.pause(); }catch(err){}
+  try{ e.audio.currentTime = 0; }catch(err){}
+  bgmStatus('停止中');
+  bgmSyncBar();
+}
+function bgmStep(dir){
+  const n = TRACKS.length;
+  if(!n) return;
+  if(BGM.idx < 0){ bgmStart(0); return; }   // まだ何も選んでいなければ先頭から
+  bgmStart((BGM.idx + (dir < 0 ? -1 : 1) + n) % n);
+}
+function bgmSetMode(m){
+  BGM.mode = (m === 'one') ? 'one' : 'all';
+  const e = bgmEls();
+  if(e.loopOne) e.loopOne.classList.toggle('on', BGM.mode === 'one');
+  if(e.cont) e.cont.classList.toggle('on', BGM.mode === 'all');
+  note(BGM.mode === 'one' ? 'DIRECT BGM：1曲リピート' : 'DIRECT BGM：連続再生');
+}
+function bgmSetVol(v){
+  BGM.vol = Math.max(0, Math.min(1, Number(v) || 0));
+  const e = bgmEls();
+  if(e.audio){ try{ e.audio.volume = volGain(BGM.vol); }catch(err){} }
+  if(e.vol) fillRange(e.vol);
+}
+/* 🌙 スリープタイマーの最後のフェードに合わせて、BGM の音量も一緒に下げる */
+function bgmSleepFade(k){
+  const e = bgmEls();
+  if(!e.audio) return;
+  const r = Math.max(0, Math.min(1, Number(k) || 0));
+  try{ e.audio.volume = volGain(BGM.vol) * r; }catch(err){}
+}
+function bgmSeekTo(){
+  const e = bgmEls(), a = e.audio;
+  if(!a || !e.seek) return;
+  const d = Number(a.duration);
+  if(!isFinite(d) || d <= 0) return;
+  const r = Math.max(0, Math.min(1000, Number(e.seek.value) || 0)) / 1000;
+  try{ a.currentTime = r * d; }catch(err){}
+  if(e.cur) e.cur.textContent = bgmTime(r * d);
+}
+/* ラジオ（生放送・Auto-DJ）が鳴り始めるときに BGM を止める（音の二重を防ぐ） */
+function bgmPauseForRadio(){
+  const e = bgmEls();
+  if(!e.audio || e.audio.paused) return false;
+  BGM.stopped = false;
+  try{ e.audio.pause(); }catch(err){}
+  bgmStatus('一時停止中');
+  return true;
+}
+function bgmBind(){
+  const e = bgmEls();
+  if(!e.audio) return;
+  fillRange(e.seek);
+  bgmSetVol(Number(e.vol ? e.vol.value : 80) / 100);
+  bgmRenderList();
+  bgmStatus('待機中');
+
+  if(e.play) e.play.addEventListener('click', ()=>bgmStart());
+  if(e.pause) e.pause.addEventListener('click', bgmPause);
+  if(e.stop) e.stop.addEventListener('click', bgmStop);
+  if(e.prev) e.prev.addEventListener('click', ()=>bgmStep(-1));
+  if(e.next) e.next.addEventListener('click', ()=>bgmStep(1));
+  if(e.loopOne) e.loopOne.addEventListener('click', ()=>bgmSetMode('one'));
+  if(e.cont) e.cont.addEventListener('click', ()=>bgmSetMode('all'));
+  if(e.vol) e.vol.addEventListener('input', ()=>bgmSetVol(Number(e.vol.value)/100));
+  if(e.seek){
+    e.seek.addEventListener('input', bgmSeekTo);
+    e.seek.addEventListener('change', bgmSeekTo);
+  }
+  if(e.search){
+    e.search.addEventListener('input', ()=>bgmRenderList());
+    e.search.addEventListener('focus', ()=>bgmRenderList());
+    e.search.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ e.search.value = ''; bgmRenderList(); } });
+  }
+
+  e.audio.addEventListener('loadedmetadata', bgmSyncBar);
+  e.audio.addEventListener('durationchange', bgmSyncBar);
+  e.audio.addEventListener('timeupdate', bgmSyncBar);
+  e.audio.addEventListener('playing', ()=>{
+    BGM.playing = true; BGM.stopped = false; BGM.loading = false; BGM.err = false;
+    bgmStatus('DIRECT BGM 再生中（DJデッキ非経由）', 'playing');
+    bgmNoteLine(BGM_NOTE, '');
+    if(e.play) e.play.classList.add('on');
+    bgmSyncBar();
+  });
+  e.audio.addEventListener('pause', ()=>{
+    BGM.playing = false;
+    if(e.play) e.play.classList.remove('on');
+    if(BGM.loading) return;
+    bgmStatus(BGM.stopped ? '停止中' : '一時停止中');
+    bgmSyncBar();
+  });
+  e.audio.addEventListener('ended', ()=>{
+    if(BGM.mode === 'one'){
+      try{ e.audio.currentTime = 0; }catch(err){}
+      bgmPlayAudio();
+      return;
+    }
+    const n = TRACKS.length;
+    if(!n) return;
+    bgmLoad((BGM.idx + 1) % n, true);
+  });
+  e.audio.addEventListener('error', ()=>{
+    if(!e.audio.src) return;
+    BGM.playing = false; BGM.loading = false; BGM.err = true;
+    bgmStatus('読み込みエラー', 'err');
+    bgmNoteLine(BGM_ERR_NOTE, 'err');
+  });
+}
+function bgmDebug(){
+  const e = bgmEls(), a = e.audio;
+  return { idx:BGM.idx, mode:BGM.mode, playing:BGM.playing, stopped:BGM.stopped, err:BGM.err,
+           paused:a ? a.paused : null, src:a ? a.src : '', time:a ? a.currentTime : 0, dur:a ? a.duration : 0,
+           vol:BGM.vol, elemVol:a ? a.volume : null, state:e.state ? e.state.textContent : '',
+           listCount:e.list ? e.list.children.length : 0, aiPlaying:!!S.ai.playing };
+}
+
 /* ================= バインド ================= */
 function bind(){
   fillRange(el.volume);
@@ -2966,6 +3324,7 @@ function bind(){
 
   bindChat();
   bindLetter();
+  bgmBind();
 
   // 波形の表示モード（WAVE / SPECTRUM / RETRO VJ）
   document.querySelectorAll('.vjbtn').forEach((b)=>{
@@ -3103,6 +3462,7 @@ window.__nrDebug = {
     };
   },
   wishPlay(){ S.wantPlay = true; },
+  bgm(){ return bgmDebug(); },
   callState(){
     return S.call ? {open:!!S.call.open, hasStream:!!S.stream, ice:S.iceState, conn:S.connState, tracks:S.trackCount} : null;
   },
