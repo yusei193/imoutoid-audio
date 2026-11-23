@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#07080d">
+<title>imoutoid intro quiz — 146曲イントロクイズ</title>
+<meta name="description" content="imoutoidアーカイブの146曲から出題するイントロクイズ。10秒／5秒／2秒の3難易度、全問正解で「imoutoid博士」。">
+<meta property="og:title" content="imoutoid intro quiz — 146曲イントロクイズ">
+<meta property="og:description" content="imoutoidアーカイブの146曲から出題。聴こえてくる数秒だけで曲名を当てる、非公式アーカイブのイントロクイズ。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://yusei193.github.io/imoutoid-audio/intro-quiz/">
+<style>
+  :root{
+    --bg:#07080d;
+    --ink:#e9eef6;
+    --dim:#8e9aab;
+    --dimmer:#66707f;
+    --cyan:#31e1f7;
+    --magenta:#ff3ea5;
+    --violet:#8b5cf6;
+    --ok:#33dd8c;
+    --ng:#ff5b6a;
+    --card:rgba(255,255,255,.045);
+    --card2:rgba(255,255,255,.075);
+    --line:rgba(255,255,255,.10);
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Noto Sans JP",Meiryo,sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none !important}
+  html{height:100%;overflow:hidden}
+  body{
+    margin:0;padding:0;height:100%;
+    background:var(--bg);color:var(--ink);
+    font-family:var(--sans);
+    overflow-x:hidden;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    -webkit-text-size-adjust:100%;
+    line-height:1.5;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(58% 42% at 12% -4%, rgba(49,225,247,.16), transparent 62%),
+      radial-gradient(52% 38% at 92% 4%, rgba(255,62,165,.15), transparent 62%),
+      radial-gradient(60% 46% at 50% 108%, rgba(139,92,246,.13), transparent 62%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.35;
+    background-image:repeating-linear-gradient(0deg, rgba(255,255,255,.05) 0 1px, transparent 1px 3px);
+  }
+  .app{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:20px 18px 44px}
+
+  /* ---------- header ---------- */
+  .hdr{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:22px}
+  .logo{font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1;color:#fff}
+  .logo b{color:var(--cyan);font-weight:800}
+  .tag{margin-top:6px;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+  .tag em{font-style:normal;color:var(--dimmer)}
+  .hdr-link{
+    flex-shrink:0;font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+    color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:999px;
+    padding:7px 11px;background:var(--card);
+  }
+  .hdr-link:hover{color:var(--cyan);border-color:rgba(49,225,247,.45)}
+
+  /* ---------- screens ---------- */
+  .screen{display:none}
+  .screen.on{display:block;animation:fadeUp .38s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  /* ---------- start ---------- */
+  .hero{display:flex;align-items:center;gap:18px;margin-bottom:22px}
+  .hero-txt{min-width:0;flex:1}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);
+    font-size:10px;letter-spacing:.18em;color:var(--cyan);text-transform:uppercase;
+  }
+  .eyebrow .pulse{
+    width:6px;height:6px;border-radius:50%;background:var(--cyan);
+    box-shadow:0 0 0 0 rgba(49,225,247,.6);animation:pulse 2.2s infinite;
+  }
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(49,225,247,.55)}70%{box-shadow:0 0 0 8px rgba(49,225,247,0)}100%{box-shadow:0 0 0 0 rgba(49,225,247,0)}}
+  h1{margin:10px 0 8px;font-size:clamp(28px,7.6vw,40px);line-height:1.18;letter-spacing:-.02em;font-weight:800}
+  h1 .grad{
+    background:linear-gradient(96deg,var(--cyan),var(--violet) 45%,var(--magenta));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .lead{margin:0;font-size:13px;color:var(--dim);line-height:1.75}
+  .disc-wrap{flex-shrink:0;width:100px;height:100px;display:grid;place-items:center}
+  .disc{
+    position:relative;width:100%;height:100%;border-radius:50%;
+    background:
+      repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,.055) 0 1px, transparent 1px 4px),
+      radial-gradient(circle at 38% 30%, #23262e, #0d0f14 70%);
+    border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 8px 26px rgba(0,0,0,.55), inset 0 0 22px rgba(0,0,0,.7);
+    animation:spin 14s linear infinite;
+    display:grid;place-items:center;
+  }
+  .disc::after{
+    content:"";position:absolute;width:12%;height:12%;border-radius:50%;
+    background:var(--bg);border:1px solid rgba(255,255,255,.2);
+  }
+  .disc span{
+    position:absolute;top:19%;left:50%;transform:translateX(-50%);
+    font-family:var(--mono);font-size:8px;letter-spacing:.22em;color:var(--magenta);
+    text-transform:uppercase;white-space:nowrap;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .panel{
+    border:1px solid var(--line);border-radius:18px;padding:16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.02));
+    backdrop-filter:blur(8px);
+  }
+  .panel-h{
+    display:flex;align-items:baseline;gap:8px;
+    font-size:12px;font-weight:700;letter-spacing:.04em;margin-bottom:12px;
+  }
+  .panel-h span{font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--dimmer)}
+  .diffs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .diff{
+    appearance:none;text-align:left;cursor:pointer;
+    border:1px solid var(--line);border-radius:13px;padding:12px 10px;
+    background:rgba(255,255,255,.03);color:var(--ink);
+    transition:transform .15s,border-color .15s,background .15s;
+    display:flex;flex-direction:column;gap:3px;min-width:0;
+  }
+  .diff:hover{background:rgba(255,255,255,.06)}
+  .diff:active{transform:scale(.985)}
+  .diff .dname{font-size:14px;font-weight:800;letter-spacing:.01em}
+  .diff .dlen{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:.04em}
+  .diff .ddesc{font-size:10.5px;color:var(--dim);line-height:1.45}
+  .diff.on{
+    border-color:rgba(49,225,247,.7);
+    background:linear-gradient(180deg,rgba(49,225,247,.16),rgba(139,92,246,.10));
+    box-shadow:0 0 0 1px rgba(49,225,247,.25),0 8px 22px -10px rgba(49,225,247,.7);
+  }
+  .rows{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .lab{font-size:12px;color:var(--dim);font-weight:600;flex-shrink:0}
+  .seg{display:flex;gap:6px;background:rgba(0,0,0,.28);padding:3px;border-radius:11px;border:1px solid var(--line)}
+  .seg button{
+    appearance:none;border:0;background:transparent;color:var(--dim);
+    font-family:var(--sans);font-size:12px;font-weight:700;padding:7px 13px;border-radius:8px;
+    cursor:pointer;white-space:nowrap;
+  }
+  .seg button.on{background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.07));color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.12) inset}
+  .cta{
+    appearance:none;width:100%;cursor:pointer;
+    border:0;border-radius:14px;padding:15px 18px;margin-top:16px;
+    font-family:var(--sans);font-size:15px;font-weight:800;letter-spacing:.02em;color:#04070c;
+    background:linear-gradient(96deg,var(--cyan),#8ee9ff 40%,var(--magenta));
+    box-shadow:0 12px 30px -14px rgba(49,225,247,.9);
+    transition:transform .14s,filter .14s;
+    display:block;text-align:center;text-decoration:none;
+  }
+  .cta:hover{filter:brightness(1.06)}
+  .cta:active{transform:scale(.988)}
+  .hint{margin-top:10px;font-family:var(--mono);font-size:10.5px;color:var(--dim);text-align:center;letter-spacing:.03em}
+  .notes{list-style:none;margin:18px 0 0;padding:0;display:flex;flex-direction:column;gap:7px}
+  .notes li{position:relative;padding-left:16px;font-size:11.5px;color:var(--dim);line-height:1.6}
+  .notes li::before{content:"";position:absolute;left:0;top:.62em;width:6px;height:1px;background:var(--magenta)}
+
+  /* ---------- quiz ---------- */
+  .qbar{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .ghost{
+    appearance:none;flex-shrink:0;width:34px;height:34px;border-radius:50%;
+    border:1px solid var(--line);background:var(--card);color:var(--dim);
+    font-size:14px;cursor:pointer;line-height:1;
+  }
+  .ghost:hover{color:#fff;border-color:rgba(255,255,255,.3)}
+  .qdots{display:flex;gap:5px;flex:1;flex-wrap:wrap;min-width:0}
+  .qdots i{
+    width:16px;height:4px;border-radius:2px;background:rgba(255,255,255,.14);
+    transition:background .25s,box-shadow .25s;
+  }
+  .qdots i.now{background:var(--cyan);box-shadow:0 0 10px rgba(49,225,247,.8)}
+  .qdots i.ok{background:var(--ok)}
+  .qdots i.ng{background:var(--ng)}
+  .qscore{flex-shrink:0;font-family:var(--mono);font-size:15px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+  .qscore em{font-style:normal;font-size:9px;color:var(--dim);margin-left:2px}
+
+  .deck{
+    position:relative;border:1px solid var(--line);border-radius:18px;padding:12px 12px 10px;
+    background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.015));
+    overflow:hidden;
+  }
+  .deck-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-height:20px}
+  .chip{
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;padding:3px 8px;border-radius:999px;
+    border:1px solid rgba(49,225,247,.35);color:var(--cyan);background:rgba(49,225,247,.08);white-space:nowrap;
+  }
+  .chip.mute{border-color:var(--line);color:var(--dim);background:rgba(255,255,255,.03)}
+  .combo{
+    margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:.1em;font-weight:700;
+    color:#04070c;background:linear-gradient(96deg,var(--cyan),var(--magenta));
+    padding:3px 9px;border-radius:999px;animation:pop .35s cubic-bezier(.2,1.6,.4,1) both;
+  }
+  @keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+  #viz{display:block;width:100%;height:74px;margin:6px 0 0}
+  .bar{height:5px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:2px}
+  .bar i{display:block;height:100%;width:100%;border-radius:3px;background:linear-gradient(90deg,var(--cyan),var(--violet),var(--magenta));transition:width .08s linear}
+  .deck-ctl{display:flex;align-items:center;gap:12px;margin-top:12px}
+  .bigplay{
+    appearance:none;flex:1;min-width:0;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:9px;
+    border:1px solid rgba(49,225,247,.45);border-radius:13px;padding:13px 12px;
+    background:linear-gradient(180deg,rgba(49,225,247,.18),rgba(49,225,247,.06));
+    color:#eafcff;font-family:var(--sans);font-size:14px;font-weight:800;letter-spacing:.01em;
+    transition:transform .14s,background .2s;
+  }
+  .bigplay:active{transform:scale(.985)}
+  .bigplay .ico{font-size:13px}
+  .bigplay.attn{animation:attn 1.5s ease-in-out infinite}
+  @keyframes attn{0%,100%{box-shadow:0 0 0 0 rgba(49,225,247,.45)}50%{box-shadow:0 0 0 7px rgba(49,225,247,0)}}
+  .vol{display:flex;align-items:center;gap:7px;flex-shrink:0;width:96px}
+  .vic{font-size:12px;opacity:.7;line-height:1}
+  input[type=range]{
+    appearance:none;-webkit-appearance:none;width:100%;height:20px;background:transparent;cursor:pointer;margin:0;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:rgba(255,255,255,.16)}
+  input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:rgba(255,255,255,.16)}
+  input[type=range]::-webkit-slider-thumb{
+    appearance:none;-webkit-appearance:none;width:12px;height:12px;border-radius:50%;
+    background:#fff;border:0;margin-top:-4px;box-shadow:0 0 8px rgba(49,225,247,.85);
+  }
+  input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#fff;border:0}
+  .deck-foot{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--dimmer);letter-spacing:.05em}
+  #clipClock{color:var(--dim);font-variant-numeric:tabular-nums}
+
+  .qask{margin:18px 0 10px;font-size:12px;font-weight:700;color:var(--dim);letter-spacing:.06em}
+  .opts{display:flex;flex-direction:column;gap:9px}
+  .opt{
+    appearance:none;width:100%;text-align:left;cursor:pointer;min-width:0;
+    display:flex;align-items:center;gap:11px;
+    border:1px solid var(--line);border-radius:13px;padding:13px 13px;
+    background:rgba(255,255,255,.035);color:var(--ink);
+    font-family:var(--sans);font-size:13.5px;font-weight:600;line-height:1.5;
+    transition:transform .14s,border-color .15s,background .15s,opacity .3s;
+  }
+  .opt:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.22)}
+  .opt:active{transform:scale(.992)}
+  .opt .key{
+    flex-shrink:0;width:24px;height:24px;border-radius:7px;display:grid;place-items:center;
+    font-family:var(--mono);font-size:11px;font-weight:700;color:var(--dim);
+    background:rgba(255,255,255,.07);border:1px solid var(--line);
+  }
+  .opt .ot{min-width:0;overflow-wrap:anywhere}
+  .opts.locked .opt{cursor:default}
+  .opts.locked .opt:hover{background:rgba(255,255,255,.035);border-color:var(--line)}
+  .opt.ok{border-color:rgba(51,221,140,.85);background:rgba(51,221,140,.14)}
+  .opt.ok .key{background:rgba(51,221,140,.9);border-color:transparent;color:#04120a}
+  .opt.ng{border-color:rgba(255,91,106,.8);background:rgba(255,91,106,.13);animation:shake .32s}
+  .opt.ng .key{background:rgba(255,91,106,.9);border-color:transparent;color:#1a0306}
+  .opt.dim{opacity:.42}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+  .answer{
+    margin-top:16px;border:1px solid var(--line);border-radius:16px;padding:14px;
+    background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+    animation:fadeUp .32s cubic-bezier(.2,.7,.3,1) both;
+  }
+  .ans-head{display:flex;align-items:flex-start;gap:11px}
+  .mark{font-size:24px;line-height:1.1;flex-shrink:0}
+  .mark.dot{
+    width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+    font-size:17px;font-weight:800;margin-top:1px;
+    animation:markIn .42s cubic-bezier(.2,1.7,.4,1) both;
+  }
+  .mark.dot.ok{color:#04120a;background:radial-gradient(circle at 35% 28%,#5ff2ab,#22c877);border:2px solid rgba(255,255,255,.35);box-shadow:0 0 18px rgba(51,221,140,.55)}
+  .mark.dot.ng{color:#1a0306;background:radial-gradient(circle at 35% 28%,#ff8b95,#e63c4c);border:2px solid rgba(255,255,255,.28);box-shadow:0 0 18px rgba(255,91,106,.5)}
+  @keyframes markIn{from{transform:scale(.3) rotate(-25deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+  .ans-body{min-width:0;flex:1}
+  .ans-t{font-size:15px;font-weight:800;line-height:1.45;overflow-wrap:anywhere}
+  .ans-meta{margin-top:4px;font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.04em}
+  .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+  .tags span{
+    font-size:10px;font-weight:600;color:#cfe9f7;padding:3px 8px;border-radius:999px;
+    background:rgba(49,225,247,.1);border:1px solid rgba(49,225,247,.22);
+  }
+  .ans-note{margin:10px 0 0;font-size:12px;color:var(--dim);line-height:1.7}
+  .mini{display:flex;align-items:center;gap:9px;margin-top:12px;padding-top:12px;border-top:1px dashed rgba(255,255,255,.12)}
+  .mini-btn{
+    appearance:none;flex-shrink:0;width:38px;height:38px;border-radius:50%;cursor:pointer;
+    border:1px solid var(--line);background:rgba(255,255,255,.08);color:#fff;font-size:13px;
+    display:grid;place-items:center;
+  }
+  .mini-btn:active{transform:scale(.95)}
+  .mini-bar{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden;cursor:pointer;min-width:0}
+  .mini-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--magenta),var(--violet));border-radius:3px}
+  .mini-time{flex-shrink:0;font-family:var(--mono);font-size:10px;color:var(--dim);font-variant-numeric:tabular-nums}
+  .answer .cta{margin-top:13px}
+  .gain{
+    position:absolute;right:16px;top:12px;font-family:var(--mono);font-weight:800;font-size:15px;
+    color:var(--ok);animation:gainUp 1s ease-out both;pointer-events:none;
+  }
+  @keyframes gainUp{0%{opacity:0;transform:translateY(6px)}20%{opacity:1}100%{opacity:0;transform:translateY(-22px)}}
+
+  /* ---------- result ---------- */
+  .res-top{text-align:center;margin-bottom:6px}
+  .rank{
+    margin:8px 0 4px;font-size:clamp(24px,6.8vw,32px);font-weight:800;letter-spacing:-.01em;line-height:1.3;
+    background:linear-gradient(96deg,var(--cyan),#fff 45%,var(--magenta));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .res-score{font-family:var(--mono);font-size:34px;font-weight:800;line-height:1.2;font-variant-numeric:tabular-nums}
+  .res-score em{font-style:normal;font-size:12px;color:var(--dim);margin-left:4px}
+  .res-sub{font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.1em;margin-top:2px}
+  .res-note{font-size:12px;color:var(--dim);margin:8px auto 0;max-width:340px;line-height:1.7}
+  .ring{
+    --p:0%;--ring-c:var(--cyan);
+    width:132px;height:132px;border-radius:50%;margin:16px auto 0;
+    background:conic-gradient(var(--ring-c) var(--p), rgba(255,255,255,.09) 0);
+    display:grid;place-items:center;position:relative;
+  }
+  .ring::before{content:"";position:absolute;inset:9px;border-radius:50%;background:#0b0d14;border:1px solid rgba(255,255,255,.07)}
+  .ring b{position:relative;font-family:var(--mono);font-size:22px;font-weight:800;letter-spacing:-.01em}
+  .ring b em{font-style:normal;font-size:11px;color:var(--dim)}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
+  .stat{
+    border:1px solid var(--line);border-radius:12px;padding:10px 8px;background:rgba(255,255,255,.035);text-align:center;min-width:0;
+  }
+  .stat dt{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--dimmer);margin:0 0 4px}
+  .stat dd{margin:0;font-family:var(--mono);font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
+  .stat dd small{font-size:9px;color:var(--dim);margin-left:2px}
+  .res-btns{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+  .res-btns .cta{margin-top:0}
+  .cta.share{background:linear-gradient(96deg,#1d9bf0,#31e1f7)}
+  .ghost2{
+    appearance:none;width:100%;cursor:pointer;border:1px solid var(--line);border-radius:14px;padding:13px;
+    background:rgba(255,255,255,.045);color:var(--ink);font-family:var(--sans);font-size:13px;font-weight:700;
+  }
+  .ghost2:hover{background:rgba(255,255,255,.08)}
+  .best{margin-top:14px;font-family:var(--mono);font-size:10px;color:var(--dimmer);text-align:center;letter-spacing:.06em}
+  .best b{color:var(--cyan);font-weight:700}
+  #fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+
+  footer{margin-top:28px;padding-top:14px;border-top:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:9.5px;color:var(--dimmer);letter-spacing:.06em}
+  footer a{color:var(--dim);text-decoration:none}
+  footer a:hover{color:var(--cyan)}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:520px){
+    .app{padding:16px 13px 38px}
+    .hdr{margin-bottom:18px}
+    .logo{font-size:22px}
+    .tag{font-size:9px;letter-spacing:.14em}
+    .hero{gap:12px}
+    .disc-wrap{width:76px;height:76px}
+    h1{font-size:clamp(25px,8.4vw,32px)}
+    .lead{font-size:12px}
+    .panel{padding:13px;border-radius:16px}
+    .diffs{grid-template-columns:1fr;gap:7px}
+    .diff{flex-direction:row;align-items:baseline;gap:8px;padding:10px 12px}
+    .diff .ddesc{margin-left:auto;text-align:right}
+    #viz{height:62px}
+    .deck-ctl{flex-direction:column;align-items:stretch;gap:9px}
+    .vol{width:100%;justify-content:center}
+    .vol input{max-width:160px}
+    .opt{font-size:13px;padding:12px}
+    .stats{grid-template-columns:repeat(3,1fr);gap:6px}
+    .stat dd{font-size:13px}
+    .ring{width:118px;height:118px}
+    .res-score{font-size:30px}
+  }
+  @media (max-height:520px){
+    .disc-wrap{display:none}
+    #viz{height:52px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.001s !important;animation-iteration-count:1 !important;transition-duration:.001s !important}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hdr">
+    <div>
+      <div class="logo">imoutoid<b>.</b></div>
+      <div class="tag">intro quiz <em>／ informal archive</em></div>
+    </div>
+    <a class="hdr-link" href="https://www.imoutoid.net/" target="_blank" rel="noopener">archive ↗</a>
+  </header>
+
+  <!-- ================= START ================= -->
+  <section id="scStart" class="screen on">
+    <div class="hero">
+      <div class="hero-txt">
+        <div class="eyebrow"><span class="pulse"></span>146 tracks archive quiz</div>
+        <h1>このイントロ、<br><span class="grad">わかる？</span></h1>
+        <p class="lead">imoutoidアーカイブの146曲から出題。<br>聴こえてくる数秒だけで曲名を当ててください。</p>
+      </div>
+      <div class="disc-wrap" aria-hidden="true"><div class="disc"><span>imoutoid</span></div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h">難易度 <span>DIFFICULTY</span></div>
+      <div class="diffs" id="diffs">
+        <button class="diff on" data-diff="easy" type="button">
+          <span class="dname">初級</span>
+          <span class="dlen">10秒</span>
+          <span class="ddesc">じっくり聴ける入門編</span>
+        </button>
+        <button class="diff" data-diff="normal" type="button">
+          <span class="dname">中級</span>
+          <span class="dlen">5秒</span>
+          <span class="ddesc">記憶と直感のバランス型</span>
+        </button>
+        <button class="diff" data-diff="mania" type="button">
+          <span class="dname">マニア級</span>
+          <span class="dlen">2秒</span>
+          <span class="ddesc">2秒で見抜く上級者向け</span>
+        </button>
+      </div>
+      <div class="rows">
+        <div class="row">
+          <span class="lab">問題数</span>
+          <div class="seg" id="segCount">
+            <button data-n="5" class="on" type="button">5問</button>
+            <button data-n="10" type="button">10問</button>
+          </div>
+        </div>
+        <div class="row" id="rowPos" hidden>
+          <span class="lab">出題位置</span>
+          <div class="seg" id="segPos">
+            <button data-rand="0" class="on" type="button">頭から</button>
+            <button data-rand="1" type="button">🎲 ランダム</button>
+          </div>
+        </div>
+      </div>
+      <button class="cta" id="startBtn" type="button">クイズをはじめる</button>
+      <div class="hint" id="startHint">音量にご注意ください 🔊</div>
+    </div>
+
+    <ul class="notes">
+      <li>回答後は、その曲をそのままフルで聴けます</li>
+      <li>スコアと称号は𝕏でシェアできます</li>
+      <li>出題はアーカイブの音源1・音源2（146曲）からランダム</li>
+    </ul>
+  </section>
+
+  <!-- ================= QUIZ ================= -->
+  <section id="scQuiz" class="screen">
+    <div class="qbar">
+      <button class="ghost" id="quitBtn" type="button" aria-label="クイズをやめる">✕</button>
+      <div class="qdots" id="qdots"></div>
+      <div class="qscore"><span id="scoreNow">0</span><em>pt</em></div>
+    </div>
+
+    <div class="deck">
+      <div class="deck-top">
+        <span class="chip" id="diffChip">初級 10秒</span>
+        <span class="chip mute" id="qChip">Q1 / 5</span>
+        <span class="combo" id="comboChip" hidden>COMBO ×2</span>
+      </div>
+      <canvas id="viz" aria-hidden="true"></canvas>
+      <div class="bar" id="clipBarWrap"><i id="clipBar"></i></div>
+      <div class="deck-ctl">
+        <button class="bigplay" id="playBtn" type="button"><span class="ico">▶</span><span class="txt">イントロを聴く</span></button>
+        <div class="vol">
+          <span class="vic" aria-hidden="true">🔊</span>
+          <input type="range" id="volRange" min="0" max="100" value="65" aria-label="音量" step="1">
+        </div>
+      </div>
+      <div class="deck-foot"><span id="clipState">タップして再生</span><span id="clipClock">10.0s</span></div>
+    </div>
+
+    <div class="qask">この曲は？</div>
+    <div class="opts" id="opts"></div>
+
+    <div class="answer" id="answer" hidden>
+      <div class="ans-head">
+        <div class="mark" id="ansMark">⭕</div>        <div class="ans-body">
+          <div class="ans-t" id="ansTitle"></div>
+          <div class="ans-meta" id="ansMeta"></div>
+        </div>
+      </div>
+      <div class="tags" id="ansTags"></div>
+      <p class="ans-note" id="ansNote"></p>
+      <div class="mini">
+        <button class="mini-btn" id="miniBtn" type="button" aria-label="この曲を再生">▶</button>
+        <div class="mini-bar" id="miniBar"><i id="miniFill"></i></div>
+        <span class="mini-time" id="miniTime">0:00 / 0:00</span>
+      </div>
+      <button class="cta" id="nextBtn" type="button">次の問題へ →</button>
+    </div>
+  </section>
+
+  <!-- ================= RESULT ================= -->
+  <section id="scRes" class="screen">
+    <div class="res-top">
+      <div class="eyebrow" style="justify-content:center"><span class="pulse"></span>result</div>
+      <div class="rank" id="rankName">見習いリスナー</div>
+      <div class="res-score"><span id="resScore">0</span><em>pt</em></div>
+      <div class="res-sub" id="resSub">初級・5問</div>
+      <p class="res-note" id="resNote"></p>
+    </div>
+    <div class="ring" id="ring"><b id="ringTxt">0<em>/5</em></b></div>
+    <div class="stats" id="stats"></div>
+    <div class="res-btns">
+      <a class="cta share" id="shareBtn" href="#" target="_blank" rel="noopener">𝕏 結果をシェア</a>
+      <button class="ghost2" id="againBtn" type="button">もう一度あそぶ（同じ条件）</button>
+      <button class="ghost2" id="changeBtn" type="button">難易度を変える</button>
+    </div>
+    <div class="best" id="bestLine"></div>
+  </section>
+
+  <footer>
+    <span>imoutoid informal archive / intro quiz</span>
+    <a href="https://www.imoutoid.net/" target="_blank" rel="noopener">www.imoutoid.net ↗</a>
+  </footer>
+</div>
+
+<canvas id="fx" aria-hidden="true"></canvas>
+<audio id="audio" preload="auto" playsinline></audio>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ================= data ================= */
+  var TRACKS = [{"i":0,"t":"Strings improvisation","f":["s1/1Yx70yOXq2LL-b7Ba7rEglfSzMiJxClwx.mp3"],"c":"音源1","d":83.68,"y":null,"g":["即興"],"n":"その場の演奏を記録した即興音源。","talk":false},{"i":1,"t":"E.piano improvisation","f":["s1/1-OGcv5cyfU9-orQ99icgmg2kI_CkXSDx.mp3"],"c":"音源1","d":169.6,"y":null,"g":["即興","ピアノ"],"n":"その場の演奏を記録した即興音源。 ピアノが主役の一曲。","talk":false},{"i":2,"t":"Hit Star（funk）","f":["s1/1jhm4AtZNBLPYhNvtpJ39b-bkrsX-feI1.mp3"],"c":"音源1","d":86.07,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":3,"t":"Art Sit（mid ballad）","f":["s1/1Mm9T791RxnkllTFrwkwfnjQrO6A-u15n.mp3"],"c":"音源1","d":56.03,"y":null,"g":["バラード"],"n":"ゆったりしたバラード。","talk":false},{"i":4,"t":"Rock tune #2","f":["s1/1jLZuOjIgvUahhztbZS-jaZ0YUv1UPgkV.mp3"],"c":"音源1","d":54.07,"y":null,"g":["ロック"],"n":"ギターやバンドサウンド寄りのロックチューン。","talk":false},{"i":5,"t":"Rock tune #3","f":["s1/1Hhtd-K-IicIO9LI4G2esPoFwVSmPSlyQ.mp3"],"c":"音源1","d":66.56,"y":null,"g":["ロック"],"n":"ギターやバンドサウンド寄りのロックチューン。","talk":false},{"i":6,"t":"Rock tune #4","f":["s1/12Iya5De_-Bs6_FAAz5QQKrCOdpi9C6JG.mp3"],"c":"音源1","d":41.56,"y":null,"g":["ロック"],"n":"ギターやバンドサウンド寄りのロックチューン。","talk":false},{"i":7,"t":"Rock tune #5","f":["s1/1N9hcNjS_ETdmECtpU0DrgVKySGaTv0bz.mp3"],"c":"音源1","d":54.57,"y":null,"g":["ロック"],"n":"ギターやバンドサウンド寄りのロックチューン。","talk":false},{"i":8,"t":"techno re mix001116","f":["s1/1TbpP-nA5YoWoBF_jVy_ovckMS7TtgS1E.mp3"],"c":"音源1","d":129.07,"y":null,"g":["テクノ／トランス"],"n":"4つ打ちのビートが気持ちいいテクノ／トランス系。","talk":false},{"i":9,"t":"techno tune#1","f":["s1/1pkCDimSA6SUCVWHhnSZUkDxCUw9Dg4fR.mp3"],"c":"音源1","d":130.06,"y":null,"g":["テクノ／トランス"],"n":"4つ打ちのビートが気持ちいいテクノ／トランス系。","talk":false},{"i":10,"t":"techno tune#2","f":["s1/1BwRxgtr-rF1gBHeMk9Z7_ox5op2QlhUz.mp3"],"c":"音源1","d":75.57,"y":null,"g":["テクノ／トランス"],"n":"4つ打ちのビートが気持ちいいテクノ／トランス系。","talk":false},{"i":11,"t":"techno tune#3","f":["s1/1Jh_o3r6tEkeE7VBNdjIZWRzdwcm-gwqs.mp3"],"c":"音源1","d":121.08,"y":null,"g":["テクノ／トランス"],"n":"4つ打ちのビートが気持ちいいテクノ／トランス系。","talk":false},{"i":12,"t":"unbalance000808","f":["s1/1cuxmKVRRmWk6zV6nagoXr12sIwAZtCHk.mp3"],"c":"音源1","d":104.07,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":13,"t":"ZIGOKU song","f":["s1/1NrNQgcAkT76gZt2dXMJeorDWw6dw64jv.mp3"],"c":"音源1","d":116.38,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":14,"t":"1294116918.mp3","f":["s1/1weizegST0RknJ5hLiKvHo8A9uHJChAUN.mp3"],"c":"音源1","d":147.57,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":15,"t":"Dark","f":["s1/1Ohgw7npicIeqM92ajrSNoQiwLU8sEU-0.mp3"],"c":"音源1","d":71.73,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":16,"t":"GORIPANDA","f":["s1/1QjwU5a3ixnimfy2ASuAL621kzjQGrcBr.mp3"],"c":"音源1","d":158.07,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":17,"t":"OKLUN","f":["s1/1MeGzgiTxJ0BdkYumR_Fk-EAhohUnULQU.mp3"],"c":"音源1","d":94.04,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":18,"t":"Omusubi","f":["s1/1RAtz-isuE6fGGYd2YSLI6n2U219Q7FOf.mp3"],"c":"音源1","d":132.62,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":19,"t":"PATCH-MAN","f":["s1/1M1HaKJg6ODM1QpDW-KGkw4QeH6vUi6Wu.mp3"],"c":"音源1","d":120.03,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":20,"t":"PIano Improvisation","f":["s1/1FYDqLS8L2_E6AX_Nd_PdrOjjCPs0QvXy.mp3"],"c":"音源1","d":423.58,"y":null,"g":["即興","ピアノ"],"n":"その場の演奏を記録した即興音源。 ピアノが主役の一曲。 5分を超える長尺の一曲。","talk":false},{"i":21,"t":"A lost battle","f":["s1/17obE9AxvupM0wPZ1CapSkGXAd7Mnfy2Z.mp3"],"c":"音源1","d":126.37,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":22,"t":"365","f":["s1/1AIFEqtnequwwjXisY3noJdiKos6GZXnv.mp3"],"c":"音源1","d":113.07,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":23,"t":"-X-","f":["s1/1Mz73wJ8hFKtBnqCzY3LQMi5q6X0NuXP2.mp3"],"c":"音源1","d":121.56,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":24,"t":"TRANCE-FORMER（vocorder）","f":["s1/15ESfF96mOrfAPIsXo1yBFJ84FrBF_iEN.mp3"],"c":"音源1","d":134.56,"y":null,"g":["テクノ／トランス","ボーカル"],"n":"4つ打ちのビートが気持ちいいテクノ／トランス系。 声やヴォコーダーが入った一曲。","talk":false},{"i":25,"t":"Sand pil2ar","f":["s1/12UmXMMmPCgXpsmKdV90CY0wQhkU-Flz6.mp3"],"c":"音源1","d":282.41,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":26,"t":"Rubber","f":["s1/1sJf-MQTqNRQ6WfVAIeXgwUd_vsRV-dqK.mp3"],"c":"音源1","d":352.73,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 5分を超える長尺の一曲。","talk":false},{"i":27,"t":"Hysterical boy","f":["s1/1RGYzaW98GY1EKCYsDsb8AJSEB8FD-dIR.mp3"],"c":"音源1","d":48.46,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":28,"t":"Pandora's door","f":["s1/1qT_KmP1jUMGPyAHDgMHLZFu5pcBQEdPL.mp3"],"c":"音源1","d":132.0,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":29,"t":"Stationery","f":["s1/1Q4e8pfslYGreIVqZ2q5AR363-2Y9V_I9.mp3"],"c":"音源1","d":317.91,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 5分を超える長尺の一曲。","talk":false},{"i":30,"t":"Unknown soldier","f":["s1/1JPgVUoPnrWBrnJhEccAQTg4Bevx3wxQT.mp3"],"c":"音源1","d":199.2,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":31,"t":"Kamikaze","f":["s1/1HoeOeSqiBPlXTrjzY_bCQ6jdCy3HdlVH.mp3"],"c":"音源1","d":233.6,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":32,"t":"Famicom Sangyo","f":["s1/1dU7naPRqnLify_opePOG7j4PdQ-q_ljl.mp3"],"c":"音源1","d":226.17,"y":null,"g":["ファミコン／チップ"],"n":"ファミコン音源らしいチップサウンドが軸のトラック。","talk":false},{"i":33,"t":"Illusionist","f":["s1/1Oozy1Tk3Tixt00g8Fmb3lpdfd8H5uS73.mp3"],"c":"音源1","d":308.0,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 5分を超える長尺の一曲。","talk":false},{"i":34,"t":"Movement to suppress evil books","f":["s1/1Gu5BIwvLw300jAs4QYRyl8PFiJxehxHm.mp3"],"c":"音源1","d":366.31,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 5分を超える長尺の一曲。","talk":false},{"i":35,"t":"（SHUT THE HELL UP!!）","f":["s1/14Ie4-uqfyxhNpmtlG_EbiPNkdAYxBVsR.mp3"],"c":"音源1","d":48.0,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":36,"t":"（ヒップホップのようなR&Bのようなもの）","f":["s1/1Jdk2ULyKLBozB-uzBZBXsPfTs6yk2ojB.mp3"],"c":"音源1","d":20.65,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":37,"t":"音源（奇跡的に良いゲームミュージック）","f":["s1/1h13CGhEiFJ1egh7raCdTAGY5QEWGK7ut.mp3"],"c":"音源1","d":94.18,"y":null,"g":["ゲームBGM"],"n":"ゲームのBGMとして作られた一曲。","talk":false},{"i":38,"t":"キラキラ80's","f":["s1/14--g3L_oTEf74KW_5uWdPM10Tf9LmrdU.mp3"],"c":"音源1","d":15.36,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":39,"t":"Bird Of Song Test","f":["s1/1iYJbnQYlClSBxyY1v5iRycP-5QfIk47s.mp3"],"c":"音源1","d":15.67,"y":null,"g":["テスト音源"],"n":"制作途中に残されたテスト／スケッチ。当時の試行錯誤がうかがえます。","talk":false},{"i":40,"t":"Bird Of Song Test 2","f":["s1/1qmRja1O-WFUKPrHXNLbmcTBR2TTxu6DY.mp3"],"c":"音源1","d":23.53,"y":null,"g":["テスト音源"],"n":"制作途中に残されたテスト／スケッチ。当時の試行錯誤がうかがえます。","talk":false},{"i":41,"t":"今井メロ 夢 FamicomUchujin Remix","f":["s1/1rXcp58e6yQEXtbjESq-Wn0HRiIiDNIHq.mp3"],"c":"音源1","d":70.19,"y":null,"g":["リミックス","ファミコン／チップ"],"n":"既存曲を素材にしたリミックス。原曲との聴き比べも楽しい一曲です。 ファミコン音源らしいチップサウンドが軸のトラック。","talk":false},{"i":42,"t":"ピコピコバトル","f":["s1/1NUKfYcUhP7R-bgTIR5VvI4w_4ytbpovE.mp3"],"c":"音源1","d":17.35,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":43,"t":"Sakura and the Hysterious magic book","f":["s1/1LDzmst_xckiDp1GXg24ogdwZuE2Kd5_i.mp3"],"c":"音源1","d":289.65,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":44,"t":"ありがとう FamicomUchujin Gothiclolita-Remix","f":["s1/14BtCLfK_PtYSdss6S6WMdwVwW4QqWqlO.mp3"],"c":"音源1","d":160.22,"y":null,"g":["リミックス","ファミコン／チップ"],"n":"既存曲を素材にしたリミックス。原曲との聴き比べも楽しい一曲です。 ファミコン音源らしいチップサウンドが軸のトラック。","talk":false},{"i":45,"t":"Higurashi no Nakukoroni * FCNoisePollutionRemix","f":["s1/1FcDfv90ceJROMh3j3Rur5U3ijr6slzlh.mp3"],"c":"音源1","d":138.48,"y":null,"g":["リミックス","ノイズ／グリッチ"],"n":"既存曲を素材にしたリミックス。原曲との聴き比べも楽しい一曲です。 ノイズやグリッチを鳴らす実験的な一曲。","talk":false},{"i":46,"t":"Higurashi no Nakukoroni *2 FCStimulantRemix","f":["s1/1-UUNN0emNSJDuDzVRbFtaXmP5sztSww0.mp3"],"c":"音源1","d":306.3,"y":null,"g":["リミックス"],"n":"既存曲を素材にしたリミックス。原曲との聴き比べも楽しい一曲です。 5分を超える長尺の一曲。","talk":false},{"i":47,"t":"キラキラドポップハウス","f":["s1/1LCJZdeaSSvMK0uJpEUApFEpSaf234wvk.mp3"],"c":"音源1","d":14.39,"y":null,"g":["ハウス／ディスコ"],"n":"ハウス／ディスコのグルーヴをまとった一曲。 20秒に満たない短いスケッチです。","talk":false},{"i":48,"t":"夢想の詩","f":["s1/1tFmjwJHg1wTtSCenRKEqbLSmpzfLWHHk.mp3"],"c":"音源1","d":273.39,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":49,"t":"3和音でのアレンジについてのメモ","f":["s1/1OIC1O12oWPT17rAfbD1Ob9d4bJIiNmHZ.mp3"],"c":"音源1","d":37.29,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":50,"t":"キーボードでギターロック","f":["s1/1HEOfFa4zuURP4VCH8iVsHfuL-V8kNqv3.mp3"],"c":"音源1","d":18.59,"y":null,"g":["ロック"],"n":"ギターやバンドサウンド寄りのロックチューン。 20秒に満たない短いスケッチです。","talk":false},{"i":51,"t":"潮風に流して","f":["s1/1kZz01vkXQGssDYV7UwEKToAgJM0g19F2.mp3"],"c":"音源1","d":247.22,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":52,"t":"ファミコンテーマソング","f":["s1/1Q8s2Ih4iS5tJNazyhZS_wryyyyu0eV3K.mp3"],"c":"音源1","d":144.71,"y":null,"g":["ファミコン／チップ"],"n":"ファミコン音源らしいチップサウンドが軸のトラック。","talk":false},{"i":53,"t":"タンクマニア実況用BGM OP","f":["s1/1zcf9V1Z6KbDY3ezXsGLwVJ51HrOCd5nv.mp3"],"c":"音源1","d":6.86,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":54,"t":"タンクマニア実況用BGM ED","f":["s1/1feQBFYWPMbM9sRSucutsHRVDnzmdDNT9.mp3"],"c":"音源1","d":6.3,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":55,"t":"タンクマニア実況用BGM BATTELE","f":["s1/1sL7mTCDbA3HPRPLc4TSFiMO02no-8vYE.mp3"],"c":"音源1","d":73.85,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":56,"t":"タンクマニア実況用BGM BATTLE FAST","f":["s1/1ab5eFFiLrjI6IJj4gvFdHjL6-N0SScsO.mp3"],"c":"音源1","d":64.0,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":57,"t":"NekomimiOgino750799800","f":["s1/12X60x190MRb8EXpsh33aApjCfDFyHYDP.mp3"],"c":"音源1","d":191.28,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":58,"t":"NyokiNyoki Famicom remix","f":["s1/17JmAH5DGmkROshtu0scqR-KC-g8G4nL2.mp3"],"c":"音源1","d":256.88,"y":null,"g":["リミックス","ファミコン／チップ"],"n":"既存曲を素材にしたリミックス。原曲との聴き比べも楽しい一曲です。 ファミコン音源らしいチップサウンドが軸のトラック。","talk":false},{"i":59,"t":"Amagakure","f":["s1/1RNICWRModWrDOaaouGSmiUlLa7hr34kj.mp3"],"c":"音源1","d":394.67,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 5分を超える長尺の一曲。","talk":false},{"i":60,"t":"and so, swing like Gunso","f":["s1/1bzfCnbyww_cPB6PAzefTmXYztNCoxDyN.mp3"],"c":"音源1","d":259.5,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":61,"t":"Field glass","f":["s1/1jRbDsWyODVC5k3GixGNRbYzl2eli21_P.mp3"],"c":"音源1","d":252.67,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":62,"t":"Have A Bad Dream(SHUT THE HELL UP)","f":["s1/1ZoxwE7KDqVhtgW3PHAXGviowCiyrO6F0.mp3"],"c":"音源1","d":509.93,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 5分を超える長尺の一曲。","talk":false},{"i":63,"t":"Field glass mkII","f":["s1/1Iykn9SdyLeP8-PjOfZYvZybv4X3lE6LF.mp3"],"c":"音源1","d":298.0,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":64,"t":"恋のミクル伝説FamicomUchujin Remix","f":["s1/1-AggcxG_1T-Oc6jFDs3XHR5BpexdZsj_.mp3"],"c":"音源1","d":90.62,"y":null,"g":["リミックス","ファミコン／チップ"],"n":"既存曲を素材にしたリミックス。原曲との聴き比べも楽しい一曲です。 ファミコン音源らしいチップサウンドが軸のトラック。","talk":false},{"i":65,"t":"Brute Force Attack","f":["s1/1cl1oyE1U91WqsdHPWD5pq-DvQcQZuFIU.mp3"],"c":"音源1","d":455.17,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 5分を超える長尺の一曲。","talk":false},{"i":66,"t":"game5p_practice","f":["s1/1jMH9qYyxt4b96i3H1QWRD0XqpSM5WrCJ.mp3"],"c":"音源1","d":53.93,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":67,"t":"Rozen Cuten Musen","f":["s1/1IIkbW6nDKQQ0rEy-W9gKqdKRLdB3MRej.mp3"],"c":"音源1","d":14.65,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":68,"t":"マチャチュチェッチュナイト","f":["s1/1e7ViSIuZbb8rY_PmxVI0G3xIhbE80n4b.mp3"],"c":"音源1","d":24.17,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":69,"t":"ココネギポルカ","f":["s1/1oCTz1o3084oIaYDeDpaa8OGj3QMZQXIi.mp3"],"c":"音源1","d":26.68,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":70,"t":"Windows起動音","f":["s1/1xzDCcJTJV9alLUnIh1Q9Ws3wDCKyfnH_.mp3"],"c":"音源1","d":11.56,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":71,"t":"Gymnopedie*Underachiever Remix","f":["s1/1CP9yOKEHkd6GieVp5PexSoNW-AHBR_jv.mp3"],"c":"音源1","d":68.88,"y":null,"g":["リミックス"],"n":"既存曲を素材にしたリミックス。原曲との聴き比べも楽しい一曲です。","talk":false},{"i":72,"t":"Last regrets(imoutoid's First regrets remix)","f":["s1/1wyaWXKMo6ZjRxPeZOdPfIKZ5nNznkblu.mp3"],"c":"音源1","d":403.54,"y":null,"g":["リミックス"],"n":"既存曲を素材にしたリミックス。原曲との聴き比べも楽しい一曲です。 5分を超える長尺の一曲。","talk":false},{"i":73,"t":"for-hirameki07_snd001","f":["s1/15hsUh5iBQhstFiz93qgWpL2aQSLiRnxz.mp3"],"c":"音源1","d":10.06,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":74,"t":"for-hirameki07_snd002","f":["s1/1D0pTvdqlKX2-9KVNMG5QO8f6adh9dvoF.mp3"],"c":"音源1","d":10.06,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":75,"t":"for-hirameki07_snd003","f":["s1/1oR6DsBikdxJfpG8fsju-Y9s25NUzQpB7.mp3"],"c":"音源1","d":10.06,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":76,"t":"for-hirameki07_snd004","f":["s1/1lNq79eNwx4DlahOIz94oF6WqGwEQ6Sb6.mp3"],"c":"音源1","d":10.08,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":77,"t":"for-hirameki07_snd005","f":["s1/1bOSaqxy9fIiefDkBov-jaPUBY-TzBz1m.mp3"],"c":"音源1","d":9.8,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":78,"t":"for-hirameki07_snd006","f":["s1/1EXP6fEqaa9OzPok9OBLEVNhwB8BpoqXs.mp3"],"c":"音源1","d":11.05,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":79,"t":"Artist:Aphex Twin","f":["s1/1XAV0L2B5UWrjYFwnvVR9FOM8y_Hhe0RW.mp3"],"c":"音源1","d":270.94,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":80,"t":"for-hirameki07_snd007","f":["s1/1aU97cDB09Fqo8ETWWei-pjL4_IMCGte3.mp3"],"c":"音源1","d":10.06,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":81,"t":"for-hirameki07_snd008","f":["s1/1plYuqknKxHXcAQMft5UECpj9erRveViq.mp3"],"c":"音源1","d":10.06,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":82,"t":"for-hirameki07_snd009","f":["s1/1qIVooEzVMDMM8E-viG0_caM3I38tk9MS.mp3"],"c":"音源1","d":10.06,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":83,"t":"Agent yoru wo iku(imoutoid's Liquefied Remix)","f":["s1/1FcTUs1l5R1rxACyiEa9Gy9T_paQLaH6a.mp3"],"c":"音源1","d":236.64,"y":null,"g":["リミックス"],"n":"既存曲を素材にしたリミックス。原曲との聴き比べも楽しい一曲です。","talk":false},{"i":84,"t":"Agent yoru wo iku(imoutoid's Liquefied Remix Loop)","f":["s1/1tLWL8EFJbRpo3ksDAVinDyFBgbFwDEWe.mp3"],"c":"音源1","d":599.8,"y":null,"g":["リミックス"],"n":"既存曲を素材にしたリミックス。原曲との聴き比べも楽しい一曲です。 5分を超える長尺の一曲。","talk":false},{"i":85,"t":"Agent yoru wo iku(imoutoid's Liquefied Remix +haruhi)","f":["s1/1_Ps5OFpp7G13_bwZL0RUbv0Qj9lgS3Nv.mp3"],"c":"音源1","d":54.2,"y":null,"g":["リミックス"],"n":"既存曲を素材にしたリミックス。原曲との聴き比べも楽しい一曲です。","talk":false},{"i":86,"t":"（変なダイエット暗示音声）","f":["s1/1eOwlP_GzNRwjon5Qun52xOYHcdpzmKw6.mp3"],"c":"音源1","d":28.87,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":87,"t":"（わざとショボショボ音源で作ってみるテスト）","f":["s1/1IPMdJZEzMsAa_B_E-v9CTyl5-1D8dNCD.mp3"],"c":"音源1","d":21.68,"y":null,"g":["テスト音源"],"n":"制作途中に残されたテスト／スケッチ。当時の試行錯誤がうかがえます。","talk":false},{"i":88,"t":"（エロゲ日常BGM的なものを量産したいと思うテスト）","f":["s1/116uIMgpkbPHWL48QXChnpyUd6HUBf7t-.mp3"],"c":"音源1","d":17.97,"y":null,"g":["テスト音源"],"n":"制作途中に残されたテスト／スケッチ。当時の試行錯誤がうかがえます。","talk":false},{"i":89,"t":"dubbedradioid001","f":["s1/1s97JU_HbTrqfNZJKdvgxHh7pxSalIy3H.mp3"],"c":"音源1","d":226.4,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":90,"t":"もってけ！セーラーふく（※imoutoid's remix）","f":["s1/1hBmP9mBFmwwsWdi9wMLsbPQiIYevs64Y.mp3"],"c":"音源1","d":35.58,"y":null,"g":["リミックス"],"n":"既存曲を素材にしたリミックス。原曲との聴き比べも楽しい一曲です。","talk":false},{"i":91,"t":"（やっぱノイズ最高）","f":["s1/1mqZ6WNigaxBfvdaAjkQe8yfbOWqUfvQH.mp3"],"c":"音源1","d":81.53,"y":null,"g":["ノイズ／グリッチ"],"n":"ノイズやグリッチを鳴らす実験的な一曲。","talk":false},{"i":92,"t":"あたまのよくなるやきそばのうた (Atama no Yoku naru Yakisoba no Uta)","f":["s1/1j2cjR3HyAaxAbr4fNbUIQ8E-MDKcRZeY.mp3"],"c":"音源1","d":157.68,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":93,"t":"あたまのよくなるやきそばのうた(Instrumental)","f":["s1/1IQVzxGaIvrF6_2iF5RnMylSqXlm3BHnq.mp3"],"c":"音源1","d":157.68,"y":null,"g":["インスト"],"n":"歌なしのインストバージョン。","talk":false},{"i":94,"t":"PVOCとか云々なアンビエント","f":["s1/1FbtDoCqL0fbPGuu1V6AW5YIByektnlw5.mp3"],"c":"音源1","d":77.04,"y":null,"g":["アンビエント"],"n":"静かに広がるアンビエント。","talk":false},{"i":95,"t":"ピアノンドウズ","f":["s1/1VlVWtvMbWl5qhANGJmOH1w_17FsHTseH.mp3"],"c":"音源1","d":26.07,"y":null,"g":["ピアノ"],"n":"ピアノが主役の一曲。","talk":false},{"i":96,"t":"キュッキュッキュしました","f":["s1/1jKqpBZplfANlvKao1ABm5ezj9uClQ62R.mp3"],"c":"音源1","d":44.3,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":97,"t":"Motteke! Sailor Fuku(imoutoid's FF6 Remix)","f":["s1/1gb6HD-u20Y6GOqwg2oIB2kZuoUX169I0.mp3"],"c":"音源1","d":90.31,"y":null,"g":["リミックス"],"n":"既存曲を素材にしたリミックス。原曲との聴き比べも楽しい一曲です。","talk":false},{"i":98,"t":"今日のグリッチノイズ","f":["s1/1tqzJaloSn0xg3iNQhnyHPM9Ava22Qjbs.mp3"],"c":"音源1","d":41.67,"y":null,"g":["ノイズ／グリッチ"],"n":"ノイズやグリッチを鳴らす実験的な一曲。","talk":false},{"i":99,"t":"強進行テスト","f":["s1/1jiCCaipX49fdy69Wq6xf5bUFZgc1PeQB.mp3"],"c":"音源1","d":98.87,"y":null,"g":["テスト音源"],"n":"制作途中に残されたテスト／スケッチ。当時の試行錯誤がうかがえます。","talk":false},{"i":100,"t":"普通の曲テスト","f":["s1/1ZwuWdDm_h-Ib9ZDNgVyekYgLm5A7ypDk.mp3"],"c":"音源1","d":16.07,"y":null,"g":["テスト音源"],"n":"制作途中に残されたテスト／スケッチ。当時の試行錯誤がうかがえます。","talk":false},{"i":101,"t":"（良いトランスの作り方）","f":["s1/1RLJf1fVXb0IuyT4mxyiP2qulcJAjbW7a.mp3"],"c":"音源1","d":17.21,"y":null,"g":["テクノ／トランス"],"n":"4つ打ちのビートが気持ちいいテクノ／トランス系。 20秒に満たない短いスケッチです。","talk":false},{"i":102,"t":"（SuperColliderでこんなん）","f":["s1/1OCrl8qCYkw7xY6bV6pcoBX4wr2Iid_k6.mp3"],"c":"音源1","d":63.87,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":103,"t":"サイコ・アコースティクス・イリュージョン（相手は死ぬ）","f":["s1/1QSxU2XIkLLJzHpTNfWFiF3NlYVjJORyZ.mp3"],"c":"音源1","d":122.2,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":104,"t":"サイコ・アコースティクス・イリュージョン（相手は死ぬ）（※強調バージョン）","f":["s1/15Fy3eBauJMgpXXspqvBxd4MhymWQE4W7.mp3"],"c":"音源1","d":123.01,"y":null,"g":["別バージョン"],"n":"同じ曲の別テイク／別ミックス。聴き比べると違いが分かります。","talk":false},{"i":105,"t":"P.B.ロケッツ(imoutoid's remix)","f":["s1/1s8SamCNjyY75fADZX7C51q29TBvY7SHt.mp3"],"c":"音源1","d":186.37,"y":null,"g":["リミックス"],"n":"既存曲を素材にしたリミックス。原曲との聴き比べも楽しい一曲です。","talk":false},{"i":106,"t":"バレンタイン・キッス（※imoutoid's remix）","f":["s1/1hEs2tonoR96hxH4wZnnJzqHR925MEq-9.mp3"],"c":"音源1","d":33.75,"y":null,"g":["リミックス"],"n":"既存曲を素材にしたリミックス。原曲との聴き比べも楽しい一曲です。","talk":false},{"i":107,"t":"Walky Techy(Steriogram vs. Yoji)","f":["s1/1HQ5lGayTMhipA1vDeBXxHPLRV83Sj02L.mp3"],"c":"音源1","d":136.54,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":108,"t":"One Jackpot Per Child","f":["s1/1s_DzealqGftuBtdZqsnAfFBOa0xvFyUC.mp3"],"c":"音源1","d":2511.7,"y":null,"g":["ラジオ／トーク","ロング音源"],"n":"ラジオ／トーク音源。曲ではなく番組の録音です。 長時間の収録をそのままアーカイブしたロング音源です。","talk":true},{"i":109,"t":"アザラシのスネアと犬のイコライザー ～大きなコンプの実～","f":["s1/1BQfCCRxAEA3vD13vgIuyJ3lBoXhN5AmE.mp3"],"c":"音源1","d":2.17,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":110,"t":"アザラシのスネアと犬のイコライザー ～大きなコンプの実～（※別EQバージョン）","f":["s1/1lYwUF5abfOtG9esA5K6wpKnFLdOfcWtr.mp3"],"c":"音源1","d":2.38,"y":null,"g":["別バージョン"],"n":"同じ曲の別テイク／別ミックス。聴き比べると違いが分かります。 20秒に満たない短いスケッチです。","talk":false},{"i":111,"t":"ほーら、たまには日に当たらないと、カビが生えるわよ","f":["s1/1NZPxj4HuQNIvQs2v_9M5eBN9tjZoBSdJ.mp3"],"c":"音源1","d":19.57,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":112,"t":"ファンファーレ","f":["s1/11GKhPd5TCq1bF_VRHI6Ox8qgVX7piOWt.mp3"],"c":"音源1","d":4.13,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":113,"t":"オールFM8バンザイ（090103fm8arpTest3.mp3）","f":["s1/1mZJKA610hCB6cHd7frqjSnz2y2Zj87os.mp3"],"c":"音源1","d":64.31,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":114,"t":"Sound/EcritureのYosi*風のオリジナル曲","f":["s1/1Mg7JLpfVceKjfnTQEq6MJJFHuz0El1bV.mp3"],"c":"音源1","d":14.6,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":115,"t":"20090112PhysicalMash","f":["s1/1vIDJESND4LFtx7n2Hv31qDFWFm7Z76tJ.mp3"],"c":"音源1","d":187.5,"y":2009,"g":["マッシュアップ"],"n":"複数の音源を重ねたマッシュアップ。","talk":false},{"i":116,"t":"Bay Dream / TOFUBEATS REMIX（imoutoid 神頼みEDIT）","f":["s1/17aJ7Ynvd1ACisxRfDyi0PH1RyDPlUHtW.mp3"],"c":"音源1","d":79.01,"y":null,"g":["リミックス","エディット"],"n":"既存曲を素材にしたリミックス。原曲との聴き比べも楽しい一曲です。 既存音源を切り貼りして組み直したエディット。","talk":false},{"i":117,"t":"（何がやりたいんだかぶれてきた m3なし平坦／m3あり飛ぶ）","f":["s1/1lyJJnRQad4xxWfcWweLavRmd0UeVSsQ-.mp3"],"c":"音源1","d":30.07,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":118,"t":"ちゅうこうおんがじりじりいってるかんじのべーすおん","f":["s1/1dkgy1DCSGVqT-mserDIxFtZgQaT6bnVH.mp3"],"c":"音源1","d":7.73,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":119,"t":"エチオピア饅頭（Ethiopia Manju）","f":["s1/15EfZZ82Qu2mJwwbFVQccUveaxsH5XSnm.mp3"],"c":"音源1","d":137.14,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":120,"t":"（今日弄ったものうp）","f":["s1/1nzoz62tEEX_SNo1wVXSgjR0AFE75Vnfn.mp3"],"c":"音源1","d":18.26,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 20秒に満たない短いスケッチです。","talk":false},{"i":121,"t":"tofubeatsの唄","f":["s1/1rgtNfI6RVkkYrI4-wVFRL7um1SKxstix.mp3"],"c":"音源1","d":128.0,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":122,"t":"ファミコン宇宙人 in the house（トークとか）(20051106)","f":["s1/1DY5XEbEXr5EMoNIcwcYOp9pO5T-E3hZC.mp3"],"c":"音源1","d":5463.17,"y":2005,"g":["ラジオ／トーク","ロング音源"],"n":"ラジオ／トーク音源。曲ではなく番組の録音です。 長時間の収録をそのままアーカイブしたロング音源です。","talk":true},{"i":123,"t":"imoutoidの楽しい堕落ラジオ(20080602)","f":["s1/13fRZUlmwsjMZ7LgwM2kdX1pjR3-bU-cv_p1.mp3","s1/13fRZUlmwsjMZ7LgwM2kdX1pjR3-bU-cv_p2.mp3"],"c":"音源1","d":4301.31,"y":2008,"g":["ラジオ／トーク","ロング音源"],"n":"ラジオ／トーク音源。曲ではなく番組の録音です。 長時間の収録をそのままアーカイブしたロング音源です。","talk":true},{"i":124,"t":"PART3+PART2 (tomad short edit)","f":["s1/12GvOv840sp-jEjlS_AvvdLvV-Dw8qsoW.mp3"],"c":"音源1","d":392.42,"y":null,"g":["エディット"],"n":"既存音源を切り貼りして組み直したエディット。 5分を超える長尺の一曲。","talk":false},{"i":125,"t":"11823.mp3","f":["s2/17DNd2Z4vfNCJwd6GhZsMZSsB-DUdnRr4.mp3"],"c":"音源2","d":42.58,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":126,"t":"ballad tune","f":["s2/1NB-XbqGG2leLGcQ6d99lTten-MOkkMoN.mp3"],"c":"音源2","d":91.09,"y":null,"g":["バラード"],"n":"ゆったりしたバラード。","talk":false},{"i":127,"t":"disco tune","f":["s2/1AGQpGPpQN4IqT-xKZG1YA715-qmdmhvt.mp3"],"c":"音源2","d":104.1,"y":null,"g":["ハウス／ディスコ"],"n":"ハウス／ディスコのグルーヴをまとった一曲。","talk":false},{"i":128,"t":"Ethnic inprovisation","f":["s2/18VQlmr5w7OztCtXfci2pqWjVHm2pcqmp.mp3"],"c":"音源2","d":44.09,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":129,"t":"voice with synth","f":["s2/1lz7ySSNyzd_-InXrJMq6RC-sbdEgzKyO.mp3"],"c":"音源2","d":71.61,"y":null,"g":["ボーカル"],"n":"声やヴォコーダーが入った一曲。","talk":false},{"i":130,"t":"Where sjyamato(imoutoid)","f":["s2/1Nf9iy-lZSzdb5jviMyiPC3zawEw0BoOo.mp3"],"c":"音源2","d":163.01,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":131,"t":"sjymato sjyamato(imoutoid)","f":["s2/16h0d7ciGFXb5TJCPLZajLLZyIiW1RT7p.mp3"],"c":"音源2","d":427.27,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 5分を超える長尺の一曲。","talk":false},{"i":132,"t":"Talking In Your Sleep","f":["s2/1PLTQboICB7lV0aSNpNri3trPpiBlxyD5.mp3"],"c":"音源2","d":280.64,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":133,"t":"Cold Fire sjyamato(imoutoid)","f":["s2/1dBZ6g1M0C5Q-_YscRFnzUTcLcs0m4XHr.mp3"],"c":"音源2","d":129.71,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":134,"t":"-TIME- sjyamato(imoutoid)","f":["s2/1hiOUprhZhHCldja_7Zh51PkgOcF6Pb0E.mp3"],"c":"音源2","d":172.9,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":135,"t":"8450 / 8467.mp3","f":["s2/1Ec_0NBKN7vtnsDwvDyZVV03GUMzHIH9z.mp3"],"c":"音源2","d":62.43,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":136,"t":"11853.mp3","f":["s2/1Rzxm9f4PLRCq0PG1dfPGWAwtva1AQjDX.mp3"],"c":"音源2","d":20.87,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":137,"t":"mc202.mp3","f":["s2/1sucshhf9SZpqGk_ep_8b6IwNBTBJW34t.mp3"],"c":"音源2","d":22.67,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":138,"t":"hinekure_CF.mp3","f":["s2/13EtUebLC7-fBtmc2a0foGEvyikLIP2gy.mp3"],"c":"音源2","d":457.44,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。 5分を超える長尺の一曲。","talk":false},{"i":139,"t":"ofuronihairutovocoder.mp3","f":["s2/1u_1ElyB2tEFxqedardNOY_ysR5dUD0MD.mp3"],"c":"音源2","d":59.93,"y":null,"g":["ボーカル"],"n":"声やヴォコーダーが入った一曲。","talk":false},{"i":140,"t":"PRR007.mp3","f":["s2/1NYA9NsG-f85l6Y2T7Un3x4t9uF6elhXE.mp3"],"c":"音源2","d":112.39,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":141,"t":"moxuse.mp3","f":["s2/1YbZLBf_Ukn9zPvOilR855xfiU1_3RwGO.mp3"],"c":"音源2","d":88.61,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":142,"t":"novotempo.mp3","f":["s2/1LkJlSBo0G8FUqYlq-MxeQtnmo5qzFPP5.mp3"],"c":"音源2","d":79.88,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":143,"t":"up.mp3","f":["s2/12kliWfV5N7ABGQxTwVq6m0IKHzdSrcK0.mp3"],"c":"音源2","d":72.23,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":144,"t":"1A1A1A1A1A1AQ.mp3","f":["s2/1OFEcf_rtjoowqG75mHJxn5T-Sb_tT4Si.mp3"],"c":"音源2","d":160.55,"y":null,"g":["オリジナル曲"],"n":"imoutoidアーカイブに残るオリジナル曲。","talk":false},{"i":145,"t":"piano improvisation imoutoid.mp3","f":["s2/1F5Emm-w_S7kWYS0teRRlVcRDpgIsLmc_.mp3"],"c":"音源2","d":286.91,"y":null,"g":["即興","ピアノ"],"n":"その場の演奏を記録した即興音源。 ピアノが主役の一曲。","talk":false}];
+  var BASE = '../';
+  var SITE = 'https://yusei193.github.io/imoutoid-audio/intro-quiz/';
+  var DIFFS = {
+    easy:   { key: 'easy',   name: '初級',    clip: 10, mult: 100, tag: '10秒 / 4択' },
+    normal: { key: 'normal', name: '中級',    clip: 5,  mult: 200, tag: '5秒 / 4択' },
+    mania:  { key: 'mania',  name: 'マニア級', clip: 2,  mult: 300, tag: '2秒 / 4択' }
+  };
+
+  var S = {
+    diff: 'easy', count: 5, rand: false,
+    order: [], idx: 0, score: 0, correct: 0, streak: 0, bestCombo: 0,
+    answers: [], qStartAt: 0, answered: false, cur: null
+  };
+
+  var player = { mode: 'idle', part: 0 };   // idle | clip | full
+  var clipEnd = 0, clipDone = false, pendingSeek = null;
+  var fullTrack = null;
+
+  var audio = document.getElementById('audio');
+  var $ = function (s) { return document.querySelector(s); };
+
+  /* ================= helpers ================= */
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+  function fmt(sec) {
+    sec = Math.max(0, Math.floor(sec || 0));
+    var m = Math.floor(sec / 60), s = sec % 60;
+    return m + ':' + (s < 10 ? '0' + s : s);
+  }
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function urlOf(t, part) {
+    return BASE + t.f[part || 0];
+  }
+
+  /* ================= audio graph ================= */
+  var actx = null, analyser = null, freq = null, volume = 0.65;
+  function ensureGraph() {
+    if (actx) return;
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    try {
+      actx = new AC();
+      var src = actx.createMediaElementSource(audio);
+      analyser = actx.createAnalyser();
+      analyser.fftSize = 128;
+      analyser.smoothingTimeConstant = 0.82;
+      src.connect(analyser);
+      analyser.connect(actx.destination);
+      freq = new Uint8Array(analyser.frequencyBinCount);
+    } catch (e) {
+      actx = null; analyser = null;
+    }
+  }
+  function applyVolume() {
+    // 耳に合わせた対数カーブ（小さい音量でも細かく調整できる）
+    audio.volume = Math.pow(volume, 2.5);
+  }
+  applyVolume();
+
+  /* ================= canvas ================= */
+  var canvas = document.getElementById('viz');
+  var ctx = canvas.getContext('2d');
+  function sizeCanvas() {
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    var w = canvas.clientWidth, h = canvas.clientHeight;
+    if (!w || !h) return false;
+    if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+    }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return true;
+  }
+  var BARS = 44, t0 = 0;
+  function drawViz(now) {
+    if (!sizeCanvas()) return;
+    var w = canvas.clientWidth, h = canvas.clientHeight;
+    ctx.clearRect(0, 0, w, h);
+    var live = analyser && !audio.paused ? analyser : null;
+    if (live) {
+      analyser.getByteFrequencyData(freq);
+      var sum = 0;
+      for (var k = 0; k < freq.length; k++) sum += freq[k];
+      if (sum / freq.length < 2.2) live = null;   // 無音・ミュート時はアイドル表示に
+    }
+    var grad = ctx.createLinearGradient(0, 0, w, 0);
+    grad.addColorStop(0, 'rgba(49,225,247,.95)');
+    grad.addColorStop(0.55, 'rgba(139,92,246,.9)');
+    grad.addColorStop(1, 'rgba(255,62,165,.9)');
+    ctx.fillStyle = grad;
+    var gap = 3;
+    var bw = Math.max(2, (w - gap * (BARS - 1)) / BARS);
+    for (var i = 0; i < BARS; i++) {
+      var v;
+      if (live) {
+        v = (freq[Math.floor(i * (freq.length * 0.72) / BARS)] || 0) / 255;
+        v = Math.pow(v, 0.85);
+      } else {
+        var ph = now / 1050 + i * 0.38;
+        v = 0.10 + 0.16 * (0.5 + 0.5 * Math.sin(ph)) + 0.08 * Math.sin(ph * 1.7 + 1.1)
+          + 0.05 * Math.sin(ph * 0.42 + i * 0.2);
+      }
+      var bh = Math.max(2, v * h * 0.94);
+      var x = i * (bw + gap);
+      var y = (h - bh) / 2;
+      var r = Math.min(bw / 2, 2);
+      ctx.globalAlpha = live ? 0.55 + v * 0.45 : 0.5;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(x, y, bw, bh, r);
+      else ctx.rect(x, y, bw, bh);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function frame(now) {
+    requestAnimationFrame(frame);
+    if (!t0) t0 = now;
+    drawViz(now);
+    tick(now);
+  }
+
+  /* ================= player ================= */
+  var elPlay = document.getElementById('playBtn');
+  var elClipBar = document.getElementById('clipBar');
+  var elClock = document.getElementById('clipClock');
+  var elState = document.getElementById('clipState');
+
+  function setPlayLabel(txt, ico, attn) {
+    elPlay.querySelector('.txt').textContent = txt;
+    elPlay.querySelector('.ico').textContent = ico;
+    if (attn) elPlay.classList.add('attn'); else elPlay.classList.remove('attn');
+  }
+  function refreshPlayBtn() {
+    if (!S.cur) return;
+    if (player.mode === 'full') { setPlayLabel('イントロを聴く', '▶', false); return; }
+    if (!audio.paused) { setPlayLabel('一時停止', '❚❚', false); return; }
+    if (clipDone) { setPlayLabel('もう一度聴く', '↻', true); return; }
+    if (audio.currentTime > S.cur.start + 0.05) { setPlayLabel('続きを聴く', '▶', false); return; }
+    setPlayLabel('イントロを聴く', '▶', true);
+  }
+
+  function playClip() {
+    var q = S.cur;
+    if (!q) return;
+    ensureGraph();
+    if (actx && actx.state === 'suspended') actx.resume();
+    player.mode = 'clip';
+    player.part = 0;
+    clipDone = false;
+    pendingSeek = q.start;
+    clipEnd = q.start + q.len;
+    audio.pause();
+    audio.src = urlOf(q.track, 0);
+    audio.load();
+    if (q.start > 0) {
+      // 途中出題：シークが効くまで無音にしてイントロの漏れを防ぐ
+      audio.muted = true;
+      setTimeout(function () { audio.muted = false; }, 4000);
+    } else {
+      audio.muted = false;
+    }
+    var p = audio.play();
+    if (p && p.catch) p.catch(function () {
+      elState.textContent = '▶をもう一度タップしてください';
+      setPlayLabel('タップして再生', '▶', true);
+    });
+    elState.textContent = '再生中…';
+    refreshPlayBtn();
+  }
+
+  function playFull(t) {
+    ensureGraph();
+    if (actx && actx.state === 'suspended') actx.resume();
+    player.mode = 'full';
+    player.part = 0;
+    fullTrack = t;
+    pendingSeek = 0;
+    audio.muted = false;
+    audio.pause();
+    audio.src = urlOf(t, 0);
+    audio.load();
+    var p = audio.play();
+    if (p && p.catch) p.catch(function () {});
+    syncMini();
+  }
+
+  function toggleMini() {
+    if (!fullTrack) return;
+    if (player.mode !== 'full' || !audio.src) { playFull(fullTrack); return; }
+    if (audio.paused) {
+      var p = audio.play();
+      if (p && p.catch) p.catch(function () {});
+    } else {
+      audio.pause();
+    }
+    syncMini();
+  }
+
+  function syncMini() {
+    var btn = document.getElementById('miniBtn');
+    if (!btn) return;
+    if (player.mode === 'full' && !audio.paused) { btn.textContent = '❚❚'; }
+    else { btn.textContent = '▶'; }
+  }
+
+  audio.addEventListener('loadedmetadata', function () { trySeek(); });
+  audio.addEventListener('durationchange', function () { trySeek(); });
+  audio.addEventListener('canplay', function () { trySeek(); });
+  audio.addEventListener('progress', function () { trySeek(); });
+  function trySeek() {
+    if (pendingSeek === null) return;
+    try {
+      var sk = audio.seekable;
+      if (sk && sk.length && sk.end(sk.length - 1) >= pendingSeek - 0.5) {
+        audio.currentTime = pendingSeek;
+        pendingSeek = null;
+        audio.muted = false;
+      }
+    } catch (e) { pendingSeek = null; audio.muted = false; }
+  }
+  audio.addEventListener('play', function () { elState.textContent = '再生中…'; refreshPlayBtn(); syncMini(); });
+  audio.addEventListener('pause', function () {
+    if (player.mode === 'clip' && audio.currentTime >= clipEnd - 0.08) clipDone = true;
+    elState.textContent = clipDone ? '再生おわり' : '停止中';
+    refreshPlayBtn(); syncMini();
+  });
+  audio.addEventListener('playing', function () { elState.textContent = '再生中…'; });
+  audio.addEventListener('waiting', function () { elState.textContent = '読み込み中…'; });
+  audio.addEventListener('error', function () {
+    if (player.mode === 'clip') elState.textContent = '音源を読み込めませんでした';
+  });
+  audio.addEventListener('ended', function () {
+    if (player.mode === 'full' && fullTrack) {
+      var urls = fullTrack.f;
+      if (player.part < urls.length - 1) {
+        player.part++;
+        audio.src = urlOf(fullTrack, player.part);
+        audio.load();
+        var p = audio.play();
+        if (p && p.catch) p.catch(function () {});
+        return;
+      }
+      audio.currentTime = 0;
+      audio.pause();
+    }
+    syncMini();
+  });
+
+  function tick(now) {
+    if (player.mode === 'clip' && S.cur) {
+      var q = S.cur, cur = audio.currentTime;
+      if (!audio.paused && cur >= clipEnd - 0.05) {
+        audio.pause();
+        clipDone = true;
+      }
+      var remain = Math.max(0, clipEnd - cur);
+      if (cur < q.start - 0.35) remain = q.len;
+      elClipBar.style.width = (Math.max(0, Math.min(100, 100 * remain / q.len))) + '%';
+      elClock.textContent = remain.toFixed(1) + 's';
+    } else if (player.mode === 'full' && fullTrack) {
+      var dur = audio.duration || fullTrack.d || 0;
+      var fill = document.getElementById('miniFill');
+      var time = document.getElementById('miniTime');
+      if (fill) fill.style.width = (dur ? Math.min(100, audio.currentTime / dur * 100) : 0) + '%';
+      if (time) time.textContent = fmt(audio.currentTime) + ' / ' + fmt(dur);
+    }
+  }
+
+  /* ================= question building ================= */
+  function norm(s) {
+    return s.toLowerCase().replace(/[（）()\[\]【】〈〉〔〕〜~\-ー_\/,.#"'!?！？、。・:：]/g, ' ')
+      .replace(/\s+/g, ' ').trim();
+  }
+  function sim(a, b) {
+    var sc = 0;
+    if (a.c === b.c) sc += 2;
+    var A = norm(a.t), B = norm(b.t), i = 0;
+    while (i < A.length && i < B.length && A[i] === B[i]) i++;
+    sc += Math.min(i, 12) * 0.6;
+    var ta = A.split(' '), tb = {}, ov = 0, tbList = B.split(' ');
+    for (var k = 0; k < tbList.length; k++) tb[tbList[k]] = 1;
+    for (var j = 0; j < ta.length; j++) if (ta[j].length > 1 && tb[ta[j]]) ov++;
+    sc += ov * 1.5;
+    var shared = 0;
+    for (var g = 0; g < a.g.length; g++) if (b.g.indexOf(a.g[g]) >= 0) shared++;
+    sc += shared * 0.4;
+    return sc + Math.random() * 0.6;
+  }
+
+  function pickDistractors(correct, n) {
+    var pool = TRACKS.filter(function (o) { return o.i !== correct.i && o.d >= 3 && o.t !== correct.t; });
+    var scored = pool.map(function (o) { return { o: o, s: sim(correct, o) }; });
+    scored.sort(function (a, b) { return b.s - a.s; });
+    var top = shuffle(scored.slice(0, 16));
+    var out = [], titles = [correct.t];
+    for (var i = 0; i < top.length && out.length < n; i++) {
+      var o = top[i].o, bad = false;
+      for (var j = 0; j < titles.length; j++) {
+        if (o.t === titles[j] || o.t.indexOf(titles[j]) >= 0 || titles[j].indexOf(o.t) >= 0) { bad = true; break; }
+      }
+      if (bad) continue;
+      titles.push(o.t); out.push(o);
+    }
+    var guard = 0;
+    while (out.length < n && guard++ < 400) {
+      var o2 = pool[Math.floor(Math.random() * pool.length)];
+      if (!o2 || titles.indexOf(o2.t) >= 0) continue;
+      titles.push(o2.t); out.push(o2);
+    }
+    return out;
+  }
+
+  function eligible(t) {
+    if (S.rand) return !t.talk && t.d >= 14;
+    return t.d >= DIFFS[S.diff].clip + 3;
+  }
+
+  function buildQuestions() {
+    var used = {}, qs = [], guard = 0;
+    while (qs.length < S.count && guard++ < 3000) {
+      var pool = TRACKS.filter(function (t) { return !used[t.i] && eligible(t); });
+      if (!pool.length) break;
+      var t = pool[Math.floor(Math.random() * pool.length)];
+      used[t.i] = 1;
+      qs.push(makeQuestion(t));
+    }
+    return qs;
+  }
+
+  function makeQuestion(t) {
+    var cfg = DIFFS[S.diff], start = 0;
+    if (S.rand) {
+      var maxStart = Math.max(0, t.d - cfg.clip - 1.5);
+      start = Math.min(maxStart, t.d * 0.15 + Math.random() * Math.max(1, t.d * 0.5));
+      start = Math.round(start * 10) / 10;
+    }
+    var opts = [t].concat(pickDistractors(t, 3));
+    shuffle(opts);
+    return { track: t, start: start, len: cfg.clip, options: opts, rand: S.rand };
+  }
+
+  /* ================= screens ================= */
+  var screens = { start: $('#scStart'), quiz: $('#scQuiz'), res: $('#scRes') };
+  function show(name) {
+    Object.keys(screens).forEach(function (k) { screens[k].classList.toggle('on', k === name); });
+    try { window.scrollTo(0, 0); } catch (e) {}
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  }
+
+  /* ================= start screen ================= */
+  var elDiffs = document.getElementById('diffs');
+  elDiffs.addEventListener('click', function (ev) {
+    var b = ev.target.closest('.diff');
+    if (!b) return;
+    S.diff = b.getAttribute('data-diff');
+    Array.prototype.forEach.call(elDiffs.children, function (c) {
+      c.classList.toggle('on', c === b);
+    });
+    var isMania = S.diff === 'mania';
+    document.getElementById('rowPos').hidden = !isMania;
+    if (!isMania && S.rand) {
+      S.rand = false;
+      Array.prototype.forEach.call(document.getElementById('segPos').children, function (c) {
+        c.classList.toggle('on', c.getAttribute('data-rand') === '0');
+      });
+    }
+    updateHint();
+  });
+  function updateHint() {
+    var cfg = DIFFS[S.diff];
+    document.getElementById('startHint').textContent = S.rand
+      ? '🎲 ' + cfg.name + '・' + cfg.clip + '秒／曲の途中から出題・音量にご注意ください'
+      : cfg.name + '・' + cfg.clip + '秒／4択・音量にご注意ください 🔊';
+  }
+  document.getElementById('segCount').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button');
+    if (!b) return;
+    S.count = parseInt(b.getAttribute('data-n'), 10);
+    Array.prototype.forEach.call(this.children, function (c) { c.classList.toggle('on', c === b); });
+  });
+  document.getElementById('segPos').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button');
+    if (!b) return;
+    S.rand = b.getAttribute('data-rand') === '1';
+    Array.prototype.forEach.call(this.children, function (c) { c.classList.toggle('on', c === b); });
+    updateHint();
+  });
+  document.getElementById('startBtn').addEventListener('click', function () {
+    startQuiz();
+  });
+
+  function startQuiz() {
+    S.order = buildQuestions();
+    if (!S.order.length) {
+      document.getElementById('startHint').textContent = '出題できる曲が見つかりませんでした';
+      return;
+    }
+    S.idx = 0; S.score = 0; S.correct = 0; S.streak = 0; S.bestCombo = 0;
+    S.answers = []; S.answered = false;
+    ensureGraph();
+    if (actx && actx.state === 'suspended') actx.resume();
+    show('quiz');
+    renderQuestion(true);
+  }
+
+  /* ================= quiz screen ================= */
+  function renderQuestion(autoplay) {
+    var q = S.order[S.idx];
+    S.cur = q;
+    S.answered = false;
+    S.qStartAt = Date.now();
+    clipDone = false;
+    player.mode = 'idle';
+    audio.pause();
+
+    document.getElementById('qChip').textContent = 'Q' + (S.idx + 1) + ' / ' + S.order.length;
+    document.getElementById('diffChip').textContent = DIFFS[S.diff].name + ' ' + DIFFS[S.diff].clip + '秒';
+    document.getElementById('scoreNow').textContent = S.score.toLocaleString();
+    document.getElementById('answer').hidden = true;
+    var opts = document.getElementById('opts');
+    opts.classList.remove('locked');
+    opts.innerHTML = '';
+    q.options.forEach(function (t, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'opt';
+      b.innerHTML = '<span class="key">' + 'ABCD'.charAt(i) + '</span><span class="ot">' + esc(t.t) + '</span>';
+      b.addEventListener('click', function () { answer(i); });
+      opts.appendChild(b);
+    });
+    renderDots();
+    var combo = document.getElementById('comboChip');
+    if (S.streak >= 2) { combo.hidden = false; combo.textContent = 'COMBO ×' + S.streak; }
+    else combo.hidden = true;
+
+    elClipBar.style.width = '100%';
+    elClock.textContent = q.len.toFixed(1) + 's';
+    elState.textContent = 'タップして再生';
+    if (q.start > 0) elState.textContent = '曲の途中（' + fmt(q.start) + '）から出題';
+    refreshPlayBtn();
+    if (autoplay) playClip();
+  }
+
+  function renderDots() {
+    var box = document.getElementById('qdots');
+    box.innerHTML = '';
+    S.order.forEach(function (_, i) {
+      var d = document.createElement('i');
+      if (i < S.idx) {
+        var a = S.answers[i];
+        if (a) d.className = a.ok ? 'ok' : 'ng';
+      } else if (i === S.idx) {
+        d.className = 'now';
+      }
+      box.appendChild(d);
+    });
+  }
+
+  document.getElementById('playBtn').addEventListener('click', function () {
+    if (!S.cur) return;
+    if (player.mode === 'full') { playClip(); return; }
+    if (audio.paused) {
+      var resumable = !clipDone && audio.src &&
+        audio.currentTime > S.cur.start - 0.05 && audio.currentTime < clipEnd - 0.08;
+      if (resumable) {
+        var p = audio.play();
+        if (p && p.catch) p.catch(function () { playClip(); });
+      } else {
+        playClip();
+      }
+    } else {
+      audio.pause();
+    }
+  });
+
+  /* ================= answering ================= */
+  function answer(pick) {
+    if (S.answered) return;
+    S.answered = true;
+    var q = S.cur;
+    var chosen = q.options[pick];
+    var ok = chosen.i === q.track.i;
+    var secs = Math.max(0.1, (Date.now() - S.qStartAt) / 1000);
+    var gain = 0;
+
+    if (ok) {
+      var base = DIFFS[S.diff].mult;
+      var speed = Math.round(base * 0.5 * Math.max(0, 1 - secs / 20));
+      var comboMult = 1 + 0.1 * Math.min(S.streak, 5);
+      gain = Math.round((base + speed) * comboMult);
+      S.score += gain;
+      S.correct++;
+      S.streak++;
+      if (S.streak > S.bestCombo) S.bestCombo = S.streak;
+    } else {
+      S.streak = 0;
+    }
+    S.answers[S.idx] = { ok: ok, secs: secs, gain: gain, track: q.track };
+
+    audio.pause();
+    player.mode = 'idle';
+    clipDone = true;
+
+    var opts = document.getElementById('opts');
+    opts.classList.add('locked');
+    Array.prototype.forEach.call(opts.children, function (b, i) {
+      var t = q.options[i];
+      if (t.i === q.track.i) b.classList.add('ok');
+      else if (i === pick) b.classList.add('ng');
+      else b.classList.add('dim');
+    });
+
+    document.getElementById('scoreNow').textContent = S.score.toLocaleString();
+    document.getElementById('qChip').textContent = 'Q' + (S.idx + 1) + ' / ' + S.order.length + (ok ? ' ○' : ' ✕');
+    renderDots();
+
+    var ans = document.getElementById('answer');
+    ans.hidden = false;
+    var mk = document.getElementById('ansMark');
+    mk.className = 'mark dot ' + (ok ? 'ok' : 'ng');
+    mk.textContent = ok ? '✓' : '✕';
+    document.getElementById('ansTitle').textContent = q.track.t;
+    var meta = [];
+    meta.push('収録: ' + q.track.c);
+    meta.push('長さ ' + fmt(q.track.d));
+    if (q.track.y) meta.push('年代: ' + q.track.y);
+    meta.push(DIFFS[S.diff].name + ' ' + q.len + '秒');
+    document.getElementById('ansMeta').textContent = meta.join(' ／ ');
+    var tags = document.getElementById('ansTags');
+    tags.innerHTML = '';
+    q.track.g.forEach(function (g) {
+      var s = document.createElement('span');
+      s.textContent = g;
+      tags.appendChild(s);
+    });
+    document.getElementById('ansNote').textContent = q.track.n || '';
+
+    fullTrack = q.track;
+    player.mode = 'idle';
+    document.getElementById('miniFill').style.width = '0%';
+    document.getElementById('miniTime').textContent = '0:00 / ' + fmt(q.track.d);
+    syncMini();
+
+    if (ok && gain) {
+      var g = document.createElement('div');
+      g.className = 'gain';
+      g.textContent = '+' + gain;
+      ans.appendChild(g);
+    }
+    var combo = document.getElementById('comboChip');
+    if (ok && S.streak >= 2) { combo.hidden = false; combo.textContent = 'COMBO ×' + S.streak; combo.style.animation = 'none'; void combo.offsetWidth; combo.style.animation = ''; }
+    else combo.hidden = true;
+
+    setTimeout(function () {
+      try { ans.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) {}
+    }, 120);
+  }
+
+  document.getElementById('nextBtn').addEventListener('click', function () {
+    S.idx++;
+    if (S.idx >= S.order.length) { finish(); return; }
+    renderQuestion(true);
+  });
+
+  document.getElementById('quitBtn').addEventListener('click', function () {
+    audio.pause();
+    player.mode = 'idle';
+    S.cur = null;
+    show('start');
+  });
+
+  document.getElementById('miniBtn').addEventListener('click', function () {
+    toggleMini();
+  });
+  document.getElementById('miniBar').addEventListener('click', function (ev) {
+    if (!fullTrack || player.mode !== 'full') return;
+    var r = ev.currentTarget.getBoundingClientRect();
+    var ratio = Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width));
+    var dur = audio.duration || fullTrack.d || 0;
+    if (dur) { try { audio.currentTime = dur * ratio; } catch (e) {} }
+  });
+
+  /* ================= volume ================= */
+  var volRange = document.getElementById('volRange');
+  volRange.addEventListener('input', function () {
+    volume = parseInt(this.value, 10) / 100;
+    applyVolume();
+  });
+  if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
+    // スマホは初期音量を少し下げる
+    volRange.value = '55';
+    volume = 0.55;
+    applyVolume();
+  }
+
+  /* ================= result ================= */
+  function rankOf(acc, correct) {
+    if (correct === 0) return { name: '初見の訪問者', note: 'まずは1曲、耳を澄ませてみましょう。' };
+    if (acc >= 1) return { name: 'imoutoid博士', note: '全問正解。アーカイブの主導権はあなたにあります。' };
+    if (acc >= 0.8) return { name: 'otophilia研究員', note: 'かなりの聴き込み。アーカイブの深部まで届いています。' };
+    if (acc >= 0.6) return { name: 'アーカイブ常連リスナー', note: 'あと少しで研究員。iPodプレイヤーで予習を。' };
+    if (acc >= 0.3) return { name: '見習いリスナー', note: 'ここからが本番。ゆっくり聴けばもっと当たります。' };
+    return { name: 'はじめての訪問者', note: '初見では難しい選曲でした。気になった曲から聴いてみてください。' };
+  }
+
+  function finish() {
+    audio.pause();
+    player.mode = 'idle';
+    var total = S.order.length;
+    var acc = S.correct / total;
+    var rank = rankOf(acc, S.correct);
+    var cfg = DIFFS[S.diff];
+    var avg = 0, n = 0;
+    S.answers.forEach(function (a) { if (a) { avg += a.secs; n++; } });
+    avg = n ? avg / n : 0;
+
+    document.getElementById('rankName').textContent = rank.name;
+    document.getElementById('resScore').textContent = S.score.toLocaleString();
+    document.getElementById('resNote').textContent = rank.note;
+    document.getElementById('resSub').textContent = cfg.name + '・' + total + '問' + (S.rand ? '・🎲ランダム' : '') + '／146曲から出題';
+    var ring = document.getElementById('ring');
+    ring.style.setProperty('--p', Math.round(acc * 100) + '%');
+    ring.style.setProperty('--ring-c', acc >= 0.8 ? 'var(--ok)' : acc >= 0.4 ? 'var(--cyan)' : 'var(--magenta)');
+    document.getElementById('ringTxt').innerHTML = S.correct + '<em>/' + total + '</em>';
+
+    var stats = document.getElementById('stats');
+    stats.innerHTML =
+      '<dl class="stat"><dt>SCORE</dt><dd>' + S.score.toLocaleString() + '<small>pt</small></dd></dl>' +
+      '<dl class="stat"><dt>AVG TIME</dt><dd>' + avg.toFixed(1) + '<small>s</small></dd></dl>' +
+      '<dl class="stat"><dt>MAX COMBO</dt><dd>' + Math.max(S.bestCombo, S.streak) + '<small>連</small></dd></dl>';
+    stats.querySelectorAll('.stat').forEach(function (d) {
+      d.style.display = 'block';
+      d.style.border = '1px solid var(--line)';
+      d.style.borderRadius = '12px';
+      d.style.padding = '10px 8px';
+      d.style.background = 'rgba(255,255,255,.035)';
+      d.style.textAlign = 'center';
+    });
+
+    var text = 'imoutoid イントロクイズ（' + cfg.name + '・' + total + '問）で ' + S.correct + '/' + total +
+      ' 正解！\nスコア ' + S.score + ' pt／称号「' + rank.name + '」\n#imoutoid #イントロクイズ';
+    document.getElementById('shareBtn').href =
+      'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(SITE);
+
+    // 自己ベスト
+    var key = 'imoutoid-intro-quiz-best';
+    var bestTxt = '';
+    try {
+      var prev = JSON.parse(localStorage.getItem(key) || 'null');
+      var isNew = !prev || S.score > prev.score;
+      if (isNew) {
+        localStorage.setItem(key, JSON.stringify({ score: S.score, correct: S.correct, total: total, diff: cfg.name, at: Date.now() }));
+        bestTxt = '<b>NEW RECORD</b> — 自己ベスト ' + S.score.toLocaleString() + ' pt';
+      } else {
+        bestTxt = '自己ベスト ' + prev.score.toLocaleString() + ' pt（' + prev.diff + '・' + prev.total + '問）';
+      }
+    } catch (e) {
+      bestTxt = '—';
+    }
+    document.getElementById('bestLine').innerHTML = bestTxt;
+
+    show('res');
+    if (acc >= 0.6) burst();
+  }
+
+  document.getElementById('againBtn').addEventListener('click', function () { startQuiz(); });
+  document.getElementById('changeBtn').addEventListener('click', function () { show('start'); });
+
+  /* ================= confetti ================= */
+  var fx = document.getElementById('fx');
+  var fxc = fx.getContext('2d');
+  var parts = [], fxRun = false;
+  function burst() {
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    fx.width = Math.round(window.innerWidth * dpr);
+    fx.height = Math.round(window.innerHeight * dpr);
+    fxc.setTransform(dpr, 0, 0, dpr, 0, 0);
+    parts = [];
+    var colors = ['#31e1f7', '#ff3ea5', '#8b5cf6', '#33dd8c', '#ffffff'];
+    for (var i = 0; i < 70; i++) {
+      parts.push({
+        x: window.innerWidth * (0.5 + (Math.random() - 0.5) * 0.35),
+        y: window.innerHeight * 0.34,
+        vx: (Math.random() - 0.5) * 7,
+        vy: -Math.random() * 8 - 2,
+        s: 3 + Math.random() * 4,
+        c: colors[Math.floor(Math.random() * colors.length)],
+        r: Math.random() * Math.PI,
+        vr: (Math.random() - 0.5) * 0.3
+      });
+    }
+    if (!fxRun) { fxRun = true; requestAnimationFrame(fxFrame); }
+  }
+  function fxFrame() {
+    fxc.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    var alive = 0;
+    for (var i = 0; i < parts.length; i++) {
+      var p = parts[i];
+      p.vy += 0.22; p.x += p.vx; p.y += p.vy; p.vx *= 0.995; p.r += p.vr;
+      if (p.y < window.innerHeight + 20) alive++;
+      fxc.save();
+      fxc.translate(p.x, p.y); fxc.rotate(p.r);
+      fxc.fillStyle = p.c;
+      fxc.globalAlpha = 0.9;
+      fxc.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * 0.6);
+      fxc.restore();
+    }
+    if (alive > 0) requestAnimationFrame(fxFrame);
+    else { fxRun = false; fxc.clearRect(0, 0, window.innerWidth, window.innerHeight); }
+  }
+
+  /* ================= keyboard ================= */
+  document.addEventListener('keydown', function (ev) {
+    if (!screens.quiz.classList.contains('on')) return;
+    if (ev.key >= '1' && ev.key <= '4') {
+      if (!S.answered) answer(parseInt(ev.key, 10) - 1);
+    } else if (ev.key === ' ' || ev.key === 'Spacebar') {
+      ev.preventDefault();
+      document.getElementById('playBtn').click();
+    } else if (ev.key === 'Enter' && S.answered) {
+      ev.preventDefault();
+      document.getElementById('nextBtn').click();
+    }
+  });
+
+  /* ================= boot ================= */
+  updateHint();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
