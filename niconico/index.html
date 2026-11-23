@@ -39,6 +39,10 @@
   button{font-family:inherit;}
   img{border:0;}
 
+  /* Googleサイトの埋め込み（scrolling="no"）でも枠内をスクロールできるよう body をスクロール領域にする */
+  html.embed, html.embed body{height:100%;}
+  html.embed body{overflow-y:auto;-webkit-overflow-scrolling:touch;}
+
   /* ---------- ヘッダー ---------- */
   .sitebar{
     background:linear-gradient(#4d4d4d,#2b2b2b 60%,#232323);
@@ -1467,6 +1471,7 @@
      起動
      ========================================================= */
   function boot(){
+    if (window.self !== window.top) document.documentElement.className = 'embed';
     S.uid = getUid();
     S.extra = lsGet('nico_extra', []);
     var hash = (location.hash || '').replace('#', '');
