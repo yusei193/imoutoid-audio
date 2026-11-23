@@ -645,9 +645,12 @@
 
   function scrollSelectedIntoView(){
     var row = el.list.querySelector('.tr.on');
-    if (row && row.scrollIntoView) {
-      row.scrollIntoView({ block:'nearest' });
-    }
+    if (!row) return;
+    var list = el.list;
+    var r = row.getBoundingClientRect(), lr = list.getBoundingClientRect();
+    if (!lr.height) return;
+    if (r.bottom > lr.bottom - 8) list.scrollTop += (r.bottom - lr.bottom) + 8;
+    else if (r.top < lr.top + 8) list.scrollTop -= (lr.top - r.top) + 8;
   }
 
   function selectTrack(i, scroll){
