@@ -387,7 +387,7 @@
             <input id="speedRange" type="range" min="0.7" max="2.2" step="0.05" value="1" aria-label="ノーツスピード">
           </div>
           <div class="opt-col">
-            <div class="top"><span>判定オフセット <em style="font-style:normal;color:#66707f">−早い / 遅い＋</em></span><b class="val" id="offsetVal">0ms</b></div>
+            <div class="top"><span>判定オフセット <em style="font-style:normal;color:#66707f">音が遅い→＋</em></span><b class="val" id="offsetVal">0ms</b></div>
             <input id="offsetRange" type="range" min="-150" max="150" step="5" value="0" aria-label="判定オフセット">
           </div>
           <div class="opt-row">
@@ -1347,10 +1347,11 @@
   }
 
   function resolveMisses(t){
+    var tt = t - S.offset/1000;
     var arr = G.notes;
     for (var i=0; i<arr.length; i++){
       var n = arr[i];
-      if (n.t > t - WIN.good) break;
+      if (n.t > tt - WIN.good) break;
       if (!n.judged){
         n.judged = true; n.kind = 'miss';
         G.miss++; G.combo = 0;
@@ -1360,7 +1361,7 @@
     }
     for (var l=0; l<4; l++){
       var la = G.laneNotes[l], p = G.lanePtr[l];
-      while (p < la.length && la[p].t < t - WIN.good) p++;
+      while (p < la.length && la[p].t < tt - WIN.good) p++;
       G.lanePtr[l] = p;
     }
   }
@@ -1377,7 +1378,7 @@
       if (S.hitSound) sfx(lane, 'tap');
       return;
     }
-    var t = G.songTime - S.offset/1000;
+    var t = (G.phase === 'playing' ? songTimeNow() : G.songTime) - S.offset/1000;
     var arr = G.laneNotes[lane];
     var ptr = G.lanePtr[lane];
     var best = -1, bd = 1e9;
