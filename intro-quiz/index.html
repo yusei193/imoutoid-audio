@@ -476,6 +476,7 @@
       <div class="deck-top">
         <span class="chip" id="diffChip">初級 10秒</span>
         <span class="chip mute" id="qChip">Q1 / 5</span>
+        <span class="chip mute" id="posChip" hidden>🎲 途中から</span>
         <span class="combo" id="comboChip" hidden>COMBO ×2</span>
       </div>
       <canvas id="viz" aria-hidden="true"></canvas>
@@ -973,6 +974,9 @@
 
     document.getElementById('qChip').textContent = 'Q' + (S.idx + 1) + ' / ' + S.order.length;
     document.getElementById('diffChip').textContent = DIFFS[S.diff].name + ' ' + DIFFS[S.diff].clip + '秒';
+    var posChip = document.getElementById('posChip');
+    if (q.start > 0) { posChip.hidden = false; posChip.textContent = '🎲 途中から'; }
+    else { posChip.hidden = true; }
     document.getElementById('scoreNow').textContent = S.score.toLocaleString();
     document.getElementById('answer').hidden = true;
     var opts = document.getElementById('opts');
