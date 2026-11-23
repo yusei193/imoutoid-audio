@@ -1104,25 +1104,40 @@
     var w = item.offsetWidth || 1;
 
     var anim, pos = cmt.pos || 'naka';
+    var laneH = fs + Math.round(6 * scale);
+    var lanes = Math.max(1, Math.floor(H / laneH));
+    var pad = Math.round(2 * scale);
+
+    // いま画面にある弾幕が使っているレーン（固定コメントと流れるコメントの重なりを避ける）
+    var busy = [];
+    for (var b = 0; b < lanes; b++) busy.push(false);
+    S.active.forEach(function(a){
+      if (!a.el || !a.el.offsetTop) return;
+      var k = Math.round((a.el.offsetTop - pad) / laneH);
+      if (k >= 0 && k < lanes) busy[k] = true;
+    });
+
+    if (!S.lanes || S.lanes.W !== W || S.lanes.H !== H){
+      S.lanes = {W:W, H:H, free:[]};
+      for (var i = 0; i < lanes; i++) S.lanes.free.push(0);
+    }
+    while (S.lanes.free.length < lanes) S.lanes.free.push(0);
 
     if (pos === 'naka'){
-      var laneH = fs + Math.round(6 * scale);
-      var fixedUe = 0, fixedShita = 0;
-      S.active.forEach(function(a){ if (a.pos === 'ue') fixedUe++; else if (a.pos === 'shita') fixedShita++; });
-      var lanes = Math.max(1, Math.floor(H / laneH) - fixedUe - fixedShita);
-      if (!S.lanes || S.lanes.W !== W || S.lanes.H !== H){
-        S.lanes = {W:W, H:H, free:[]};
-        for (var i = 0; i < lanes; i++) S.lanes.free.push(0);
-      }
-      while (S.lanes.free.length < lanes) S.lanes.free.push(0);
       var now = (window.performance && performance.now) ? performance.now() : new Date().getTime();
-      var best = 0, bestAt = Infinity;
-      for (var j = 0; j < lanes; j++){
-        if (S.lanes.free[j] < bestAt){ bestAt = S.lanes.free[j]; best = j; }
-      }
-      var y = (fixedUe + best) * laneH + Math.round(2 * scale);
       var speed = W / (cmt.size === 'big' ? 4.6 : cmt.size === 'small' ? 3.4 : 4.0);  // px/s
       var dur = ((W + w) / speed) * 1000;
+      var best = -1, bestAt = Infinity;
+      for (var j = 0; j < lanes; j++){
+        if (!busy[j] && S.lanes.free[j] < bestAt){ bestAt = S.lanes.free[j]; best = j; }
+      }
+      if (best < 0){   // 全レーンが使用中なら、いちばん空くのが早いレーンへ
+        for (var j2 = 0; j2 < lanes; j2++){
+          if (S.lanes.free[j2] < bestAt){ bestAt = S.lanes.free[j2]; best = j2; }
+        }
+      }
+      if (best < 0) best = 0;
+      var y = best * laneH + pad;
       // 同じレーンで前のコメントの右端が画面内に残っている間は、その終了まで待つ
       S.lanes.free[best] = now + (w / speed) * 1000 + 120;
       item.style.top = y + 'px';
@@ -1133,10 +1148,15 @@
         {duration: dur, easing:'linear', fill:'forwards'}
       );
     } else {
-      var stack = S.active.filter(function(a){ return a.pos === pos; }).length;
-      var lh = fs + Math.round(5 * scale);
-      var yy = (pos === 'ue') ? (2 + stack * lh) : (H - 2 - (stack + 1) * lh);
-      if (yy < 0) yy = 0;
+      var k2 = -1;
+      if (pos === 'ue'){
+        for (var u = 0; u < lanes; u++){ if (!busy[u]){ k2 = u; break; } }
+        if (k2 < 0) k2 = 0;
+      } else {
+        for (var d = lanes - 1; d >= 0; d--){ if (!busy[d]){ k2 = d; break; } }
+        if (k2 < 0) k2 = lanes - 1;
+      }
+      var yy = k2 * laneH + pad;
       if (yy > H - fs) yy = Math.max(0, H - fs - 2);
       item.style.top = yy + 'px';
       item.style.transform = 'translate3d(' + Math.max(0, (W - w) / 2) + 'px,0,0)';
@@ -1151,8 +1171,8 @@
     S.active.push(rec);
     anim.onfinish = function(){
       if (item.parentNode) item.parentNode.removeChild(item);
-      var k = S.active.indexOf(rec);
-      if (k >= 0) S.active.splice(k, 1);
+      var kk = S.active.indexOf(rec);
+      if (kk >= 0) S.active.splice(kk, 1);
     };
     if (S.active.length > 160){
       var old = S.active.shift();
