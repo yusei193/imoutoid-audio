@@ -2044,9 +2044,16 @@ function tuneReceiver(call, delaySec){
     let hit = 0;
     pc.getReceivers().forEach(r=>{
       if(!r.track || r.track.kind !== 'audio') return;
-      /* Chrome/Edge: playoutDelayHint（秒） / Chrome 106+・Safari: jitterBufferTarget（ミリ秒） */
-      try{ r.playoutDelayHint = d; hit++; }catch(e){}
-      try{ r.jitterBufferTarget = ms; hit++; }catch(e){}
+      /* Chrome/Edge: playoutDelayHint（秒） / Chrome 106+・Safari: jitterBufferTarget（ミリ秒）
+         すでに同じ値なら触らない（毎回setするとバッファを取り直して逆に音が飛ぶことがある）。 */
+      let same = 0, set = 0;
+      try{
+        if(r.playoutDelayHint === d) same++; else { r.playoutDelayHint = d; set++; }
+      }catch(e){}
+      try{
+        if(r.jitterBufferTarget === ms) same++; else { r.jitterBufferTarget = ms; set++; }
+      }catch(e){}
+      if(same || set) hit++;
     });
     return hit > 0;
   }catch(e){ return false; }
