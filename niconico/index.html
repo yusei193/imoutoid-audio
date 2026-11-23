@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>imoutoid 動画 ‐ ニコニコ風プレイヤー</title>
+<style>
+  /* ============================================================
+     imoutoid 動画プレイヤー（ニコニコ動画 RC2〜GINZA 風）
+     ============================================================ */
+  :root{
+    --bar1:#4a4a4a;
+    --bar2:#2e2e2e;
+    --stage:#111;
+    --stage2:#1d1d1d;
+    --page:#ececec;
+    --line:#b8b8b8;
+    --line2:#d8d8d8;
+    --txt:#222;
+    --dim:#767676;
+    --blue:#0033cc;
+    --cyan:#0099bb;
+    --orange:#ff8c00;
+    --red:#cc0000;
+  }
+  *{box-sizing:border-box;}
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    margin:0;
+    background:var(--page);
+    color:var(--txt);
+    font-family:"MS PGothic","Hiragino Kaku Gothic ProN","Hiragino Sans","Meiryo","Yu Gothic",sans-serif;
+    font-size:12px;
+    line-height:1.5;
+    overflow-x:hidden;
+  }
+  a{color:var(--blue);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  button{font-family:inherit;}
+  img{border:0;}
+
+  /* ---------- ヘッダー ---------- */
+  .sitebar{
+    background:linear-gradient(#4d4d4d,#2b2b2b 60%,#232323);
+    border-bottom:1px solid #000;
+    color:#fff;
+    height:auto;
+    padding:6px 10px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .logo{
+    background:#fff;
+    color:#111;
+    font-weight:bold;
+    font-size:20px;
+    line-height:1;
+    padding:4px 8px 5px;
+    border-radius:3px;
+    letter-spacing:-0.5px;
+    box-shadow:0 1px 0 rgba(0,0,0,.5);
+    white-space:nowrap;
+  }
+  .logo span{color:#39b;font-size:11px;font-weight:bold;margin-left:3px;letter-spacing:0;}
+  .sitebar .tagline{font-size:11px;color:#c9c9c9;}
+  .sitebar nav{margin-left:auto;display:flex;gap:12px;flex-wrap:wrap;font-size:11px;}
+  .sitebar nav a{color:#dcdcdc;text-decoration:none;}
+  .sitebar nav a:hover{color:#fff;text-decoration:underline;}
+
+  /* ---------- レイアウト ---------- */
+  .page{
+    max-width:1060px;
+    margin:8px auto 24px;
+    padding:0 8px;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 312px;
+    gap:8px;
+    align-items:start;
+  }
+  .main{min-width:0;}
+
+  /* ---------- 動画ステージ ---------- */
+  .stage{
+    background:var(--stage);
+    border:1px solid #000;
+    padding:0;
+    min-width:0;
+  }
+  .vinfo{
+    background:var(--stage2);
+    border-bottom:1px solid #000;
+    padding:7px 10px 6px;
+    color:#fff;
+  }
+  .vtitle{
+    font-size:15px;
+    font-weight:bold;
+    line-height:1.35;
+    margin:0 0 3px;
+    color:#fff;
+    overflow-wrap:anywhere;
+  }
+  .vtitle .tv{font-size:11px;background:#000;border:1px solid #555;color:#ffd75e;padding:0 4px;margin-right:6px;vertical-align:2px;font-weight:normal;}
+  .vmeta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:2px 10px;
+    font-size:11px;
+    color:#a9a9a9;
+  }
+  .vmeta b{color:#e8e8e8;font-weight:normal;}
+  .vmeta .sep{color:#555;}
+
+  .player-wrap{
+    position:relative;
+    width:100%;
+    aspect-ratio:16 / 9;
+    background:#000;
+    overflow:hidden;
+  }
+  #ytplayer{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    border:0;
+  }
+  /* 弾幕レイヤー */
+  .dm-layer{
+    position:absolute;
+    inset:0;
+    overflow:hidden;
+    pointer-events:none;
+    z-index:5;
+    contain:strict;
+  }
+  .dm-item{
+    position:absolute;
+    top:0;
+    left:0;
+    white-space:nowrap;
+    font-family:"MS PGothic","Hiragino Kaku Gothic ProN","Meiryo","Arial Black",sans-serif;
+    font-weight:bold;
+    letter-spacing:0;
+    text-shadow:
+      -2px -2px 0 #000, 0 -2px 0 #000, 2px -2px 0 #000,
+      -2px  0   0 #000,                2px  0   0 #000,
+      -2px  2px 0 #000, 0  2px 0 #000, 2px  2px 0 #000,
+      0 0 3px rgba(0,0,0,.9);
+    will-change:transform;
+    line-height:1.15;
+    padding:0;
+  }
+  /* 白コメントは縁取りを強めて視認性を確保 */
+  .dm-item.c-white{ text-shadow:
+      -2px -2px 0 #000, 0 -2px 0 #000, 2px -2px 0 #000,
+      -2px  0   0 #000,                2px  0   0 #000,
+      -2px  2px 0 #000, 0  2px 0 #000, 2px  2px 0 #000,
+      -3px -3px 0 #000, 0 -3px 0 #000, 3px -3px 0 #000,
+      -3px  0   0 #000,                3px  0   0 #000,
+      -3px  3px 0 #000, 0  3px 0 #000, 3px  3px 0 #000; }
+
+  /* プレイヤー状態のオーバーレイ */
+  .cover{
+    position:absolute;
+    inset:0;
+    z-index:8;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:16px;
+    background:rgba(0,0,0,.78);
+    color:#fff;
+    font-size:12px;
+    line-height:1.7;
+  }
+  .cover.show{display:flex;}
+  /* 再生前のポスター（YouTube側のポスター描画のゆれを避ける） */
+  .poster{
+    position:absolute;
+    inset:0;
+    z-index:4;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:#000 center/cover no-repeat;
+    cursor:pointer;
+  }
+  .poster.show{display:flex;}
+  .poster::after{
+    content:"";
+    position:absolute;inset:0;
+    background:radial-gradient(circle at 50% 50%, rgba(0,0,0,.05), rgba(0,0,0,.45) 80%);
+  }
+  .poster .pbtn{
+    position:relative;z-index:2;
+    width:66px;height:66px;border-radius:50%;
+    background:rgba(0,0,0,.55);
+    border:2px solid rgba(255,255,255,.85);
+    color:#fff;font-size:26px;line-height:62px;text-align:center;
+    text-indent:4px;
+    box-shadow:0 2px 10px rgba(0,0,0,.5);
+  }
+  .poster .plabel{
+    position:absolute;z-index:2;bottom:8px;left:0;right:0;text-align:center;
+    color:#ddd;font-size:11px;text-shadow:0 1px 2px #000;
+  }
+  .cover .inner{max-width:420px;}
+  .cover .big{font-size:13px;font-weight:bold;color:#ffd75e;margin-bottom:6px;}
+  .cover .small{font-size:11px;color:#bbb;}
+  .cover button{margin-top:10px;}
+  .badge-load{
+    position:absolute;
+    z-index:7;
+    left:8px;
+    top:8px;
+    background:rgba(0,0,0,.62);
+    color:#eee;
+    border:1px solid #444;
+    font-size:10px;
+    padding:1px 6px;
+    border-radius:2px;
+    display:none;
+  }
+  .badge-load.show{display:block;}
+
+  /* ---------- 下部コントロールバー ---------- */
+  .ctrl{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    flex-wrap:wrap;
+    padding:5px 6px;
+    background:linear-gradient(#fcfcfc,#e2e2e2);
+    border-top:1px solid #fff;
+    border-bottom:1px solid var(--line);
+  }
+  .btn{
+    appearance:none;
+    background:linear-gradient(#fff,#d9d9d9);
+    border:1px solid #8f8f8f;
+    border-radius:2px;
+    color:#222;
+    font-size:11px;
+    line-height:1;
+    padding:4px 8px;
+    cursor:pointer;
+    box-shadow:inset 0 1px 0 #fff;
+    white-space:nowrap;
+  }
+  .btn:hover{background:linear-gradient(#fff,#eaeaea);}
+  .btn:active{background:linear-gradient(#d0d0d0,#eee);box-shadow:inset 0 1px 2px rgba(0,0,0,.2);}
+  .btn[disabled]{color:#aaa;cursor:default;}
+  .btn.icon{padding:4px 6px;font-size:12px;}
+  .btn.on{background:linear-gradient(#ffe9a8,#ffd35a);border-color:#c39200;font-weight:bold;}
+  .btn.play{min-width:70px;font-weight:bold;}
+  .time{
+    font-family:"Courier New",monospace;
+    font-size:11px;
+    color:#333;
+    background:#fff;
+    border:1px solid #aeaeae;
+    padding:2px 6px;
+    border-radius:2px;
+    white-space:nowrap;
+  }
+  .time b{font-weight:bold;}
+  .seek{
+    flex:1 1 140px;
+    min-width:90px;
+    height:18px;
+    margin:0 2px;
+  }
+  input[type=range].seek{
+    appearance:none;
+    -webkit-appearance:none;
+    background:transparent;
+    cursor:pointer;
+  }
+  input[type=range].seek::-webkit-slider-runnable-track{
+    height:6px;background:linear-gradient(#cfcfcf,#efefef);border:1px solid #9d9d9d;border-radius:3px;
+  }
+  input[type=range].seek::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;width:10px;height:16px;margin-top:-6px;
+    background:linear-gradient(#fff,#cfcfcf);border:1px solid #777;border-radius:2px;
+  }
+  input[type=range].seek::-moz-range-track{height:6px;background:#dcdcdc;border:1px solid #9d9d9d;border-radius:3px;}
+  input[type=range].seek::-moz-range-thumb{width:10px;height:16px;background:linear-gradient(#fff,#cfcfcf);border:1px solid #777;border-radius:2px;}
+  .vol{
+    display:flex;align-items:center;gap:3px;
+  }
+  .vol input[type=range]{
+    width:62px;height:14px;appearance:none;-webkit-appearance:none;background:transparent;
+  }
+  .vol input[type=range]::-webkit-slider-runnable-track{height:4px;background:#cfcfcf;border:1px solid #9d9d9d;border-radius:2px;}
+  .vol input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:9px;height:13px;margin-top:-5px;background:linear-gradient(#fff,#ccc);border:1px solid #777;border-radius:2px;}
+  .vol input[type=range]::-moz-range-track{height:4px;background:#cfcfcf;border:1px solid #9d9d9d;}
+  .vol input[type=range]::-moz-range-thumb{width:9px;height:13px;background:#eee;border:1px solid #777;border-radius:2px;}
+
+  /* ---------- コメント投稿バー ---------- */
+  .postbar{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    flex-wrap:wrap;
+    padding:6px;
+    background:linear-gradient(#f4f4f4,#dedede);
+    border-bottom:1px solid var(--line);
+  }
+  .csel{
+    font-size:11px;
+    font-family:inherit;
+    padding:3px 2px;
+    border:1px solid #9d9d9d;
+    background:linear-gradient(#fff,#eee);
+    border-radius:2px;
+    color:#222;
+    max-width:96px;
+  }
+  .cinput-wrap{flex:1 1 180px;min-width:120px;display:flex;align-items:center;gap:5px;}
+  #commentInput{
+    flex:1 1 auto;min-width:0;
+    font-family:inherit;font-size:12px;
+    padding:4px 7px;
+    border:1px solid #8f8f8f;
+    border-radius:2px;
+    background:#fff;
+    color:#111;
+    box-shadow:inset 0 1px 2px rgba(0,0,0,.12);
+  }
+  #commentInput:focus{outline:2px solid #9cc7ff;outline-offset:-1px;}
+  .counter{font-size:10px;color:#777;white-space:nowrap;min-width:38px;text-align:right;}
+  .counter.over{color:#c00;font-weight:bold;}
+  .hint{font-size:10px;color:#777;padding:0 8px 6px;background:#dedede;border-bottom:1px solid var(--line);}
+  .hint code{background:#fff;border:1px solid #ccc;padding:0 3px;font-size:10px;}
+
+  /* ---------- 右ペイン ---------- */
+  .side{
+    background:#fff;
+    border:1px solid var(--line);
+    min-width:0;
+  }
+  .tabs{
+    display:flex;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(#efefef,#dcdcdc);
+  }
+  .tab{
+    flex:1 1 0;
+    text-align:center;
+    font-size:11px;
+    padding:6px 2px;
+    cursor:pointer;
+    border:0;
+    border-right:1px solid var(--line2);
+    background:linear-gradient(#f7f7f7,#e4e4e4);
+    color:#555;
+    white-space:nowrap;
+  }
+  .tab:last-child{border-right:0;}
+  .tab.active{
+    background:#fff;
+    color:#111;
+    font-weight:bold;
+    box-shadow:inset 0 3px 0 #39b;
+  }
+  .panel{display:none;}
+  .panel.active{display:block;}
+  .panel-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:5px 7px;font-size:11px;color:#555;
+    background:#f6f6f6;border-bottom:1px solid var(--line2);
+  }
+  .panel-head b{color:#111;}
+  .panel-head .mini{font-size:10px;color:#777;cursor:pointer;border:0;background:none;padding:0;}
+  .panel-head .mini:hover{text-decoration:underline;color:var(--blue);}
+
+  .clist{height:462px;overflow-y:auto;overflow-x:hidden;background:#fff;}
+  .cmt{
+    display:flex;
+    gap:6px;
+    align-items:baseline;
+    padding:3px 6px;
+    font-size:11px;
+    border-bottom:1px solid #ededed;
+    line-height:1.45;
+  }
+  .cmt:nth-child(odd){background:#fafafa;}
+  .cmt .t{
+    flex:0 0 auto;
+    color:var(--blue);
+    background:none;border:0;padding:0;
+    font-family:"Courier New",monospace;
+    font-size:11px;cursor:pointer;
+    text-decoration:underline;
+    white-space:nowrap;
+  }
+  .cmt .t:hover{color:#f30;}
+  .cmt .body{flex:1 1 auto;min-width:0;overflow-wrap:anywhere;color:#222;}
+  .cmt .cmd{flex:0 0 auto;font-size:9px;color:#aaa;white-space:nowrap;}
+  .cmt.mine .body{color:#0a58a8;}
+  .cmt.mine{background:#eef6ff;}
+  .cmt.mine:nth-child(odd){background:#e9f3ff;}
+  .cmt.pending .body::after{content:" …";color:#bbb;}
+  .cmt.failed{background:#fff2f2;}
+  .cmt.failed .body::after{content:" ⚠未保存";color:#c00;font-size:9px;}
+  .empty{padding:16px 10px;color:#888;font-size:11px;text-align:center;line-height:1.7;}
+
+  .vlist{height:462px;overflow-y:auto;overflow-x:hidden;}
+  .vrow{
+    display:flex;gap:6px;align-items:baseline;
+    padding:5px 7px;border-bottom:1px solid #ededed;cursor:pointer;font-size:11px;
+  }
+  .vrow:nth-child(odd){background:#fafafa;}
+  .vrow:hover{background:#eef6ff;}
+  .vrow.cur{background:#fff6d8;box-shadow:inset 3px 0 0 #f0a800;}
+  .vrow .no{flex:0 0 22px;color:#999;font-family:"Courier New",monospace;font-size:10px;}
+  .vrow .tt{flex:1 1 auto;min-width:0;color:#222;overflow-wrap:anywhere;}
+  .vrow .tag{flex:0 0 auto;font-size:9px;color:#fff;background:#9a9a9a;border-radius:2px;padding:0 4px;}
+  .vrow.cur .tt{font-weight:bold;}
+  .vrow .add{color:#0a7d2c;font-size:9px;border:1px solid #9fd3ad;background:#effaf1;border-radius:2px;padding:0 3px;}
+
+  .addbox{padding:10px 8px;font-size:11px;color:#444;line-height:1.6;}
+  .addbox p{margin:0 0 8px;}
+  .addbox input[type=text]{
+    width:100%;font-family:inherit;font-size:12px;padding:5px 7px;
+    border:1px solid #8f8f8f;border-radius:2px;background:#fff;
+  }
+  .addbox .row{display:flex;gap:5px;margin-top:6px;}
+  .addbox .note{font-size:10px;color:#888;margin-top:8px;}
+  .addbox .result{margin-top:8px;font-size:11px;color:#333;}
+  .addbox .result.err{color:#c00;}
+
+  .side-foot{
+    border-top:1px solid var(--line2);
+    background:#f6f6f6;
+    padding:5px 7px;
+    font-size:10px;
+    color:#777;
+    line-height:1.6;
+  }
+
+  /* ---------- トースト ---------- */
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:18px;
+    transform:translateX(-50%);
+    background:rgba(20,20,20,.92);
+    color:#fff;
+    font-size:12px;
+    padding:7px 14px;
+    border-radius:3px;
+    border:1px solid #555;
+    z-index:99;
+    opacity:0;
+    transition:opacity .2s;
+    pointer-events:none;
+    max-width:92vw;
+    text-align:center;
+  }
+  .toast.show{opacity:1;}
+
+  .underbar{
+    margin-top:6px;
+    font-size:10px;
+    color:#777;
+    text-align:right;
+    padding:0 2px;
+    overflow-wrap:anywhere;
+  }
+
+  /* ---------- スマホ ---------- */
+  @media (max-width: 860px){
+    .page{grid-template-columns:minmax(0,1fr);gap:6px;margin-top:6px;padding:0 5px;}
+    .side{order:2;}
+    .clist,.vlist{height:320px;}
+    .side{position:static;}
+    .vtitle{font-size:14px;}
+    .sitebar{padding:5px 8px;gap:8px;}
+    .logo{font-size:17px;}
+    .sitebar nav{gap:9px;font-size:10px;}
+    .sitebar .tagline{display:none;}
+    .ctrl{gap:5px;}
+    .btn{font-size:11px;padding:5px 7px;}
+    .seek{flex:1 1 100%;order:3;margin-top:2px;}
+    .postbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:4px;align-items:center;}
+    .csel{width:100%;max-width:none;}
+    .cinput-wrap{grid-column:1 / -1;grid-row:1;}
+    #btnPost{grid-row:2;grid-column:4;}
+    .counter{min-width:34px;}
+    .hint{font-size:10px;}
+    .time{font-size:10px;}
+  }
+  @media (max-width: 400px){
+    .sitebar nav a:nth-child(n+3){display:none;}
+    .tab{font-size:10px;padding:6px 0;}
+    .cmt{font-size:10.5px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="sitebar">
+  <div class="logo">imoutoid<span>動画</span></div>
+  <div class="tagline">非公式アーカイブ ‐ ニコニコ動画風プレイヤー</div>
+  <nav>
+    <a href="../index.html">アーカイブ</a>
+    <a href="../bbs/">BBS</a>
+    <a href="../live/">ライブ</a>
+    <a href="https://www.imoutoid.net/" target="_blank" rel="noopener">imoutoid.net</a>
+  </nav>
+</header>
+
+<div class="page">
+  <div class="main">
+
+    <!-- 動画ステージ -->
+    <div class="stage">
+      <div class="vinfo">
+        <h1 class="vtitle" id="vTitle"><span class="tv">1/35</span>読み込み中…</h1>
+        <div class="vmeta">
+          <span>コメント <b id="vCmt">0</b></span>
+          <span class="sep">|</span>
+          <span>再生時間 <b id="vDur">--:--</b></span>
+          <span class="sep">|</span>
+          <span>名義 <b id="vArtist">-</b></span>
+          <span class="sep">|</span>
+          <span>チャンネル <b id="vCh">-</b></span>
+          <span class="sep">|</span>
+          <span><a id="vLink" href="#" target="_blank" rel="noopener">YouTubeで開く</a></span>
+        </div>
+      </div>
+
+      <div class="player-wrap" id="playerWrap">
+        <div id="ytplayer"></div>
+        <div class="dm-layer" id="dmLayer"></div>
+        <div class="poster" id="poster"><div class="pbtn">▶</div><div class="plabel">クリックして再生</div></div>
+        <div class="badge-load" id="badgeLoad">読み込み中…</div>
+        <div class="cover" id="cover">
+          <div class="inner">
+            <div class="big" id="coverTitle">この動画は再生できません</div>
+            <div class="small" id="coverNote"></div>
+            <button class="btn" id="coverNext" type="button">▶ 次の動画へ</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 再生コントロールバー -->
+      <div class="ctrl">
+        <button class="btn play" id="btnPlay" type="button">▶ 再生</button>
+        <span class="time"><b id="tCur">0:00</b> / <span id="tDur">--:--</span></span>
+        <input class="seek" id="seek" type="range" min="0" max="1000" value="0" step="1" aria-label="シーク">
+        <span class="vol">
+          <button class="btn icon" id="btnMute" type="button" title="ミュート">🔊</button>
+          <input id="vol" type="range" min="0" max="100" value="100" aria-label="音量">
+        </span>
+        <button class="btn on" id="btnDm" type="button">弾幕 ON</button>
+        <button class="btn" id="btnRandom" type="button">🎲 ランダム再生</button>
+        <button class="btn" id="btnNext" type="button">⏭ 次の動画</button>
+        <button class="btn icon" id="btnFull" type="button" title="全画面">⛶</button>
+      </div>
+
+      <!-- コメント投稿 -->
+      <div class="postbar">
+        <select class="csel" id="selColor" aria-label="コメントの色">
+          <option value="white">白</option>
+          <option value="red">赤</option>
+          <option value="pink">ピンク</option>
+          <option value="orange">オレンジ</option>
+          <option value="yellow">黄</option>
+          <option value="green">緑</option>
+          <option value="cyan">水色</option>
+          <option value="blue">青</option>
+          <option value="purple">紫</option>
+        </select>
+        <select class="csel" id="selPos" aria-label="コメントの位置">
+          <option value="naka">流す</option>
+          <option value="ue">上固定</option>
+          <option value="shita">下固定</option>
+        </select>
+        <select class="csel" id="selSize" aria-label="コメントのサイズ">
+          <option value="medium">中</option>
+          <option value="big">大</option>
+          <option value="small">小</option>
+        </select>
+        <div class="cinput-wrap">
+          <input id="commentInput" type="text" maxlength="120" placeholder="コメントを入力（例: red big ここ好き）" autocomplete="off">
+          <span class="counter" id="counter">0/100</span>
+        </div>
+        <button class="btn" id="btnPost" type="button">投稿</button>
+      </div>
+      <div class="hint">
+        コメントは再生中の秒数に紐づいて流れます。先頭に <code>red</code> <code>big</code> <code>ue</code> <code>shita</code> などを付けると色・サイズ・位置を変えられます（改行・HTMLタグは無効）。
+      </div>
+    </div>
+
+    <div class="underbar" id="underbar">※ 動画は YouTube の埋め込み再生です。コメントはこのアーカイブの訪問者全員に共有されます。</div>
+  </div>
+
+  <!-- 右ペイン -->
+  <aside class="side">
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="comments" type="button" role="tab">💬 コメント</button>
+      <button class="tab" data-tab="list" type="button" role="tab">🎬 動画リスト</button>
+      <button class="tab" data-tab="add" type="button" role="tab">➕ URL追加</button>
+    </div>
+
+    <div class="panel active" id="panel-comments">
+      <div class="panel-head">
+        <span>コメント <b id="paneCmt">0</b> 件</span>
+        <button class="mini" id="btnReloadCmt" type="button">⟳ 再読込</button>
+      </div>
+      <div class="clist" id="clist"></div>
+    </div>
+
+    <div class="panel" id="panel-list">
+      <div class="panel-head">
+        <span>全 <b id="paneVid">35</b> 本</span>
+        <button class="mini" id="btnShuffleList" type="button">🎲 シャッフル再生</button>
+      </div>
+      <div class="vlist" id="vlist"></div>
+    </div>
+
+    <div class="panel" id="panel-add">
+      <div class="addbox">
+        <p>YouTube の URL か動画ID を貼り付けると、その場で再生して弾幕を試せます（この端末のリストに追加されます）。</p>
+        <input type="text" id="addUrl" placeholder="https://www.youtube.com/watch?v=…" autocomplete="off">
+        <div class="row">
+          <button class="btn" id="btnAddPlay" type="button">▶ 追加して再生</button>
+        </div>
+        <div class="result" id="addResult"></div>
+        <div class="note">※ 埋め込みを許可していない動画は「再生できません」と表示され、次へ自動で進みます。</div>
+      </div>
+    </div>
+
+    <div class="side-foot">
+      コメントは Google スプレッドシートに保存されます（誰でも投稿可）。<br>
+      不適切なコメントは管理人側で非表示にできます。
+    </div>
+  </aside>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* =========================================================
+     設定
+     ========================================================= */
+  var API_URL = 'https://script.google.com/macros/s/AKfycbyTudtlj9eb1fU1Ag9BDqGB53nNohvsKzlFzhjwvhqdXLYqG-bc4sVff_idi5uPyCer/exec';
+
+  /* 実在確認済みの imoutoid / otophilia 関連動画（YouTube oEmbed で存在・埋め込み可否を確認） */
+  var VIDEOS = [
+    {id:'8jNzVl0L-7A', title:'ADEPRESSIVE CANNOT GOTO THECEREMONY PART1', artist:'imoutoid', ch:'imoutoid oto', tag:'song'},
+    {id:'bU1UjgM_Ae4', title:'ADEPRESSIVE CANNOT GOTO THECEREMONY PART2', artist:'imoutoid', ch:'imoutoid oto', tag:'song'},
+    {id:'OU1FrhFZTs4', title:'ADEPRESSIVE CANNOT GOTO THECEREMONY PART3', artist:'imoutoid', ch:'imoutoid oto', tag:'song'},
+    {id:'kPnlHnwuGPE', title:'雨隠れ / Amagakure', artist:'FamicomUchujin', ch:'imoutoid oto', tag:'fc'},
+    {id:'rT5K70lHk9I', title:'MusouNoUta', artist:'FamicomUchujin', ch:'imoutoid oto', tag:'fc'},
+    {id:'P7GnfdrIclw', title:'Sakura and the Hysterious magic book', artist:'FamicomUchujin', ch:'imoutoid oto', tag:'fc'},
+    {id:'NmpwiwMCGPk', title:'NekomimiOgino', artist:'FamicomUchujin', ch:'imoutoid oto', tag:'fc'},
+    {id:'QjU0p1oT56k', title:"FamicomUchujin's VIP Theme", artist:'FamicomUchujin', ch:'imoutoid oto', tag:'fc'},
+    {id:'fPDizfeIQwE', title:'Brute Force Attack', artist:'FamicomUchujin', ch:'imoutoid oto', tag:'fc'},
+    {id:'8CocMMEmgjM', title:'and so, swing like Gunso', artist:'FamicomUchujin', ch:'imoutoid oto', tag:'fc'},
+    {id:'8AUZjFfOW_A', title:'Talking In Your Sleep', artist:'imoutoid', ch:'imoutoid oto', tag:'song'},
+    {id:'SdOqr1fbjCc', title:'untitled 09 27', artist:'imoutoid', ch:'imoutoid oto', tag:'song'},
+    {id:'i3d5CcgPAHA', title:'sjyamato', artist:'sjyamato', ch:'imoutoid oto', tag:'song'},
+    {id:'oPPOMjVKcXU', title:'Where', artist:'sjyamato', ch:'imoutoid oto', tag:'song'},
+    {id:'SEjhcujqD3w', title:'-X-', artist:'sjyamato', ch:'imoutoid oto', tag:'song'},
+    {id:'EY0vgPfNIpI', title:'Cold Fire', artist:'sjyamato', ch:'imoutoid oto', tag:'song'},
+    {id:'HjdLy87phdE', title:'Kamikaze', artist:'Yamato', ch:'imoutoid oto', tag:'song'},
+    {id:'SVx6JueTRmY', title:'Famicom Sangyo', artist:'Yamato', ch:'imoutoid oto', tag:'song'},
+    {id:'xNk-91M64PY', title:'Illusionist', artist:'Yamato', ch:'imoutoid oto', tag:'song'},
+    {id:'_-CW1jcb0yw', title:'Do Boys Dream of Magical Girl?', artist:'Yamato Yoshioka', ch:'imoutoid oto', tag:'song'},
+    {id:'klg0Eqs3Wug', title:"Agent yoru wo iku (imoutoid's Liquefied Remix)", artist:'imoutoid', ch:'imoutoid oto', tag:'remix'},
+    {id:'r4zkfKQUAgU', title:"Last regrets (imoutoid's First regrets remix)", artist:'imoutoid', ch:'imoutoid oto', tag:'remix'},
+    {id:'PlWN_dbHdYc', title:'ファインダー（imoutoid\'s "Finder Is Not Desktop Experience Remix"）', artist:'kz / livetune', ch:'livetune - Topic', tag:'remix'},
+    {id:'fjgkdBRNaHA', title:"Motteke! Sailor Fuku imoutoid's FF6 Remix", artist:'imoutoid', ch:'imoutoid oto', tag:'remix'},
+    {id:'04DLdIDwEps', title:'PATCH MAN / early imoutoid', artist:'imoutoid', ch:'imoutoid oto', tag:'early'},
+    {id:'_qgnbUGYDyQ', title:'funky tune / early imoutoid', artist:'imoutoid', ch:'imoutoid oto', tag:'early'},
+    {id:'cwWGHvoKv7I', title:'ほーら、たまには日に当たらないと、カビが生えるわよ', artist:'imoutoid', ch:'imoutoid oto', tag:'early'},
+    {id:'nZzqbN-mUCY', title:'ringtones #1~10', artist:'imoutoid', ch:'imoutoid oto', tag:'early'},
+    {id:'t-jS4PqKw9c', title:'imoutoid Live at Asia 2008/05/17', artist:'imoutoid', ch:'imoutoid oto', tag:'live'},
+    {id:'hLiTXsIwCwc', title:'imoutoid Live at SECO LOUNGE 2008/06/20', artist:'imoutoid', ch:'imoutoid oto', tag:'live'},
+    {id:'pabDpMvw3Oc', title:'imoutoid、アカペラに挑戦する', artist:'imoutoid', ch:'imoutoid oto', tag:'other'},
+    {id:'rwsm8R3DHco', title:'for hirameki07 snd #1~9', artist:'imoutoid', ch:'imoutoid oto', tag:'other'},
+    {id:'zu8JqdHXGM8', title:'imoutoid - PART2, PART3', artist:'imoutoid', ch:'futanarichan', tag:'other'},
+    {id:'JafWQmyeyBM', title:"imoutoid — Hofstadter's Law", artist:'imoutoid', ch:'lunch', tag:'other'},
+    {id:'wSJssxEsgEQ', title:'tofubeats DJ set (imoutoid in June 2011/06/25) 1/2', artist:'tofubeats', ch:'tofubeats', tag:'live'}
+  ];
+
+  var TAGS = {song:'🎵 楽曲', fc:'🎹 ファミコン宇宙人', remix:'🎧 リミックス', early:'📼 初期音源', live:'🎤 ライブ', other:'📻 その他'};
+  var COLORS = {white:'#FFFFFF', red:'#FF0000', pink:'#FF8080', orange:'#FFC000', yellow:'#FFFF00', green:'#00FF00', cyan:'#00FFFF', blue:'#0000FF', purple:'#C000FF'};
+  var COLOR_JA = {white:'白', red:'赤', pink:'ピンク', orange:'オレンジ', yellow:'黄', green:'緑', cyan:'水色', blue:'青', purple:'紫'};
+  var SIZE_JA = {big:'大', medium:'中', small:'小'};
+  var POS_JA = {naka:'流す', ue:'上固定', shita:'下固定'};
+  var BASE_SIZE = {big:36, medium:24, small:16};
+  var MAX_LEN = 100;
+
+  /* =========================================================
+     状態
+     ========================================================= */
+  var S = {
+    index: 0,
+    vid: VIDEOS[0].id,
+    player: null,
+    ready: false,
+    pendingPlay: false,
+    barrage: true,
+    muted: false,
+    volume: 100,
+    lastTime: null,
+    needSync: true,
+    curTime: 0,
+    duration: 0,
+    dragging: false,
+    active: [],
+    lanes: null,
+    comments: {},      // vid -> [{t,text,color,pos,size,mine,pending,failed,id}]
+    loading: {},
+    errCount: 0,
+    lastErrAt: 0,
+    wasPlaying: false,
+    extra: [],
+    uid: null,
+    lastPost: 0
+  };
+
+  /* =========================================================
+     ユーティリティ
+     ========================================================= */
+  function $(s){ return document.querySelector(s); }
+  function el(tag, cls, txt){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (txt !== undefined && txt !== null) e.textContent = txt;   // XSS対策: 常に textContent
+    return e;
+  }
+  function pad(n){ return (n < 10 ? '0' : '') + n; }
+  function fmtTime(sec){
+    sec = Math.max(0, Math.floor(sec || 0));
+    var h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+    return h > 0 ? (h + ':' + pad(m) + ':' + pad(s)) : (m + ':' + pad(s));
+  }
+  var toastTimer = null;
+  function toast(msg){
+    var t = $('#toast');
+    t.textContent = msg;
+    t.className = 'toast show';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.className = 'toast'; }, 2600);
+  }
+  function lsGet(k, def){
+    try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch(e){ return def; }
+  }
+  function lsSet(k, v){
+    try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){}
+  }
+  function getUid(){
+    var k = 'nico_uid', v = lsGet(k, null);
+    if (!v){ v = 'u' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); lsSet(k, v); }
+    return v;
+  }
+
+  /* =========================================================
+     動画インデックス
+     ========================================================= */
+  function allVideos(){ return VIDEOS.concat(S.extra); }
+  function findVideoById(id){
+    var v = allVideos();
+    for (var i = 0; i < v.length; i++) if (v[i].id === id) return i;
+    return -1;
+  }
+
+  /* =========================================================
+     プレイヤー
+     ========================================================= */
+  function loadYT(){
+    var s = document.createElement('script');
+    s.src = 'https://www.youtube.com/iframe_api';
+    s.onerror = function(){
+      showCover('YouTube を読み込めませんでした', 'ネットワーク、または埋め込みの制限が考えられます。「次の動画へ」でもう一度試せます。');
+    };
+    document.head.appendChild(s);
+    window.onYouTubeIframeAPIReady = function(){ createPlayer(); };
+  }
+
+  function createPlayer(){
+    if (typeof YT === 'undefined' || !YT.Player) return;
+    S.player = new YT.Player('ytplayer', {
+      videoId: S.vid,
+      playerVars: {
+        autoplay: 0,
+        controls: 0,
+        rel: 0,
+        modestbranding: 1,
+        playsinline: 1,
+        iv_load_policy: 3,
+        disablekb: 1,
+        origin: location.origin
+      },
+      events: {
+        onReady: function(){
+          S.ready = true;
+          sizePlayer();
+          S.player.setVolume(S.volume);
+          if (S.pendingPlay){ S.pendingPlay = false; S.player.playVideo(); }
+          updateInfo();
+        },
+        onStateChange: function(e){
+          if (e.data === 1){                       // playing
+            S.needSync = true;
+            setPlayBtn(true);
+            hidePoster();
+            $('#badgeLoad').className = 'badge-load';
+          } else if (e.data === 2){                // paused
+            setPlayBtn(false);
+            pauseDanmaku();
+          } else if (e.data === 0){                // ended
+            setPlayBtn(false);
+            playIndex((S.index + 1) % allVideos().length);
+          } else if (e.data === 3){                // buffering
+            $('#badgeLoad').className = 'badge-load show';
+          }
+        },
+        onError: function(e){ handlePlayerError(e.data); }
+      }
+    });
+  }
+
+  function sizePlayer(){
+    try {
+      var w = $('#playerWrap');
+      if (S.player && S.player.setSize && w.clientWidth) S.player.setSize(w.clientWidth, w.clientHeight);
+    } catch(e){}
+  }
+
+  function handlePlayerError(code){
+    var now = Date.now ? Date.now() : new Date().getTime();
+    if (now - S.lastErrAt < 900) return;   // 同じ失敗の多重発火を抑止
+    S.lastErrAt = now;
+    S.errCount++;
+    var note;
+    if (code === 101 || code === 150){
+      note = 'この動画は埋め込み再生が許可されていません（' + code + '）。次の動画へ自動で進みます。';
+    } else if (code === 153){
+      note = 'プレイヤーの読み込みが拒否されました（153）。次の動画へ自動で進みます。';
+    } else if (code === 100){
+      note = '動画が見つかりません（削除・非公開の可能性）。次の動画へ自動で進みます。';
+    } else if (code === 2){
+      note = '動画IDが無効です。次の動画へ自動で進みます。';
+    } else {
+      note = 'この動画は再生できません（エラー ' + code + '）。次の動画へ自動で進みます。';
+    }
+    showCover('この動画は再生できません', note);
+    setPlayBtn(false);
+    if (S.errCount <= 8){
+      setTimeout(function(){
+        if (findVideoById(S.vid) >= 0) playIndex((S.index + 1) % allVideos().length);
+      }, 1300);
+    } else {
+      $('#coverNote').textContent = '続けて読み込めませんでした。時間をおいて「⟳」または再生ボタンで再試行してください。';
+      $('#coverNext').textContent = '↻ 再試行';
+    }
+  }
+
+  function showCover(title, note){
+    $('#coverTitle').textContent = title;
+    $('#coverNote').textContent = note || '';
+    $('#cover').className = 'cover show';
+    $('#badgeLoad').className = 'badge-load';
+    hidePoster();
+  }
+  function hideCover(){ $('#cover').className = 'cover'; }
+  function showPoster(vid){
+    var p = $('#poster');
+    p.style.backgroundImage = 'url(https://i.ytimg.com/vi/' + vid + '/hqdefault.jpg)';
+    p.className = 'poster show';
+  }
+  function hidePoster(){ $('#poster').className = 'poster'; }
+
+  function setPlayBtn(playing){
+    var b = $('#btnPlay');
+    b.textContent = playing ? '❚❚ 一時停止' : '▶ 再生';
+  }
+
+  /* 動画の切替 */
+  function playIndex(i, autoplay){
+    var list = allVideos();
+    if (!list.length) return;
+    i = ((i % list.length) + list.length) % list.length;
+    S.index = i;
+    S.vid = list[i].id;
+    S.curTime = 0;
+    S.duration = 0;
+    S.lastTime = null;
+    S.needSync = true;
+    S.errCount = 0;
+    clearDanmaku();
+    hideCover();
+    showPoster(S.vid);
+    updateInfo();
+    renderList();
+    loadComments(S.vid, true);
+    setPlayBtn(false);
+    $('#tCur').textContent = '0:00';
+    $('#tDur').textContent = '--:--';
+    $('#seek').value = 0;
+    if (S.ready && S.player && S.player.loadVideoById){
+      try {
+        if (autoplay === false){
+          S.player.cueVideoById(S.vid);
+        } else {
+          S.player.loadVideoById(S.vid);
+          S.pendingPlay = true;
+        }
+      } catch(e){}
+    } else {
+      S.pendingPlay = (autoplay !== false);
+    }
+    try { history.replaceState(null, '', '#' + S.vid); } catch(e){}
+  }
+
+  function updateInfo(){
+    var v = allVideos()[S.index];
+    if (!v) return;
+    var t = $('#vTitle');
+    t.textContent = '';
+    t.appendChild(el('span', 'tv', String(S.index + 1) + '/' + allVideos().length));
+    t.appendChild(document.createTextNode(v.title));
+    $('#vArtist').textContent = v.artist || '-';
+    $('#vCh').textContent = v.ch || '-';
+    var a = $('#vLink');
+    a.href = 'https://www.youtube.com/watch?v=' + v.id;
+    document.title = v.title + ' ‐ imoutoid 動画';
+    updateCounts();
+  }
+
+  function updateCounts(){
+    var n = (S.comments[S.vid] || []).length;
+    $('#vCmt').textContent = String(n);
+    $('#paneCmt').textContent = String(n);
+    $('#paneVid').textContent = String(allVideos().length);
+  }
+
+  /* =========================================================
+     コメント取得・保存（GAS）
+     ========================================================= */
+  function apiGet(params){
+    var q = [];
+    for (var k in params) if (params.hasOwnProperty(k)) q.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k]));
+    return fetch(API_URL + '?' + q.join('&'), {method:'GET', cache:'no-store'})
+      .then(function(r){ return r.json(); });
+  }
+  function apiPost(body){
+    // GAS の POST は 302 リダイレクトで HTML が返るため、
+    // 読み取り可能な JSON を得るためにクエリパラメータ（GET）で送信する
+    var q = ['_t=' + (new Date().getTime())];
+    for (var k in body) if (body.hasOwnProperty(k)) q.push(encodeURIComponent(k) + '=' + encodeURIComponent(body[k]));
+    return fetch(API_URL + '?' + q.join('&'), {method:'GET', cache:'no-store'})
+      .then(function(r){ return r.json(); });
+  }
+
+  function normServer(c){
+    return {
+      t: Number(c.time_sec) || 0,
+      text: String(c.text || ''),
+      color: COLORS[c.color] ? c.color : 'white',
+      pos: (c.pos === 'ue' || c.pos === 'shita') ? c.pos : 'naka',
+      size: (c.size === 'big' || c.size === 'small') ? c.size : 'medium',
+      id: c.id || null,
+      mine: false
+    };
+  }
+
+  function loadComments(vid, force){
+    if (!force && S.comments[vid]) { renderComments(); return; }
+    S.comments[vid] = S.comments[vid] || [];
+    renderComments();
+    if (S.loading[vid] && !force) return;
+    S.loading[vid] = true;
+    apiGet({action:'list', video_id:vid}).then(function(d){
+      S.loading[vid] = false;
+      if (!d || !d.ok){ throw new Error('bad'); }
+      var arr = (d.comments || []).map(normServer);
+      S.comments[vid] = mergeWithLocal(vid, arr);
+      renderComments();
+    }).catch(function(){
+      S.loading[vid] = false;
+      S.comments[vid] = mergeWithLocal(vid, []);
+      renderComments();
+      var local = localComments(vid);
+      toast(local.length ? 'サーバーに接続できません（この端末のコメントのみ表示）' : 'コメントを読み込めませんでした（オフライン）');
+    });
+  }
+
+  function localKey(vid){ return 'nico_local_' + vid; }
+  function localComments(vid){ return lsGet(localKey(vid), []); }
+  function saveLocalComment(vid, cmt){
+    var arr = localComments(vid);
+    arr = arr.filter(function(c){ return !(c.t === cmt.t && c.text === cmt.text); });
+    arr.push({t:cmt.t, text:cmt.text, color:cmt.color, pos:cmt.pos, size:cmt.size, failed:!!cmt.failed});
+    lsSet(localKey(vid), arr.slice(-200));
+  }
+  function mergeWithLocal(vid, server){
+    var local = localComments(vid);
+    var out = server.slice();
+    local.forEach(function(lc){
+      var dup = out.some(function(c){ return Math.abs(c.t - lc.t) < 0.6 && c.text === lc.text; });
+      if (!dup) out.push({t:lc.t, text:lc.text, color:lc.color, pos:lc.pos, size:lc.size, mine:true, failed:!!lc.failed});
+    });
+    out.sort(function(a, b){ return a.t - b.t; });
+    return out;
+  }
+
+  /* =========================================================
+     コメント描画（右ペイン）
+     ========================================================= */
+  function renderComments(){
+    var box = $('#clist');
+    var arr = (S.comments[S.vid] || []).slice().sort(function(a, b){ return a.t - b.t; });
+    box.textContent = '';
+    if (!arr.length){
+      var e = el('div', 'empty', 'まだコメントはありません。');
+      e.appendChild(document.createElement('br'));
+      e.appendChild(document.createTextNode('動画を見ながら最初のコメントを投稿してみてください。'));
+      box.appendChild(e);
+    } else {
+      arr.forEach(function(c){
+        var row = el('div', 'cmt' + (c.mine ? ' mine' : '') + (c.pending ? ' pending' : '') + (c.failed ? ' failed' : ''));
+        var b = el('button', 't', fmtTime(c.t));
+        b.type = 'button';
+        b.title = 'この秒へ移動';
+        b.addEventListener('click', function(){ seekTo(c.t); });
+        var body = el('span', 'body', c.text);
+        var cmd = el('span', 'cmd', (c.color !== 'white' ? COLOR_JA[c.color] || '' : '') +
+          (c.pos !== 'naka' ? ' ' + POS_JA[c.pos] : '') +
+          (c.size !== 'medium' ? ' ' + SIZE_JA[c.size] : ''));
+        row.appendChild(b); row.appendChild(body); row.appendChild(cmd);
+        box.appendChild(row);
+      });
+    }
+    updateCounts();
+  }
+
+  /* =========================================================
+     動画リスト描画
+     ========================================================= */
+  function renderList(){
+    var box = $('#vlist');
+    var list = allVideos();
+    box.textContent = '';
+    list.forEach(function(v, i){
+      var row = el('div', 'vrow' + (i === S.index ? ' cur' : ''));
+      row.appendChild(el('span', 'no', pad(i + 1)));
+      row.appendChild(el('span', 'tt', v.title));
+      if (v.extra) row.appendChild(el('span', 'add', '追加'));
+      row.appendChild(el('span', 'tag', TAGS[v.tag] ? TAGS[v.tag].replace(/^\S+\s/, '') : 'その他'));
+      row.addEventListener('click', function(){ playIndex(i); });
+      box.appendChild(row);
+    });
+    $('#paneVid').textContent = String(list.length);
+  }
+
+  /* =========================================================
+     弾幕エンジン
+     ========================================================= */
+  function laneCount(W, H){ return Math.max(1, Math.floor(H / Math.max(18, (W / 640) * 24 + 6))); }
+
+  function clearDanmaku(){
+    S.active.forEach(function(a){
+      try { a.anim.cancel(); } catch(e){}
+      if (a.el && a.el.parentNode) a.el.parentNode.removeChild(a.el);
+    });
+    S.active = [];
+    S.lanes = null;
+    var layer = $('#dmLayer');
+    if (layer) layer.textContent = '';
+  }
+
+  function spawn(cmt, atTime){
+    if (!S.barrage) return;
+    var layer = $('#dmLayer');
+    if (!layer) return;
+    var W = layer.clientWidth, H = layer.clientHeight;
+    if (!W || !H) return;
+
+    var scale = Math.max(0.5, Math.min(2.2, W / 640));
+    var fs = Math.round((BASE_SIZE[cmt.size] || 24) * scale);
+    var item = el('div', 'dm-item' + (cmt.color === 'white' ? ' c-white' : ''), cmt.text);
+    item.style.fontSize = fs + 'px';
+    item.style.color = COLORS[cmt.color] || '#FFFFFF';
+    item.style.visibility = 'hidden';
+    layer.appendChild(item);
+    var w = item.offsetWidth || 1;
+
+    var anim, pos = cmt.pos || 'naka';
+
+    if (pos === 'naka'){
+      var laneH = fs + Math.round(6 * scale);
+      var fixedUe = 0, fixedShita = 0;
+      S.active.forEach(function(a){ if (a.pos === 'ue') fixedUe++; else if (a.pos === 'shita') fixedShita++; });
+      var lanes = Math.max(1, Math.floor(H / laneH) - fixedUe - fixedShita);
+      if (!S.lanes || S.lanes.W !== W || S.lanes.H !== H){
+        S.lanes = {W:W, H:H, free:[]};
+        for (var i = 0; i < lanes; i++) S.lanes.free.push(0);
+      }
+      while (S.lanes.free.length < lanes) S.lanes.free.push(0);
+      var now = (window.performance && performance.now) ? performance.now() : new Date().getTime();
+      var best = 0, bestAt = Infinity;
+      for (var j = 0; j < lanes; j++){
+        if (S.lanes.free[j] < bestAt){ bestAt = S.lanes.free[j]; best = j; }
+      }
+      var y = (fixedUe + best) * laneH + Math.round(2 * scale);
+      var speed = W / (cmt.size === 'big' ? 4.6 : cmt.size === 'small' ? 3.4 : 4.0);  // px/s
+      var dur = ((W + w) / speed) * 1000;
+      // 同じレーンで前のコメントの右端が画面内に残っている間は、その終了まで待つ
+      S.lanes.free[best] = now + (w / speed) * 1000 + 120;
+      item.style.top = y + 'px';
+      item.style.transform = 'translate3d(' + W + 'px,0,0)';
+      item.style.visibility = 'visible';
+      anim = item.animate(
+        [{transform:'translate3d(' + W + 'px,0,0)'}, {transform:'translate3d(' + (-w) + 'px,0,0)'}],
+        {duration: dur, easing:'linear', fill:'forwards'}
+      );
+    } else {
+      var stack = S.active.filter(function(a){ return a.pos === pos; }).length;
+      var lh = fs + Math.round(5 * scale);
+      var yy = (pos === 'ue') ? (2 + stack * lh) : (H - 2 - (stack + 1) * lh);
+      if (yy < 0) yy = 0;
+      if (yy > H - fs) yy = Math.max(0, H - fs - 2);
+      item.style.top = yy + 'px';
+      item.style.transform = 'translate3d(' + Math.max(0, (W - w) / 2) + 'px,0,0)';
+      item.style.visibility = 'visible';
+      anim = item.animate(
+        [{opacity:1, offset:0}, {opacity:1, offset:0.85}, {opacity:0, offset:1}],
+        {duration: 3200, easing:'linear', fill:'forwards'}
+      );
+    }
+
+    var rec = {el:item, anim:anim, pos:pos};
+    S.active.push(rec);
+    anim.onfinish = function(){
+      if (item.parentNode) item.parentNode.removeChild(item);
+      var k = S.active.indexOf(rec);
+      if (k >= 0) S.active.splice(k, 1);
+    };
+    if (S.active.length > 160){
+      var old = S.active.shift();
+      try { old.anim.cancel(); } catch(e){}
+      if (old.el && old.el.parentNode) old.el.parentNode.removeChild(old.el);
+    }
+  }
+
+  function pauseDanmaku(){
+    S.active.forEach(function(a){ try { a.anim.pause(); } catch(e){} });
+  }
+  function resumeDanmaku(){
+    S.active.forEach(function(a){ try { a.anim.play(); } catch(e){} });
+  }
+
+  function spawnRange(prev, cur){
+    var arr = S.comments[S.vid] || [];
+    for (var i = 0; i < arr.length; i++){
+      var c = arr[i];
+      if (c.t > prev && c.t <= cur + 0.02) spawn(c);
+    }
+  }
+
+  /* =========================================================
+     再生ループ（弾幕の同期）
+     ========================================================= */
+  function loop(){
+    if (S.ready && S.player && typeof S.player.getPlayerState === 'function'){
+      var st = -1;
+      try { st = S.player.getPlayerState(); } catch(e){ st = -1; }
+      var t = 0;
+      try { t = S.player.getCurrentTime() || 0; } catch(e){ t = 0; }
+      var d = 0;
+      try { d = S.player.getDuration() || 0; } catch(e){ d = 0; }
+      if (d && d !== S.duration){ S.duration = d; $('#tDur').textContent = fmtTime(d); $('#vDur').textContent = fmtTime(d); }
+
+      if (st === 1){                      // 再生中
+        if (S.wasPlaying === false && S.lastTime === null) S.lastTime = -0.001;  // 開始直後は0秒コメントも流す
+        if (S.wasPlaying === false) resumeDanmaku();
+        if (S.lastTime === null){
+          S.lastTime = t;
+        } else if (t < S.lastTime - 0.9 || t > S.lastTime + 1.8){
+          // シーク・スキップ：流れている弾幕を捨てて現在位置から再同期
+          clearDanmaku();
+          S.lastTime = t;
+        } else if (t > S.lastTime){
+          spawnRange(S.lastTime, t);
+          S.lastTime = t;
+        }
+        S.needSync = false;
+      } else {
+        if (S.wasPlaying === true) pauseDanmaku();
+        S.needSync = true;
+      }
+      S.wasPlaying = (st === 1);
+      S.curTime = t;
+      if (!S.dragging){
+        $('#tCur').textContent = fmtTime(t);
+        if (S.duration > 0) $('#seek').value = Math.round((t / S.duration) * 1000);
+      }
+    }
+    requestAnimationFrame(loop);
+  }
+
+  function seekTo(sec){
+    if (!S.duration) { toast('動画の読み込みを待っています…'); return; }
+    sec = Math.max(0, Math.min(S.duration - 0.2, sec));
+    try { S.player.seekTo(sec, true); } catch(e){}
+    S.curTime = sec;
+    S.lastTime = sec;
+    S.needSync = true;
+    clearDanmaku();
+    $('#tCur').textContent = fmtTime(sec);
+    $('#seek').value = Math.round((sec / S.duration) * 1000);
+    if (S.player && typeof S.player.playVideo === 'function'){
+      try { S.player.playVideo(); } catch(e){}
+    }
+  }
+
+  /* =========================================================
+     投稿
+     ========================================================= */
+  function parseCommands(raw){
+    var color = $('#selColor').value;
+    var pos = $('#selPos').value;
+    var size = $('#selSize').value;
+    var parts = raw.replace(/[\u0000-\u001F\u007F]/g, ' ').split(/\s+/).filter(function(x){ return x !== ''; });
+    while (parts.length){
+      var p = parts[0].toLowerCase();
+      if (COLORS[p]) { color = p; parts.shift(); continue; }
+      if (SIZE_JA[p]) { size = p; parts.shift(); continue; }
+      if (p === 'naka' || p === 'ue' || p === 'shita'){ pos = p; parts.shift(); continue; }
+      break;
+    }
+    return {color:color, pos:pos, size:size, text: parts.join(' ')};
+  }
+
+  function doPost(){
+    var input = $('#commentInput');
+    var parsed = parseCommands(input.value || '');
+    var text = parsed.text.replace(/[<>]/g, '');
+    if (!text){ toast('コメントを入力してください'); input.focus(); return; }
+    if (text.length > MAX_LEN){
+      toast('コメントは' + MAX_LEN + '文字までです');
+      return;
+    }
+    var t = Math.max(0, S.curTime || 0);
+    var cmt = {t:t, text:text, color:parsed.color, pos:parsed.pos, size:parsed.size, mine:true, pending:true};
+    var list = S.comments[S.vid] || (S.comments[S.vid] = []);
+    list.push(cmt);
+    list.sort(function(a, b){ return a.t - b.t; });
+    renderComments();
+    spawn(cmt);                       // 打った瞬間に今の秒数で流す
+    input.value = '';
+    $('#counter').textContent = '0/' + MAX_LEN;
+    $('#counter').className = 'counter';
+
+    var payload = {
+      action:'post', video_id:S.vid, time_sec: Math.round(t * 100) / 100,
+      text:text, color:parsed.color, pos:parsed.pos, size:parsed.size, uid:S.uid
+    };
+    apiPost(payload).then(function(d){
+      S.loading[S.vid] = false;
+      if (d && d.ok){
+        cmt.pending = false;
+        if (d.id) cmt.id = d.id;
+        renderComments();
+      } else {
+        throw new Error((d && d.error) || 'rejected');
+      }
+    }).catch(function(err){
+      cmt.pending = false;
+      cmt.failed = true;
+      saveLocalComment(S.vid, cmt);
+      renderComments();
+      var msg = (err && err.message) ? err.message : '';
+      toast('⚠ 保存できませんでした（この端末には残しました）' + (msg ? ' / ' + msg : ''));
+    });
+  }
+
+  /* =========================================================
+     URL 追加
+     ========================================================= */
+  function parseYouTubeId(s){
+    s = (s || '').trim();
+    if (/^[\w-]{11}$/.test(s)) return s;
+    try {
+      var u = new URL(s);
+      if (/youtu\.be$/.test(u.hostname)) return u.pathname.replace(/^\//, '').slice(0, 11);
+      var v = u.searchParams.get('v');
+      if (v && /^[\w-]{11}$/.test(v)) return v;
+      var m = u.pathname.match(/\/(?:embed|shorts|live|v)\/([\w-]{11})/);
+      if (m) return m[1];
+    } catch(e){}
+    var m2 = s.match(/([\w-]{11})/);
+    return m2 ? m2[1] : null;
+  }
+
+  function addFromUrl(){
+    var raw = $('#addUrl').value;
+    var out = $('#addResult');
+    var id = parseYouTubeId(raw);
+    if (!id){
+      out.className = 'result err';
+      out.textContent = 'YouTube の URL か 11 文字の動画IDを入れてください。';
+      return;
+    }
+    var exists = findVideoById(id);
+    if (exists >= 0){
+      out.className = 'result';
+      out.textContent = 'リスト内の動画です。再生します。';
+      playIndex(exists);
+      switchTab('comments');
+      return;
+    }
+    out.className = 'result';
+    out.textContent = '追加中…';
+    var item = {id:id, title:'YouTube動画 ' + id, artist:'-', ch:'-', tag:'other', extra:true};
+    var finish = function(){
+      S.extra.push(item);
+      lsSet('nico_extra', S.extra);
+      renderList();
+      var idx = findVideoById(id);
+      playIndex(idx);
+      switchTab('comments');
+      out.textContent = '「' + item.title + '」を追加して再生します。';
+      $('#addUrl').value = '';
+    };
+    // タイトル取得（noembed は CORS 対応）
+    var done = false;
+    var timer = setTimeout(function(){ if (!done){ done = true; finish(); } }, 3500);
+    fetch('https://noembed.com/embed?url=' + encodeURIComponent('https://www.youtube.com/watch?v=' + id))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (done) return;
+        done = true; clearTimeout(timer);
+        if (d && d.title){
+          item.title = d.title;
+          if (d.author_name) item.ch = d.author_name;
+          out.textContent = '「' + item.title + '」を追加して再生します。';
+        }
+        finish();
+      })
+      .catch(function(){ if (!done){ done = true; clearTimeout(timer); finish(); } });
+  }
+
+  /* =========================================================
+     タブ
+     ========================================================= */
+  function switchTab(name){
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(b){
+      b.className = 'tab' + (b.getAttribute('data-tab') === name ? ' active' : '');
+    });
+    ['comments', 'list', 'add'].forEach(function(n){
+      $('#panel-' + n).className = 'panel' + (n === name ? ' active' : '');
+    });
+  }
+
+  /* =========================================================
+     イベント登録
+     ========================================================= */
+  function bind(){
+    $('#btnPlay').addEventListener('click', function(){
+      if (!S.ready) { S.pendingPlay = true; toast('プレイヤーを準備しています…'); return; }
+      try {
+        var st = S.player.getPlayerState();
+        if (st === 1) S.player.pauseVideo(); else { S.player.playVideo(); resumeDanmaku(); }
+      } catch(e){}
+    });
+    $('#btnNext').addEventListener('click', function(){ playIndex(S.index + 1); });
+    $('#poster').addEventListener('click', function(){
+      hidePoster();
+      if (S.ready && S.player && S.player.playVideo){
+        try { S.player.playVideo(); } catch(e){}
+        setPlayBtn(true);
+      } else {
+        S.pendingPlay = true;
+        toast('プレイヤーを準備しています…');
+      }
+    });
+    $('#btnRandom').addEventListener('click', function(){
+      var n = allVideos().length;
+      if (n < 2) return;
+      var i = S.index;
+      while (i === S.index) i = Math.floor(Math.random() * n);
+      playIndex(i);
+    });
+    $('#btnShuffleList').addEventListener('click', function(){ $('#btnRandom').click(); });
+    $('#coverNext').addEventListener('click', function(){ S.errCount = 0; playIndex(S.index + 1); });
+
+    $('#btnDm').addEventListener('click', function(){
+      S.barrage = !S.barrage;
+      this.textContent = S.barrage ? '弾幕 ON' : '弾幕 OFF';
+      this.className = 'btn' + (S.barrage ? ' on' : '');
+      $('#dmLayer').style.display = S.barrage ? '' : 'none';
+      if (!S.barrage) clearDanmaku(); else { S.lastTime = null; }
+    });
+
+    $('#btnMute').addEventListener('click', function(){
+      if (!S.ready) return;
+      S.muted = !S.muted;
+      try { S.muted ? S.player.mute() : S.player.unMute(); } catch(e){}
+      this.textContent = S.muted ? '🔇' : '🔊';
+    });
+    $('#vol').addEventListener('input', function(){
+      S.volume = Number(this.value);
+      if (S.ready) { try { S.player.setVolume(S.volume); if (S.volume > 0 && S.muted){ S.muted = false; S.player.unMute(); $('#btnMute').textContent = '🔊'; } } catch(e){} }
+    });
+
+    var seek = $('#seek');
+    seek.addEventListener('pointerdown', function(){ S.dragging = true; });
+    seek.addEventListener('pointerup', function(){ S.dragging = false; });
+    seek.addEventListener('change', function(){
+      S.dragging = false;
+      if (!S.duration) return;
+      seekTo((Number(this.value) / 1000) * S.duration);
+    });
+
+    $('#btnFull').addEventListener('click', function(){
+      var w = $('#playerWrap');
+      if (document.fullscreenElement){ document.exitFullscreen(); }
+      else if (w.requestFullscreen){ w.requestFullscreen(); }
+    });
+
+    $('#btnPost').addEventListener('click', doPost);
+    $('#commentInput').addEventListener('keydown', function(e){
+      if (e.key === 'Enter' && !e.isComposing){ e.preventDefault(); doPost(); }
+    });
+    $('#commentInput').addEventListener('input', function(){
+      var n = this.value.length;
+      var c = $('#counter');
+      c.textContent = n + '/' + MAX_LEN;
+      c.className = 'counter' + (n > MAX_LEN ? ' over' : '');
+    });
+
+    $('#btnReloadCmt').addEventListener('click', function(){ loadComments(S.vid, true); toast('コメントを再読み込みしました'); });
+
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(b){
+      b.addEventListener('click', function(){ switchTab(b.getAttribute('data-tab')); });
+    });
+
+    $('#btnAddPlay').addEventListener('click', addFromUrl);
+    $('#addUrl').addEventListener('keydown', function(e){
+      if (e.key === 'Enter' && !e.isComposing){ e.preventDefault(); addFromUrl(); }
+    });
+
+    window.addEventListener('resize', function(){
+      clearTimeout(window.__dmResize);
+      window.__dmResize = setTimeout(function(){ S.lanes = null; }, 250);
+      sizePlayer();
+    });
+    document.addEventListener('visibilitychange', function(){ S.needSync = true; });
+  }
+
+  /* =========================================================
+     起動
+     ========================================================= */
+  function boot(){
+    S.uid = getUid();
+    S.extra = lsGet('nico_extra', []);
+    var hash = (location.hash || '').replace('#', '');
+    var startIdx = 0;
+    if (hash){
+      var found = findVideoById(hash);
+      if (found >= 0) startIdx = found;
+    }
+    S.index = startIdx;
+    S.vid = allVideos()[startIdx].id;
+    bind();
+    renderList();
+    updateInfo();
+    renderComments();
+    showPoster(S.vid);
+    switchTab('comments');
+    loadComments(S.vid, true);
+    loadYT();
+    requestAnimationFrame(loop);
+    // デバッグ用フック（読み取り専用の内部状態）
+    window.__NICO__ = {state:S, videos:allVideos, playIndex:playIndex, spawn:spawn, seekTo:seekTo, sizePlayer:sizePlayer};
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+</body>
+</html>
