@@ -30,20 +30,25 @@ function doPost(e) {
 
 function route(e, body) {
   var p = (e && e.parameter) || {};
-  var action = body.action || p.action || 'list';
+  // GET のクエリと POST の JSON の両方を受け付ける
+  var data = {};
+  var k;
+  for (k in p) { if (Object.prototype.hasOwnProperty.call(p, k)) data[k] = p[k]; }
+  for (k in body) { if (Object.prototype.hasOwnProperty.call(body, k)) data[k] = body[k]; }
+  var action = data.action || 'list';
   var out;
   try {
     if (action === 'list') {
-      out = { ok: true, server_time: nowStr(), comments: listComments(p.video_id || body.video_id) };
+      out = { ok: true, server_time: nowStr(), comments: listComments(data.video_id) };
     } else if (action === 'post') {
-      out = postComment(body, p);
+      out = postComment(data);
     } else {
       out = { ok: false, error: 'unknown action' };
     }
   } catch (err) {
     out = { ok: false, error: String((err && err.message) || err) };
   }
-  return respond(out, p.callback);
+  return respond(out, data.callback);
 }
 
 function respond(obj, callback) {
