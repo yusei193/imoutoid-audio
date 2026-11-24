@@ -1,0 +1,878 @@
+{
+ "account": "@imoutoid_arc",
+ "name": "imoutoid_archive",
+ "description": "imoutoidの音源などを非公式に\nアーカイブするサイトを運営しています",
+ "avatar_url": "https://pbs.twimg.com/profile_images/2115785846569996288/m3MoISMs_400x400.jpg",
+ "banner_url": "https://pbs.twimg.com/profile_banners/2105163559114248192/1791741502",
+ "profile_url": "https://x.com/imoutoid_arc",
+ "updated_at": "2026-11-24T13:45:02+09:00",
+ "count": 47,
+ "posts": [
+  {
+   "id": "2124995338385916130",
+   "url": "https://x.com/imoutoid_arc/status/2124995338385916130",
+   "text": "ネコミミ荻野yonosukeに残ってました！まだまだ色々ありそうですね。\nhttps://www.yonosuke.net/dtm/data/6773.mp3",
+   "created_at": "Mon Nov 23 22:35:43 +0000 2026",
+   "created_timestamp": 1795473343,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 2,
+   "retweets": 0,
+   "replies": 0,
+   "views": 41
+  },
+  {
+   "id": "2124992143148409157",
+   "url": "https://x.com/imoutoid_arc/status/2124992143148409157",
+   "text": "どなたなのかは分かりませんが当サイトのbbsにてネコミミ荻野の初出のスレの存在を教えてくれた方がいました。\n改めて貴重な情報を教えてくださりありがとうございます！",
+   "created_at": "Mon Nov 23 22:23:02 +0000 2026",
+   "created_timestamp": 1795472582,
+   "replying_to": null,
+   "photos": [
+    {
+     "url": "https://pbs.twimg.com/media/HX18rq-bcAAJCO9.jpg",
+     "width": 750,
+     "height": 1334
+    }
+   ],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 28
+  },
+  {
+   "id": "2124879401875882249",
+   "url": "https://x.com/imoutoid_arc/status/2124879401875882249",
+   "text": "無音が長くて全くイントロが聞けないものもありましたが意外と正解できましたね\nimoutoid イントロクイズ（マニア級・10問）で 8/10 正解！\nhttps://yusei193.github.io/imoutoid-audio/intro-quiz/",
+   "created_at": "Mon Nov 23 14:55:02 +0000 2026",
+   "created_timestamp": 1795445702,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 4,
+   "retweets": 0,
+   "replies": 0,
+   "views": 79
+  },
+  {
+   "id": "2124734343776268769",
+   "url": "https://x.com/imoutoid_arc/status/2124734343776268769",
+   "text": "『imoutoidイントロクイズ』を\n作ってみました。是非あそんでみてね！\nhttps://yusei193.github.io/imoutoid-audio/intro-quiz/\n #imoutoid  #イントロクイズ",
+   "created_at": "Mon Nov 23 05:18:37 +0000 2026",
+   "created_timestamp": 1795411117,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 102
+  },
+  {
+   "id": "2124122754777780488",
+   "url": "https://x.com/imoutoid_arc/status/2124122754777780488",
+   "text": "ラジオあんな感じでよかったのかな",
+   "created_at": "Sat Nov 21 12:48:23 +0000 2026",
+   "created_timestamp": 1795265303,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 1,
+   "retweets": 0,
+   "replies": 0,
+   "views": 84
+  },
+  {
+   "id": "2124093233827631588",
+   "url": "https://x.com/imoutoid_arc/status/2124093233827631588",
+   "text": "ラジオ今流してます気になる方は見てみてね\nhttps://www.imoutoid.net/live-radio",
+   "created_at": "Sat Nov 21 10:51:05 +0000 2026",
+   "created_timestamp": 1795258265,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 3,
+   "retweets": 1,
+   "replies": 0,
+   "views": 197
+  },
+  {
+   "id": "2123906266422796411",
+   "url": "https://x.com/imoutoid_arc/status/2123906266422796411",
+   "text": "https://www.imoutoid.net/musicplayer\n2026-11-21 07:25更新　\nipod風の音楽プレイヤーで\nimoutoidの音源が聞けるページを追加しました。\n＃imoutoid",
+   "created_at": "Fri Nov 20 22:28:08 +0000 2026",
+   "created_timestamp": 1795213688,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 1,
+   "retweets": 0,
+   "replies": 0,
+   "views": 124
+  },
+  {
+   "id": "2121909864125677947",
+   "url": "https://x.com/imoutoid_arc/status/2121909864125677947",
+   "text": "とかちリミックス関係の未発見の音源の記述をみつけた\nどうやらとかちつくちての部分だけが5分ほど繰り返されるものがあるみたい\nブログに無い音源もたくさんある可能性がありますね",
+   "created_at": "Sun Nov 15 10:15:09 +0000 2026",
+   "created_timestamp": 1794737709,
+   "replying_to": null,
+   "photos": [
+    {
+     "url": "https://pbs.twimg.com/media/HXKJGUsa8AAMa0D.jpg",
+     "width": 963,
+     "height": 387
+    }
+   ],
+   "videos": [],
+   "quote": null,
+   "likes": 2,
+   "retweets": 0,
+   "replies": 1,
+   "views": 312
+  },
+  {
+   "id": "2121905285619241408",
+   "url": "https://x.com/imoutoid_arc/status/2121905285619241408",
+   "text": "とかちリミックスの過去スレ見つけた！\nhttps://itest.5ch.io/kako/test/read.cgi/news4vip/1171987215",
+   "created_at": "Sun Nov 15 09:56:57 +0000 2026",
+   "created_timestamp": 1794736617,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 2,
+   "retweets": 0,
+   "replies": 0,
+   "views": 221
+  },
+  {
+   "id": "2119759982472368284",
+   "url": "https://x.com/imoutoid_arc/status/2119759982472368284",
+   "text": "アクセスしやすい著名なアーティストにはほぼ連絡を送ってしまったため次はtwitterで人を呼び掛けて音源を探す方法を試そうかな。",
+   "created_at": "Mon Nov 09 11:52:17 +0000 2026",
+   "created_timestamp": 1794225137,
+   "replying_to": null,
+   "photos": [
+    {
+     "url": "https://pbs.twimg.com/media/HWrmSSnbgAAgehP.jpg",
+     "width": 1096,
+     "height": 118
+    }
+   ],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 212
+  },
+  {
+   "id": "2119705213217259742",
+   "url": "https://x.com/imoutoid_arc/status/2119705213217259742",
+   "text": "sjyamato時代のムービーの解説も発見しました。\n文章がテンションの高い子供みたいで面白いです。\nhttps://web.archive.org/web/20020612031252/http://isweb42.infoseek.co.jp:80/art/sjyamato/Movie/Movie.html",
+   "created_at": "Mon Nov 09 08:14:39 +0000 2026",
+   "created_timestamp": 1794212079,
+   "replying_to": null,
+   "photos": [
+    {
+     "url": "https://pbs.twimg.com/media/HWq0nErbsAApy2n.jpg",
+     "width": 1910,
+     "height": 915
+    }
+   ],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 166
+  },
+  {
+   "id": "2119699959427764598",
+   "url": "https://x.com/imoutoid_arc/status/2119699959427764598",
+   "text": "sjyamato時代の日記が何故か残っているため共有\nhttps://web.archive.org/web/20020612031215/http://isweb42.infoseek.co.jp:80/art/sjyamato/Diar/Diary.html",
+   "created_at": "Mon Nov 09 07:53:47 +0000 2026",
+   "created_timestamp": 1794210827,
+   "replying_to": null,
+   "photos": [
+    {
+     "url": "https://pbs.twimg.com/media/HWqvutda0AAm24d.jpg",
+     "width": 1910,
+     "height": 915
+    }
+   ],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 130
+  },
+  {
+   "id": "2119695625617019089",
+   "url": "https://x.com/imoutoid_arc/status/2119695625617019089",
+   "text": "2chの過去ログを漁っていますが面白い記述がありました。でもケロログのarchiveは調べつくしているのでのこっていませんね。。。",
+   "created_at": "Mon Nov 09 07:36:33 +0000 2026",
+   "created_timestamp": 1794209793,
+   "replying_to": null,
+   "photos": [
+    {
+     "url": "https://pbs.twimg.com/media/HWqp55TasAARyLe.jpg",
+     "width": 1096,
+     "height": 118
+    }
+   ],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 129
+  },
+  {
+   "id": "2119692154088161506",
+   "url": "https://x.com/imoutoid_arc/status/2119692154088161506",
+   "text": "ファミコン宇宙人時代のアーカイブ残ってましたね。\n見つからない音源についての記述も残っているし貴重ですね。\nhttps://web.archive.org/web/20060526221411/http://blog.livedoor.jp/marcelduchamp/",
+   "created_at": "Mon Nov 09 07:22:46 +0000 2026",
+   "created_timestamp": 1794208966,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 3,
+   "retweets": 1,
+   "replies": 0,
+   "views": 189
+  },
+  {
+   "id": "2119676955490742529",
+   "url": "https://x.com/imoutoid_arc/status/2119676955490742529",
+   "text": "とかちリミックスのlogをみつけたので共有してみます。\nvipのスレで発表されてたものなんですね。\nhttps://web.archive.org/web/20080719011045/http://2log.blog9.fc2.com/blog-entry-1759.html",
+   "created_at": "Mon Nov 09 06:22:22 +0000 2026",
+   "created_timestamp": 1794205342,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 5,
+   "retweets": 0,
+   "replies": 0,
+   "views": 345
+  },
+  {
+   "id": "2118301462019109215",
+   "url": "https://x.com/imoutoid_arc/status/2118301462019109215",
+   "text": "1日1回imoutoidと言う投稿\n1日目:imoutoid",
+   "created_at": "Thu Nov 05 11:16:39 +0000 2026",
+   "created_timestamp": 1793877399,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 217
+  },
+  {
+   "id": "2116136079422361890",
+   "url": "https://x.com/imoutoid_arc/status/2116136079422361890",
+   "text": "これかっこよすぎる鳴らしてみたいなsupercoliderで\nhttps://www.youtube.com/watch?v=tRiT6ERYmWY",
+   "created_at": "Fri Oct 30 11:52:11 +0000 2026",
+   "created_timestamp": 1793361131,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 1,
+   "retweets": 0,
+   "replies": 0,
+   "views": 464
+  },
+  {
+   "id": "2115958092999577636",
+   "url": "https://x.com/imoutoid_arc/status/2115958092999577636",
+   "text": "ファイル名を確認してたら今までずっと\"キラキラドポップハウス\"を\"mp3音声圧縮をすると音質が良くなる(マジで)\"と間違えてました。ファイル名全然違うのに一体どうして",
+   "created_at": "Fri Oct 30 00:04:56 +0000 2026",
+   "created_timestamp": 1793318696,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 278
+  },
+  {
+   "id": "2115804498845368800",
+   "url": "https://x.com/imoutoid_arc/status/2115804498845368800",
+   "text": "佐賀はバルーンフェスタの\n前夜祭があったようですね！\nサイト管理者のひとりは佐賀出身なので\nバルーンが飛ぶことが嬉しいです！\n秋ですね！（もうすぐ11月）\n #バルーンフェスタ  \n#sibf2026",
+   "created_at": "Thu Oct 29 13:54:36 +0000 2026",
+   "created_timestamp": 1793282076,
+   "replying_to": null,
+   "photos": [
+    {
+     "url": "https://pbs.twimg.com/media/HVzY-UqakAE4IP2.jpg",
+     "width": 3715,
+     "height": 2849
+    }
+   ],
+   "videos": [],
+   "quote": null,
+   "likes": 1,
+   "retweets": 0,
+   "replies": 0,
+   "views": 749
+  },
+  {
+   "id": "2115684760844738947",
+   "url": "https://x.com/imoutoid_arc/status/2115684760844738947",
+   "text": "わかります",
+   "created_at": "Thu Oct 29 05:58:49 +0000 2026",
+   "created_timestamp": 1793253529,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": {
+    "url": "https://x.com/to6okegao/status/2107672012068176226",
+    "author": "to6okegao",
+    "text": "imoutoidチップチューン作るのウマすぎだろう\n\nhttps://www.youtube.com/watch?v=SVx6JueTRmY",
+    "created_at": "Wed Oct 07 03:19:00 +0000 2026"
+   },
+   "likes": 1,
+   "retweets": 0,
+   "replies": 0,
+   "views": 254
+  },
+  {
+   "id": "2115460284655837644",
+   "url": "https://x.com/imoutoid_arc/status/2115460284655837644",
+   "text": "改めてこの場を借りて音源のレビューを書いていただいた方にありがとうございます。\n良いコメントをたくさん頂けてとてもうれしいです。",
+   "created_at": "Wed Oct 28 15:06:49 +0000 2026",
+   "created_timestamp": 1793200009,
+   "replying_to": null,
+   "photos": [
+    {
+     "url": "https://pbs.twimg.com/media/HVufbn0aIAAaaJu.jpg",
+     "width": 1920,
+     "height": 872
+    },
+    {
+     "url": "https://pbs.twimg.com/media/HVufdWZaYAEhCcJ.jpg",
+     "width": 1920,
+     "height": 872
+    },
+    {
+     "url": "https://pbs.twimg.com/media/HVuff0JbIAAD1vD.jpg",
+     "width": 1920,
+     "height": 872
+    },
+    {
+     "url": "https://pbs.twimg.com/media/HVufiZYboAAU23k.jpg",
+     "width": 1920,
+     "height": 872
+    }
+   ],
+   "videos": [],
+   "quote": null,
+   "likes": 5,
+   "retweets": 0,
+   "replies": 0,
+   "views": 646
+  },
+  {
+   "id": "2115456254693003338",
+   "url": "https://x.com/imoutoid_arc/status/2115456254693003338",
+   "text": "https://drive.google.com/file/d/1Mg7JLpfVceKjfnTQEq6MJJFHuz0El1bV/view?usp=drive_link",
+   "created_at": "Wed Oct 28 14:50:49 +0000 2026",
+   "created_timestamp": 1793199049,
+   "replying_to": "imoutoid_arc",
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 213
+  },
+  {
+   "id": "2115451732293783571",
+   "url": "https://x.com/imoutoid_arc/status/2115451732293783571",
+   "text": "imoutoidの音源をまた見つけ出すことが出来たので報告します。\nこれでimoutoid名義の見つかっていない音源は残すところ一つだけになりましたね。",
+   "created_at": "Wed Oct 28 14:32:50 +0000 2026",
+   "created_timestamp": 1793197970,
+   "replying_to": null,
+   "photos": [],
+   "videos": [
+    {
+     "type": "video",
+     "url": "https://video.twimg.com/amplify_video/2115450791050018816/vid/avc1/1280x720/iEB2dyo4OcPk2evy.mp4?tag=14",
+     "thumbnail_url": "https://pbs.twimg.com/amplify_video_thumb/2115450791050018816/img/m38wbTgkeLo2NU4_.jpg",
+     "width": 1920,
+     "height": 1080,
+     "duration": 14.605
+    }
+   ],
+   "quote": null,
+   "likes": 3,
+   "retweets": 0,
+   "replies": 1,
+   "views": 422
+  },
+  {
+   "id": "2114742949699592341",
+   "url": "https://x.com/imoutoid_arc/status/2114742949699592341",
+   "text": "🐸\nhttps://drive.google.com/file/d/1jMH9qYyxt4b96i3H1QWRD0XqpSM5WrCJ/view?usp=drive_link",
+   "created_at": "Mon Oct 26 15:36:23 +0000 2026",
+   "created_timestamp": 1793028983,
+   "replying_to": "imoutoid_arc",
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 249
+  },
+  {
+   "id": "2114676540239937976",
+   "url": "https://x.com/imoutoid_arc/status/2114676540239937976",
+   "text": "game5p_practice",
+   "created_at": "Mon Oct 26 11:12:30 +0000 2026",
+   "created_timestamp": 1793013150,
+   "replying_to": null,
+   "photos": [],
+   "videos": [
+    {
+     "type": "video",
+     "url": "https://video.twimg.com/amplify_video/2114676515204194304/vid/avc1/1280x720/mnCS7pnk3ox6iFej.mp4?tag=14",
+     "thumbnail_url": "https://pbs.twimg.com/amplify_video_thumb/2114676515204194304/img/MKfYhwkWfpI2wcuO.jpg",
+     "width": 1920,
+     "height": 1080,
+     "duration": 52.012
+    }
+   ],
+   "quote": null,
+   "likes": 4,
+   "retweets": 1,
+   "replies": 1,
+   "views": 445
+  },
+  {
+   "id": "2112563016353145231",
+   "url": "https://x.com/imoutoid_arc/status/2112563016353145231",
+   "text": "@kikuo_sound 様\n貴重な音源·imoutoid氏の貴重な映像の\n提供本当にありがとうございましたorz",
+   "created_at": "Tue Oct 20 15:14:07 +0000 2026",
+   "created_timestamp": 1792509247,
+   "replying_to": "imoutoid_arc",
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 136
+  },
+  {
+   "id": "2112498620004257838",
+   "url": "https://x.com/imoutoid_arc/status/2112498620004257838",
+   "text": "フォロワーさんにお願いして楽曲のレビューをいくつか今書いてもらっています。\n色んな人に頼んでみてよかったです。",
+   "created_at": "Tue Oct 20 10:58:13 +0000 2026",
+   "created_timestamp": 1792493893,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 264
+  },
+  {
+   "id": "2111508102571069867",
+   "url": "https://x.com/imoutoid_arc/status/2111508102571069867",
+   "text": "使われてました😭\nhttps://unused-name-game.kononamaehagennzai.workers.dev/?cardtest=2",
+   "created_at": "Sat Oct 17 17:22:16 +0000 2026",
+   "created_timestamp": 1792257736,
+   "replying_to": null,
+   "photos": [
+    {
+     "url": "https://pbs.twimg.com/media/HU2VbSJbMAAHh37.jpg",
+     "width": 1836,
+     "height": 3502
+    }
+   ],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 338
+  },
+  {
+   "id": "2111478251290026320",
+   "url": "https://x.com/imoutoid_arc/status/2111478251290026320",
+   "text": "inm and the hysterious magic cookie☆\nhttps://www.nicovideo.jp/watch/sm21524234?ref=androidapp_twitter\n\n#sm21524234\n#ニコニコ動画\n #imoutoid",
+   "created_at": "Sat Oct 17 15:23:39 +0000 2026",
+   "created_timestamp": 1792250619,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 404
+  },
+  {
+   "id": "2111452475379380241",
+   "url": "https://x.com/imoutoid_arc/status/2111452475379380241",
+   "text": "初めて音MADを作ってみました。\nimoutoid関係の動画なのでここにも投稿してみようと思います。",
+   "created_at": "Sat Oct 17 13:41:13 +0000 2026",
+   "created_timestamp": 1792244473,
+   "replying_to": null,
+   "photos": [],
+   "videos": [
+    {
+     "type": "video",
+     "url": "https://video.twimg.com/amplify_video/2111452380671946752/vid/avc1/1280x720/pTOr5NSFpeWkLNop.mp4?tag=14",
+     "thumbnail_url": "https://pbs.twimg.com/amplify_video_thumb/2111452380671946752/img/6t8s0EjJ_dCi2w3v.jpg",
+     "width": 1920,
+     "height": 1080,
+     "duration": 81.943
+    }
+   ],
+   "quote": null,
+   "likes": 9,
+   "retweets": 3,
+   "replies": 0,
+   "views": 767
+  },
+  {
+   "id": "2111072207837499764",
+   "url": "https://x.com/imoutoid_arc/status/2111072207837499764",
+   "text": "このリミックス大好きですね。彼の客観的かつどこか知的で遊び心を感じる音楽性が滲み出ていて好きです。\nhttps://m.youtube.com/watch?v=rTE4AG_ypyU&ra=m",
+   "created_at": "Fri Oct 16 12:30:10 +0000 2026",
+   "created_timestamp": 1792153810,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 2,
+   "retweets": 1,
+   "replies": 0,
+   "views": 414
+  },
+  {
+   "id": "2109992083314635240",
+   "url": "https://x.com/imoutoid_arc/status/2109992083314635240",
+   "text": "@tanigon",
+   "created_at": "Tue Oct 13 12:58:09 +0000 2026",
+   "created_timestamp": 1791896289,
+   "replying_to": "imoutoid_arc",
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 234
+  },
+  {
+   "id": "2109731205331796449",
+   "url": "https://x.com/imoutoid_arc/status/2109731205331796449",
+   "text": "モニターイヤホンを買った試しに、imoutoidの音源の中でも音圧が特に上がりすぎててガビガビになっていた”MP3音声圧縮すると音が良くなる（マジで）”を聴いてみたら、各パートの音がしっかり分離して聞こえて曲の意図をつかめたような気がして少し嬉しかったですね。",
+   "created_at": "Mon Oct 12 19:41:30 +0000 2026",
+   "created_timestamp": 1791834090,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 305
+  },
+  {
+   "id": "2109702297685246398",
+   "url": "https://x.com/imoutoid_arc/status/2109702297685246398",
+   "text": "すこし不謹慎ですがtanigonさんというjazzで活動されてるアーティストのtumblrで投稿されていた、imoutoidの死後に投稿された内省的な即興のピアノ演奏の音源が印象に残っていますが、最近サイトを見ると消えていたのでここに共有してみようと思います。",
+   "created_at": "Mon Oct 12 17:46:38 +0000 2026",
+   "created_timestamp": 1791827198,
+   "replying_to": null,
+   "photos": [],
+   "videos": [
+    {
+     "type": "video",
+     "url": "https://video.twimg.com/amplify_video/2109702014779461632/vid/avc1/1280x720/66gcs7AHMLWGgr14.mp4?tag=14",
+     "thumbnail_url": "https://pbs.twimg.com/amplify_video_thumb/2109702014779461632/img/_NcA4kvegIY-bOaz.jpg",
+     "width": 1920,
+     "height": 1080,
+     "duration": 138.166
+    }
+   ],
+   "quote": null,
+   "likes": 4,
+   "retweets": 1,
+   "replies": 1,
+   "views": 427
+  },
+  {
+   "id": "2109330963734118525",
+   "url": "https://x.com/imoutoid_arc/status/2109330963734118525",
+   "text": "ボカロPのきくお氏から提供された貴重な生前のimoutoidが映っている映像を公開致します。⚠きくお氏から許諾を取って\nおります。\n #imoutoid \nhttps://www.imoutoid.net",
+   "created_at": "Sun Oct 11 17:11:05 +0000 2026",
+   "created_timestamp": 1791738665,
+   "replying_to": null,
+   "photos": [],
+   "videos": [
+    {
+     "type": "video",
+     "url": "https://video.twimg.com/amplify_video/2109330895794847744/vid/avc1/176x144/WlvhK3u2fKB_2n4H.mp4?tag=29",
+     "thumbnail_url": "https://pbs.twimg.com/amplify_video_thumb/2109330895794847744/img/T7MC2BBMIaGBPFXq.jpg",
+     "width": 176,
+     "height": 144,
+     "duration": 20.652
+    },
+    {
+     "type": "video",
+     "url": "https://video.twimg.com/amplify_video/2109330915856138240/vid/avc1/176x144/QVfDghMQn1UiFaIr.mp4?tag=29",
+     "thumbnail_url": "https://pbs.twimg.com/amplify_video_thumb/2109330915856138240/img/trC6arIf7EdsqFOb.jpg",
+     "width": 176,
+     "height": 144,
+     "duration": 12.084
+    },
+    {
+     "type": "video",
+     "url": "https://video.twimg.com/amplify_video/2109330949653860352/vid/avc1/176x144/lf3XqNGv_vzuAXyl.mp4?tag=29",
+     "thumbnail_url": "https://pbs.twimg.com/amplify_video_thumb/2109330949653860352/img/OY5Lw5Hs448NCOan.jpg",
+     "width": 176,
+     "height": 144,
+     "duration": 38.323
+    }
+   ],
+   "quote": null,
+   "likes": 6,
+   "retweets": 2,
+   "replies": 1,
+   "views": 498
+  },
+  {
+   "id": "2108040537144197609",
+   "url": "https://x.com/imoutoid_arc/status/2108040537144197609",
+   "text": "imoutoidの好きな曲や彼のコンテンツとの思い出を掲載できる思い出板を作ってみました。\n名前と好きな曲とエピソードをフォーラムに書いてくいただくと、思い出板のページに掲載されるので是非書いてみてね。\n#imoutoid\n\nhttps://www.imoutoid.net/%E6%80%9D%E3%81%84%E5%87%BA%E6%9D%BF",
+   "created_at": "Thu Oct 08 03:43:24 +0000 2026",
+   "created_timestamp": 1791431004,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 1,
+   "retweets": 0,
+   "replies": 0,
+   "views": 304
+  },
+  {
+   "id": "2108037722871095692",
+   "url": "https://x.com/imoutoid_arc/status/2108037722871095692",
+   "text": "きくおさんにご連絡して使用の許可をいただいたclub asiaのライブの後日に撮影されたオフ会での映像を3つと更に音源を1つ頂きました。\nこの活動をしていなかったらみる事がなかったかもしれない貴重な映像や音源なので是非共有しようと思っております。",
+   "created_at": "Thu Oct 08 03:32:13 +0000 2026",
+   "created_timestamp": 1791430333,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 1,
+   "retweets": 1,
+   "replies": 0,
+   "views": 302
+  },
+  {
+   "id": "2107719330565857460",
+   "url": "https://x.com/imoutoid_arc/status/2107719330565857460",
+   "text": "それな。\n #imoutoid",
+   "created_at": "Wed Oct 07 06:27:02 +0000 2026",
+   "created_timestamp": 1791354422,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": {
+    "url": "https://x.com/bsrbooks/status/2107360587667878044",
+    "author": "bsrbooks",
+    "text": "imoutoidの音MADもっとふえろ・・・ふえろ・・・",
+    "created_at": "Tue Oct 06 06:41:31 +0000 2026"
+   },
+   "likes": 1,
+   "retweets": 0,
+   "replies": 0,
+   "views": 259
+  },
+  {
+   "id": "2107719256972619811",
+   "url": "https://x.com/imoutoid_arc/status/2107719256972619811",
+   "text": "本当に平成が生んだ天才だと思います。\n #imoutoid",
+   "created_at": "Wed Oct 07 06:26:45 +0000 2026",
+   "created_timestamp": 1791354405,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": {
+    "url": "https://x.com/to6okegao/status/2107672012068176226",
+    "author": "to6okegao",
+    "text": "imoutoidチップチューン作るのウマすぎだろう\n\nhttps://www.youtube.com/watch?v=SVx6JueTRmY",
+    "created_at": "Wed Oct 07 03:19:00 +0000 2026"
+   },
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 212
+  },
+  {
+   "id": "2107714596463394981",
+   "url": "https://x.com/imoutoid_arc/status/2107714596463394981",
+   "text": "imoutoid Live SECOのセットリスト\nx080329\nOpening\nPART 2\nPART 3\nantimetathesis \n（※この動画でいう14:31～の曲）\nmy little sister becomes a rocket scientist（※19:20～くらい）\nLiveTracker\nBreakMyStride\n https://youtu.be/hLiTXsIwCwc?si=_ML9DMEY_RTz_sKn\n\n #imoutoid",
+   "created_at": "Wed Oct 07 06:08:13 +0000 2026",
+   "created_timestamp": 1791353293,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 235
+  },
+  {
+   "id": "2107357304974921889",
+   "url": "https://x.com/imoutoid_arc/status/2107357304974921889",
+   "text": "全てのひらがなが\n歌われてるからこそ出来る芸当",
+   "created_at": "Tue Oct 06 06:28:28 +0000 2026",
+   "created_timestamp": 1791268108,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": {
+    "url": "https://x.com/aosakaao12/status/2104881714225086817",
+    "author": "aosakaao12",
+    "text": "",
+    "created_at": "Tue Sep 29 10:31:22 +0000 2026"
+   },
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 158
+  },
+  {
+   "id": "2107357013302972557",
+   "url": "https://x.com/imoutoid_arc/status/2107357013302972557",
+   "text": "本当にそう思います。",
+   "created_at": "Tue Oct 06 06:27:19 +0000 2026",
+   "created_timestamp": 1791268039,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": {
+    "url": "https://x.com/hikakin/status/55633356787949568",
+    "author": "hikakin",
+    "text": "imoutoidの楽曲久々に聴いてるけど、不純物ゼロ度maximum. 若くして無くなられたのが本当に悔やまれると、毎回聴いてて思う。",
+    "created_at": "Wed Apr 06 14:10:00 +0000 2011"
+   },
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 138
+  },
+  {
+   "id": "2106795504227274767",
+   "url": "https://x.com/imoutoid_arc/status/2106795504227274767",
+   "text": "[Deemo]Run Go Run - Kaeru Underground\nhttps://www.nicovideo.jp/watch/sm22470685?ref=twitter_cap_on\n\n#sm22470685\n#ニコニコ動画",
+   "created_at": "Sun Oct 04 17:16:05 +0000 2026",
+   "created_timestamp": 1791134165,
+   "replying_to": null,
+   "photos": [
+    {
+     "url": "https://pbs.twimg.com/media/HTzXWDlacAADjLt.jpg",
+     "width": 1280,
+     "height": 720
+    }
+   ],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 198
+  },
+  {
+   "id": "2106573731581862317",
+   "url": "https://x.com/imoutoid_arc/status/2106573731581862317",
+   "text": "ファミコン宇宙人の時期とかタンクマニア関係で関わりを持ってる人と関われないものかな",
+   "created_at": "Sun Oct 04 02:34:50 +0000 2026",
+   "created_timestamp": 1791081290,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 192
+  },
+  {
+   "id": "2106142758201340175",
+   "url": "https://x.com/imoutoid_arc/status/2106142758201340175",
+   "text": "kaeru君のフォントとか文字色のセンスはまねできない\nからすごいと思う",
+   "created_at": "Fri Oct 02 22:02:18 +0000 2026",
+   "created_timestamp": 1790978538,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 195
+  },
+  {
+   "id": "2106142394546802937",
+   "url": "https://x.com/imoutoid_arc/status/2106142394546802937",
+   "text": "kaeru君にはとても感謝です",
+   "created_at": "Fri Oct 02 22:00:51 +0000 2026",
+   "created_timestamp": 1790978451,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 187
+  },
+  {
+   "id": "2106142299734659301",
+   "url": "https://x.com/imoutoid_arc/status/2106142299734659301",
+   "text": "我ながら結構いいサイトができたよな...",
+   "created_at": "Fri Oct 02 22:00:29 +0000 2026",
+   "created_timestamp": 1790978429,
+   "replying_to": null,
+   "photos": [],
+   "videos": [],
+   "quote": null,
+   "likes": 0,
+   "retweets": 0,
+   "replies": 0,
+   "views": 169
+  }
+ ]
+}

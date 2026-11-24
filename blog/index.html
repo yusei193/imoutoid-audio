@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog | imoutoid informal archive</title>
+<meta name="description" content="imoutoid informal archive のブログ — @imoutoid_arc の日々のポストと記録をまとめたアーカイブです。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e6c93'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='19' fill='white' text-anchor='middle'%3Ei%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f5f2;
+    --card: #ffffff;
+    --ink: #1b2226;
+    --ink-soft: #3d484f;
+    --muted: #77838c;
+    --line: #e5e1d8;
+    --line-soft: #efebe3;
+    --accent: #1e6c93;
+    --accent-soft: rgba(30, 108, 147, 0.10);
+    --shadow: 0 1px 2px rgba(27, 34, 38, 0.04), 0 6px 18px rgba(27, 34, 38, 0.05);
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { height: 100%; }
+  /* Google サイトの埋め込み（scrolling="no"）でもこのページ内でスクロールできるようにする */
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif;
+    font-size: 15px;
+    line-height: 1.75;
+    letter-spacing: 0.01em;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+  .wrap { max-width: 780px; margin: 0 auto; padding: 0 18px 64px; }
+
+  /* ---------- header ---------- */
+  header.masthead {
+    background:
+      radial-gradient(900px 220px at 12% -40%, rgba(30,108,147,0.16), transparent 70%),
+      linear-gradient(180deg, #ffffff 0%, #fbfaf7 100%);
+    border-bottom: 1px solid var(--line);
+  }
+  .masthead-inner {
+    max-width: 780px; margin: 0 auto; padding: 26px 18px 20px;
+    display: flex; gap: 16px; align-items: center;
+  }
+  .avatar {
+    width: 56px; height: 56px; border-radius: 50%;
+    border: 2px solid #fff; box-shadow: 0 2px 10px rgba(27,34,38,0.14);
+    object-fit: cover; flex: 0 0 auto; background: #dfe6ea;
+  }
+  .masthead-text { min-width: 0; }
+  .masthead-kicker {
+    font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--accent); font-weight: 600; margin: 0 0 2px;
+  }
+  h1.title {
+    font-family: Lora, "Hiragino Mincho ProN", "Yu Mincho", serif;
+    font-size: 23px; line-height: 1.25; margin: 0; font-weight: 600; letter-spacing: 0;
+  }
+  h1.title .slash { color: var(--muted); font-weight: 400; margin: 0 6px; }
+  h1.title .latin { font-style: italic; }
+  .masthead-desc { margin: 4px 0 0; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+  .masthead-desc a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+
+  /* ---------- toolbar ---------- */
+  .toolbar {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(246, 245, 242, 0.92);
+    backdrop-filter: saturate(160%) blur(10px);
+    -webkit-backdrop-filter: saturate(160%) blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .toolbar-inner {
+    max-width: 780px; margin: 0 auto; padding: 10px 18px;
+    display: flex; gap: 9px; align-items: center;
+  }
+  .search {
+    position: relative; flex: 1 1 auto; min-width: 0;
+  }
+  .search svg {
+    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px; color: var(--muted); pointer-events: none;
+  }
+  #q {
+    width: 100%; padding: 9px 12px 9px 34px;
+    border: 1px solid var(--line); border-radius: 999px;
+    background: #fff; color: var(--ink); font: inherit; font-size: 14px;
+    outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  #q::placeholder { color: #a3adb4; }
+  #q:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto;
+    padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line);
+    background: #fff; color: var(--ink-soft); font: inherit; font-size: 13px;
+    cursor: pointer; white-space: nowrap; transition: all .15s;
+  }
+  .chip:hover { border-color: #cfd8dd; }
+  .chip .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #c9d2d8; transition: background .15s;
+  }
+  .chip[aria-pressed="true"] {
+    background: var(--accent); border-color: var(--accent); color: #fff;
+    box-shadow: 0 2px 8px rgba(30,108,147,0.25);
+  }
+  .chip[aria-pressed="true"] .dot { background: #fff; }
+
+  .meta-row {
+    max-width: 780px; margin: 0 auto; padding: 14px 18px 0;
+    display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+    font-size: 12px; color: var(--muted); letter-spacing: 0.02em;
+  }
+  .meta-row .count b { color: var(--ink-soft); font-weight: 600; }
+
+  /* ---------- feed ---------- */
+  #feed { padding-top: 12px; }
+
+  article.post {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px 20px 14px 20px;
+    margin: 0 0 14px;
+    animation: rise .35s ease both;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    article.post { animation: none; }
+  }
+  article.post::before {
+    content: ""; position: absolute; left: 0; top: 18px; bottom: 18px; width: 3px;
+    border-radius: 0 3px 3px 0; background: var(--accent-soft);
+  }
+  article.post:hover::before { background: var(--accent); }
+
+  .post-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    margin: 0 0 8px;
+  }
+  .post-date {
+    display: flex; align-items: baseline; gap: 8px;
+    font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums;
+  }
+  .post-date .d { color: var(--ink-soft); font-weight: 600; font-size: 13.5px; letter-spacing: 0.02em; }
+  .post-date .t { color: var(--muted); }
+  .post-date .y { opacity: .75; }
+  .post-open {
+    flex: 0 0 auto; font-size: 12px; color: var(--muted);
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px; border-radius: 999px; border: 1px solid transparent;
+    transition: all .15s;
+  }
+  .post-open:hover { color: var(--accent); background: var(--accent-soft); text-decoration: none; }
+  .post-open svg { width: 13px; height: 13px; }
+
+  .post-text {
+    margin: 0;
+    font-size: 15px; line-height: 1.85; color: var(--ink);
+    white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere;
+  }
+  .post-text a { word-break: break-all; }
+  .post-text .tag {
+    color: var(--accent); font-weight: 500;
+    background: var(--accent-soft); border-radius: 4px; padding: 0 4px 1px;
+  }
+  .post-text .tag:hover { text-decoration: none; background: rgba(30,108,147,0.2); }
+  .post-text .mention { color: var(--accent); font-weight: 500; }
+
+  /* media */
+  .media { margin: 12px 0 2px; }
+  .gallery { display: grid; gap: 5px; border-radius: 10px; overflow: hidden; }
+  .gallery.n1 { grid-template-columns: 1fr; display: flex; justify-content: center; overflow: visible; }
+  .gallery.n2 { grid-template-columns: 1fr 1fr; }
+  .gallery.n3 { grid-template-columns: repeat(3, 1fr); }
+  .gallery.n4 { grid-template-columns: 1fr 1fr; }
+  .gallery figure { margin: 0; position: relative; overflow: hidden; background: #eceff1; cursor: zoom-in; }
+  .gallery.n1 figure { max-height: 640px; border-radius: 10px; background: #f1f3f4; }
+  .gallery.n2 figure, .gallery.n3 figure, .gallery.n4 figure { aspect-ratio: 1 / 1; }
+  .gallery img {
+    display: block; width: 100%; height: 100%; object-fit: cover;
+    transition: transform .25s ease, filter .2s;
+  }
+  .gallery.n1 img { width: auto; max-width: 100%; max-height: 640px; height: auto; object-fit: contain; }
+  .gallery figure:hover img { transform: scale(1.02); filter: brightness(0.97); }
+  .gallery .more {
+    position: absolute; inset: 0; background: rgba(20,26,30,0.55);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 600; pointer-events: none;
+  }
+  .video-box { position: relative; border-radius: 10px; overflow: hidden; background: #0d1114; }
+  .video-box video { display: block; width: 100%; max-height: 520px; background: #0d1114; }
+
+  /* quote */
+  .quote {
+    margin: 12px 0 2px; padding: 10px 12px 11px;
+    border: 1px solid var(--line); border-radius: 10px;
+    background: #fbfaf7; display: block; color: inherit;
+    transition: border-color .15s, background .15s;
+  }
+  .quote:hover { text-decoration: none; border-color: #cfd8dd; background: #f7f9fa; }
+  .quote .q-top { font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+  .quote .q-top b { color: var(--ink-soft); font-weight: 600; }
+  .quote .q-text {
+    margin: 0; font-size: 13.5px; line-height: 1.7; color: var(--ink-soft);
+    display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
+    white-space: pre-wrap; overflow-wrap: anywhere;
+  }
+
+  /* footer stats */
+  .post-foot {
+    display: flex; align-items: center; gap: 16px;
+    margin-top: 12px; padding-top: 9px; border-top: 1px dashed var(--line-soft);
+    font-size: 12px; color: var(--muted);
+  }
+  .stat { display: inline-flex; align-items: center; gap: 5px; }
+  .stat svg { width: 14px; height: 14px; }
+  .post-foot .spacer { flex: 1 1 auto; }
+  .post-foot .num { font-variant-numeric: tabular-nums; }
+
+  /* states */
+  .state-box {
+    text-align: center; color: var(--muted); padding: 56px 20px;
+    font-size: 13.5px;
+  }
+  .state-box .big {
+    font-family: Lora, serif; font-size: 19px; color: var(--ink-soft);
+    display: block; margin-bottom: 6px;
+  }
+  .spinner {
+    width: 22px; height: 22px; margin: 0 auto 12px;
+    border: 2px solid var(--line); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  footer.colophon {
+    max-width: 780px; margin: 0 auto; padding: 26px 18px 8px;
+    text-align: center; font-size: 11.5px; color: #9aa4ab; line-height: 1.8;
+  }
+  footer.colophon a { color: #8b969d; text-decoration: underline; text-underline-offset: 2px; }
+
+  /* ---------- lightbox ---------- */
+  .lb {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(12, 16, 19, 0.94);
+    display: none; align-items: center; justify-content: center;
+    padding: 24px;
+    backdrop-filter: blur(3px);
+  }
+  .lb.open { display: flex; }
+  .lb img {
+    max-width: 100%; max-height: 100%;
+    object-fit: contain; border-radius: 6px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    user-select: none;
+  }
+  .lb-close, .lb-prev, .lb-next {
+    position: absolute; background: rgba(255,255,255,0.1); color: #fff;
+    border: 1px solid rgba(255,255,255,0.18); border-radius: 50%;
+    width: 42px; height: 42px; cursor: pointer; font-size: 18px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .15s;
+  }
+  .lb-close:hover, .lb-prev:hover, .lb-next:hover { background: rgba(255,255,255,0.22); }
+  .lb-close { top: 18px; right: 18px; }
+  .lb-prev { left: 14px; top: 50%; transform: translateY(-50%); }
+  .lb-next { right: 14px; top: 50%; transform: translateY(-50%); }
+  .lb-count {
+    position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+    color: rgba(255,255,255,0.75); font-size: 12px; letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+  }
+  .lb-open-x {
+    position: absolute; bottom: 14px; right: 18px;
+    color: rgba(255,255,255,0.7); font-size: 12px;
+  }
+  .lb-open-x:hover { color: #fff; }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 560px) {
+    body { font-size: 14.5px; }
+    .wrap { padding: 0 13px 48px; }
+    .masthead-inner { padding: 20px 14px 16px; gap: 12px; }
+    .avatar { width: 46px; height: 46px; }
+    h1.title { font-size: 19px; }
+    .masthead-desc { font-size: 11.5px; }
+    .toolbar-inner { padding: 8px 13px; gap: 7px; }
+    #q { font-size: 13px; padding: 8px 12px 8px 32px; }
+    .chip { font-size: 12px; padding: 7px 11px; }
+    .meta-row { padding: 12px 14px 0; }
+    article.post { padding: 15px 15px 12px; border-radius: 12px; }
+    article.post::before { top: 14px; bottom: 14px; }
+    .post-text { font-size: 14.5px; line-height: 1.8; }
+    .gallery.n3 { grid-template-columns: 1fr 1fr; }
+    .lb { padding: 12px; }
+    .lb-prev { left: 6px; } .lb-next { right: 6px; }
+    .lb-close { top: 10px; right: 10px; }
+  }
+</style>
+</head>
+<body>
+<header class="masthead">
+  <div class="masthead-inner">
+    <img class="avatar" id="avatar" src="" alt="" width="56" height="56" referrerpolicy="no-referrer">
+    <div class="masthead-text">
+      <p class="masthead-kicker">imoutoid informal archive</p>
+      <h1 class="title">Blog<span class="slash">—</span><span class="latin">daily notes</span></h1>
+      <p class="masthead-desc">
+        <a href="https://x.com/imoutoid_arc" target="_blank" rel="noopener">@imoutoid_arc</a>
+        が残した日々のポストを、アーカイブとしてまとめています。
+      </p>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="toolbar-inner">
+    <label class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.2-3.2"></path></svg>
+      <input id="q" type="search" placeholder="キーワードで検索…" autocomplete="off" aria-label="記事を検索">
+    </label>
+    <button class="chip" id="onlyMedia" type="button" aria-pressed="false">
+      <span class="dot"></span>画像あり
+    </button>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="meta-row">
+    <span class="count" id="count"></span>
+    <span id="updated"></span>
+  </div>
+  <div id="feed" aria-live="polite">
+    <div class="state-box"><div class="spinner"></div>読み込み中…</div>
+  </div>
+</main>
+
+<footer class="colophon">
+  非公式アーカイブです。記事は <a href="https://x.com/imoutoid_arc" target="_blank" rel="noopener">X の @imoutoid_arc</a> の投稿から生成しています。<br>
+  <a href="https://www.imoutoid.net" target="_blank" rel="noopener">imoutoid informal archive</a>
+</footer>
+
+<div class="lb" id="lightbox" role="dialog" aria-modal="true" aria-label="画像を拡大表示">
+  <button class="lb-close" id="lbClose" type="button" aria-label="閉じる">✕</button>
+  <button class="lb-prev" id="lbPrev" type="button" aria-label="前の画像">‹</button>
+  <button class="lb-next" id="lbNext" type="button" aria-label="次の画像">›</button>
+  <img id="lbImg" src="" alt="">
+  <span class="lb-count" id="lbCount"></span>
+  <a class="lb-open-x" id="lbOpenX" href="#" target="_blank" rel="noopener">Xで見る ↗</a>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var state = { posts: [], q: '', onlyMedia: false };
+  var feed = document.getElementById('feed');
+  var countEl = document.getElementById('count');
+  var updatedEl = document.getElementById('updated');
+  var qEl = document.getElementById('q');
+  var chipEl = document.getElementById('onlyMedia');
+
+  /* ---------- helpers ---------- */
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function linkify(text) {
+    var out = esc(text);
+    // URLs
+    out = out.replace(/https?:\/\/[^\s<>"']+/g, function (url) {
+      var trail = '';
+      while (/[、。，．.,)）\]】」』!?！？…:;；]$/.test(url)) {
+        trail = url.slice(-1) + trail; url = url.slice(0, -1);
+      }
+      return '<a href="' + url + '" target="_blank" rel="noopener nofollow">' + url + '</a>' + trail;
+    });
+    // hashtags (half / full width)
+    out = out.replace(/(^|[\s\u3000>])([#＃])([^\s\u3000<#＃、。，．.!?！？()（）\[\]【】「」『』]+)/g,
+      function (m, pre, hash, tag) {
+        return pre + '<a class="tag" href="https://x.com/hashtag/' + encodeURIComponent(tag) +
+          '" target="_blank" rel="noopener nofollow">#' + tag + '</a>';
+      });
+    // mentions
+    out = out.replace(/(^|[\s\u3000>])(@)([A-Za-z0-9_]{1,15})/g, function (m, pre, at, h) {
+      return pre + '<a class="mention" href="https://x.com/' + h + '" target="_blank" rel="noopener nofollow">@' + h + '</a>';
+    });
+    return out;
+  }
+  var DTF = new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: 'numeric', day: 'numeric' });
+  var TTF = new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit', hour12: false });
+  var WF = new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo', weekday: 'short' });
+  function fmtDate(ts) {
+    var d = new Date(ts * 1000);
+    return { date: DTF.format(d), time: TTF.format(d), wd: WF.format(d) };
+  }
+  function photoUrl(u, size) {
+    var base = u.replace(/\?.*$/, '');
+    return base + '?name=' + (size || 'large');
+  }
+  function fmtNum(n) {
+    if (n == null) return '—';
+    if (n >= 10000) return (n / 10000).toFixed(1).replace(/\.0$/, '') + '万';
+    return String(n);
+  }
+
+  var ICON_X = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.53 3H20.5l-6.49 7.42L21.5 21h-5.9l-4.62-6.04L5.7 21H2.72l6.94-7.93L2.5 3h6.05l4.18 5.52L17.53 3Zm-1.04 16.2h1.64L7.6 4.72H5.84L16.49 19.2Z"></path></svg>';
+  var ICON_LIKE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.7-7.5 1.1-1.1a5.5 5.5 0 0 0 0-7.8Z"></path></svg>';
+  var ICON_RT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 22l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>';
+
+  /* ---------- rendering ---------- */
+  function postCard(p) {
+    var f = fmtDate(p.created_timestamp);
+    var hasPhotos = p.photos && p.photos.length;
+    var el = document.createElement('article');
+    el.className = 'post';
+    el.setAttribute('data-id', p.id);
+
+    var html = '';
+    html += '<div class="post-head">';
+    html += '<div class="post-date"><span class="d">' + esc(f.date) + '</span><span class="y">' + esc(f.wd) + '</span><span class="t">' + esc(f.time) + '</span></div>';
+    html += '<a class="post-open" href="' + esc(p.url) + '" target="_blank" rel="noopener">' + ICON_X + '<span>元のポスト</span></a>';
+    html += '</div>';
+
+    html += '<p class="post-text">' + linkify(p.text) + '</p>';
+
+    if (hasPhotos) {
+      var n = Math.min(p.photos.length, 4);
+      html += '<div class="media"><div class="gallery n' + n + '" data-post="' + esc(p.id) + '">';
+      for (var i = 0; i < n; i++) {
+        var ph = p.photos[i];
+        var more = (i === 3 && p.photos.length > 4) ? '<span class="more">+' + (p.photos.length - 4) + '</span>' : '';
+        html += '<figure role="button" tabindex="0" data-index="' + i + '" aria-label="画像 ' + (i + 1) + ' を拡大">' +
+          '<img src="' + esc(photoUrl(ph.url, 'large')) + '" alt="" loading="lazy" decoding="async" ' +
+          'width="' + (ph.width || '') + '" height="' + (ph.height || '') + '">' + more + '</figure>';
+      }
+      html += '</div></div>';
+    }
+
+    if (p.videos && p.videos.length) {
+      html += '<div class="media">';
+      p.videos.forEach(function (v) {
+        html += '<div class="video-box"><video controls playsinline preload="none" ' +
+          'poster="' + esc(photoUrl(v.thumbnail_url || '', 'large')) + '"' +
+          (v.width && v.height ? ' width="' + v.width + '" height="' + v.height + '"' : '') +
+          '><source src="' + esc(v.url) + '" type="video/mp4">お使いのブラウザでは動画を再生できません。</video></div>';
+      });
+      html += '</div>';
+    }
+
+    if (p.quote) {
+      var qd = p.quote.created_at ? fmtDate(Date.parse(p.quote.created_at) / 1000) : null;
+      html += '<a class="quote" href="' + esc(p.quote.url) + '" target="_blank" rel="noopener">' +
+        '<div class="q-top">引用 · <b>@' + esc(p.quote.author) + '</b>' + (qd ? ' · ' + esc(qd.date) : '') + '</div>' +
+        '<p class="q-text">' + esc(p.quote.text || '') + '</p></a>';
+    }
+
+    html += '<div class="post-foot">' +
+      '<span class="stat" title="いいね">' + ICON_LIKE + '<span class="num">' + fmtNum(p.likes) + '</span></span>' +
+      '<span class="stat" title="リポスト">' + ICON_RT + '<span class="num">' + fmtNum(p.retweets) + '</span></span>' +
+      '<span class="spacer"></span>' +
+      '<a class="post-open" href="' + esc(p.url) + '" target="_blank" rel="noopener">' + esc(String(p.id)) + '</a>' +
+      '</div>';
+
+    el.innerHTML = html;
+    return el;
+  }
+
+  function filtered() {
+    var q = state.q.trim().toLowerCase();
+    return state.posts.filter(function (p) {
+      if (state.onlyMedia && !(p.photos && p.photos.length)) return false;
+      if (!q) return true;
+      var hay = (p.text || '').toLowerCase();
+      if (p.quote && p.quote.text) hay += ' ' + p.quote.text.toLowerCase();
+      if (q.indexOf('#') === 0) hay += ' ' + (p.text || '').toLowerCase();
+      return q.split(/\s+/).every(function (w) { return hay.indexOf(w) !== -1; });
+    });
+  }
+
+  function render() {
+    var list = filtered();
+    feed.innerHTML = '';
+    if (!list.length) {
+      feed.innerHTML = '<div class="state-box"><span class="big">該当する記事がありません</span>' +
+        (state.posts.length ? '検索語を変えるか、「画像あり」を解除してみてください。' : 'まだ記事がありません。') + '</div>';
+    } else {
+      var frag = document.createDocumentFragment();
+      list.forEach(function (p) { frag.appendChild(postCard(p)); });
+      feed.appendChild(frag);
+    }
+    var total = state.posts.length;
+    countEl.innerHTML = '<b>' + list.length + '</b> 件' + (list.length !== total ? ' / 全 ' + total + ' 件' : '');
+  }
+
+  /* ---------- lightbox ---------- */
+  var lb = document.getElementById('lightbox');
+  var lbImg = document.getElementById('lbImg');
+  var lbCount = document.getElementById('lbCount');
+  var lbPrev = document.getElementById('lbPrev');
+  var lbNext = document.getElementById('lbNext');
+  var lbOpenX = document.getElementById('lbOpenX');
+  var lbState = { photos: [], i: 0, post: null };
+
+  function openLb(post, i) {
+    lbState.photos = post.photos; lbState.i = i; lbState.post = post;
+    paintLb();
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function paintLb() {
+    var ph = lbState.photos[lbState.i];
+    lbImg.src = photoUrl(ph.url, 'orig');
+    lbImg.alt = '';
+    lbCount.textContent = (lbState.i + 1) + ' / ' + lbState.photos.length;
+    lbPrev.style.display = lbNext.style.display = lbState.photos.length > 1 ? '' : 'none';
+    lbOpenX.href = lbState.post.url;
+  }
+  function closeLb() {
+    lb.classList.remove('open');
+    lbImg.src = '';
+    document.body.style.overflow = '';
+  }
+  function step(d) {
+    if (!lbState.photos.length) return;
+    lbState.i = (lbState.i + d + lbState.photos.length) % lbState.photos.length;
+    paintLb();
+  }
+  document.getElementById('lbClose').addEventListener('click', closeLb);
+  lbPrev.addEventListener('click', function (e) { e.stopPropagation(); step(-1); });
+  lbNext.addEventListener('click', function (e) { e.stopPropagation(); step(1); });
+  lb.addEventListener('click', function (e) { if (e.target === lb) closeLb(); });
+  document.addEventListener('keydown', function (e) {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLb();
+    else if (e.key === 'ArrowLeft') step(-1);
+    else if (e.key === 'ArrowRight') step(1);
+  });
+
+  feed.addEventListener('click', function (e) {
+    var fig = e.target.closest('.gallery figure');
+    if (!fig) return;
+    var g = fig.closest('.gallery');
+    var post = state.posts.filter(function (p) { return p.id === g.getAttribute('data-post'); })[0];
+    if (!post) return;
+    openLb(post, parseInt(fig.getAttribute('data-index'), 10) || 0);
+  });
+  feed.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var fig = e.target.closest('.gallery figure');
+    if (!fig) return;
+    e.preventDefault();
+    fig.click();
+  });
+
+  /* ---------- data ---------- */
+  qEl.addEventListener('input', function () {
+    state.q = qEl.value;
+    window.clearTimeout(state._t);
+    state._t = window.setTimeout(render, 110);
+  });
+  chipEl.addEventListener('click', function () {
+    state.onlyMedia = !state.onlyMedia;
+    chipEl.setAttribute('aria-pressed', state.onlyMedia ? 'true' : 'false');
+    render();
+  });
+
+  fetch('./posts.json?v=' + Date.now(), { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function (data) {
+      state.posts = (data.posts || []).slice().sort(function (a, b) {
+        return (b.created_timestamp || 0) - (a.created_timestamp || 0);
+      });
+      if (data.avatar_url) {
+        var av = document.getElementById('avatar');
+        av.src = data.avatar_url;
+        av.alt = data.name || data.account || '';
+      }
+      var u = data.updated_at ? new Date(data.updated_at) : null;
+      if (u && !isNaN(u)) {
+        updatedEl.textContent = '更新 ' + DTF.format(u) + ' ' + TTF.format(u);
+      }
+      render();
+      document.title = 'Blog (' + state.posts.length + ') | imoutoid informal archive';
+    })
+    .catch(function (err) {
+      feed.innerHTML = '<div class="state-box"><span class="big">読み込めませんでした</span>' +
+        '記事データ（posts.json）の取得に失敗しました。時間をおいて再読み込みしてください。<br><span style="font-size:11px;opacity:.7">' +
+        esc(err.message) + '</span></div>';
+    });
+})();
+</script>
+</body>
+</html>
